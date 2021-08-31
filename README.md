@@ -30,10 +30,16 @@ For running a local instance use the command:
 yarn start
 ```
 
+You can use `GET` on `/transfers` to get the transfers data
+
+````
+curl http://localhost:8000/transfers
+````
+
 
 ### Build
 
-For production build
+For production build use the command:
 
 ```
 yarn build
