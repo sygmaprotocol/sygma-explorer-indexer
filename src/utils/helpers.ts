@@ -1,6 +1,6 @@
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper";
 import { ethers } from "ethers";
-import {ChainbridgeConfig, EvmBridgeConfig} from "../indexer/chainbridgeTypes"
+import {ChainbridgeConfig, EvmBridgeConfig} from "../chainbridgeTypes"
 
 const isCelo = (networkId?: number) =>
   [42220, 44787, 62320].includes(networkId ?? 0);

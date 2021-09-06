@@ -3,7 +3,7 @@ import { ethers, utils, Event } from "ethers";
 import { PrismaClient } from "@prisma/client";
 import { getNetworkName } from "../utils/helpers";
 import { Bridge, Erc20Handler } from "@chainsafe/chainbridge-contracts";
-import { ChainbridgeConfig, EvmBridgeConfig } from "./chainbridgeTypes";
+import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes";
 
 const prisma = new PrismaClient();
 

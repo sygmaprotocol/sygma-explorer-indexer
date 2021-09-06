@@ -2,7 +2,7 @@ import {
   BridgeFactory,
   Erc20HandlerFactory,
 } from "@chainsafe/chainbridge-contracts";
-import {ChainbridgeConfig, EvmBridgeConfig} from "./chainbridgeTypes"
+import {ChainbridgeConfig, EvmBridgeConfig} from "../chainbridgeTypes"
 import { PrismaClient } from '@prisma/client'
 import { getProvider } from "../utils/helpers";
 

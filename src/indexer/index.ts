@@ -1,12 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import {ChainbridgeConfig, EvmBridgeConfig} from "./chainbridgeTypes"
+import {ChainbridgeConfig, EvmBridgeConfig} from "../chainbridgeTypes"
 import {indexer} from "./indexer";
+import chainbridgeConfig from "../chainbridge-config";
 const prisma = new PrismaClient();
 
 async function main() {
-  const config = require("../../public/chainbridge-runtime-config")
-  const chainbridgeConfig: ChainbridgeConfig = config.default.CHAINBRIDGE
-
   await prisma.$connect();
   await prisma.vote.deleteMany({});
   await prisma.proposal.deleteMany({});
