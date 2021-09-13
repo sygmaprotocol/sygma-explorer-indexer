@@ -1,11 +1,11 @@
-import { ethers, utils, Event } from "ethers";
+import { ethers } from "ethers"
 
-import { PrismaClient } from "@prisma/client";
-import { getNetworkName } from "../utils/helpers";
-import { Bridge } from "@chainsafe/chainbridge-contracts";
-import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes";
+import { PrismaClient } from "@prisma/client"
+import { getNetworkName } from "../utils/helpers"
+import { Bridge } from "@chainsafe/chainbridge-contracts"
+import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 export async function saveProposals(
   bridge: EvmBridgeConfig,
@@ -19,13 +19,13 @@ export async function saveProposals(
     null,
     null,
     null
-  );
+  )
   const proposalEventLogs = await provider.getLogs({
     ...proposalEventFilter,
     fromBlock: bridge.deployedBlockNumber,
-  });
+  })
   for (const pel of proposalEventLogs) {
-    const parsedLog = bridgeContract.interface.parseLog(pel);
+    const parsedLog = bridgeContract.interface.parseLog(pel)
     await prisma.proposal.create({
       data: {
         proposalEventBlockNumber: pel.blockNumber,
@@ -55,5 +55,5 @@ export async function saveProposals(
   };
   console.log(
     `Added ${bridge.name} ${proposalEventLogs.length} proposal events`
-  );
+  )
 }

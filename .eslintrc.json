@@ -14,7 +14,10 @@
     "plugins": [
         "@typescript-eslint"
     ],
+    "ignorePatterns": ["*.test.ts"],
     "rules": {
-        "comma-dangle": ["error", "ignore"]
+        "space-before-function-paren": ["error", "never"],
+        "quotes": ["error", "double"],
+        "comma-dangle": ["error", "only-multiline"]
     }
 }

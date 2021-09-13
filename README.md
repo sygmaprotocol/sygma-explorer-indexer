@@ -39,6 +39,14 @@ Copy the example config to public directory with command:
 ```
 yarn copy-config-for-dev
 ```
+Copy example env: 
+````
+cp .env.example .env
+````
+Generate prisma assets
+````
+npx prisma generate
+````
 
 Fetch data from blockchain:
 

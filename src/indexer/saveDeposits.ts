@@ -1,11 +1,11 @@
-import { ethers, utils, Event } from "ethers";
+import { ethers } from "ethers"
 
-import { PrismaClient } from "@prisma/client";
-import { getNetworkName } from "../utils/helpers";
-import { Bridge, Erc20Handler } from "@chainsafe/chainbridge-contracts";
-import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes";
+import { PrismaClient } from "@prisma/client"
+import { getNetworkName } from "../utils/helpers"
+import { Bridge, Erc20Handler } from "@chainsafe/chainbridge-contracts"
+import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 export async function saveDeposits(
   bridge: EvmBridgeConfig,
@@ -14,19 +14,19 @@ export async function saveDeposits(
   provider: ethers.providers.JsonRpcProvider,
   config: ChainbridgeConfig
 ) {
-  const depositFilter = bridgeContract.filters.Deposit(null, null, null);
+  const depositFilter = bridgeContract.filters.Deposit(null, null, null)
   const depositLogs = await provider.getLogs({
     ...depositFilter,
     fromBlock: bridge.deployedBlockNumber,
-  });
+  })
   for (const dl of depositLogs) {
-    const parsedLog = bridgeContract.interface.parseLog(dl);
+    const parsedLog = bridgeContract.interface.parseLog(dl)
     console.time(`Nonce: ${parsedLog.args.depositNonce}`)
-    
+
     const depositRecord = await erc20HandlerContract.getDepositRecord(
       parsedLog.args.depositNonce,
       parsedLog.args.destinationChainID
-    );
+    )
     await prisma.transfer.upsert({
       where: {
         depositNonce: parsedLog.args.depositNonce.toNumber(),
@@ -61,10 +61,8 @@ export async function saveDeposits(
         amount: BigInt(depositRecord._amount.toString()),
         resourceId: parsedLog.args.resourceID,
       },
-    });
+    })
     console.timeEnd(`Nonce: ${parsedLog.args.depositNonce}`)
-
   };
-  console.log(`Added ${bridge.name} ${depositLogs.length} deposits`);
-
+  console.log(`Added ${bridge.name} ${depositLogs.length} deposits`)
 }
