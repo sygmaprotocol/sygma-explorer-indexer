@@ -4,5 +4,6 @@ node_modules
 .env
 volumes
 data
+logs
 
 public/chainbridge-explorer-runtime-config.json
