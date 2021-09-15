@@ -27,6 +27,14 @@ model Transfer {
   timestamp Int?
   depositTransactionHash String?
   depositBlockNumber Int?
+
+  status Int @default(1)
+
+  by String? @default("0x66547208290094373f020b53465D742Ca73333F6")
+
+  sourceTokenAddress String? @default("0x00547208290094373f020b53465D742Ca73333F6")
+	destinationTokenAddress String? @default("0x01547208290094373f020b53465D742Ca73333F6")
+  
   proposals Proposal[]
   votes Vote[]
 }
@@ -40,6 +48,8 @@ model Proposal {
   timestamp Int
   transfer  Transfer?    @relation(fields: [transferId], references: [id])
   transferId  String     @db.ObjectId
+
+  by String? @default("0x66547208290094373f020b53465D742Ca73333F6")
 }
 
 model Vote {
@@ -51,4 +61,6 @@ model Vote {
   voteStatus Boolean
   transfer  Transfer?    @relation(fields: [transferId], references: [id])
   transferId  String     @db.ObjectId
+
+  by String? @default("0x66547208290094373f020b53465D742Ca73333F6")
 }

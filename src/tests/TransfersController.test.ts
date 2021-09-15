@@ -108,6 +108,10 @@ describe("Test TransfersController", () => {
       depositTransactionHash:
         "0x6679cc6180fecb446bd9b2f2cba420601e4781dae5c3be681be1ef6c27214da0",
       depositBlockNumber: 7031371,
+      by: "0x66547208290094373f020b53465D742Ca73333F6",
+      sourceTokenAddress: "0x00547208290094373f020b53465D742Ca73333F6",
+      destinationTokenAddress: "0x01547208290094373f020b53465D742Ca73333F6",
+      status: 1,
       proposals: [
         {
           proposalStatus: 1,
@@ -117,6 +121,7 @@ describe("Test TransfersController", () => {
             "0x557e71b9d44aeb230d6a4af47002a68c5a0e58f05566b42d20d9302d3eebd0d6",
           proposalEventBlockNumber: 9217370,
           timestamp: 1630511687,
+          by: "0x66547208290094373f020b53465D742Ca73333F6",
         },
         {
           proposalStatus: 2,
@@ -126,6 +131,7 @@ describe("Test TransfersController", () => {
             "0x4d742e070477ec6b05d0288da1f8ba9f8c73323e90bfb8e4d2f9fac023150bfc",
           proposalEventBlockNumber: 9217370,
           timestamp: 1630511687,
+          by: "0x66547208290094373f020b53465D742Ca73333F6",
         },
         {
           proposalStatus: 3,
@@ -135,6 +141,7 @@ describe("Test TransfersController", () => {
             "0xad4d7d7d6dc402cd49e54d8094f817f5b60105ad0f56310568a3318a84751fd7",
           proposalEventBlockNumber: 9217371,
           timestamp: 1630511702,
+          by: "0x66547208290094373f020b53465D742Ca73333F6",
         },
       ],
       votes: [
@@ -145,6 +152,7 @@ describe("Test TransfersController", () => {
           dataHash: null,
           timestamp: 1630511687,
           voteStatus: true,
+          by: "0x66547208290094373f020b53465D742Ca73333F6",
         },
         {
           voteBlockNumber: 9217370,
@@ -153,6 +161,7 @@ describe("Test TransfersController", () => {
           dataHash: null,
           timestamp: 1630511687,
           voteStatus: true,
+          by: "0x66547208290094373f020b53465D742Ca73333F6",
         },
       ],
     });
