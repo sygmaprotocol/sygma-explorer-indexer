@@ -1,13 +1,32 @@
-import { NextFunction, Request, Response, Router } from 'express';
-export const TransfersController: Router = Router();
+import { NextFunction, Request, Response, Router } from "express"
+import { PrismaClient } from "@prisma/client"
 
-import transfersData from '../fixtures/transferData'
+import { jsonStringifyWithBigInt } from "../utils/helpers"
+export const TransfersController: Router = Router()
 
+const prisma = new PrismaClient()
 
-TransfersController.get('/', async (req: Request, res: Response, next: NextFunction) => {
+TransfersController.get(
+  "/",
+  async(req: Request, res: Response, next: NextFunction) => {
     try {
-        res.status(200).json(transfersData);
+      console.time("res")
+      await prisma.$connect()
+      const transfers = await prisma.transfer.findMany({
+        include: {
+          proposals: true,
+          votes: true,
+        },
+      })
+      const transferSerialized = jsonStringifyWithBigInt(transfers)
+
+      res.setHeader("Content-Type", "application/json")
+      res.status(200).send(transferSerialized)
+
+      await prisma.$disconnect()
+      console.timeEnd("res")
     } catch (e) {
-        next(e);
+      next(e)
     }
-});
+  }
+)
