@@ -2,6 +2,7 @@
   "name": "chainbridge-explorer-indexer",
   "version": "1.0.0",
   "main": "index.js",
+  "license": "UNLICENSED",
   "scripts": {
     "start:dev": "nodemon",
     "start:prod": "node /build/index.js",
