@@ -26,10 +26,9 @@ class TransfesService {
       if (transfer.proposals && transfer.proposals.length > 0) {
         const proposalStatus = [...transfer.proposals].sort((a, b) => b.timestamp - a.timestamp)[0].proposalStatus
         transfer.status = proposalStatus
-      } else if (transfer.votes && transfer.votes.length >= 1) {
-        transfer.status = 1
       } else {
-        transfer.status = 0
+        // Active status by default
+        transfer.status = 1
       }
       return transfer
     })

@@ -185,7 +185,7 @@ describe("Test TransfersController", () => {
         by: "0x66547208290094373f020b53465D742Ca73333F6",
         sourceTokenAddress: "0x00547208290094373f020b53465D742Ca73333F6",
         destinationTokenAddress: "0x01547208290094373f020b53465D742Ca73333F6",
-        status: 0,
+        status: 1,
         proposals: [],
         votes: [],
       })
