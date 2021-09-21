@@ -26,7 +26,7 @@ export async function saveProposals(
   })
   for (const pel of proposalEventLogs) {
     const tx = await provider.getTransaction(pel.transactionHash)
-    const transactionSenderAddress = tx.from
+    const { from: transactionSenderAddress } = tx
     const parsedLog = bridgeContract.interface.parseLog(pel)
 
     await prisma.proposal.create({
