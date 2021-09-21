@@ -25,7 +25,10 @@ export async function saveProposals(
     fromBlock: bridge.deployedBlockNumber,
   })
   for (const pel of proposalEventLogs) {
+    const tx = await provider.getTransaction(pel.transactionHash)
+    const { from: transactionSenderAddress } = tx
     const parsedLog = bridgeContract.interface.parseLog(pel)
+
     await prisma.proposal.create({
       data: {
         proposalEventBlockNumber: pel.blockNumber,
@@ -34,7 +37,7 @@ export async function saveProposals(
         timestamp: (await provider.getBlock(pel.blockNumber))
           .timestamp,
         proposalStatus: parsedLog.args.status,
-
+        by: transactionSenderAddress,
         transfer: {
           connectOrCreate: {
             where: {
@@ -46,7 +49,7 @@ export async function saveProposals(
               fromChainId: parsedLog.args.originChainID,
               fromNetworkName: getNetworkName(parsedLog.args.originChainID, config),
               toChainId: bridge.chainId,
-              toNetworkName: bridge.name,
+              toNetworkName: bridge.name
             }
           }
         }

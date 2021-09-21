@@ -25,6 +25,8 @@ export async function saveVotes(
     fromBlock: bridge.deployedBlockNumber,
   })
   for (const pvl of proposalVoteLogs) {
+    const tx = await provider.getTransaction(pvl.transactionHash)
+    const { from: transactionSenderAddress } = tx
     const parsedLog = bridgeContract.interface.parseLog(pvl)
 
     await prisma.vote.create({
@@ -34,6 +36,7 @@ export async function saveVotes(
         dataHash: parsedLog.args.dataHash,
         timestamp: (await provider.getBlock(pvl.blockNumber)).timestamp,
         voteStatus: Boolean(parsedLog.args.status),
+        by: transactionSenderAddress,
 
         transfer: {
           connectOrCreate: {
