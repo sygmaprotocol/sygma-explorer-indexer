@@ -28,8 +28,6 @@ model Transfer {
   depositTransactionHash String?
   depositBlockNumber Int?
 
-  status Int @default(1)
-
   by String? @default("0x66547208290094373f020b53465D742Ca73333F6")
 
   sourceTokenAddress String? @default("0x00547208290094373f020b53465D742Ca73333F6")
