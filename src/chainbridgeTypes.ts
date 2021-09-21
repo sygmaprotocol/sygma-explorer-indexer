@@ -15,8 +15,6 @@ export type BridgeConfig = {
   name: string;
   rpcUrl: string;
   type: ChainType;
-  tokens: TokenConfig[];
-  nativeTokenSymbol: string;
   decimals: number;
 };
 
@@ -24,10 +22,7 @@ export type EvmBridgeConfig = BridgeConfig & {
   bridgeAddress: string;
   erc20HandlerAddress: string;
   type: "Ethereum";
-  // This should be the full path to display a tx hash, without the trailing slash, ie. https://etherscan.io/tx
-  blockExplorer?: string;
-  defaultGasPrice?: number;
-  deployedBlockNumber?: number;
+  deployedBlockNumber: number;
 };
 
 export type SubstrateBridgeConfig = BridgeConfig & {

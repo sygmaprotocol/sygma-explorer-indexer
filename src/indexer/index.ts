@@ -27,7 +27,7 @@ main()
     console.error(e)
     throw e
   })
-  .finally(async () => {
+  .finally(async() => {
     await prisma.$disconnect()
     console.log("disconnect")
     process.exit()
