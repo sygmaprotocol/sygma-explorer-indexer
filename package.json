@@ -9,6 +9,7 @@
     "build": "tsc",
     "test": "dotenv -e .env.test jest -i --forceExit --detectOpenHandles",
     "copy-config-for-dev": "cp ./config/chainbridge-explorer-runtime-config.example.json ./public/chainbridge-explorer-runtime-config.json",
+    "prisma:generate": "prisma generate",
     "index:fetch": "ts-node src/indexer",
     "index:fetch:prod": "docker-compose -f docker-compose.full.yml run nodejs node build/indexer/index.js",
     "index:resetDB": "ts-node src/indexer/resetDB",
@@ -18,7 +19,10 @@
     "stop:mongo": "docker-compose -f docker-compose.only-mongo.yml down",
     "start:full": "docker-compose -f docker-compose.full.yml up -d",
     "start:stop": "docker-compose -f docker-compose.full.yml down",
-    "build:nodejs:container": "docker-compose -f docker-compose.full.yml build nodejs"
+    "build:nodejs:container": "docker-compose -f docker-compose.full.yml build nodejs",
+    "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod",
+    "deploy:dev": "pm2 start ecosystem.config.js --only \"dev,worker\"",
+    "start:worker": "ts-node -r tsconfig-paths/register --transpile-only src/indexer-worker/index.ts"
   },
   "dependencies": {
     "@celo-tools/celo-ethers-wrapper": "^0.0.5",
@@ -27,7 +31,8 @@
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "ethers": "^5.4.6",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "pm2": "^5.1.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
