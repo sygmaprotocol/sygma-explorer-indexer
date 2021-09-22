@@ -29,8 +29,10 @@ export async function pollVotes(
       resourceId: string,
       tx: Event
     ) => {
+      const eventTransaction = await provider.getTransaction(tx.transactionHash)
+      const { from: transactionSenderAddress } = eventTransaction
       console.log("🚀 ~ file: pollVotes.ts ~ line 32 ~ tx", tx)
-      
+
       await prisma.vote.create({
         data: {
           voteBlockNumber: tx.blockNumber,
@@ -38,6 +40,7 @@ export async function pollVotes(
           dataHash: "", // TODO: Confirm whether this is available
           timestamp: (await provider.getBlock(tx.blockNumber)).timestamp,
           voteStatus: Boolean(status),
+          by: transactionSenderAddress,
           transfer: {
             connectOrCreate: {
               where: {

@@ -31,6 +31,8 @@ export async function pollProposals(
       dataHash: string,
       tx: Event
     ) => {
+      const eventTransaction = await provider.getTransaction(tx.transactionHash)
+      const { from: transactionSenderAddress } = eventTransaction
       console.log("🚀 ~ file: pollProposals.ts ~ line 34 ~ tx", tx)
       await prisma.proposal.create({
         data: {
@@ -40,6 +42,7 @@ export async function pollProposals(
           timestamp: (await provider.getBlock(tx.blockNumber))
             .timestamp,
           proposalStatus: status,
+          by: transactionSenderAddress,
           transfer: {
             connectOrCreate: {
               where: {
