@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client"
 import { getNetworkName } from "../utils/helpers"
 import { Bridge, Erc20Handler } from "@chainsafe/chainbridge-contracts"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
+import { getDestinationTokenAddress } from "../utils/getDestinationTokenAddress"
 
 const prisma = new PrismaClient()
 
@@ -29,7 +30,7 @@ export async function pollDeposits(
       )
       console.log("🚀 ~ file: pollDeposits.ts ~ line 30 ~ depositRecord", depositRecord)
       console.time(`Nonce: ${depositNonce}`)
-
+      const destinationTokenAddress = await getDestinationTokenAddress(depositRecord._resourceID, depositRecord._destinationChainID, config)
       await prisma.transfer.upsert({
         where: {
           depositNonce: depositNonce.toNumber(),
@@ -46,6 +47,8 @@ export async function pollDeposits(
           toNetworkName: getNetworkName(destChainId, config),
           toAddress: depositRecord._destinationRecipientAddress,
           tokenAddress: depositRecord._tokenAddress,
+          sourceTokenAddress: depositRecord._tokenAddress,
+          destinationTokenAddress: destinationTokenAddress,
           amount: BigInt(depositRecord._amount.toString()),
           resourceId: resourceId,
         },
@@ -61,6 +64,8 @@ export async function pollDeposits(
           toNetworkName: getNetworkName(destChainId, config),
           toAddress: depositRecord._destinationRecipientAddress,
           tokenAddress: depositRecord._tokenAddress,
+          sourceTokenAddress: depositRecord._tokenAddress,
+          destinationTokenAddress: destinationTokenAddress,
           amount: BigInt(depositRecord._amount.toString()),
           resourceId: resourceId,
         },

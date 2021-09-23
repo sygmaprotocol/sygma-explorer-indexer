@@ -15,6 +15,8 @@ const transferData = {
   fromAddress: "0x284D2Cb760D5A952f9Ea61fd3179F98a2CbF0B3E",
   toAddress: "0x42da3ba8c586f6fe9ef6ed1d09423eb73e4fe25b",
   tokenAddress: "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
+  sourceTokenAddress: "0x00547208290094373f020b53465D742Ca73333F6",
+  destinationTokenAddress: "0x01547208290094373f020b53465D742Ca73333F6",
   amount: parseInt("1000000000000000000n"),
   timestamp: 1630511631,
   depositTransactionHash: "0x6679cc6180fecb446bd9b2f2cba420601e4781dae5c3be681be1ef6c27214da0",
