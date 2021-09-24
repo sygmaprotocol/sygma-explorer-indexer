@@ -32,8 +32,7 @@ export async function pollVotes(
       const eventTransaction = await provider.getTransaction(tx.transactionHash)
       const { from: transactionSenderAddress } = eventTransaction
       console.log("🚀 ~ file: pollVotes.ts ~ line 32 ~ tx", tx)
-
-      await prisma.vote.create({
+      await prisma.voteEvent.create({
         data: {
           voteBlockNumber: tx.blockNumber,
           voteTransactionHash: tx.transactionHash,

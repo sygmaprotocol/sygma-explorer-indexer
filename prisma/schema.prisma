@@ -33,11 +33,11 @@ model Transfer {
   sourceTokenAddress String? 
 	destinationTokenAddress String?
   
-  proposals Proposal[]
-  votes Vote[]
+  proposalEvents ProposalEvent[]
+  voteEvents VoteEvent[]
 }
 
-model Proposal {
+model ProposalEvent {
   id      String @id @default(dbgenerated()) @map("_id") @db.ObjectId
   proposalStatus Int
   dataHash String?
@@ -50,7 +50,7 @@ model Proposal {
   by String
 }
 
-model Vote {
+model VoteEvent {
   id      String @id @default(dbgenerated()) @map("_id") @db.ObjectId
   voteBlockNumber Int
   voteTransactionHash String?

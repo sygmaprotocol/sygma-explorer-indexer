@@ -34,7 +34,7 @@ export async function pollProposals(
       const eventTransaction = await provider.getTransaction(tx.transactionHash)
       const { from: transactionSenderAddress } = eventTransaction
       console.log("🚀 ~ file: pollProposals.ts ~ line 34 ~ tx", tx)
-      await prisma.proposal.create({
+      await prisma.proposalEvent.create({
         data: {
           proposalEventBlockNumber: tx.blockNumber,
           proposalEventTransactionHash: tx.transactionHash,

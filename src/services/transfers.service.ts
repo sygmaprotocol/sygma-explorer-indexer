@@ -1,9 +1,9 @@
-import { PrismaClient, Transfer, Proposal, Vote } from "@prisma/client"
+import { PrismaClient, Transfer, ProposalEvent, VoteEvent } from "@prisma/client"
 
 type TransfersWithStatus = (Transfer & {
   status?: number,
-  proposals: Proposal[]
-  votes: Vote[]
+  proposalEvents: ProposalEvent[]
+  voteEvents: VoteEvent[]
 })[]
 
 class TransfesService {
@@ -12,8 +12,8 @@ class TransfesService {
   public async findAllTransfes() {
     const transfers: TransfersWithStatus = await this.transfers.findMany({
       include: {
-        proposals: true,
-        votes: true,
+        proposalEvents: true,
+        voteEvents: true,
       },
     })
     return this.addLatestStatusToTransfer(transfers)
@@ -23,8 +23,8 @@ class TransfesService {
     transfers: TransfersWithStatus,
   ) {
     return transfers.map(transfer => {
-      if (transfer.proposals && transfer.proposals.length > 0) {
-        const proposalStatus = [...transfer.proposals].sort((a, b) => b.timestamp - a.timestamp)[0].proposalStatus
+      if (transfer.proposalEvents && transfer.proposalEvents.length > 0) {
+        const proposalStatus = [...transfer.proposalEvents].sort((a, b) => b.timestamp - a.timestamp)[0].proposalStatus
         transfer.status = proposalStatus
       } else {
         // Active status by default

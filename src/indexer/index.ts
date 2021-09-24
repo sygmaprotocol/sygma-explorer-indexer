@@ -11,8 +11,8 @@ async function main() {
   )
   await prisma.$connect()
 
-  await prisma.vote.deleteMany({})
-  await prisma.proposal.deleteMany({})
+  await prisma.voteEvent.deleteMany({})
+  await prisma.proposalEvent.deleteMany({})
   await prisma.transfer.deleteMany({})
 
   const evmBridges = chainbridgeConfig.chains.filter(

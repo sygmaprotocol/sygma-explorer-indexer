@@ -21,7 +21,7 @@ const transferData = {
   timestamp: 1630511631,
   depositTransactionHash: "0x6679cc6180fecb446bd9b2f2cba420601e4781dae5c3be681be1ef6c27214da0",
   depositBlockNumber: 7031371,
-  proposals: {
+  proposalEvents: {
     create: [
       {
         proposalStatus: 1,
@@ -49,7 +49,7 @@ const transferData = {
       },
     ],
   },
-  votes: {
+  voteEvents: {
     create: [
       {
         voteBlockNumber: 9217370,
@@ -73,14 +73,14 @@ const transferData = {
 
 describe("Test TransfersController", () => {
   afterEach(async () => {
-    await prisma.vote.deleteMany({})
-    await prisma.proposal.deleteMany({})
+    await prisma.voteEvent.deleteMany({})
+    await prisma.proposalEvent.deleteMany({})
     await prisma.transfer.deleteMany({})
 
     await prisma.$disconnect()
   })
 
-  describe("with proposals and votes", () => {
+  describe("with proposalEvents and voteEvents", () => {
     beforeEach(async () => {
       await prisma.transfer.create({
         data: transferData,
@@ -88,7 +88,7 @@ describe("Test TransfersController", () => {
       console.log("✨ 1 transfer successfully created!")
     })
 
-    it("Request /transfers should return one transfer with proposals and votes", async () => {
+    it("Request /transfers should return one transfer with proposalEvents and voteEvents", async () => {
       const result = await request(app).get("/transfers").send()
 
       expect(result.status).toBe(200)
@@ -109,7 +109,7 @@ describe("Test TransfersController", () => {
         sourceTokenAddress: "0x00547208290094373f020b53465D742Ca73333F6",
         destinationTokenAddress: "0x01547208290094373f020b53465D742Ca73333F6",
         status: 3,
-        proposals: [
+        proposalEvents: [
           {
             proposalStatus: 1,
             dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
@@ -135,7 +135,7 @@ describe("Test TransfersController", () => {
             by: "0x66547208290094373f020b53465D742Ca73333F6",
           },
         ],
-        votes: [
+        voteEvents: [
           {
             voteBlockNumber: 9217370,
             voteTransactionHash: "0x557e71b9d44aeb230d6a4af47002a68c5a0e58f05566b42d20d9302d3eebd0d6",
@@ -157,12 +157,12 @@ describe("Test TransfersController", () => {
     })
   })
 
-  describe("NO proposals and NO votes", () => {
+  describe("NO proposalEvents and NO voteEvents", () => {
     beforeEach(async () => {
       const alteredTransferData = {
         ...transferData,
-        proposals: {},
-        votes: {},
+        proposalEvents: {},
+        voteEvents: {},
       }
       await prisma.transfer.create({
         data: alteredTransferData,
@@ -170,7 +170,7 @@ describe("Test TransfersController", () => {
       console.log("✨ 1 transfer successfully created!")
     })
 
-    it("Request /transfers should return one transfer with NO proposals and NO votes", async () => {
+    it("Request /transfers should return one transfer with NO proposalEvents and NO voteEvents", async () => {
       const result = await request(app).get("/transfers").send()
 
       expect(result.status).toBe(200)
@@ -191,17 +191,17 @@ describe("Test TransfersController", () => {
         sourceTokenAddress: "0x00547208290094373f020b53465D742Ca73333F6",
         destinationTokenAddress: "0x01547208290094373f020b53465D742Ca73333F6",
         status: 1,
-        proposals: [],
-        votes: [],
+        proposalEvents: [],
+        voteEvents: [],
       })
     })
   })
 
-  describe("with votes and NO proposals", () => {
+  describe("with voteEvents and NO proposalEvents", () => {
     beforeEach(async () => {
       const alteredTransferData = {
         ...transferData,
-        proposals: {},
+        proposalEvents: {},
       }
       await prisma.transfer.create({
         data: alteredTransferData,
@@ -209,8 +209,8 @@ describe("Test TransfersController", () => {
       console.log("✨ 1 transfer successfully created!")
     })
 
-    it("Request /transfers should return one transfer with votes and NO proposals", async () => {
-      await prisma.proposal.deleteMany({})
+    it("Request /transfers should return one transfer with voteEvents and NO proposalEvents", async () => {
+      await prisma.proposalEvent.deleteMany({})
       const result = await request(app).get("/transfers").send()
 
       expect(result.status).toBe(200)
@@ -231,8 +231,8 @@ describe("Test TransfersController", () => {
         sourceTokenAddress: "0x00547208290094373f020b53465D742Ca73333F6",
         destinationTokenAddress: "0x01547208290094373f020b53465D742Ca73333F6",
         status: 1,
-        proposals: [],
-        votes: [
+        proposalEvents: [],
+        voteEvents: [
           {
             voteBlockNumber: 9217370,
             voteTransactionHash: "0x557e71b9d44aeb230d6a4af47002a68c5a0e58f05566b42d20d9302d3eebd0d6",
