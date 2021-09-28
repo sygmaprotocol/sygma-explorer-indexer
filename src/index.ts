@@ -2,7 +2,7 @@ import cors from "cors"
 import errorMiddleware from "./middlewares/error.middleware"
 import { app } from "./app"
 
-const PORT = 8000
+const PORT = process.env.PORT || 8000
 
 app.use(
   cors({

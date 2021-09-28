@@ -7,8 +7,8 @@ async function resetDB() {
 
   console.log("You're DB will be cleaned")
 
-  await prisma.vote.deleteMany({})
-  await prisma.proposal.deleteMany({})
+  await prisma.voteEvent.deleteMany({})
+  await prisma.proposalEvent.deleteMany({})
   await prisma.transfer.deleteMany({})
 
   await prisma.$disconnect()

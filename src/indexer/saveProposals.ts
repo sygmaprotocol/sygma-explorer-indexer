@@ -29,7 +29,7 @@ export async function saveProposals(
     const { from: transactionSenderAddress } = tx
     const parsedLog = bridgeContract.interface.parseLog(pel)
 
-    await prisma.proposal.create({
+    await prisma.proposalEvent.create({
       data: {
         proposalEventBlockNumber: pel.blockNumber,
         proposalEventTransactionHash: pel.transactionHash,

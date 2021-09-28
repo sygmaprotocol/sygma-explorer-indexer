@@ -30,14 +30,14 @@ model Transfer {
 
   status Int @default(1)
 
-  sourceTokenAddress String? @default("0x00547208290094373f020b53465D742Ca73333F6")
-	destinationTokenAddress String? @default("0x01547208290094373f020b53465D742Ca73333F6")
+  sourceTokenAddress String? 
+	destinationTokenAddress String?
   
-  proposals Proposal[]
-  votes Vote[]
+  proposalEvents ProposalEvent[]
+  voteEvents VoteEvent[]
 }
 
-model Proposal {
+model ProposalEvent {
   id      String @id @default(dbgenerated()) @map("_id") @db.ObjectId
   proposalStatus Int
   dataHash String?
@@ -50,7 +50,7 @@ model Proposal {
   by String
 }
 
-model Vote {
+model VoteEvent {
   id      String @id @default(dbgenerated()) @map("_id") @db.ObjectId
   voteBlockNumber Int
   voteTransactionHash String?

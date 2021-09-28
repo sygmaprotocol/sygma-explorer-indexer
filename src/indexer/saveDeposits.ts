@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client"
 import { getNetworkName } from "../utils/helpers"
 import { Bridge, Erc20Handler } from "@chainsafe/chainbridge-contracts"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
+import { getDestinationTokenAddress } from "../utils/getDestinationTokenAddress"
 
 const prisma = new PrismaClient()
 
@@ -27,6 +28,7 @@ export async function saveDeposits(
       parsedLog.args.depositNonce,
       parsedLog.args.destinationChainID
     )
+    const destinationTokenAddress = await getDestinationTokenAddress(depositRecord._resourceID, depositRecord._destinationChainID, config)
     await prisma.transfer.upsert({
       where: {
         depositNonce: parsedLog.args.depositNonce.toNumber(),
@@ -43,6 +45,8 @@ export async function saveDeposits(
         toNetworkName: getNetworkName(parsedLog.args.destinationChainID, config),
         toAddress: depositRecord._destinationRecipientAddress,
         tokenAddress: depositRecord._tokenAddress,
+        sourceTokenAddress: depositRecord._tokenAddress,
+        destinationTokenAddress: destinationTokenAddress,
         amount: BigInt(depositRecord._amount.toString()),
         resourceId: parsedLog.args.resourceID,
       },
@@ -58,6 +62,8 @@ export async function saveDeposits(
         toNetworkName: getNetworkName(parsedLog.args.destinationChainID, config),
         toAddress: depositRecord._destinationRecipientAddress,
         tokenAddress: depositRecord._tokenAddress,
+        sourceTokenAddress: depositRecord._tokenAddress,
+        destinationTokenAddress: destinationTokenAddress,
         amount: BigInt(depositRecord._amount.toString()),
         resourceId: parsedLog.args.resourceID,
       },

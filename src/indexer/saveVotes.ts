@@ -29,7 +29,7 @@ export async function saveVotes(
     const { from: transactionSenderAddress } = tx
     const parsedLog = bridgeContract.interface.parseLog(pvl)
 
-    await prisma.vote.create({
+    await prisma.voteEvent.create({
       data: {
         voteBlockNumber: pvl.blockNumber,
         voteTransactionHash: pvl.transactionHash,
