@@ -49,7 +49,7 @@ export async function pollDeposits(
           tokenAddress: depositRecord._tokenAddress,
           sourceTokenAddress: depositRecord._tokenAddress,
           destinationTokenAddress: destinationTokenAddress,
-          amount: BigInt(depositRecord._amount.toString()),
+          amount: depositRecord._amount.toString(),
           resourceId: resourceId,
         },
         update: {
@@ -66,7 +66,7 @@ export async function pollDeposits(
           tokenAddress: depositRecord._tokenAddress,
           sourceTokenAddress: depositRecord._tokenAddress,
           destinationTokenAddress: destinationTokenAddress,
-          amount: BigInt(depositRecord._amount.toString()),
+          amount: depositRecord._amount.toString(),
           resourceId: resourceId,
         },
       })

@@ -13,6 +13,7 @@ generator client {
 
 model Transfer {
   id          String    @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  uuid  String @default(uuid()) @map("uuid")  
   depositNonce Int @unique
   resourceId String
   fromChainId Int
@@ -23,7 +24,7 @@ model Transfer {
   fromAddress String?
   toAddress String?
   tokenAddress String?
-  amount BigInt?
+  amount String?
   timestamp Int?
   depositTransactionHash String?
   depositBlockNumber Int?

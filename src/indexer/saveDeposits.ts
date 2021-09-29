@@ -28,12 +28,11 @@ export async function saveDeposits(
       parsedLog.args.depositNonce,
       parsedLog.args.destinationChainID
     )
+    const depositNonce = parsedLog.args.depositNonce.toNumber()
     const destinationTokenAddress = await getDestinationTokenAddress(depositRecord._resourceID, depositRecord._destinationChainID, config)
-    await prisma.transfer.upsert({
-      where: {
-        depositNonce: parsedLog.args.depositNonce.toNumber(),
-      },
-      create: {
+    let dataTransfer
+    try {
+      dataTransfer = {
         depositNonce: parsedLog.args.depositNonce.toNumber(),
         fromAddress: depositRecord._depositer,
         depositBlockNumber: dl.blockNumber,
@@ -47,27 +46,21 @@ export async function saveDeposits(
         tokenAddress: depositRecord._tokenAddress,
         sourceTokenAddress: depositRecord._tokenAddress,
         destinationTokenAddress: destinationTokenAddress,
-        amount: BigInt(depositRecord._amount.toString()),
+        amount: depositRecord._amount.toString(),
         resourceId: parsedLog.args.resourceID,
-      },
-      update: {
-        depositNonce: parsedLog.args.depositNonce.toNumber(),
-        fromAddress: depositRecord._depositer,
-        depositBlockNumber: dl.blockNumber,
-        depositTransactionHash: dl.transactionHash,
-        fromChainId: bridge.chainId,
-        fromNetworkName: bridge.name,
-        timestamp: (await provider.getBlock(dl.blockNumber)).timestamp,
-        toChainId: parsedLog.args.destinationChainID,
-        toNetworkName: getNetworkName(parsedLog.args.destinationChainID, config),
-        toAddress: depositRecord._destinationRecipientAddress,
-        tokenAddress: depositRecord._tokenAddress,
-        sourceTokenAddress: depositRecord._tokenAddress,
-        destinationTokenAddress: destinationTokenAddress,
-        amount: BigInt(depositRecord._amount.toString()),
-        resourceId: parsedLog.args.resourceID,
-      },
-    })
+      }
+      await prisma.transfer.upsert({
+        where: {
+          depositNonce: depositNonce
+        },
+        create: dataTransfer,
+        update: dataTransfer,
+      })
+    } catch (error) {
+      console.error(error)
+      console.error(depositNonce)
+      console.error(dataTransfer)
+    }
     console.timeEnd(`Nonce: ${parsedLog.args.depositNonce}`)
   };
   console.log(`Added ${bridge.name} ${depositLogs.length} deposits`)
