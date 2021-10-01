@@ -15,7 +15,6 @@ TransfersController.get(
   "/",
   async(req: Request, res: Response, next: NextFunction) => {
     try {
-      console.time("res")
       const page = parseInt(req.query.page?.toString() ?? DEFAULT_PAGE_NUMBER)
       const limit = parseInt(req.query.limit?.toString() ?? DEFAULT_LIMIT_NUMBER)
       const skipIndex = (page - 1) * limit
@@ -25,8 +24,6 @@ TransfersController.get(
 
       res.setHeader("Content-Type", "application/json")
       res.status(200).send(transferSerialized)
-
-      console.timeEnd("res")
     } catch (e) {
       next(e)
     }
