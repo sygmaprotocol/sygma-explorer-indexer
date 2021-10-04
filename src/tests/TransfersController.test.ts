@@ -1,4 +1,7 @@
 import request from "supertest"
+import path from 'path';
+
+require('dotenv').config({ path: path.resolve(__dirname, './.env.test') });
 import { PrismaClient } from "@prisma/client"
 
 import { app } from "../app"
@@ -77,6 +80,9 @@ describe("Test TransfersController", () => {
     await prisma.proposalEvent.deleteMany({})
     await prisma.transfer.deleteMany({})
 
+  })
+
+  afterAll( async () => {
     await prisma.$disconnect()
   })
 

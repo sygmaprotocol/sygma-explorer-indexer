@@ -7,7 +7,7 @@
     "start:dev": "nodemon",
     "start:prod": "node /build/index.js",
     "build": "tsc",
-    "test": "dotenv -e .env.test jest -i --forceExit --detectOpenHandles",
+    "test": "jest -i --forceExit --detectOpenHandles",
     "copy-config-for-dev": "cp ./config/chainbridge-explorer-runtime-config.example.json ./public/chainbridge-explorer-runtime-config.json",
     "prisma:generate": "prisma generate",
     "index:fetch": "ts-node src/indexer",
@@ -30,6 +30,7 @@
     "@prisma/client": "^2.30.2",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
+    "dotenv-flow": "^3.2.0",
     "ethers": "^5.4.6",
     "express": "^4.17.1",
     "pm2": "^5.1.2"

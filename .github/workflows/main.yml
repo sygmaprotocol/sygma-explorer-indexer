@@ -1,0 +1,24 @@
+name: CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run the tests
+    steps:
+      - uses: actions/checkout@v2
+      - name: Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install -g yarn    
+      - name: yarn install, build and test
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: | 
+          yarn 
+          yarn build
+          yarn test
