@@ -2,8 +2,18 @@ name: CI
 on:
   push:
     branches: [ main ]
+      # when any of these versions receive a push
+    tags:
+      - "v*.*.*"
   pull_request:
     branches: [ main ]
+    tags:
+      - "v*.*.*"
+
+  # when any releases are created
+  release:
+    types:
+      - created   
 
 env:
   FORCE_COLOR: 2
