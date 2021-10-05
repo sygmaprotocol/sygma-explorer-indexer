@@ -24,6 +24,7 @@ jobs:
     name: Run the tests
     steps:
       - uses: actions/checkout@v2
+      - uses: c-hive/gha-yarn-cache@v2
       - name: Node.js
         uses: actions/setup-node@v1
         with:
@@ -43,7 +44,7 @@ jobs:
     # requires these jobs to run first
     needs: [test]
     # if check not passed, job will be skipped
-    if: github.ref == 'refs/heads/main' || contains(github.ref, '/tags/v')
+    # if: github.ref == 'refs/heads/main' || contains(github.ref, '/tags/v')
     # list steps
     steps:
     # prepares docker images
