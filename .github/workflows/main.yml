@@ -43,7 +43,7 @@ jobs:
     # requires these jobs to run first
     needs: [test]
     # if check not passed, job will be skipped
-    # if: github.ref == 'refs/heads/main' || contains(github.ref, '/tags/v')
+    if: github.ref == 'refs/heads/main' || contains(github.ref, '/tags/v')
     # list steps
     steps:
     # prepares docker images
@@ -52,22 +52,23 @@ jobs:
         run: |
           # creates local variable of chainbridge docker image
           DOCKER_IMAGE=chainsafe/chainbridge-explorer-indexer
-
+          echo DOCKER_IMAGE $DOCKER_IMAGE
           # creates local variable of commit hash that triggered workflow
           COMMIT_HASH=$(echo $GITHUB_SHA | head -c7)
-
+          echo COMMIT_HASH $COMMIT_HASH
           # creates local variable to hold docker images
           TAGS="${DOCKER_IMAGE}:${COMMIT_HASH},${DOCKER_IMAGE}:latest"
-
+          echo TAGS $TAGS
           # check if branch/tag that triggered workflow was from tags
+          echo GITHUB_REF $GITHUB_REF
           if [[ $GITHUB_REF == refs/tags/* ]]; then
 
             # set version 
-            VERSION=${GITHUB_REF#refs/tags/}
-
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo VERSION $VERSION
             # append version to tags
             TAGS="${TAGS},${DOCKER_IMAGE}:${VERSION}"
-
+            echo TAGS REFS $TAGS
           fi
 
           # sets output of step
