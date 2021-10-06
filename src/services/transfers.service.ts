@@ -18,6 +18,11 @@ class TransfesService {
     const transfers: TransfersWithStatus = await this.transfers.findMany({
       take: limit,
       skip: skipIndex,
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+      ],
       include: {
         proposalEvents: true,
         voteEvents: true,
