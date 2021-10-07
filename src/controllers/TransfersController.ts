@@ -29,3 +29,35 @@ TransfersController.get(
     }
   }
 )
+
+TransfersController.get(
+  "/:id",
+  async(req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
+      const transfer = await transfersService.findTransfer({ id })
+      const transferSerialized = jsonStringifyWithBigInt(transfer)
+
+      res.setHeader("Content-Type", "application/json")
+      res.status(200).send(transferSerialized)
+    } catch (e) {
+      next(e)
+    }
+  }
+)
+
+TransfersController.get(
+  "/byTransactionHash/:hash",
+  async(req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { hash } = req.params
+      const transfer = await transfersService.findTransferByTransactionHash({ hash })
+      const transferSerialized = jsonStringifyWithBigInt(transfer)
+
+      res.setHeader("Content-Type", "application/json")
+      res.status(200).send(transferSerialized)
+    } catch (e) {
+      next(e)
+    }
+  }
+)

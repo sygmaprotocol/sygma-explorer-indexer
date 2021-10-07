@@ -11,8 +11,26 @@ type AllTransfersOption = {
   skipIndex: number
 }
 
+type TransferOption = {
+  id: string
+}
+
+type TransferByHashOption = {
+  hash: string
+}
+
 class TransfesService {
   public transfers = new PrismaClient().transfer
+
+  public async findTransfer({ id }: TransferOption) {
+    const transfer = await this.transfers.findUnique({ where: { id } })
+    return transfer
+  }
+
+  public async findTransferByTransactionHash({ hash }: TransferByHashOption) {
+    const transfer = await this.transfers.findUnique({ where: { depositTransactionHash: hash } })
+    return transfer
+  }
 
   public async findAllTransfes({ limit, skipIndex }: AllTransfersOption) {
     const transfers: TransfersWithStatus = await this.transfers.findMany({
