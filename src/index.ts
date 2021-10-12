@@ -1,14 +1,8 @@
-import cors from "cors"
 import errorMiddleware from "./middlewares/error.middleware"
 import { app } from "./app"
 
 const PORT = process.env.PORT || 8000
 
-app.use(
-  cors({
-    origin: "*",
-  })
-)
 app.use(errorMiddleware)
 
 app.listen(PORT, () => {

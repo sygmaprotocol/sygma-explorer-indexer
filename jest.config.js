@@ -118,7 +118,7 @@ module.exports = {
   // runner: "jest-runner",
 
   // The paths to modules that run some code to configure or set up the testing environment before each test
-  setupFiles: ["dotenv/config"],
+  setupFiles: ["dotenv-flow/config"],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
   // setupFilesAfterEnv: [],
@@ -186,4 +186,5 @@ module.exports = {
 
   // Whether to use watchman for file crawling
   // watchman: true,
+  testTimeout: 100000,
 }

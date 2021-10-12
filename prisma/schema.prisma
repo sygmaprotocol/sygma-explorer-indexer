@@ -26,7 +26,7 @@ model Transfer {
   tokenAddress String?
   amount String?
   timestamp Int?
-  depositTransactionHash String?
+  depositTransactionHash String? @unique
   depositBlockNumber Int?
 
   status Int @default(1)

@@ -11,9 +11,11 @@ async function main() {
   )
   await prisma.$connect()
 
-  await prisma.voteEvent.deleteMany({})
-  await prisma.proposalEvent.deleteMany({})
-  await prisma.transfer.deleteMany({})
+  const deleteVotes = prisma.voteEvent.deleteMany()
+  const deleteProposals = prisma.proposalEvent.deleteMany()
+  const deleteTransfers = prisma.transfer.deleteMany()
+
+  await prisma.$transaction([deleteVotes, deleteProposals, deleteTransfers])
 
   const evmBridges = chainbridgeConfig.chains.filter(
     (c) => c.type !== "Substrate"
