@@ -98,7 +98,7 @@ describe("Test TransfersController", () => {
       const result = await request(app).get("/transfers").send()
 
       expect(result.status).toBe(200)
-      expect(result.body[0]).toMatchObject({
+      expect(result.body.transfers[0]).toMatchObject({
         depositNonce: 25,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000",
         fromChainId: 0,
@@ -180,7 +180,7 @@ describe("Test TransfersController", () => {
       const result = await request(app).get("/transfers").send()
 
       expect(result.status).toBe(200)
-      expect(result.body[0]).toMatchObject({
+      expect(result.body.transfers[0]).toMatchObject({
         depositNonce: 25,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000",
         fromChainId: 0,
@@ -220,7 +220,7 @@ describe("Test TransfersController", () => {
       const result = await request(app).get("/transfers").send()
 
       expect(result.status).toBe(200)
-      expect(result.body[0]).toMatchObject({
+      expect(result.body.transfers[0]).toMatchObject({
         depositNonce: 25,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000",
         fromChainId: 0,

@@ -12,7 +12,7 @@ const DEFAULT_PAGE_NUMBER = "1"
 const DEFAULT_LIMIT_NUMBER = "10"
 
 TransfersController.get(
-  "/",
+  "/offset",
   async(req: Request, res: Response, next: NextFunction) => {
     try {
       const page = parseInt(req.query.page?.toString() ?? DEFAULT_PAGE_NUMBER)
@@ -24,6 +24,26 @@ TransfersController.get(
 
       res.setHeader("Content-Type", "application/json")
       res.status(200).send(transferSerialized)
+    } catch (e) {
+      next(e)
+    }
+  }
+)
+
+TransfersController.get(
+  "/",
+  async(req: Request, res: Response, next: NextFunction) => {
+    try {
+      const before = req.query.before?.toString()
+      const first = parseInt(req.query.first?.toString() ?? DEFAULT_LIMIT_NUMBER)
+      const after = req.query.after?.toString()
+      const last = parseInt(req.query.last?.toString() ?? DEFAULT_LIMIT_NUMBER)
+      const transfers = await transfersService.findTransfersByCursor({ before, after, first, last })
+
+      // const transferSerialized = jsonStringifyWithBigInt(transfers)
+
+      res.setHeader("Content-Type", "application/json")
+      res.status(200).send(transfers)
     } catch (e) {
       next(e)
     }

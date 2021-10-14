@@ -11,23 +11,33 @@ type AllTransfersOption = {
   skipIndex: number
 }
 
-type TransferOption = {
-  id: string
+type TransfersByCursorOptions = {
+  id?: string
+  first?: number
+  last?: number
+  before?: string
+  after?: string
+}
+type ForwardPaginationArguments = { first: number; after?: string }
+type BackwardPaginationArguments = { last: number; before?: string }
+
+function isForwardPagination(args: TransfersByCursorOptions): args is ForwardPaginationArguments {
+  return "first" in args && args.first != null
 }
 
-type TransferByHashOption = {
-  hash: string
+function isBackwardPagination(args: TransfersByCursorOptions): args is BackwardPaginationArguments {
+  return "last" in args && args.last != null
 }
 
 class TransfesService {
   public transfers = new PrismaClient().transfer
 
-  public async findTransfer({ id }: TransferOption) {
+  public async findTransfer({ id }: { id: string }) {
     const transfer = await this.transfers.findUnique({ where: { id } })
     return transfer
   }
 
-  public async findTransferByTransactionHash({ hash }: TransferByHashOption) {
+  public async findTransferByTransactionHash({ hash }: { hash: string }) {
     const transfer = await this.transfers.findUnique({ where: { depositTransactionHash: hash } })
     return transfer
   }
@@ -47,6 +57,64 @@ class TransfesService {
       },
     })
     return this.addLatestStatusToTransfer(transfers)
+  }
+
+  public async findTransfersByCursor(args: TransfersByCursorOptions) {
+    let rawTransfers!: TransfersWithStatus
+    let hasPreviousPage!: boolean
+    let hasNextPage!: boolean
+    if (isForwardPagination(args)) {
+      const cursor = args.after ? { id: args.after } : undefined
+      const skip = args.after ? 1 : undefined
+      const take = args.first + 1
+      rawTransfers = await this.transfers.findMany({
+        cursor,
+        take,
+        skip,
+        orderBy: { id: "desc" },
+        include: {
+          proposalEvents: true,
+          voteEvents: true,
+        },
+      })
+      // See if we are "after" another record, indicating a previous page
+      hasPreviousPage = !!args.after
+
+      // See if we have an additional record, indicating a next page
+      hasNextPage = rawTransfers.length > args.first
+      // Remove the extra record (last element) from the results
+      if (hasNextPage) rawTransfers.pop()
+    } else if (isBackwardPagination(args)) {
+      const take = -1 * (args.last + 1)
+      const cursor = args.before ? { id: args.before } : undefined
+      const skip = cursor ? 1 : undefined
+      rawTransfers = await this.transfers.findMany({
+        cursor,
+        take,
+        skip,
+        orderBy: { id: "desc" },
+        include: {
+          proposalEvents: true,
+          voteEvents: true,
+        },
+      })
+      hasNextPage = !!args.before
+      hasPreviousPage = rawTransfers.length > args.last
+      if (hasPreviousPage) rawTransfers.shift()
+    }
+
+    const transfers = this.addLatestStatusToTransfer(rawTransfers)
+    const startCursor = transfers[0].id
+    const encCursor = transfers[transfers.length - 1].id
+    return {
+      transfers,
+      pageInfo: {
+        hasPreviousPage,
+        hasNextPage,
+        startCursor,
+        encCursor,
+      },
+    }
   }
 
   addLatestStatusToTransfer(transfers: TransfersWithStatus) {
