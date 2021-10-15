@@ -105,14 +105,14 @@ class TransfesService {
 
     const transfers = this.addLatestStatusToTransfer(rawTransfers)
     const startCursor = transfers[0].id
-    const encCursor = transfers[transfers.length - 1].id
+    const endCursor = transfers[transfers.length - 1].id
     return {
       transfers,
       pageInfo: {
         hasPreviousPage,
         hasNextPage,
         startCursor,
-        encCursor,
+        endCursor,
       },
     }
   }
