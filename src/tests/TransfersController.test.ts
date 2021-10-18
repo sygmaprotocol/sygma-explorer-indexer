@@ -8,6 +8,8 @@ import { app } from "../app"
 
 const prisma = new PrismaClient()
 
+const DEFAULT_TRANSFERS_URL = "/transfers?first=10"
+
 const transferData = {
   depositNonce: 25,
   resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -95,7 +97,7 @@ describe("Test TransfersController", () => {
     })
 
     it("Request /transfers should return one transfer with proposalEvents and voteEvents", async () => {
-      const result = await request(app).get("/transfers").send()
+      const result = await request(app).get(DEFAULT_TRANSFERS_URL).send()
 
       expect(result.status).toBe(200)
       expect(result.body.transfers[0]).toMatchObject({
@@ -177,7 +179,7 @@ describe("Test TransfersController", () => {
     })
 
     it("Request /transfers should return one transfer with NO proposalEvents and NO voteEvents", async () => {
-      const result = await request(app).get("/transfers").send()
+      const result = await request(app).get(DEFAULT_TRANSFERS_URL).send()
 
       expect(result.status).toBe(200)
       expect(result.body.transfers[0]).toMatchObject({
@@ -217,7 +219,7 @@ describe("Test TransfersController", () => {
 
     it("Request /transfers should return one transfer with voteEvents and NO proposalEvents", async () => {
       await prisma.proposalEvent.deleteMany({})
-      const result = await request(app).get("/transfers").send()
+      const result = await request(app).get(DEFAULT_TRANSFERS_URL).send()
 
       expect(result.status).toBe(200)
       expect(result.body.transfers[0]).toMatchObject({
