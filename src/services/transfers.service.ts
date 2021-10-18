@@ -22,11 +22,11 @@ type ForwardPaginationArguments = { first: number; after?: string }
 type BackwardPaginationArguments = { last: number; before?: string }
 
 function isForwardPagination(args: TransfersByCursorOptions): args is ForwardPaginationArguments {
-  return "first" in args && args.first != null
+  return "first" in args && args.first !== undefined
 }
 
 function isBackwardPagination(args: TransfersByCursorOptions): args is BackwardPaginationArguments {
-  return "last" in args && args.last != null
+  return "last" in args && args.last !== undefined
 }
 
 class TransfesService {

@@ -35,12 +35,10 @@ TransfersController.get(
   async(req: Request, res: Response, next: NextFunction) => {
     try {
       const before = req.query.before?.toString()
-      const first = parseInt(req.query.first?.toString() ?? DEFAULT_LIMIT_NUMBER)
+      const first = req.query.first ? parseInt(req.query.first?.toString()) : undefined
       const after = req.query.after?.toString()
-      const last = parseInt(req.query.last?.toString() ?? DEFAULT_LIMIT_NUMBER)
+      const last = req.query.last ? parseInt(req.query.last?.toString()) : undefined
       const transfers = await transfersService.findTransfersByCursor({ before, after, first, last })
-
-      // const transferSerialized = jsonStringifyWithBigInt(transfers)
 
       res.setHeader("Content-Type", "application/json")
       res.status(200).send(transfers)
