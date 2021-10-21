@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@celo-tools/celo-ethers-wrapper": "^0.0.5",
-    "@chainsafe/chainbridge-contracts": "^1.0.5",
+    "@chainsafe/chainbridge-contracts": "2.0.0",
     "@prisma/client": "2.26.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
