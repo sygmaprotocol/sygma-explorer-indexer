@@ -1,7 +1,6 @@
 import { ethers } from "ethers"
 
 import { PrismaClient } from "@prisma/client"
-import { getNetworkName } from "../utils/helpers"
 import { Bridge } from "@chainsafe/chainbridge-contracts"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 
@@ -11,14 +10,9 @@ export async function saveVotes(
   bridge: EvmBridgeConfig,
   bridgeContract: Bridge,
   provider: ethers.providers.JsonRpcProvider,
-  config: ChainbridgeConfig
+  config: ChainbridgeConfig,
 ) {
-  const proposalVoteFilter = bridgeContract.filters.ProposalVote(
-    null,
-    null,
-    null,
-    null
-  )
+  const proposalVoteFilter = bridgeContract.filters.ProposalVote(null, null, null, null)
 
   const proposalVoteLogs = await provider.getLogs({
     ...proposalVoteFilter,
@@ -29,37 +23,28 @@ export async function saveVotes(
     const { from: transactionSenderAddress } = tx
     const parsedLog = bridgeContract.interface.parseLog(pvl)
 
-    await prisma.voteEvent.create({
-      data: {
-        voteBlockNumber: pvl.blockNumber,
-        voteTransactionHash: pvl.transactionHash,
-        dataHash: parsedLog.args.dataHash,
-        timestamp: (await provider.getBlock(pvl.blockNumber)).timestamp,
-        voteStatus: Boolean(parsedLog.args.status),
-        by: transactionSenderAddress,
-
-        transfer: {
-          connectOrCreate: {
-            where: {
-              depositNonce: parsedLog.args.depositNonce.toNumber(),
-            },
-            create: {
-              depositNonce: parsedLog.args.depositNonce.toNumber(),
-              resourceId: parsedLog.args.resourceID,
-              fromDomainId: parsedLog.args.originChainID,
-              fromNetworkName: getNetworkName(
-                parsedLog.args.originChainID,
-                config
-              ),
-              toDomainId: bridge.domainId,
-              toNetworkName: bridge.name,
+    const { depositNonce, status, dataHash } = parsedLog.args
+    const depositNonceInt = depositNonce.toNumber()
+    try {
+      await prisma.voteEvent.create({
+        data: {
+          voteBlockNumber: pvl.blockNumber,
+          voteTransactionHash: pvl.transactionHash,
+          dataHash: dataHash,
+          timestamp: (await provider.getBlock(pvl.blockNumber)).timestamp,
+          voteStatus: Boolean(status),
+          by: transactionSenderAddress,
+          transfer: {
+            connect: {
+              depositNonce: depositNonceInt,
             },
           },
         },
-      },
-    })
+      })
+    } catch (error) {
+      console.error(error)
+      console.error("DepositNonce", depositNonceInt)
+    }
   }
-  console.log(
-    `Added ${bridge.name} ${proposalVoteLogs.length} proposal votes`
-  )
+  console.log(`Added ${bridge.name} ${proposalVoteLogs.length} proposal votes`)
 }

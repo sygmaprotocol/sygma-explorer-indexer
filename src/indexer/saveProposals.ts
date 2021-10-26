@@ -1,7 +1,6 @@
 import { ethers } from "ethers"
 
 import { PrismaClient } from "@prisma/client"
-import { getNetworkName } from "../utils/helpers"
 import { Bridge } from "@chainsafe/chainbridge-contracts"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 
@@ -11,15 +10,9 @@ export async function saveProposals(
   bridge: EvmBridgeConfig,
   bridgeContract: Bridge,
   provider: ethers.providers.JsonRpcProvider,
-  config: ChainbridgeConfig
+  config: ChainbridgeConfig,
 ) {
-  const proposalEventFilter = bridgeContract.filters.ProposalEvent(
-    null,
-    null,
-    null,
-    null,
-    null
-  )
+  const proposalEventFilter = bridgeContract.filters.ProposalEvent(null, null, null, null)
   const proposalEventLogs = await provider.getLogs({
     ...proposalEventFilter,
     fromBlock: bridge.deployedBlockNumber,
@@ -28,35 +21,28 @@ export async function saveProposals(
     const tx = await provider.getTransaction(pel.transactionHash)
     const { from: transactionSenderAddress } = tx
     const parsedLog = bridgeContract.interface.parseLog(pel)
-
-    await prisma.proposalEvent.create({
-      data: {
-        proposalEventBlockNumber: pel.blockNumber,
-        proposalEventTransactionHash: pel.transactionHash,
-        dataHash: parsedLog.args.dataHash,
-        timestamp: (await provider.getBlock(pel.blockNumber))
-          .timestamp,
-        proposalStatus: parsedLog.args.status,
-        by: transactionSenderAddress,
-        transfer: {
-          connectOrCreate: {
-            where: {
-              depositNonce: parsedLog.args.depositNonce.toNumber()
+    const { depositNonce, status, dataHash } = parsedLog.args
+    const depositNonceInt = depositNonce.toNumber()
+    try {
+      await prisma.proposalEvent.create({
+        data: {
+          proposalEventBlockNumber: pel.blockNumber,
+          proposalEventTransactionHash: pel.transactionHash,
+          dataHash: dataHash,
+          timestamp: (await provider.getBlock(pel.blockNumber)).timestamp,
+          proposalStatus: status,
+          by: transactionSenderAddress,
+          transfer: {
+            connect: {
+              depositNonce: depositNonceInt,
             },
-            create: {
-              depositNonce: parsedLog.args.depositNonce.toNumber(),
-              resourceId: parsedLog.args.resourceID,
-              fromDomainId: parsedLog.args.originChainID,
-              fromNetworkName: getNetworkName(parsedLog.args.originChainID, config),
-              toDomainId: bridge.domainId,
-              toNetworkName: bridge.name
-            }
-          }
-        }
-      }
-    })
-  };
-  console.log(
-    `Added ${bridge.name} ${proposalEventLogs.length} proposal events`
-  )
+          },
+        },
+      })
+    } catch (error) {
+      console.error(error)
+      console.error("DepositNonce", depositNonceInt)
+    }
+  }
+  console.log(`Added ${bridge.name} ${proposalEventLogs.length} proposal events`)
 }

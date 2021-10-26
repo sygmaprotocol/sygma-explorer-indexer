@@ -33,6 +33,7 @@
     "dotenv-flow": "^3.2.0",
     "ethers": "^5.4.6",
     "express": "^4.17.1",
+    "node-cache": "^5.1.2",
     "pm2": "^5.1.2"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
-import { ethers } from "ethers"
+import { ethers, BigNumber, utils } from "ethers"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 
 const isCelo = (networkId?: number) =>
@@ -60,10 +60,20 @@ export function jsonStringifyWithBigInt(value: any) {
 }
 
 export function getNetworkName(
-  chainID: number,
+  domainId: number,
   chainbridgeConfig: ChainbridgeConfig
 ) {
   return (
-    chainbridgeConfig.chains.find((c) => c.domainId === chainID)?.name || ""
+    chainbridgeConfig.chains.find((c) => c.domainId === domainId)?.name || ""
   )
+}
+
+export function decodeDataHash(data: string, decimals: number) {
+  const decodedData = ethers.utils.defaultAbiCoder.decode(["uint", "uint"], data)
+  const destinationRecipientAddressLen = decodedData[1].toNumber() * 2 // adjusted for bytes
+  const result = {
+    amount: decodedData[0].toString(),
+    destinationRecipientAddress: `0x${data.slice(130, 130 + destinationRecipientAddressLen)}`
+  }
+  return result
 }
