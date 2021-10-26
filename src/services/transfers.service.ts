@@ -33,12 +33,24 @@ class TransfesService {
   public transfers = new PrismaClient().transfer
 
   public async findTransfer({ id }: { id: string }) {
-    const transfer = await this.transfers.findUnique({ where: { id } })
+    const transfer = await this.transfers.findUnique({
+      where: { id },
+      include: {
+        proposalEvents: true,
+        voteEvents: true,
+      },
+    })
     return transfer
   }
 
   public async findTransferByTransactionHash({ hash }: { hash: string }) {
-    const transfer = await this.transfers.findUnique({ where: { depositTransactionHash: hash } })
+    const transfer = await this.transfers.findUnique({
+      where: { depositTransactionHash: hash },
+      include: {
+        proposalEvents: true,
+        voteEvents: true,
+      },
+    })
     return transfer
   }
 
