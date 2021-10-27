@@ -13,7 +13,7 @@ on:
   # when any releases are created
   release:
     types:
-      - created   
+      - created
 
 env:
   FORCE_COLOR: 2
@@ -29,11 +29,11 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install -g yarn    
+      - run: npm install -g yarn
       - name: yarn install, build and test
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: | 
+        run: |
           yarn --frozen-lockfile --ignore-engines
           yarn build
           yarn test
@@ -44,7 +44,7 @@ jobs:
     # requires these jobs to run first
     needs: [test]
     # if check not passed, job will be skipped
-    # if: github.ref == 'refs/heads/main' || contains(github.ref, '/tags/v')
+    if: github.ref == 'refs/heads/main' || contains(github.ref, '/tags/v')
     # list steps
     steps:
     # prepares docker images
@@ -64,7 +64,7 @@ jobs:
           echo GITHUB_REF $GITHUB_REF
           if [[ $GITHUB_REF == refs/tags/* ]]; then
 
-            # set version 
+            # set version
             VERSION=${GITHUB_REF#refs/tags/v}
             echo VERSION $VERSION
             # append version to tags
@@ -91,4 +91,3 @@ jobs:
           tags: ${{ steps.prep.outputs.tags }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
-            
