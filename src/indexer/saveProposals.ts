@@ -46,9 +46,9 @@ export async function saveProposals(
             create: {
               depositNonce: parsedLog.args.depositNonce.toNumber(),
               resourceId: parsedLog.args.resourceID,
-              fromChainId: parsedLog.args.originChainID,
+              fromDomainId: parsedLog.args.originChainID,
               fromNetworkName: getNetworkName(parsedLog.args.originChainID, config),
-              toChainId: bridge.chainId,
+              toDomainId: bridge.domainId,
               toNetworkName: bridge.name
             }
           }

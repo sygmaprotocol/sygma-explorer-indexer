@@ -23,7 +23,7 @@ export async function pollVotes(
   bridgeContract.on(
     proposalVoteFilter,
     async(
-      originChainId: number,
+      originDomainId: number,
       depositNonce: ethers.BigNumber,
       status: number, // TODO: Confirm wether this is actually being used
       resourceId: string,
@@ -48,12 +48,12 @@ export async function pollVotes(
               create: {
                 depositNonce: depositNonce.toNumber(),
                 resourceId: resourceId,
-                fromChainId: originChainId,
+                fromDomainId: originDomainId,
                 fromNetworkName: getNetworkName(
-                  originChainId,
+                  originDomainId,
                   config
                 ),
-                toChainId: bridge.chainId,
+                toDomainId: bridge.domainId,
                 toNetworkName: bridge.name,
               },
             },

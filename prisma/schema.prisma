@@ -13,12 +13,12 @@ generator client {
 
 model Transfer {
   id          String    @id @default(dbgenerated()) @map("_id") @db.ObjectId
-  uuid  String @default(uuid()) @map("uuid")  
+  uuid  String @default(uuid()) @map("uuid")
   depositNonce Int @unique
   resourceId String
-  fromChainId Int
+  fromDomainId Int
   fromNetworkName String
-  toChainId Int
+  toDomainId Int
   toNetworkName String
 
   fromAddress String?
@@ -31,9 +31,9 @@ model Transfer {
 
   status Int @default(1)
 
-  sourceTokenAddress String? 
+  sourceTokenAddress String?
 	destinationTokenAddress String?
-  
+
   proposalEvents ProposalEvent[]
   voteEvents VoteEvent[]
 }

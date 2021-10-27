@@ -19,14 +19,14 @@ export async function pollDeposits(
   bridgeContract.on(
     depositFilter,
     async(
-      destChainId: number,
+      destDomainId: number,
       resourceId: string,
       depositNonce: ethers.BigNumber,
       tx: Event
     ) => {
       const depositRecord = await erc20HandlerContract.getDepositRecord(
         depositNonce,
-        destChainId
+        destDomainId
       )
       console.log("🚀 ~ file: pollDeposits.ts ~ line 30 ~ depositRecord", depositRecord)
       console.time(`Nonce: ${depositNonce}`)
@@ -40,11 +40,11 @@ export async function pollDeposits(
           fromAddress: depositRecord._depositer,
           depositBlockNumber: tx.blockNumber,
           depositTransactionHash: tx.transactionHash,
-          fromChainId: bridge.chainId,
+          fromDomainId: bridge.domainId,
           fromNetworkName: bridge.name,
           timestamp: (await provider.getBlock(tx.blockNumber)).timestamp,
-          toChainId: destChainId,
-          toNetworkName: getNetworkName(destChainId, config),
+          toDomainId: destDomainId,
+          toNetworkName: getNetworkName(destDomainId, config),
           toAddress: depositRecord._destinationRecipientAddress,
           tokenAddress: depositRecord._tokenAddress,
           sourceTokenAddress: depositRecord._tokenAddress,
@@ -57,11 +57,11 @@ export async function pollDeposits(
           fromAddress: depositRecord._depositer,
           depositBlockNumber: tx.blockNumber,
           depositTransactionHash: tx.transactionHash,
-          fromChainId: bridge.chainId,
+          fromDomainId: bridge.domainId,
           fromNetworkName: bridge.name,
           timestamp: (await provider.getBlock(tx.blockNumber)).timestamp,
-          toChainId: destChainId,
-          toNetworkName: getNetworkName(destChainId, config),
+          toDomainId: destDomainId,
+          toNetworkName: getNetworkName(destDomainId, config),
           toAddress: depositRecord._destinationRecipientAddress,
           tokenAddress: depositRecord._tokenAddress,
           sourceTokenAddress: depositRecord._tokenAddress,

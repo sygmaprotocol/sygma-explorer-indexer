@@ -5,7 +5,7 @@ import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 import { getProvider } from "./helpers"
 
 export async function getDestinationTokenAddress(resourceID: string, destinationChainID: number, config: ChainbridgeConfig) {
-  const bridge = config.chains.find(bridge => bridge.chainId === destinationChainID) as EvmBridgeConfig
+  const bridge = config.chains.find(bridge => bridge.domainId === destinationChainID) as EvmBridgeConfig
   const provider = getProvider(bridge)
   await provider.ready
   const erc20HandlerContract = Erc20HandlerFactory.connect(

@@ -64,6 +64,6 @@ export function getNetworkName(
   chainbridgeConfig: ChainbridgeConfig
 ) {
   return (
-    chainbridgeConfig.chains.find((c) => c.chainId === chainID)?.name || ""
+    chainbridgeConfig.chains.find((c) => c.domainId === chainID)?.name || ""
   )
 }
