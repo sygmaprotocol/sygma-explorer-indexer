@@ -1,10 +1,12 @@
 import { PrismaClient, Transfer, ProposalEvent, VoteEvent } from "@prisma/client"
 
-type TransfersWithStatus = (Transfer & {
+type TransferWithStatus = (Transfer & {
   status?: number,
   proposalEvents: ProposalEvent[]
   voteEvents: VoteEvent[]
-})[]
+})
+
+type TransfersWithStatus = TransferWithStatus[]
 
 type AllTransfersOption = {
   limit: number
@@ -40,7 +42,11 @@ class TransfesService {
         voteEvents: true,
       },
     })
-    return transfer
+    if (transfer) {
+      return this.addLatestStatusToTransfer(transfer)
+    } else {
+      return null
+    }
   }
 
   public async findTransferByTransactionHash({ hash }: { hash: string }) {
@@ -51,7 +57,11 @@ class TransfesService {
         voteEvents: true,
       },
     })
-    return transfer
+    if (transfer) {
+      return this.addLatestStatusToTransfer(transfer)
+    } else {
+      return null
+    }
   }
 
   public async findAllTransfes({ limit, skipIndex }: AllTransfersOption) {
@@ -68,7 +78,7 @@ class TransfesService {
         voteEvents: true,
       },
     })
-    return this.addLatestStatusToTransfer(transfers)
+    return this.addLatestStatusToTransfers(transfers)
   }
 
   public async findTransfersByCursor(args: TransfersByCursorOptions) {
@@ -115,7 +125,7 @@ class TransfesService {
       if (hasPreviousPage) rawTransfers.shift()
     }
 
-    const transfers = this.addLatestStatusToTransfer(rawTransfers)
+    const transfers = this.addLatestStatusToTransfers(rawTransfers)
     const startCursor = transfers[0].id
     const endCursor = transfers[transfers.length - 1].id
     return {
@@ -129,17 +139,19 @@ class TransfesService {
     }
   }
 
-  addLatestStatusToTransfer(transfers: TransfersWithStatus) {
-    return transfers.map(transfer => {
-      if (transfer.proposalEvents && transfer.proposalEvents.length > 0) {
-        const proposalStatus = [...transfer.proposalEvents].sort((a, b) => b.timestamp - a.timestamp)[0].proposalStatus
-        transfer.status = proposalStatus
-      } else {
-        // Active status by default
-        transfer.status = 1
-      }
-      return transfer
-    })
+  addLatestStatusToTransfers(transfers: TransfersWithStatus) {
+    return transfers.map(transfer => this.addLatestStatusToTransfer(transfer))
+  }
+
+  addLatestStatusToTransfer(transfer: TransferWithStatus) {
+    if (transfer.proposalEvents && transfer.proposalEvents.length > 0) {
+      const proposalStatus = [...transfer.proposalEvents].sort((a, b) => b.timestamp - a.timestamp)[0].proposalStatus
+      transfer.status = proposalStatus
+    } else {
+      // Active status by default
+      transfer.status = 1
+    }
+    return transfer
   }
 }
 export default TransfesService
