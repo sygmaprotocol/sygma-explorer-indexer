@@ -11,7 +11,7 @@ export type ChainType = "Ethereum" | "Substrate";
 
 export type BridgeConfig = {
   networkId?: number;
-  chainId: number;
+  domainId: number;
   name: string;
   rpcUrl: string;
   type: ChainType;

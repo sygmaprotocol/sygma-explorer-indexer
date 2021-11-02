@@ -60,10 +60,10 @@ export function jsonStringifyWithBigInt(value: any) {
 }
 
 export function getNetworkName(
-  chainID: number,
+  domainID: number,
   chainbridgeConfig: ChainbridgeConfig
 ) {
   return (
-    chainbridgeConfig.chains.find((c) => c.chainId === chainID)?.name || ""
+    chainbridgeConfig.chains.find((c) => c.domainId === domainID)?.name || ""
   )
 }
