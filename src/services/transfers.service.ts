@@ -1,10 +1,10 @@
 import { PrismaClient, Transfer, ProposalEvent, VoteEvent } from "@prisma/client"
 
-type TransferWithStatus = (Transfer & {
-  status?: number,
+type TransferWithStatus = Transfer & {
+  status?: number
   proposalEvents: ProposalEvent[]
   voteEvents: VoteEvent[]
-})
+}
 
 type TransfersWithStatus = TransferWithStatus[]
 
@@ -144,8 +144,14 @@ class TransfesService {
   }
 
   addLatestStatusToTransfer(transfer: TransferWithStatus) {
+    const allEqual = (arr: ProposalEvent[]) => arr.every(v => v.timestamp === arr[0].timestamp)
     if (transfer.proposalEvents && transfer.proposalEvents.length > 0) {
-      const proposalStatus = [...transfer.proposalEvents].sort((a, b) => b.timestamp - a.timestamp)[0].proposalStatus
+      let proposalStatus
+      if (allEqual(transfer.proposalEvents)) {
+        proposalStatus = [...transfer.proposalEvents].sort((a, b) => parseInt(b.id.valueOf(), 16) - parseInt(a.id.valueOf(), 16))[0].proposalStatus
+      } else {
+        proposalStatus = [...transfer.proposalEvents].sort((a, b) => b.timestamp - a.timestamp)[0].proposalStatus
+      }
       transfer.status = proposalStatus
     } else {
       // Active status by default

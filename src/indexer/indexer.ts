@@ -36,7 +36,7 @@ export async function indexer(
   // PROPOSALS
   await saveProposals(bridge, bridgeContract, provider, config)
 
-  // VOTE_EVENTS
+  // // VOTE_EVENTS
   await saveVotes(bridge, bridgeContract, provider, config)
 
   console.log("finish index")

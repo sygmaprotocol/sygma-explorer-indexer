@@ -1,12 +1,15 @@
 import { ethers } from "ethers"
 
+import NodeCache from "node-cache"
+
 import { PrismaClient } from "@prisma/client"
-import { getNetworkName } from "../utils/helpers"
+import { getNetworkName, decodeDataHash } from "../utils/helpers"
 import { Bridge, Erc20Handler } from "@chainsafe/chainbridge-contracts"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 import { getDestinationTokenAddress } from "../utils/getDestinationTokenAddress"
 
 const prisma = new PrismaClient()
+const cache = new NodeCache({ stdTTL: 15 })
 
 export async function saveDeposits(
   bridge: EvmBridgeConfig,
@@ -22,44 +25,55 @@ export async function saveDeposits(
   })
   for (const dl of depositLogs) {
     const parsedLog = bridgeContract.interface.parseLog(dl)
-    console.time(`Nonce: ${parsedLog.args.depositNonce}`)
+    const { destinationDomainID, resourceID, depositNonce, user, data } = parsedLog.args
+    const depositNonceInt = depositNonce.toNumber()
+    const { destinationRecipientAddress, amount } = decodeDataHash(data, bridge.decimals)
+    console.time(`Nonce: ${depositNonce}`)
 
-    const depositRecord = await erc20HandlerContract.getDepositRecord(
-      parsedLog.args.depositNonce,
-      parsedLog.args.destinationChainID
-    )
-    const depositNonce = parsedLog.args.depositNonce.toNumber()
-    const destinationTokenAddress = await getDestinationTokenAddress(depositRecord._resourceID, depositRecord._destinationChainID, config)
     let dataTransfer
     try {
+      let tokenAddress
+      if (cache.has(`resourceIDToTokenContractAddress_${resourceID}`)) {
+        tokenAddress = cache.get(`resourceIDToTokenContractAddress_${resourceID}`)
+      } else {
+        tokenAddress = await erc20HandlerContract._resourceIDToTokenContractAddress(resourceID)
+        cache.set(`resourceIDToTokenContractAddress_${resourceID}`, tokenAddress)
+      }
+      let destinationTokenAddress
+      if (cache.has(`${resourceID}-${destinationDomainID}`)) {
+        destinationTokenAddress = cache.get(`${resourceID}-${destinationDomainID}`)
+      } else {
+        destinationTokenAddress = await getDestinationTokenAddress(resourceID, destinationDomainID, config)
+        cache.set(`${resourceID}-${destinationDomainID}`, destinationTokenAddress)
+      }
       dataTransfer = {
-        depositNonce: parsedLog.args.depositNonce.toNumber(),
-        fromAddress: depositRecord._depositer,
+        depositNonce: depositNonceInt,
+        fromAddress: user,
         depositBlockNumber: dl.blockNumber,
         depositTransactionHash: dl.transactionHash,
         fromDomainId: bridge.domainId,
         fromNetworkName: bridge.name,
         timestamp: (await provider.getBlock(dl.blockNumber)).timestamp,
-        toDomainId: parsedLog.args.destinationChainID,
-        toNetworkName: getNetworkName(parsedLog.args.destinationChainID, config),
-        toAddress: depositRecord._destinationRecipientAddress,
-        tokenAddress: depositRecord._tokenAddress,
-        sourceTokenAddress: depositRecord._tokenAddress,
+        toDomainId: destinationDomainID,
+        toNetworkName: getNetworkName(destinationDomainID, config),
+        toAddress: destinationRecipientAddress,
+        tokenAddress: tokenAddress,
+        sourceTokenAddress: tokenAddress,
         destinationTokenAddress: destinationTokenAddress,
-        amount: depositRecord._amount.toString(),
-        resourceId: parsedLog.args.resourceID,
+        amount: amount,
+        resourceId: resourceID,
       }
       await prisma.transfer.upsert({
         where: {
-          depositNonce: depositNonce
+          depositNonce: depositNonceInt
         },
         create: dataTransfer,
         update: dataTransfer,
       })
     } catch (error) {
       console.error(error)
-      console.error(depositNonce)
-      console.error(dataTransfer)
+      console.error("DepositNonce", depositNonceInt)
+      console.error("dataTransfer", dataTransfer)
     }
     console.timeEnd(`Nonce: ${parsedLog.args.depositNonce}`)
   };

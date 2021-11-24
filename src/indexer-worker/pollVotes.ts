@@ -1,7 +1,6 @@
 import { ethers, Event } from "ethers"
 
 import { PrismaClient } from "@prisma/client"
-import { getNetworkName } from "../utils/helpers"
 import { Bridge } from "@chainsafe/chainbridge-contracts"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 
@@ -23,43 +22,36 @@ export async function pollVotes(
   bridgeContract.on(
     proposalVoteFilter,
     async(
-      originDomainId: number,
+      originDomainID: number,
       depositNonce: ethers.BigNumber,
       status: number, // TODO: Confirm wether this is actually being used
-      resourceId: string,
+      dataHash: string,
       tx: Event
     ) => {
       const eventTransaction = await provider.getTransaction(tx.transactionHash)
       const { from: transactionSenderAddress } = eventTransaction
       console.log("🚀 ~ file: pollVotes.ts ~ line 32 ~ tx", tx)
-      await prisma.voteEvent.create({
-        data: {
-          voteBlockNumber: tx.blockNumber,
-          voteTransactionHash: tx.transactionHash,
-          dataHash: "", // TODO: Confirm whether this is available
-          timestamp: (await provider.getBlock(tx.blockNumber)).timestamp,
-          voteStatus: Boolean(status),
-          by: transactionSenderAddress,
-          transfer: {
-            connectOrCreate: {
-              where: {
-                depositNonce: depositNonce.toNumber(),
-              },
-              create: {
-                depositNonce: depositNonce.toNumber(),
-                resourceId: resourceId,
-                fromDomainId: originDomainId,
-                fromNetworkName: getNetworkName(
-                  originDomainId,
-                  config
-                ),
-                toDomainId: bridge.domainId,
-                toNetworkName: bridge.name,
+      const depositNonceInt = depositNonce.toNumber()
+      try {
+        await prisma.voteEvent.create({
+          data: {
+            voteBlockNumber: tx.blockNumber,
+            voteTransactionHash: tx.transactionHash,
+            dataHash: dataHash,
+            timestamp: (await provider.getBlock(tx.blockNumber)).timestamp,
+            voteStatus: Boolean(status),
+            by: transactionSenderAddress,
+            transfer: {
+              connect: {
+                depositNonce: depositNonceInt,
               },
             },
           },
-        },
-      })
+        })
+      } catch (error) {
+        console.error(error)
+        console.error("DepositNonce", depositNonceInt)
+      }
     })
 
   console.log(
