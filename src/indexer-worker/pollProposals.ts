@@ -12,7 +12,7 @@ export async function pollProposals(
   provider: ethers.providers.JsonRpcProvider,
   config: ChainbridgeConfig,
 ) {
-  const proposalEventFilter = bridgeContract.filters.ProposalEvent(null, null, null, null, null)
+  const proposalEventFilter = bridgeContract.filters.ProposalEvent(null, null, null, null)
 
   bridgeContract.on(
     proposalEventFilter,
