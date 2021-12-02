@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
-import { indexer } from "./indexer"
+import { indexDeposits, indexProposals, indexVotes } from "./indexer"
 const prisma = new PrismaClient()
 
 async function main() {
@@ -21,7 +21,13 @@ async function main() {
     (c) => c.type !== "Substrate"
   )
   for (const bridge of evmBridges) {
-    await indexer(bridge as EvmBridgeConfig, chainbridgeConfig)
+    await indexDeposits(bridge as EvmBridgeConfig, chainbridgeConfig)
+  }
+  for (const bridge of evmBridges) {
+    await indexProposals(bridge as EvmBridgeConfig, chainbridgeConfig)
+  }
+  for (const bridge of evmBridges) {
+    await indexVotes(bridge as EvmBridgeConfig, chainbridgeConfig)
   }
 }
 main()

@@ -9,11 +9,11 @@ import { saveVotes } from "./saveVotes"
 import { saveProposals } from "./saveProposals"
 import { saveDeposits } from "./saveDeposits"
 
-export async function indexer(
+export async function indexDeposits(
   bridge: EvmBridgeConfig,
   config: ChainbridgeConfig
 ) {
-  console.log(`Checking events for ${bridge.name}`)
+  console.log(`Checking depostis for ${bridge.name}`)
 
   const provider = getProvider(bridge)
   await provider.ready
@@ -33,11 +33,30 @@ export async function indexer(
     config
   )
 
-  // PROPOSALS
-  await saveProposals(bridge, bridgeContract, provider, config)
+  // // PROPOSALS
+  // await saveProposals(bridge, bridgeContract, provider, config)
 
   // // VOTE_EVENTS
-  await saveVotes(bridge, bridgeContract, provider, config)
+  // await saveVotes(bridge, bridgeContract, provider, config)
+}
+export async function indexProposals(bridge: EvmBridgeConfig, config: ChainbridgeConfig) {
+  console.log(`Checking proposals for ${bridge.name}`)
 
-  console.log("finish index")
+  const provider = getProvider(bridge)
+  await provider.ready
+
+  const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
+  // PROPOSALS
+  await saveProposals(bridge, bridgeContract, provider, config)
+}
+
+export async function indexVotes(bridge: EvmBridgeConfig, config: ChainbridgeConfig) {
+  console.log(`Checking votes for ${bridge.name}`)
+
+  const provider = getProvider(bridge)
+  await provider.ready
+
+  const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
+  // VOTE_EVENTS
+  await saveVotes(bridge, bridgeContract, provider, config)
 }
