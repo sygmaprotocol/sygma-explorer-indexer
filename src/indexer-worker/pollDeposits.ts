@@ -34,13 +34,15 @@ export async function pollDeposits(
 
       console.time(`Nonce: ${depositNonce}`)
       let dataTransfer
+      const cacheTokenKey = `resourceIDToTokenContractAddress_${resourceID}_${bridge.domainId}`
+
       try {
         let tokenAddress
-        if (cache.has(`resourceIDToTokenContractAddress_${resourceID}`)) {
-          tokenAddress = cache.get(`resourceIDToTokenContractAddress_${resourceID}`)
+        if (cache.has(cacheTokenKey)) {
+          tokenAddress = cache.get(cacheTokenKey)
         } else {
           tokenAddress = await erc20HandlerContract._resourceIDToTokenContractAddress(resourceID)
-          cache.set(`resourceIDToTokenContractAddress_${resourceID}`, tokenAddress)
+          cache.set(cacheTokenKey, tokenAddress)
         }
         let destinationTokenAddress
         if (cache.has(`${resourceID}-${destinationDomainID}`)) {
