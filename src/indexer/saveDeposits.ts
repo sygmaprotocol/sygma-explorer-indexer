@@ -33,11 +33,12 @@ export async function saveDeposits(
     let dataTransfer
     try {
       let tokenAddress
-      if (cache.has(`resourceIDToTokenContractAddress_${resourceID}`)) {
-        tokenAddress = cache.get(`resourceIDToTokenContractAddress_${resourceID}`)
+      const cacheTokenKey = `resourceIDToTokenContractAddress_${resourceID}_${bridge.domainId}`
+      if (cache.has(cacheTokenKey)) {
+        tokenAddress = cache.get(cacheTokenKey)
       } else {
         tokenAddress = await erc20HandlerContract._resourceIDToTokenContractAddress(resourceID)
-        cache.set(`resourceIDToTokenContractAddress_${resourceID}`, tokenAddress)
+        cache.set(cacheTokenKey, tokenAddress)
       }
       let destinationTokenAddress
       if (cache.has(`${resourceID}-${destinationDomainID}`)) {
