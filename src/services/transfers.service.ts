@@ -93,7 +93,7 @@ class TransfesService {
         cursor,
         take,
         skip,
-        orderBy: { id: "desc" },
+        orderBy: { timestamp: "desc" },
         include: {
           proposalEvents: true,
           voteEvents: true,
@@ -114,7 +114,7 @@ class TransfesService {
         cursor,
         take,
         skip,
-        orderBy: { id: "desc" },
+        orderBy: { timestamp: "desc" },
         include: {
           proposalEvents: true,
           voteEvents: true,
