@@ -144,19 +144,25 @@ class TransfesService {
   }
 
   addLatestStatusToTransfer(transfer: TransferWithStatus) {
-    const allEqual = (arr: ProposalEvent[]) => arr.every(v => v.timestamp === arr[0].timestamp)
     if (transfer.proposalEvents && transfer.proposalEvents.length > 0) {
-      let proposalStatus
-      if (allEqual(transfer.proposalEvents)) {
-        proposalStatus = [...transfer.proposalEvents].sort((a, b) => parseInt(b.id.valueOf(), 16) - parseInt(a.id.valueOf(), 16))[0].proposalStatus
-      } else {
-        proposalStatus = [...transfer.proposalEvents].sort((a, b) => b.timestamp - a.timestamp)[0].proposalStatus
-      }
-      transfer.status = proposalStatus
+      const reducedProps:{[key: string]: number} = transfer.proposalEvents.reduce((acc: any, value) => {
+        // Group initialization
+        if (!acc[value.timestamp]) {
+          acc[value.timestamp] = []
+        }
+
+        // Grouping
+        acc[value.timestamp] = Math.max(acc[value.timestamp], value.proposalStatus)
+
+        return acc
+      }, {})
+      const finalStatus = Math.max(...Object.values(reducedProps))
+      transfer.status = finalStatus
     } else {
       // Active status by default
       transfer.status = 1
     }
+
     return transfer
   }
 }
