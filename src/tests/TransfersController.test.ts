@@ -5,6 +5,7 @@ require('dotenv').config({ path: path.resolve(__dirname, './.env.test') });
 import { PrismaClient } from "@prisma/client"
 
 import { app } from "../app"
+import { mockTransfers } from './mockTxs'
 
 const prisma = new PrismaClient()
 
@@ -334,6 +335,65 @@ describe("Test TransfersController", () => {
       expect(result.body.transfers[0].status).toEqual(3)
     })
 
+  })
+
+  describe('filter over transfers', () => {
+    const first = 10
+    beforeEach(async () => {
+      const { transfers } = mockTransfers
+
+      for await (const tx of transfers) {
+        await prisma.transfer.create({
+          data: {
+            ...tx,
+            proposalEvents: { create: [ ...tx.proposalEvents ]},
+            voteEvents: { create: [ ...tx.voteEvents]}
+          }
+        })
+      }
+
+      console.log("✨ 20 transfer successfully created!")
+    })
+
+    it('Request /transfers/filters?first=10&fromDomainId=[number]', async () => {
+      const domainIDFrom = 1
+      const result = await request(app).get(`/transfers/filters?first=${first}&fromDomainId=${domainIDFrom}`).send()
+
+      const onlyDomainIdRequested = result.body.transfers.every((tx: any) => tx.fromDomainId === domainIDFrom)
+      expect(onlyDomainIdRequested).toBe(true)
+    })
+
+    it('Request /transfers/filters?first=10&toDomainId=[number]', async () => {
+      const domainIDTo = 0
+      const result = await request(app).get(`/transfers/filters?first=${first}&toDomainId=${domainIDTo}`).send()
+
+
+      const onlyDomainIDTo = result.body.transfers.every((tx:any) => tx.toDomainId === domainIDTo)
+      expect(onlyDomainIDTo).toBe(true)
+    })
+
+    it('Request /transfers/filters?first=10&fromAddress=[string]', async () => {
+      const fromAddress = '0x5EfB75040BC6257EcE792D8dEd423063E6588A37'
+      const result = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}`).send()
+
+      const onlyFromAddress = result.body.transfers.every((tx:any) => tx.fromAddress === fromAddress)
+      expect(onlyFromAddress).toBe(true)
+    })
+
+    it('Request /transfers/filters?first=10&toAddress=[string]', async () => {
+      const toAddress = '0xff93b45308fd417df303d6515ab04d9e89a750ca'
+      const result = await request(app).get(`/transfers/filters?first=${first}&toAddress=${toAddress}`).send()
+
+      const onlyToAddress = result.body.transfers.every((tx:any) => tx.toAddress === toAddress)
+      expect(onlyToAddress).toBe(true)
+    })
+
+    it('Request /transfers/filters?first=10&depositTransactionHas=[string]', async () => {
+      const depositTxHash = '0xea5c6f72130cd36c64362facac8e8e7a60fb72c4092890de31a04b442c01d753'
+      const result = await request(app).get(`/transfers/filters?first=${first}&depositTransactionHash=${depositTxHash}`)
+
+      expect(result.body.transfers.length).toBe(1)
+    })
   })
 })
 

@@ -13,12 +13,21 @@ type AllTransfersOption = {
   skipIndex: number
 }
 
+export type Filters = {
+  fromAddress?: string,
+  toAddress?: string,
+  depositTransactionHash?: string,
+  fromDomainId?: string,
+  toDomainId?: string
+}
+
 type TransfersByCursorOptions = {
   id?: string
   first?: number
   last?: number
   before?: string
   after?: string
+  filters?: Filters
 }
 type ForwardPaginationArguments = { first: number; after?: string }
 type BackwardPaginationArguments = { last: number; before?: string }
@@ -31,7 +40,7 @@ function isBackwardPagination(args: TransfersByCursorOptions): args is BackwardP
   return "last" in args && args.last !== undefined
 }
 
-class TransfesService {
+class TransfersService {
   public transfers = new PrismaClient().transfer
 
   public async findTransfer({ id }: { id: string }) {
@@ -81,23 +90,67 @@ class TransfesService {
     return this.addLatestStatusToTransfers(transfers)
   }
 
+  buildQueryObject(args: TransfersByCursorOptions) {
+    const cursor = args.after ? { id: args.after } : undefined
+    const skip = args.after ? 1 : undefined
+    const take = args.first! + 1
+    const filters = args.filters
+
+    const where = {
+      fromDomainId: undefined as any,
+      fromAddress: undefined as any,
+      toAddress: undefined as any,
+      depositTransactionHash: undefined as any,
+      toDomainId: undefined as any
+    }
+
+    if (filters !== undefined && Object.keys(filters).length) {
+      const {
+        fromAddress,
+        toAddress,
+        depositTransactionHash,
+        fromDomainId,
+        toDomainId
+      } = filters as Filters
+
+      where.fromDomainId = fromDomainId && parseInt(fromDomainId!, 10)
+      where.fromAddress = fromAddress
+      where.toAddress = toAddress
+      where.depositTransactionHash = depositTransactionHash
+      where.toDomainId = toDomainId && parseInt(toDomainId, 10)
+    }
+
+    return {
+      cursor,
+      take,
+      skip,
+      include: {
+        proposalEvents: true,
+        voteEvents: true,
+      },
+      where
+    }
+  }
+
   public async findTransfersByCursor(args: TransfersByCursorOptions) {
     let rawTransfers!: TransfersWithStatus
     let hasPreviousPage!: boolean
     let hasNextPage!: boolean
     if (isForwardPagination(args)) {
-      const cursor = args.after ? { id: args.after } : undefined
-      const skip = args.after ? 1 : undefined
-      const take = args.first + 1
+      const {
+        cursor,
+        take,
+        skip,
+        include,
+        where
+      } = this.buildQueryObject(args)
       rawTransfers = await this.transfers.findMany({
         cursor,
         take,
         skip,
         orderBy: { timestamp: "desc" },
-        include: {
-          proposalEvents: true,
-          voteEvents: true,
-        },
+        include,
+        where
       })
       // See if we are "after" another record, indicating a previous page
       hasPreviousPage = !!args.after
@@ -107,18 +160,20 @@ class TransfesService {
       // Remove the extra record (last element) from the results
       if (hasNextPage) rawTransfers.pop()
     } else if (isBackwardPagination(args)) {
-      const take = -1 * (args.last + 1)
-      const cursor = args.before ? { id: args.before } : undefined
-      const skip = cursor ? 1 : undefined
+      const {
+        cursor,
+        take,
+        skip,
+        include,
+        where
+      } = this.buildQueryObject(args)
       rawTransfers = await this.transfers.findMany({
         cursor,
         take,
         skip,
         orderBy: { timestamp: "desc" },
-        include: {
-          proposalEvents: true,
-          voteEvents: true,
-        },
+        include,
+        where
       })
       hasNextPage = !!args.before
       hasPreviousPage = rawTransfers.length > args.last
@@ -166,4 +221,4 @@ class TransfesService {
     return transfer
   }
 }
-export default TransfesService
+export default TransfersService
