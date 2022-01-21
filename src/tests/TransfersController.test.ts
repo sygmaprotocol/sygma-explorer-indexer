@@ -421,7 +421,7 @@ describe("Test TransfersController", () => {
       expect(allTransfers).toEqual(transferToCompare)
     })
 
-    it('Request /transfers/filters?before=[string]&first=10&fromAddress=[string]', async () => {
+    it('Request /transfers/filters?before=[string]&first=10&fromAddress=[string] - check forward and backwards navigation', async () => {
       const fromAddress = '0x42Da3Ba8c586F6fe9eF6ed1d09423eB73E4fe25b'
       const firstResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}`).send()
 
@@ -442,6 +442,20 @@ describe("Test TransfersController", () => {
       expect(onylFromAddressFirst).toBe(true)
       expect(onlyFromAddressSecond).toBe(true)
       expect(t1.map((tx:any) => tx.id)).toEqual(t3.map((tx:any) => tx.id))
+    })
+
+    it('Request /transfers/filters?after=[string]&first=10&fromAddres=[string] - returns empty array because there is no more data', async () => {
+      const fromAddress = "0xff93B45308FD417dF303D6515aB04D9e89a750Ca"
+      const firstResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}`).send()
+  
+      const { body: { pageInfo: { endCursor } }} = firstResult
+  
+      const secondResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}&after=${endCursor}`).send()
+  
+      const { body: { transfers, pageInfo: { hasNextPage } } } = secondResult
+  
+      expect(transfers.length).toBe(0)
+      expect(hasNextPage).toBe(false)
     })
   })
 })

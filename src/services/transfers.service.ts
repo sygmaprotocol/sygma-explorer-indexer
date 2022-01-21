@@ -21,7 +21,7 @@ export type Filters = {
   toDomainId?: string
 }
 
-type TransfersByCursorOptions = {
+export type TransfersByCursorOptions = {
   id?: string
   first?: number
   last?: number
@@ -183,9 +183,16 @@ class TransfersService {
       if (hasPreviousPage) rawTransfers.shift()
     }
 
-    const transfers = this.addLatestStatusToTransfers(rawTransfers)
-    const startCursor = transfers[0].id
-    const endCursor = transfers[transfers.length - 1].id
+    let transfers: Array<TransferWithStatus> = []
+    let startCursor: string = ""
+    let endCursor: string = ""
+
+    if (rawTransfers.length) {
+      transfers = this.addLatestStatusToTransfers(rawTransfers)
+      startCursor = transfers[0].id
+      endCursor = transfers[transfers.length - 1].id
+    }
+
     return {
       transfers,
       pageInfo: {

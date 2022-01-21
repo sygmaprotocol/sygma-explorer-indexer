@@ -1,5 +1,6 @@
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
 import { ethers, BigNumber, utils } from "ethers"
+import { TransfersByCursorOptions } from "services/transfers.service"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 
 const isCelo = (networkId?: number) =>
@@ -76,4 +77,28 @@ export function decodeDataHash(data: string, decimals: number) {
     destinationRecipientAddress: `0x${data.slice(130, 130 + destinationRecipientAddressLen)}`
   }
   return result
+}
+
+export function buildQueryParamsToPasss(args: any): TransfersByCursorOptions {
+  const { before, first, after, last, filters } = args
+  const beforeCursor = before?.toString()
+  const firstCursor = first ? parseInt(first?.toString()) : undefined
+  const afterCursor = after?.toString()
+  const lastCursor = last ? parseInt(last?.toString()) : undefined
+
+  if (filters !== undefined) {
+    return {
+      before: beforeCursor,
+      after: afterCursor,
+      first: firstCursor,
+      last: lastCursor,
+      filters
+    }
+  }
+  return {
+    before: beforeCursor,
+    after: afterCursor,
+    first: firstCursor,
+    last: lastCursor
+  }
 }
