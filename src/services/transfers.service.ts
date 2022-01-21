@@ -1,4 +1,4 @@
-import { PrismaClient, Transfer, ProposalEvent, VoteEvent } from "@prisma/client"
+import { PrismaClient, Transfer, ProposalEvent, VoteEvent, Prisma } from "@prisma/client"
 
 type TransferWithStatus = Transfer & {
   status?: number
@@ -128,6 +128,7 @@ class TransfersService {
         proposalEvents: true,
         voteEvents: true,
       },
+      orderBy: { timestamp: "desc" } as Prisma.Enumerable<Prisma.TransferOrderByInput>,
       where
     }
   }
@@ -142,13 +143,14 @@ class TransfersService {
         take,
         skip,
         include,
+        orderBy,
         where
       } = this.buildQueryObject(args)
       rawTransfers = await this.transfers.findMany({
         cursor,
         take,
         skip,
-        orderBy: { timestamp: "desc" },
+        orderBy,
         include,
         where
       })
@@ -165,13 +167,14 @@ class TransfersService {
         take,
         skip,
         include,
+        orderBy,
         where
       } = this.buildQueryObject(args)
       rawTransfers = await this.transfers.findMany({
         cursor,
         take,
         skip,
-        orderBy: { timestamp: "desc" },
+        orderBy,
         include,
         where
       })

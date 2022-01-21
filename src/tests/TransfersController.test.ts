@@ -390,9 +390,58 @@ describe("Test TransfersController", () => {
 
     it('Request /transfers/filters?first=10&depositTransactionHas=[string]', async () => {
       const depositTxHash = '0xea5c6f72130cd36c64362facac8e8e7a60fb72c4092890de31a04b442c01d753'
-      const result = await request(app).get(`/transfers/filters?first=${first}&depositTransactionHash=${depositTxHash}`)
+      const result = await request(app).get(`/transfers/filters?first=${first}&depositTransactionHash=${depositTxHash}`).send()
 
       expect(result.body.transfers.length).toBe(1)
+    })
+
+    it('Request /transfers/filters?after=[string]&first=10&fromAddress=[string]', async () => {
+      const fromAddress = '0x5EfB75040BC6257EcE792D8dEd423063E6588A37'
+      const firstResult = await request(app).get(`/transfers/filters?first=5&fromAddress=${fromAddress}`).send()
+
+      const { body: { pageInfo: { endCursor }, transfers: t1 }} = firstResult
+
+      const onlyFromAddressFirst = t1.every((tx: any) => tx.fromAddress === fromAddress)
+
+      const secondResult = await request(app).get(`/transfers/filters?after=${endCursor}&first=5&fromAddress=${fromAddress}`).send()
+
+      const { body: { transfers: t2 }} = secondResult
+
+      const onylFromAddressSecond = t2.every((tx:any) => tx.fromAddress === fromAddress)
+
+      const lastResult = await request(app).get(`/transfers/filters?first=10&fromAddress=${fromAddress}`)
+
+      const { body: { transfers: t3 }} = lastResult
+
+      const transferToCompare = [ ...t1.map((tx: any) => tx.id), ...t2.map((tx:any) => tx.id) ]
+      const allTransfers = t3.map((tx:any) => tx.id)
+
+      expect(onlyFromAddressFirst).toBe(true)
+      expect(onylFromAddressSecond).toBe(true)
+      expect(allTransfers).toEqual(transferToCompare)
+    })
+
+    it('Request /transfers/filters?before=[string]&first=10&fromAddress=[string]', async () => {
+      const fromAddress = '0x42Da3Ba8c586F6fe9eF6ed1d09423eB73E4fe25b'
+      const firstResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}`).send()
+
+      const { body: {pageInfo: {endCursor}, transfers: t1}} = firstResult
+
+      const onylFromAddressFirst = t1.every((tx:any) => tx.fromAddress === fromAddress)
+
+      const secondResult = await request(app).get(`/transfers/filters?after=${endCursor}&first=${first}&fromAddress=${fromAddress}`).send()
+
+      const { body: { pageInfo: { startCursor }, transfers: t2}} = secondResult
+
+      const onlyFromAddressSecond = t2.every((tx:any) => tx.fromAddress === fromAddress)
+
+      const thirdResult = await request(app).get(`/transfers/filters?before=${startCursor}&first=${first}&fromAddress=${fromAddress}`).send()
+
+      const {body: {transfers: t3}} = thirdResult
+
+      expect(onylFromAddressFirst).toBe(true)
+      expect(onlyFromAddressSecond).toBe(true)
+      expect(t1.map((tx:any) => tx.id)).toEqual(t3.map((tx:any) => tx.id))
     })
   })
 })
