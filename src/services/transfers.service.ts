@@ -93,7 +93,7 @@ class TransfersService {
   buildQueryObject(args: TransfersByCursorOptions) {
     const cursor = args.after ? { id: args.after } : undefined
     const skip = args.after ? 1 : undefined
-    const take = args.first! + 1
+    const take = args.first ? args.first! + 1 : undefined
     const filters = args.filters
 
     const where = {
