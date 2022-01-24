@@ -90,11 +90,11 @@ class TransfersService {
     return this.addLatestStatusToTransfers(transfers)
   }
 
-  buildQueryObject(args: TransfersByCursorOptions) {
-    const cursor = args.after ? { id: args.after } : undefined
-    const skip = args.after ? 1 : undefined
-    const take = args.first ? args.first! + 1 : undefined
-    const filters = args.filters
+  buildQueryObject(args: TransfersByCursorOptions, isForward: boolean | undefined, isBackwards: boolean | undefined ) {
+    let cursor
+    let skip
+    let take
+    let filters
 
     const where = {
       fromDomainId: undefined as any,
@@ -102,6 +102,17 @@ class TransfersService {
       toAddress: undefined as any,
       depositTransactionHash: undefined as any,
       toDomainId: undefined as any
+    }
+
+    if (isForward) {
+      cursor = args.after ? { id: args.after } : undefined
+      skip = args.after ? 1 : undefined
+      take = args.first! + 1
+      filters = args.filters
+    } else if (isBackwards) {
+      take = -1 * (args.last! + 1)
+      cursor = args.before ? { id: args.before } : undefined
+      skip = cursor ? 1 : undefined
     }
 
     if (filters !== undefined && Object.keys(filters).length) {
@@ -145,7 +156,7 @@ class TransfersService {
         include,
         orderBy,
         where
-      } = this.buildQueryObject(args)
+      } = this.buildQueryObject(args, true, undefined)
       rawTransfers = await this.transfers.findMany({
         cursor,
         take,
@@ -169,7 +180,7 @@ class TransfersService {
         include,
         orderBy,
         where
-      } = this.buildQueryObject(args)
+      } = this.buildQueryObject(args, undefined, true)
       rawTransfers = await this.transfers.findMany({
         cursor,
         take,
