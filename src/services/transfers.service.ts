@@ -152,7 +152,7 @@ class TransfersService {
         include,
         orderBy,
         where
-      } = this.buildQueryObject(args, true, undefined)
+      } = this.buildQueryObject(args)
       rawTransfers = await this.transfers.findMany({
         cursor,
         take,
@@ -176,7 +176,7 @@ class TransfersService {
         include,
         orderBy,
         where
-      } = this.buildQueryObject(args, undefined, true)
+      } = this.buildQueryObject(args)
       rawTransfers = await this.transfers.findMany({
         cursor,
         take,
