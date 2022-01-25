@@ -372,20 +372,13 @@ describe("Test TransfersController", () => {
       expect(onlyDomainIDTo).toBe(true)
     })
 
-    it('Request /transfers/filters?first=10&fromAddress=[string]', async () => {
+    it('Request /transfers/filters?first=10&fromAddress=[string]&toAddress=[string]', async () => {
       const fromAddress = '0x5EfB75040BC6257EcE792D8dEd423063E6588A37'
-      const result = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}`).send()
+      const toAddress= '0x5EfB75040BC6257EcE792D8dEd423063E6588A37'
+      const result = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}&toAddress=${toAddress}`).send()
 
       const onlyFromAddress = result.body.transfers.every((tx:any) => tx.fromAddress === fromAddress)
       expect(onlyFromAddress).toBe(true)
-    })
-
-    it('Request /transfers/filters?first=10&toAddress=[string]', async () => {
-      const toAddress = '0xff93b45308fd417df303d6515ab04d9e89a750ca'
-      const result = await request(app).get(`/transfers/filters?first=${first}&toAddress=${toAddress}`).send()
-
-      const onlyToAddress = result.body.transfers.every((tx:any) => tx.toAddress === toAddress)
-      expect(onlyToAddress).toBe(true)
     })
 
     it('Request /transfers/filters?first=10&depositTransactionHas=[string]', async () => {
@@ -395,21 +388,22 @@ describe("Test TransfersController", () => {
       expect(result.body.transfers.length).toBe(1)
     })
 
-    it('Request /transfers/filters?after=[string]&first=10&fromAddress=[string]', async () => {
-      const fromAddress = '0x5EfB75040BC6257EcE792D8dEd423063E6588A37'
-      const firstResult = await request(app).get(`/transfers/filters?first=5&fromAddress=${fromAddress}`).send()
+    it('Request /transfers/filters?after=[string]&first=10&fromAddress=[string]&toAddress=[string]', async () => {
+      const fromAddress = "0x5EfB75040BC6257EcE792D8dEd423063E6588A37"
+      const toAddress = "0x5EfB75040BC6257EcE792D8dEd423063E6588A37"
+      const firstResult = await request(app).get(`/transfers/filters?first=5&fromAddress=${fromAddress}&toAddress=${toAddress}`).send()
 
       const { body: { pageInfo: { endCursor }, transfers: t1 }} = firstResult
 
       const onlyFromAddressFirst = t1.every((tx: any) => tx.fromAddress === fromAddress)
 
-      const secondResult = await request(app).get(`/transfers/filters?after=${endCursor}&first=5&fromAddress=${fromAddress}`).send()
+      const secondResult = await request(app).get(`/transfers/filters?after=${endCursor}&first=5&fromAddress=${fromAddress}&toAddress=${toAddress}`).send()
 
       const { body: { transfers: t2 }} = secondResult
 
       const onylFromAddressSecond = t2.every((tx:any) => tx.fromAddress === fromAddress)
 
-      const lastResult = await request(app).get(`/transfers/filters?first=10&fromAddress=${fromAddress}`)
+      const lastResult = await request(app).get(`/transfers/filters?first=10&fromAddress=${fromAddress}&toAddress=${toAddress}`)
 
       const { body: { transfers: t3 }} = lastResult
 
@@ -421,21 +415,22 @@ describe("Test TransfersController", () => {
       expect(allTransfers).toEqual(transferToCompare)
     })
 
-    it('Request /transfers/filters?before=[string]&first=10&fromAddress=[string] - check forward and backwards navigation', async () => {
-      const fromAddress = '0x42Da3Ba8c586F6fe9eF6ed1d09423eB73E4fe25b'
-      const firstResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}`).send()
+    it('Request /transfers/filters?before=[string]&first=10&fromAddress=[string]&toAddress=[string] - check forward and backwards navigation', async () => {
+      const fromAddress = "0x42Da3Ba8c586F6fe9eF6ed1d09423eB73E4fe25b"
+      const toAddress = "0x42Da3Ba8c586F6fe9eF6ed1d09423eB73E4fe25b"
+      const firstResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}&toAddress=${toAddress}`).send()
 
       const { body: {pageInfo: {endCursor}, transfers: t1}} = firstResult
 
       const onylFromAddressFirst = t1.every((tx:any) => tx.fromAddress === fromAddress)
 
-      const secondResult = await request(app).get(`/transfers/filters?after=${endCursor}&first=${first}&fromAddress=${fromAddress}`).send()
+      const secondResult = await request(app).get(`/transfers/filters?after=${endCursor}&first=${first}&fromAddress=${fromAddress}&toAddress=${toAddress}`).send()
 
       const { body: { pageInfo: { startCursor }, transfers: t2}} = secondResult
 
       const onlyFromAddressSecond = t2.every((tx:any) => tx.fromAddress === fromAddress)
 
-      const thirdResult = await request(app).get(`/transfers/filters?before=${startCursor}&first=${first}&fromAddress=${fromAddress}`).send()
+      const thirdResult = await request(app).get(`/transfers/filters?before=${startCursor}&first=${first}&fromAddress=${fromAddress}&toAddress=${toAddress}`).send()
 
       const {body: {transfers: t3}} = thirdResult
 
@@ -446,17 +441,19 @@ describe("Test TransfersController", () => {
 
     it('Request /transfers/filters?after=[string]&first=10&fromAddres=[string] - returns empty array because there is no more data', async () => {
       const fromAddress = "0xff93B45308FD417dF303D6515aB04D9e89a750Ca"
-      const firstResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}`).send()
+      const toAddress = "0xff93B45308FD417dF303D6515aB04D9e89a750Ca"
+      const firstResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}&toAddress=${toAddress}`).send()
   
       const { body: { pageInfo: { endCursor } }} = firstResult
   
-      const secondResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}&after=${endCursor}`).send()
+      const secondResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}&toAddress=${toAddress}&after=${endCursor}`).send()
   
       const { body: { transfers, pageInfo: { hasNextPage } } } = secondResult
   
       expect(transfers.length).toBe(0)
       expect(hasNextPage).toBe(false)
     })
+
     it('Request /transfers/filters?first=10&fromAddress=[string]&toAddress=[string] with the same address but different cases', async () => {
       const fromAddress = "0x5EfB75040BC6257EcE792D8dEd423063E6588A37"
       const toAddress = "0x5efb75040bc6257ece792d8ded423063e6588a37"
@@ -502,6 +499,25 @@ describe("Test TransfersController", () => {
       const { body: { transfers: t2 }} = result2
 
       const sliced = transfers.slice(9, transfers.length - 1).map((tx:any) => tx.id)
+
+      expect(t2.map((tx:any) => tx.id)).toEqual(sliced)
+    })
+
+    it('Request /transfers/filters?last=10&before=[string]&fromAddress=[string]&toAddress=[string]', async () => {
+      const result = await request(app).get(`/transfers/filters?last=20`).send()
+
+      const { body: { transfers } } = result
+
+      const { id } = transfers[transfers.length - 1]
+
+      const fromAddress = "0x42Da3Ba8c586F6fe9eF6ed1d09423eB73E4fe25b"
+      const toAddress = "0x42da3ba8c586f6fe9ef6ed1d09423eb73e4fe25b"
+
+      const result2 = await request(app).get(`/transfers/filters?last=10&before=${id}&fromAddress=${fromAddress}&toAddress=${toAddress}`).send()
+
+      const { body: { transfers: t2 } } = result2
+
+      const sliced = transfers.filter((tx:any) => tx.fromAddress === fromAddress && tx.toAddress === toAddress && tx.id !== id).map((t:any) => t.id)
 
       expect(t2.map((tx:any) => tx.id)).toEqual(sliced)
     })
