@@ -91,7 +91,6 @@ class TransfersService {
   }
 
   buildQueryObject(args: TransfersByCursorOptions) {
-    let take
     const { filters } = args
 
     const where = {
@@ -99,16 +98,8 @@ class TransfersService {
       fromAddress: undefined as any,
       toAddress: undefined as any,
       depositTransactionHash: undefined as any,
-      toDomainId: undefined as any
-    }
-
-    const cursor = args.after ? { id: args.after } : args.before ? { id: args.before } : undefined
-    const skip = args.after ? 1 : cursor ? 1 : undefined
-
-    if (args.first && args.after) {
-      take = args.first! + 1
-    } else if ((args.first || args.last) && args.before) {
-      take = (-1 * ((args.first! || args.last!) + 1))
+      toDomainId: undefined as any,
+      OR: undefined as any
     }
 
     if (filters !== undefined && Object.keys(filters).length) {
@@ -120,17 +111,21 @@ class TransfersService {
         toDomainId
       } = filters as Filters
 
+      where.OR = fromAddress && toAddress && [
+        {
+          fromAddress: { equals: fromAddress, mode: "insensitive" },
+        },
+        {
+          toAddress: { equals: toAddress, mode: "insensitive" },
+        },
+      ]
+
       where.fromDomainId = fromDomainId && parseInt(fromDomainId!, 10)
-      where.fromAddress = fromAddress && { equals: fromAddress, mode: "insensitive" }
-      where.toAddress = toAddress && { equals: toAddress, mode: "insensitive" }
       where.depositTransactionHash = depositTransactionHash
       where.toDomainId = toDomainId && parseInt(toDomainId, 10)
     }
 
     return {
-      cursor,
-      take,
-      skip,
       include: {
         proposalEvents: true,
         voteEvents: true,
@@ -145,10 +140,10 @@ class TransfersService {
     let hasPreviousPage!: boolean
     let hasNextPage!: boolean
     if (isForwardPagination(args)) {
+      const cursor = args.after ? { id: args.after } : undefined
+      const skip = args.after ? 1 : undefined
+      const take = args.first + 1
       const {
-        cursor,
-        take,
-        skip,
         include,
         orderBy,
         where
@@ -169,10 +164,10 @@ class TransfersService {
       // Remove the extra record (last element) from the results
       if (hasNextPage) rawTransfers.pop()
     } else if (isBackwardPagination(args)) {
+      const take = -1 * (args.last + 1)
+      const cursor = args.before ? { id: args.before } : undefined
+      const skip = cursor ? 1 : undefined
       const {
-        cursor,
-        take,
-        skip,
         include,
         orderBy,
         where
