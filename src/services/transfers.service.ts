@@ -90,9 +90,7 @@ class TransfersService {
     return this.addLatestStatusToTransfers(transfers)
   }
 
-  buildQueryObject(args: TransfersByCursorOptions, isForward: boolean | undefined, isBackwards: boolean | undefined ) {
-    let cursor
-    let skip
+  buildQueryObject(args: TransfersByCursorOptions) {
     let take
     const { filters } = args
 
