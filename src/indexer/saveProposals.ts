@@ -18,12 +18,14 @@ export async function saveProposals(
     fromBlock: bridge.deployedBlockNumber,
   })
   for (const pel of proposalEventLogs) {
-    const tx = await provider.getTransaction(pel.transactionHash)
-    const { from: transactionSenderAddress } = tx
-    const parsedLog = bridgeContract.interface.parseLog(pel)
-    const { depositNonce, status, dataHash } = parsedLog.args
-    const depositNonceInt = depositNonce.toNumber()
+    let depositNonceInt
     try {
+      const tx = await provider.getTransaction(pel.transactionHash)
+      const { from: transactionSenderAddress } = tx
+      const parsedLog = bridgeContract.interface.parseLog(pel)
+      const { depositNonce, status, dataHash } = parsedLog.args
+      depositNonceInt = depositNonce.toNumber()
+
       await prisma.proposalEvent.create({
         data: {
           proposalEventBlockNumber: pel.blockNumber,

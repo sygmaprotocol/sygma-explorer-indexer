@@ -10,29 +10,25 @@ export async function pollVotes(
   bridge: EvmBridgeConfig,
   bridgeContract: Bridge,
   provider: ethers.providers.JsonRpcProvider,
-  config: ChainbridgeConfig
+  config: ChainbridgeConfig,
 ) {
-  const proposalVoteFilter = bridgeContract.filters.ProposalVote(
-    null,
-    null,
-    null,
-    null
-  )
+  const proposalVoteFilter = bridgeContract.filters.ProposalVote(null, null, null, null)
 
   bridgeContract.on(
     proposalVoteFilter,
-    async(
+    async (
       originDomainID: number,
       depositNonce: ethers.BigNumber,
       status: number, // TODO: Confirm wether this is actually being used
       dataHash: string,
-      tx: Event
+      tx: Event,
     ) => {
-      const eventTransaction = await provider.getTransaction(tx.transactionHash)
-      const { from: transactionSenderAddress } = eventTransaction
-      console.log("🚀 ~ file: pollVotes.ts ~ line 32 ~ tx", tx)
       const depositNonceInt = depositNonce.toNumber()
       try {
+        const eventTransaction = await provider.getTransaction(tx.transactionHash)
+        const { from: transactionSenderAddress } = eventTransaction
+        console.log("🚀 ~ file: pollVotes.ts ~ line 32 ~ tx", tx)
+
         await prisma.voteEvent.create({
           data: {
             voteBlockNumber: tx.blockNumber,
@@ -52,9 +48,8 @@ export async function pollVotes(
         console.error(error)
         console.error("DepositNonce", depositNonceInt)
       }
-    })
-
-  console.log(
-    `Bridge on ${bridge.name} listen for proposal votes`
+    },
   )
+
+  console.log(`Bridge on ${bridge.name} listen for proposal votes`)
 }

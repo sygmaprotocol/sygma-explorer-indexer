@@ -20,7 +20,7 @@ export async function pollDeposits(
   const depositFilter = bridgeContract.filters.Deposit(null, null, null)
   bridgeContract.on(
     depositFilter,
-    async(
+    async (
       destinationDomainID: number,
       resourceID: string,
       depositNonce: ethers.BigNumber,
@@ -29,14 +29,14 @@ export async function pollDeposits(
       handlerResponse: string,
       tx: Event,
     ) => {
-      const depositNonceInt = depositNonce.toNumber()
-      const { destinationRecipientAddress, amount } = decodeDataHash(data, bridge.decimals)
-
-      console.time(`Nonce: ${depositNonce}`)
       let dataTransfer
-      const cacheTokenKey = `resourceIDToTokenContractAddress_${resourceID}_${bridge.domainId}`
-
+      const depositNonceInt = depositNonce.toNumber()
       try {
+        const { destinationRecipientAddress, amount } = decodeDataHash(data, bridge.decimals)
+
+        console.time(`Nonce: ${depositNonce}`)
+        const cacheTokenKey = `resourceIDToTokenContractAddress_${resourceID}_${bridge.domainId}`
+
         let tokenAddress
         if (cache.has(cacheTokenKey)) {
           tokenAddress = cache.get(cacheTokenKey)

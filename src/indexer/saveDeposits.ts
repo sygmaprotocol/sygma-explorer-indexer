@@ -49,7 +49,7 @@ export async function saveDeposits(
       }
       dataTransfer = {
         depositNonce: depositNonceInt,
-        fromAddress: user,
+        fromAddress: user.toLocaleLowerCase(),
         depositBlockNumber: dl.blockNumber,
         depositTransactionHash: dl.transactionHash,
         fromDomainId: bridge.domainId,
@@ -57,10 +57,10 @@ export async function saveDeposits(
         timestamp: (await provider.getBlock(dl.blockNumber)).timestamp,
         toDomainId: destinationDomainID,
         toNetworkName: getNetworkName(destinationDomainID, config),
-        toAddress: destinationRecipientAddress,
-        tokenAddress: tokenAddress,
-        sourceTokenAddress: tokenAddress,
-        destinationTokenAddress: destinationTokenAddress,
+        toAddress: destinationRecipientAddress.toLocaleLowerCase(),
+        tokenAddress: tokenAddress.toLocaleLowerCase(),
+        sourceTokenAddress: tokenAddress.toLocaleLowerCase(),
+        destinationTokenAddress: destinationTokenAddress.toLocaleLowerCase(),
         amount: amount,
         resourceId: resourceID,
       }

@@ -18,10 +18,11 @@ export async function pollProposals(
     proposalEventFilter,
     async(originDomainID: number, depositNonce: ethers.BigNumber, status: number, dataHash: string, tx: Event) => {
       const depositNonceInt = depositNonce.toNumber()
-      const eventTransaction = await provider.getTransaction(tx.transactionHash)
-      const { from: transactionSenderAddress } = eventTransaction
-      console.log("🚀 ~ file: pollProposals.ts ~ line 34 ~ tx", tx)
       try {
+        const eventTransaction = await provider.getTransaction(tx.transactionHash)
+        const { from: transactionSenderAddress } = eventTransaction
+        console.log("🚀 ~ file: pollProposals.ts ~ line 34 ~ tx", tx)
+
         await prisma.proposalEvent.create({
           data: {
             proposalEventBlockNumber: tx.blockNumber,
