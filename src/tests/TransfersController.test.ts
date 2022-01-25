@@ -457,6 +457,54 @@ describe("Test TransfersController", () => {
       expect(transfers.length).toBe(0)
       expect(hasNextPage).toBe(false)
     })
+    it('Request /transfers/filters?first=10&fromAddress=[string]&toAddress=[string] with the same address but different cases', async () => {
+      const fromAddress = "0x5EfB75040BC6257EcE792D8dEd423063E6588A37"
+      const toAddress = "0x5efb75040bc6257ece792d8ded423063e6588a37"
+      const result = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}&toAddress=${toAddress}`).send()
+
+      const { body: { transfers } } = result
+
+      const everyFromAddress = transfers.every((tx:any) => tx.fromAddress === fromAddress)
+      const everyToAddress = transfers.every((tx:any) => tx.toAddress === toAddress)
+
+      expect(everyFromAddress).toBe(true)
+      expect(everyToAddress).toBe(true)
+    })
+
+    it('Request /transfers/filters?first=10&before=[string]', async () => {
+      const result = await request(app).get(`/transfers/filters?first=${20}`).send()
+
+      const { body: { transfers: t1 } } = result
+
+      const { id } = t1[10]
+
+      const result2 = await request(app).get(`/transfers/filters?first=${first}&before=${id}`).send()
+
+      const { body: { transfers: t2 } } = result2
+
+      const indexOfId = t1.findIndex((tx:any) => tx.id === id)
+
+      const sliced = t1.slice(0, indexOfId).map((tx:any) => tx.id)
+      const filteredResult = t2.map((tx:any) => tx.id)
+
+      expect(filteredResult).toEqual(sliced)
+    })
+
+    it('Request /transfers/filters?last=10&before=[string]', async () => {
+      const result = await request(app).get(`/transfers/filters?last=${20}`).send()
+
+      const { body: { transfers } } = result
+
+      const { id } = transfers[transfers.length - 1]
+
+      const result2 = await request(app).get(`/transfers/filters?last=${10}&before=${id}`).send()
+
+      const { body: { transfers: t2 }} = result2
+
+      const sliced = transfers.slice(9, transfers.length - 1).map((tx:any) => tx.id)
+
+      expect(t2.map((tx:any) => tx.id)).toEqual(sliced)
+    })
   })
 })
 

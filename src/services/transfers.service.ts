@@ -94,7 +94,7 @@ class TransfersService {
     let cursor
     let skip
     let take
-    let filters
+    const { filters } = args
 
     const where = {
       fromDomainId: undefined as any,
@@ -104,15 +104,13 @@ class TransfersService {
       toDomainId: undefined as any
     }
 
-    if (isForward) {
-      cursor = args.after ? { id: args.after } : undefined
-      skip = args.after ? 1 : undefined
+    const cursor = args.after ? { id: args.after } : args.before ? { id: args.before } : undefined
+    const skip = args.after ? 1 : cursor ? 1 : undefined
+
+    if (args.first && args.after) {
       take = args.first! + 1
-      filters = args.filters
-    } else if (isBackwards) {
-      take = -1 * (args.last! + 1)
-      cursor = args.before ? { id: args.before } : undefined
-      skip = cursor ? 1 : undefined
+    } else if ((args.first || args.last) && args.before) {
+      take = (-1 * ((args.first! || args.last!) + 1))
     }
 
     if (filters !== undefined && Object.keys(filters).length) {
@@ -125,8 +123,8 @@ class TransfersService {
       } = filters as Filters
 
       where.fromDomainId = fromDomainId && parseInt(fromDomainId!, 10)
-      where.fromAddress = fromAddress
-      where.toAddress = toAddress
+      where.fromAddress = fromAddress && { equals: fromAddress, mode: "insensitive" }
+      where.toAddress = toAddress && { equals: toAddress, mode: "insensitive" }
       where.depositTransactionHash = depositTransactionHash
       where.toDomainId = toDomainId && parseInt(toDomainId, 10)
     }
