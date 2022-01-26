@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from "express"
 
 import TransfersService from "../services/transfers.service"
 
-import { jsonStringifyWithBigInt } from "../utils/helpers"
+import { buildQueryParamsToPasss, jsonStringifyWithBigInt } from "../utils/helpers"
 
 export const TransfersController: Router = Router()
 
@@ -34,11 +34,31 @@ TransfersController.get(
   "/",
   async(req: Request, res: Response, next: NextFunction) => {
     try {
-      const before = req.query.before?.toString()
-      const first = req.query.first ? parseInt(req.query.first?.toString()) : undefined
-      const after = req.query.after?.toString()
-      const last = req.query.last ? parseInt(req.query.last?.toString()) : undefined
-      const transfers = await transfersService.findTransfersByCursor({ before, after, first, last })
+      const { query: { before, first, after, last } } = req
+      const params = buildQueryParamsToPasss({ before, first, after, last })
+
+      const transfers = await transfersService.findTransfersByCursor({
+        ...params
+      })
+
+      res.setHeader("Content-Type", "application/json")
+      res.status(200).send(transfers)
+    } catch (e) {
+      next(e)
+    }
+  }
+)
+
+TransfersController.get(
+  "/filters",
+  async(req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { query: { before, first, after, last, ...rest } } = req
+      const params = buildQueryParamsToPasss({ before, first, after, last, filters: rest })
+
+      const transfers = await transfersService.findTransfersByCursor({
+        ...params
+      })
 
       res.setHeader("Content-Type", "application/json")
       res.status(200).send(transfers)

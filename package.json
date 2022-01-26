@@ -8,6 +8,7 @@
     "start:prod": "node ./build/index.js",
     "build": "tsc",
     "test": "jest -i --forceExit --detectOpenHandles",
+    "test:watch": "jest --watch",
     "copy-config-for-dev": "cp ./config/chainbridge-explorer-runtime-config.example.json ./public/chainbridge-explorer-runtime-config.json",
     "prisma:generate": "prisma generate",
     "index:fetch": "ts-node src/indexer",

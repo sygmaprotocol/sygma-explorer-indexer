@@ -1,4 +1,4 @@
-import { PrismaClient, Transfer, ProposalEvent, VoteEvent } from "@prisma/client"
+import { PrismaClient, Transfer, ProposalEvent, VoteEvent, Prisma } from "@prisma/client"
 
 type TransferWithStatus = Transfer & {
   status?: number
@@ -13,12 +13,21 @@ type AllTransfersOption = {
   skipIndex: number
 }
 
-type TransfersByCursorOptions = {
+export type Filters = {
+  fromAddress?: string,
+  toAddress?: string,
+  depositTransactionHash?: string,
+  fromDomainId?: string,
+  toDomainId?: string
+}
+
+export type TransfersByCursorOptions = {
   id?: string
   first?: number
   last?: number
   before?: string
   after?: string
+  filters?: Filters
 }
 type ForwardPaginationArguments = { first: number; after?: string }
 type BackwardPaginationArguments = { last: number; before?: string }
@@ -31,7 +40,7 @@ function isBackwardPagination(args: TransfersByCursorOptions): args is BackwardP
   return "last" in args && args.last !== undefined
 }
 
-class TransfesService {
+class TransfersService {
   public transfers = new PrismaClient().transfer
 
   public async findTransfer({ id }: { id: string }) {
@@ -81,6 +90,51 @@ class TransfesService {
     return this.addLatestStatusToTransfers(transfers)
   }
 
+  buildQueryObject(args: TransfersByCursorOptions) {
+    const { filters } = args
+
+    const where = {
+      fromDomainId: undefined as any,
+      fromAddress: undefined as any,
+      toAddress: undefined as any,
+      depositTransactionHash: undefined as any,
+      toDomainId: undefined as any,
+      OR: undefined as any
+    }
+
+    if (filters !== undefined && Object.keys(filters).length) {
+      const {
+        fromAddress,
+        toAddress,
+        depositTransactionHash,
+        fromDomainId,
+        toDomainId
+      } = filters as Filters
+
+      where.OR = fromAddress && toAddress && [
+        {
+          fromAddress: { equals: fromAddress, mode: "insensitive" },
+        },
+        {
+          toAddress: { equals: toAddress, mode: "insensitive" },
+        },
+      ]
+
+      where.fromDomainId = fromDomainId && parseInt(fromDomainId!, 10)
+      where.depositTransactionHash = depositTransactionHash
+      where.toDomainId = toDomainId && parseInt(toDomainId, 10)
+    }
+
+    return {
+      include: {
+        proposalEvents: true,
+        voteEvents: true,
+      },
+      orderBy: { timestamp: "desc" } as Prisma.Enumerable<Prisma.TransferOrderByInput>,
+      where
+    }
+  }
+
   public async findTransfersByCursor(args: TransfersByCursorOptions) {
     let rawTransfers!: TransfersWithStatus
     let hasPreviousPage!: boolean
@@ -89,15 +143,18 @@ class TransfesService {
       const cursor = args.after ? { id: args.after } : undefined
       const skip = args.after ? 1 : undefined
       const take = args.first + 1
+      const {
+        include,
+        orderBy,
+        where
+      } = this.buildQueryObject(args)
       rawTransfers = await this.transfers.findMany({
         cursor,
         take,
         skip,
-        orderBy: { timestamp: "desc" },
-        include: {
-          proposalEvents: true,
-          voteEvents: true,
-        },
+        orderBy,
+        include,
+        where
       })
       // See if we are "after" another record, indicating a previous page
       hasPreviousPage = !!args.after
@@ -110,24 +167,34 @@ class TransfesService {
       const take = -1 * (args.last + 1)
       const cursor = args.before ? { id: args.before } : undefined
       const skip = cursor ? 1 : undefined
+      const {
+        include,
+        orderBy,
+        where
+      } = this.buildQueryObject(args)
       rawTransfers = await this.transfers.findMany({
         cursor,
         take,
         skip,
-        orderBy: { timestamp: "desc" },
-        include: {
-          proposalEvents: true,
-          voteEvents: true,
-        },
+        orderBy,
+        include,
+        where
       })
       hasNextPage = !!args.before
       hasPreviousPage = rawTransfers.length > args.last
       if (hasPreviousPage) rawTransfers.shift()
     }
 
-    const transfers = this.addLatestStatusToTransfers(rawTransfers)
-    const startCursor = transfers[0].id
-    const endCursor = transfers[transfers.length - 1].id
+    let transfers: Array<TransferWithStatus> = []
+    let startCursor: string = ""
+    let endCursor: string = ""
+
+    if (rawTransfers.length) {
+      transfers = this.addLatestStatusToTransfers(rawTransfers)
+      startCursor = transfers[0].id
+      endCursor = transfers[transfers.length - 1].id
+    }
+
     return {
       transfers,
       pageInfo: {
@@ -166,4 +233,4 @@ class TransfesService {
     return transfer
   }
 }
-export default TransfesService
+export default TransfersService
