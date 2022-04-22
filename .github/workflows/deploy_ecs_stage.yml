@@ -1,13 +1,15 @@
 name: Deploy ECS
 
-on:
-  workflow_run:
-    workflows:
-      - test
-    branches:
-      - main
-    types:
-      - completed
+# on:
+#   workflow_run:
+#     workflows:
+#       - test
+#     branches:
+#       - main
+#     types:
+#       - completed
+
+on: [push]
 
 env:
   AWS_REGION: "us-east-2"
@@ -48,6 +50,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ecs/task_definition_${{ env.ENVIRONMENT }}.json
-          service: pl-backend-service-${{ env.ENVIRONMENT }}
-          cluster: pl-backend-${{ env.ENVIRONMENT }}
+          service: explorer-indexer-service-${{ env.ENVIRONMENT }}
+          cluster: explorer-indexer-${{ env.ENVIRONMENT }}
           wait-for-service-stability: true
