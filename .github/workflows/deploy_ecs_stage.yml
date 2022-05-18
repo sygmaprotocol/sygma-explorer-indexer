@@ -13,7 +13,7 @@ on: [push]
 
 env:
   AWS_REGION: "us-east-2"
-  ECR_REPOSITORY: pl-backend-stage
+  ECR_REPOSITORY: explorer-indexer-stage
   ENVIRONMENT: STAGE
 
 jobs:
