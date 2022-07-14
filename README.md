@@ -1,4 +1,4 @@
-# Chainbridge Explorer Indexer
+# Sygma Explorer Indexer
 
 ## Table of Contents
 
