@@ -8,11 +8,10 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["mongoDb"]
 }
 
 model Transfer {
-  id          String    @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   uuid  String @default(uuid()) @map("uuid")
   depositNonce Int @unique
   resourceId String
@@ -23,7 +22,6 @@ model Transfer {
 
   fromAddress String?
   toAddress String?
-  tokenAddress String?
   amount String?
   timestamp Int?
   depositTransactionHash String? @unique
@@ -34,32 +32,22 @@ model Transfer {
   sourceTokenAddress String?
 	destinationTokenAddress String?
 
-  proposalEvents ProposalEvent[]
-  voteEvents VoteEvent[]
+  handleResponse String?
+
+  proposalExecutionEvent ProposalExecutionEvent?
+  failedHandlerExecutionEvent FailedHandlerExecutionEvent?
 }
 
-model ProposalEvent {
-  id      String @id @default(dbgenerated()) @map("_id") @db.ObjectId
-  proposalStatus Int
-  dataHash String?
-  proposalEventTransactionHash String?
-  proposalEventBlockNumber Int
-  timestamp Int
-  transfer  Transfer?    @relation(fields: [transferId], references: [id])
-  transferId  String     @db.ObjectId
-
+type ProposalExecutionEvent {
+  originDomainID Int
+  depositNonce Int
+  dataHash String
   by String
 }
 
-model VoteEvent {
-  id      String @id @default(dbgenerated()) @map("_id") @db.ObjectId
-  voteBlockNumber Int
-  voteTransactionHash String?
-  dataHash String?
-  timestamp Int
-  voteStatus Boolean
-  transfer  Transfer?    @relation(fields: [transferId], references: [id])
-  transferId  String     @db.ObjectId
-
+type FailedHandlerExecutionEvent {
+  lowLevelData String
+  originDomainID Int
+  depositNonce Int
   by String
 }
