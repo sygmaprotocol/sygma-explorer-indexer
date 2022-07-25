@@ -12,7 +12,7 @@ export async function saveProposals(
   provider: ethers.providers.JsonRpcProvider,
   config: ChainbridgeConfig,
 ) {
-  const proposalEventFilter = bridgeContract.filters.ProposalEvent(null, null, null, null)
+  const proposalEventFilter = bridgeContract.filters.ProposalExecution(null, null, null)
   const proposalEventLogs = await provider.getLogs({
     ...proposalEventFilter,
     fromBlock: bridge.deployedBlockNumber,
@@ -23,20 +23,20 @@ export async function saveProposals(
       const tx = await provider.getTransaction(pel.transactionHash)
       const { from: transactionSenderAddress } = tx
       const parsedLog = bridgeContract.interface.parseLog(pel)
-      const { depositNonce, status, dataHash } = parsedLog.args
+      const { depositNonce, originDomainID, dataHash } = parsedLog.args
       depositNonceInt = depositNonce.toNumber()
 
-      await prisma.proposalEvent.create({
+      await prisma.transfer.update({
+        where: {
+          depositNonce: depositNonceInt,
+        },
         data: {
-          proposalEventBlockNumber: pel.blockNumber,
-          proposalEventTransactionHash: pel.transactionHash,
-          dataHash: dataHash,
-          timestamp: (await provider.getBlock(pel.blockNumber)).timestamp,
-          proposalStatus: status,
-          by: transactionSenderAddress,
-          transfer: {
-            connect: {
+          proposalExecutionEvent: {
+            set: {
+              originDomainID: originDomainID,
               depositNonce: depositNonceInt,
+              dataHash: dataHash,
+              by: transactionSenderAddress
             },
           },
         },
@@ -46,5 +46,5 @@ export async function saveProposals(
       console.error("DepositNonce", depositNonceInt)
     }
   }
-  console.log(`Added ${bridge.name} ${proposalEventLogs.length} proposal events`)
+  console.log(`Added ${bridge.name} \x1b[33m${proposalEventLogs.length}\x1b[0m proposal events`)
 }

@@ -22,7 +22,7 @@ export type EvmBridgeConfig = BridgeConfig & {
   bridgeAddress: string;
   erc20HandlerAddress: string;
   type: "Ethereum";
-  deployedBlockNumber: number;
+  deployedBlockNumber?: number;
 };
 
 export type SubstrateBridgeConfig = BridgeConfig & {

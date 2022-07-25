@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
-import { indexDeposits, indexProposals, indexVotes } from "./indexer"
+import { indexDeposits, indexProposals, indexFailedHandlerExecutions } from "./indexer"
 const prisma = new PrismaClient()
 
 async function main() {
@@ -11,11 +11,9 @@ async function main() {
   )
   await prisma.$connect()
 
-  const deleteVotes = prisma.voteEvent.deleteMany()
-  const deleteProposals = prisma.proposalEvent.deleteMany()
   const deleteTransfers = prisma.transfer.deleteMany()
 
-  await prisma.$transaction([deleteVotes, deleteProposals, deleteTransfers])
+  await prisma.$transaction([deleteTransfers])
 
   const evmBridges = chainbridgeConfig.chains.filter(
     (c) => c.type !== "Substrate"
@@ -23,11 +21,13 @@ async function main() {
   for (const bridge of evmBridges) {
     await indexDeposits(bridge as EvmBridgeConfig, chainbridgeConfig)
   }
+  console.log("\n***\n")
   for (const bridge of evmBridges) {
     await indexProposals(bridge as EvmBridgeConfig, chainbridgeConfig)
   }
+  console.log("\n***\n")
   for (const bridge of evmBridges) {
-    await indexVotes(bridge as EvmBridgeConfig, chainbridgeConfig)
+    await indexFailedHandlerExecutions(bridge as EvmBridgeConfig, chainbridgeConfig)
   }
 }
 main()
@@ -37,6 +37,6 @@ main()
   })
   .finally(async() => {
     await prisma.$disconnect()
-    console.log("disconnect")
+    console.log("\ndisconnect")
     process.exit()
   })

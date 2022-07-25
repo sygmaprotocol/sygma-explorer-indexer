@@ -1,6 +1,6 @@
 import {
-  BridgeFactory,
-  Erc20HandlerFactory,
+  Bridge__factory as BridgeFactory,
+  ERC20Handler__factory as Erc20HandlerFactory,
 } from "@chainsafe/chainbridge-contracts"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 import { getProvider } from "../utils/helpers"
