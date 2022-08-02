@@ -1,30 +1,30 @@
 import {
-  BridgeFactory,
-  Erc20HandlerFactory,
+  Bridge__factory as BridgeFactory,
+  ERC20Handler__factory as Erc20HandlerFactory,
 } from "@chainsafe/chainbridge-contracts"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 import { getProvider } from "../utils/helpers"
 
-import { saveVotes } from "./saveVotes"
-import { saveProposals } from "./saveProposals"
 import { saveDeposits } from "./saveDeposits"
+import { saveProposals } from "./saveProposals"
+import { saveFailedHandlerExecutions } from "./saveFailedHandlerExecutions"
 
 export async function indexDeposits(
   bridge: EvmBridgeConfig,
   config: ChainbridgeConfig
 ) {
-  console.log(`Checking depostis for ${bridge.name}`)
+  console.log(`\nChecking depostis for ${bridge.name}`)
 
   const provider = getProvider(bridge)
   await provider.ready
 
   const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
+
   const erc20HandlerContract = Erc20HandlerFactory.connect(
     bridge.erc20HandlerAddress,
     provider
   )
 
-  // TRANSFERS
   await saveDeposits(
     bridge,
     bridgeContract,
@@ -32,31 +32,26 @@ export async function indexDeposits(
     provider,
     config
   )
-
-  // // PROPOSALS
-  // await saveProposals(bridge, bridgeContract, provider, config)
-
-  // // VOTE_EVENTS
-  // await saveVotes(bridge, bridgeContract, provider, config)
 }
+
 export async function indexProposals(bridge: EvmBridgeConfig, config: ChainbridgeConfig) {
-  console.log(`Checking proposals for ${bridge.name}`)
+  console.log(`\nChecking proposals executions for ${bridge.name}`)
 
   const provider = getProvider(bridge)
   await provider.ready
 
   const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
-  // PROPOSALS
+
   await saveProposals(bridge, bridgeContract, provider, config)
 }
 
-export async function indexVotes(bridge: EvmBridgeConfig, config: ChainbridgeConfig) {
-  console.log(`Checking votes for ${bridge.name}`)
+export async function indexFailedHandlerExecutions(bridge: EvmBridgeConfig, config: ChainbridgeConfig) {
+  console.log(`Checking failed handler exectutions for ${bridge.name}`)
 
   const provider = getProvider(bridge)
   await provider.ready
 
   const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
-  // VOTE_EVENTS
-  await saveVotes(bridge, bridgeContract, provider, config)
+
+  await saveFailedHandlerExecutions(bridge, bridgeContract, provider, config)
 }

@@ -12,77 +12,34 @@ const prisma = new PrismaClient()
 const DEFAULT_TRANSFERS_URL = "/transfers?first=10"
 
 const transferData = {
-  depositNonce: 25,
+  depositNonce: 3,
   resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000",
-  fromDomainId: 0,
-  fromNetworkName: "EVM Celo Testnet",
-  toDomainId: 1,
-  toNetworkName: "Ethereum - Rinkeby",
-  fromAddress: "0x284D2Cb760D5A952f9Ea61fd3179F98a2CbF0B3E",
-  toAddress: "0x42da3ba8c586f6fe9ef6ed1d09423eb73e4fe25b",
-  tokenAddress: "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
-  sourceTokenAddress: "0x00547208290094373f020b53465D742Ca73333F6",
-  destinationTokenAddress: "0x01547208290094373f020b53465D742Ca73333F6",
-  amount: "1000000000000000000n",
-  timestamp: 1630511631,
-  depositTransactionHash: "0x6679cc6180fecb446bd9b2f2cba420601e4781dae5c3be681be1ef6c27214da0",
-  depositBlockNumber: 7031371,
-  proposalEvents: {
-    create: [
-      {
-        proposalStatus: 1,
-        dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-        proposalEventTransactionHash: "0x557e71b9d44aeb230d6a4af47002a68c5a0e58f05566b42d20d9302d3eebd0d6",
-        proposalEventBlockNumber: 9217370,
-        timestamp: 1630511687,
-        by: "0x66547208290094373f020b53465D742Ca73333F6",
-      },
-      {
-        proposalStatus: 2,
-        dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-        proposalEventTransactionHash: "0x4d742e070477ec6b05d0288da1f8ba9f8c73323e90bfb8e4d2f9fac023150bfc",
-        proposalEventBlockNumber: 9217370,
-        timestamp: 1630511687,
-        by: "0x66547208290094373f020b53465D742Ca73333F6",
-      },
-      {
-        proposalStatus: 3,
-        dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-        proposalEventTransactionHash: "0xad4d7d7d6dc402cd49e54d8094f817f5b60105ad0f56310568a3318a84751fd7",
-        proposalEventBlockNumber: 9217371,
-        timestamp: 1630511702,
-        by: "0x66547208290094373f020b53465D742Ca73333F6",
-      },
-    ],
+  fromDomainId: 1,
+  fromNetworkName: "Local EVM 1",
+  toDomainId: 2,
+  toNetworkName: "Local EVM 2",
+  fromAddress: "0x24962717f8fa5ba3b931bacaf9ac03924eb475a0",
+  toAddress: "0x24962717f8fa5ba3b931bacaf9ac03924eb475a0",
+  amount: "1000000000000000000",
+  timestamp: 1658771219,
+  depositTransactionHash: "0xb0d4048dd037e6e46173a7bd5310104c87e81f630cc11b6d028412c2aae98750",
+  depositBlockNumber: 583,
+  status: 1,
+  sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
+  destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
+  handleResponse: null,
+  proposalExecutionEvent: {
+    originDomainID: 1,
+    depositNonce: 3,
+    dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
+    by: "0x148FfB2074A9e59eD58142822b3eB3fcBffb0cd7",
   },
-  voteEvents: {
-    create: [
-      {
-        voteBlockNumber: 9217370,
-        voteTransactionHash: "0x557e71b9d44aeb230d6a4af47002a68c5a0e58f05566b42d20d9302d3eebd0d6",
-        dataHash: null,
-        timestamp: 1630511687,
-        voteStatus: true,
-        by: "0x66547208290094373f020b53465D742Ca73333F6",
-      },
-      {
-        voteBlockNumber: 9217370,
-        voteTransactionHash: "0x4d742e070477ec6b05d0288da1f8ba9f8c73323e90bfb8e4d2f9fac023150bfc",
-        dataHash: null,
-        timestamp: 1630511687,
-        voteStatus: true,
-        by: "0x66547208290094373f020b53465D742Ca73333F6",
-      },
-    ],
-  },
+  failedHandlerExecutionEvent: null,
 }
 
 describe("Test TransfersController", () => {
   afterEach(async () => {
-    await prisma.voteEvent.deleteMany({})
-    await prisma.proposalEvent.deleteMany({})
     await prisma.transfer.deleteMany({})
-
   })
 
   afterAll( async () => {
@@ -97,120 +54,45 @@ describe("Test TransfersController", () => {
       console.log("✨ 1 transfer successfully created!")
     })
 
-    it("Request /transfers should return one transfer with proposalEvents and voteEvents", async () => {
+    it("Request /transfers should return one transfer with proposalExecution event", async () => {
       const result = await request(app).get(DEFAULT_TRANSFERS_URL).send()
 
       expect(result.status).toBe(200)
       expect(result.body.transfers[0]).toMatchObject({
-        depositNonce: 25,
+        depositNonce: 3,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000",
-        fromDomainId: 0,
-        fromNetworkName: "EVM Celo Testnet",
-        toDomainId: 1,
-        toNetworkName: "Ethereum - Rinkeby",
-        fromAddress: "0x284D2Cb760D5A952f9Ea61fd3179F98a2CbF0B3E",
-        toAddress: "0x42da3ba8c586f6fe9ef6ed1d09423eb73e4fe25b",
-        tokenAddress: "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
-        amount: "1000000000000000000n",
-        timestamp: 1630511631,
-        depositTransactionHash: "0x6679cc6180fecb446bd9b2f2cba420601e4781dae5c3be681be1ef6c27214da0",
-        depositBlockNumber: 7031371,
-        sourceTokenAddress: "0x00547208290094373f020b53465D742Ca73333F6",
-        destinationTokenAddress: "0x01547208290094373f020b53465D742Ca73333F6",
-        status: 3,
-        proposalEvents: [
-          {
-            proposalStatus: 1,
-            dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-            proposalEventTransactionHash: "0x557e71b9d44aeb230d6a4af47002a68c5a0e58f05566b42d20d9302d3eebd0d6",
-            proposalEventBlockNumber: 9217370,
-            timestamp: 1630511687,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-          {
-            proposalStatus: 2,
-            dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-            proposalEventTransactionHash: "0x4d742e070477ec6b05d0288da1f8ba9f8c73323e90bfb8e4d2f9fac023150bfc",
-            proposalEventBlockNumber: 9217370,
-            timestamp: 1630511687,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-          {
-            proposalStatus: 3,
-            dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-            proposalEventTransactionHash: "0xad4d7d7d6dc402cd49e54d8094f817f5b60105ad0f56310568a3318a84751fd7",
-            proposalEventBlockNumber: 9217371,
-            timestamp: 1630511702,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-        ],
-        voteEvents: [
-          {
-            voteBlockNumber: 9217370,
-            voteTransactionHash: "0x557e71b9d44aeb230d6a4af47002a68c5a0e58f05566b42d20d9302d3eebd0d6",
-            dataHash: null,
-            timestamp: 1630511687,
-            voteStatus: true,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-          {
-            voteBlockNumber: 9217370,
-            voteTransactionHash: "0x4d742e070477ec6b05d0288da1f8ba9f8c73323e90bfb8e4d2f9fac023150bfc",
-            dataHash: null,
-            timestamp: 1630511687,
-            voteStatus: true,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-        ],
-      })
-    })
-  })
-
-  describe("NO proposalEvents and NO voteEvents", () => {
-    beforeEach(async () => {
-      const alteredTransferData = {
-        ...transferData,
-        proposalEvents: {},
-        voteEvents: {},
-      }
-      await prisma.transfer.create({
-        data: alteredTransferData,
-      })
-      console.log("✨ 1 transfer successfully created!")
-    })
-
-    it("Request /transfers should return one transfer with NO proposalEvents and NO voteEvents", async () => {
-      const result = await request(app).get(DEFAULT_TRANSFERS_URL).send()
-
-      expect(result.status).toBe(200)
-      expect(result.body.transfers[0]).toMatchObject({
-        depositNonce: 25,
-        resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000",
-        fromDomainId: 0,
-        fromNetworkName: "EVM Celo Testnet",
-        toDomainId: 1,
-        toNetworkName: "Ethereum - Rinkeby",
-        fromAddress: "0x284D2Cb760D5A952f9Ea61fd3179F98a2CbF0B3E",
-        toAddress: "0x42da3ba8c586f6fe9ef6ed1d09423eb73e4fe25b",
-        tokenAddress: "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
-        amount: "1000000000000000000n",
-        timestamp: 1630511631,
-        depositTransactionHash: "0x6679cc6180fecb446bd9b2f2cba420601e4781dae5c3be681be1ef6c27214da0",
-        depositBlockNumber: 7031371,
-        sourceTokenAddress: "0x00547208290094373f020b53465D742Ca73333F6",
-        destinationTokenAddress: "0x01547208290094373f020b53465D742Ca73333F6",
+        fromDomainId: 1,
+        fromNetworkName: "Local EVM 1",
+        toDomainId: 2,
+        toNetworkName: "Local EVM 2",
+        fromAddress: "0x24962717f8fa5ba3b931bacaf9ac03924eb475a0",
+        toAddress: "0x24962717f8fa5ba3b931bacaf9ac03924eb475a0",
+        amount: "1000000000000000000",
+        timestamp: 1658771219,
+        depositTransactionHash: "0xb0d4048dd037e6e46173a7bd5310104c87e81f630cc11b6d028412c2aae98750",
+        depositBlockNumber: 583,
         status: 1,
-        proposalEvents: [],
-        voteEvents: [],
+        sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
+        destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
+        handleResponse: null,
+        proposalExecutionEvent: {
+          originDomainID: 1,
+          depositNonce: 3,
+          dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
+          by: "0x148FfB2074A9e59eD58142822b3eB3fcBffb0cd7",
+        },
+        failedHandlerExecutionEvent: null,
       })
     })
   })
 
-  describe("with voteEvents and NO proposalEvents", () => {
+  describe("NO proposalExecution Events ", () => {
     beforeEach(async () => {
       const alteredTransferData = {
         ...transferData,
-        proposalEvents: {},
+        status: 0,
+        proposalExecutionEvent: null,
+        failedHandlerExecutionEvent: null,
       }
       await prisma.transfer.create({
         data: alteredTransferData,
@@ -218,108 +100,44 @@ describe("Test TransfersController", () => {
       console.log("✨ 1 transfer successfully created!")
     })
 
-    it("Request /transfers should return one transfer with voteEvents and NO proposalEvents", async () => {
-      await prisma.proposalEvent.deleteMany({})
+    it("Request /transfers should return one transfer with NO proposalExecution", async () => {
       const result = await request(app).get(DEFAULT_TRANSFERS_URL).send()
 
       expect(result.status).toBe(200)
       expect(result.body.transfers[0]).toMatchObject({
-        depositNonce: 25,
+        depositNonce: 3,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000",
-        fromDomainId: 0,
-        fromNetworkName: "EVM Celo Testnet",
-        toDomainId: 1,
-        toNetworkName: "Ethereum - Rinkeby",
-        fromAddress: "0x284D2Cb760D5A952f9Ea61fd3179F98a2CbF0B3E",
-        toAddress: "0x42da3ba8c586f6fe9ef6ed1d09423eb73e4fe25b",
-        tokenAddress: "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
-        amount: "1000000000000000000n",
-        timestamp: 1630511631,
-        depositTransactionHash: "0x6679cc6180fecb446bd9b2f2cba420601e4781dae5c3be681be1ef6c27214da0",
-        depositBlockNumber: 7031371,
-        sourceTokenAddress: "0x00547208290094373f020b53465D742Ca73333F6",
-        destinationTokenAddress: "0x01547208290094373f020b53465D742Ca73333F6",
-        status: 1,
-        proposalEvents: [],
-        voteEvents: [
-          {
-            voteBlockNumber: 9217370,
-            voteTransactionHash: "0x557e71b9d44aeb230d6a4af47002a68c5a0e58f05566b42d20d9302d3eebd0d6",
-            dataHash: null,
-            timestamp: 1630511687,
-            voteStatus: true,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-          {
-            voteBlockNumber: 9217370,
-            voteTransactionHash: "0x4d742e070477ec6b05d0288da1f8ba9f8c73323e90bfb8e4d2f9fac023150bfc",
-            dataHash: null,
-            timestamp: 1630511687,
-            voteStatus: true,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-        ],
+        fromDomainId: 1,
+        fromNetworkName: "Local EVM 1",
+        toDomainId: 2,
+        toNetworkName: "Local EVM 2",
+        fromAddress: "0x24962717f8fa5ba3b931bacaf9ac03924eb475a0",
+        toAddress: "0x24962717f8fa5ba3b931bacaf9ac03924eb475a0",
+        amount: "1000000000000000000",
+        timestamp: 1658771219,
+        depositTransactionHash: "0xb0d4048dd037e6e46173a7bd5310104c87e81f630cc11b6d028412c2aae98750",
+        depositBlockNumber: 583,
+        status: 0,
+        sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
+        destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
+        handleResponse: null,
+        proposalExecutionEvent: null,
+        failedHandlerExecutionEvent: null,
       })
     })
   })
 
-  describe("with multiple proposals", () => {
+  describe("with failedHandlerExecution event", () => {
     beforeEach(async () => {
       const alteredTransferData = {
         ...transferData,
-        proposalEvents: {
-          create: [
-          {
-            proposalStatus: 1,
-            dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-            proposalEventTransactionHash: "0x557e71b9d44aeb230d6a4af47002a68c5a0e58f05566b42d20d9302d3eebd0d6",
-            proposalEventBlockNumber: 9217370,
-            timestamp: 1630511687,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-          {
-            proposalStatus: 2,
-            dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-            proposalEventTransactionHash: "0x4d742e070477ec6b05d0288da1f8ba9f8c73323e90bfb8e4d2f9fac023150bfc",
-            proposalEventBlockNumber: 9217370,
-            timestamp: 1630511687,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-          {
-            proposalStatus: 3,
-            dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-            proposalEventTransactionHash: "0xad4d7d7d6dc402cd49e54d8094f817f5b60105ad0f56310568a3318a84751fd7",
-            proposalEventBlockNumber: 9217371,
-            timestamp: 1630511687,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-
-          {
-            proposalStatus: 1,
-            dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-            proposalEventTransactionHash: "0x557e71b9d44aeb230d6a4af47002a68c5a0e58f05566b42d20d9302d3eebd0d6",
-            proposalEventBlockNumber: 9217370,
-            timestamp: 1630511688,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-          {
-            proposalStatus: 2,
-            dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-            proposalEventTransactionHash: "0x4d742e070477ec6b05d0288da1f8ba9f8c73323e90bfb8e4d2f9fac023150bfc",
-            proposalEventBlockNumber: 9217370,
-            timestamp: 1630511688,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-          {
-            proposalStatus: 3,
-            dataHash: "0x808499ffbc353a1c892ff051e3f2ace42f30c7b7352636988ced15dcddcb758d",
-            proposalEventTransactionHash: "0xad4d7d7d6dc402cd49e54d8094f817f5b60105ad0f56310568a3318a84751fd7",
-            proposalEventBlockNumber: 9217371,
-            timestamp: 1630511688,
-            by: "0x66547208290094373f020b53465D742Ca73333F6",
-          },
-        ]
-      }
+        proposalExecutionEvent: null,
+        failedHandlerExecutionEvent: {
+          lowLevelData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+          originDomainID: 1,
+          depositNonce: 3,
+          by: '0x148FfB2074A9e59eD58142822b3eB3fcBffb0cd7'
+        }
       }
       await prisma.transfer.create({
         data: alteredTransferData,
@@ -327,15 +145,39 @@ describe("Test TransfersController", () => {
       console.log("✨ 1 transfer successfully created!")
     })
 
-    it("Request /transfers should return 3 status", async () => {
+    it("Request /transfers should return one transfer with failedHandlerExecution event", async () => {
       // await prisma.proposalEvent.deleteMany({})
       const result = await request(app).get(DEFAULT_TRANSFERS_URL).send()
 
       expect(result.status).toBe(200)
-      expect(result.body.transfers[0].status).toEqual(3)
+      expect(result.body.transfers[0]).toMatchObject({
+        depositNonce: 3,
+        resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000",
+        fromDomainId: 1,
+        fromNetworkName: "Local EVM 1",
+        toDomainId: 2,
+        toNetworkName: "Local EVM 2",
+        fromAddress: "0x24962717f8fa5ba3b931bacaf9ac03924eb475a0",
+        toAddress: "0x24962717f8fa5ba3b931bacaf9ac03924eb475a0",
+        amount: "1000000000000000000",
+        timestamp: 1658771219,
+        depositTransactionHash: "0xb0d4048dd037e6e46173a7bd5310104c87e81f630cc11b6d028412c2aae98750",
+        depositBlockNumber: 583,
+        status: 1,
+        sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
+        destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
+        handleResponse: null,
+        proposalExecutionEvent: null,
+        failedHandlerExecutionEvent: {
+          lowLevelData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+          originDomainID: 1,
+          depositNonce: 3,
+          by: '0x148FfB2074A9e59eD58142822b3eB3fcBffb0cd7'
+        }
+      })
     })
-
   })
+
 
   describe('filter over transfers', () => {
     const first = 10
@@ -344,11 +186,7 @@ describe("Test TransfersController", () => {
 
       for await (const tx of transfers) {
         await prisma.transfer.create({
-          data: {
-            ...tx,
-            proposalEvents: { create: [ ...tx.proposalEvents ]},
-            voteEvents: { create: [ ...tx.voteEvents]}
-          }
+          data: tx
         })
       }
 
@@ -364,7 +202,7 @@ describe("Test TransfersController", () => {
     })
 
     it('Request /transfers/filters?first=10&toDomainId=[number]', async () => {
-      const domainIDTo = 0
+      const domainIDTo = 1
       const result = await request(app).get(`/transfers/filters?first=${first}&toDomainId=${domainIDTo}`).send()
 
 
@@ -376,6 +214,7 @@ describe("Test TransfersController", () => {
       const fromAddress = '0x5EfB75040BC6257EcE792D8dEd423063E6588A37'
       const toAddress= '0x5EfB75040BC6257EcE792D8dEd423063E6588A37'
       const result = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}&toAddress=${toAddress}`).send()
+      expect(result.body.transfers.length).toBeGreaterThan(0)
 
       const onlyFromAddress = result.body.transfers.every((tx:any) => tx.fromAddress === fromAddress)
       expect(onlyFromAddress).toBe(true)
@@ -443,13 +282,13 @@ describe("Test TransfersController", () => {
       const fromAddress = "0xff93B45308FD417dF303D6515aB04D9e89a750Ca"
       const toAddress = "0xff93B45308FD417dF303D6515aB04D9e89a750Ca"
       const firstResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}&toAddress=${toAddress}`).send()
-  
+
       const { body: { pageInfo: { endCursor } }} = firstResult
-  
+
       const secondResult = await request(app).get(`/transfers/filters?first=${first}&fromAddress=${fromAddress}&toAddress=${toAddress}&after=${endCursor}`).send()
-  
+
       const { body: { transfers, pageInfo: { hasNextPage } } } = secondResult
-  
+
       expect(transfers.length).toBe(0)
       expect(hasNextPage).toBe(false)
     })
@@ -461,15 +300,15 @@ describe("Test TransfersController", () => {
 
       const { body: { transfers } } = result
 
-      const everyFromAddress = transfers.every((tx:any) => tx.fromAddress === fromAddress)
-      const everyToAddress = transfers.every((tx:any) => tx.toAddress === toAddress)
+      const everyFromAddress = transfers.every((tx:any) => tx.fromAddress.toLowerCase() === fromAddress.toLowerCase())
+      const everyToAddress = transfers.every((tx:any) => tx.toAddress.toLowerCase() === toAddress .toLowerCase())
 
       expect(everyFromAddress).toBe(true)
       expect(everyToAddress).toBe(true)
     })
 
     it('Request /transfers/filters?first=10&before=[string]', async () => {
-      const result = await request(app).get(`/transfers/filters?first=${20}`).send()
+      const result = await request(app).get(`/transfers/filters?first=20`).send()
 
       const { body: { transfers: t1 } } = result
 

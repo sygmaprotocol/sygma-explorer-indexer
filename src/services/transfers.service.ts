@@ -1,9 +1,9 @@
-import { PrismaClient, Transfer, ProposalEvent, VoteEvent, Prisma } from "@prisma/client"
+import { PrismaClient, Transfer, ProposalExecutionEvent, FailedHandlerExecutionEvent, Prisma } from "@prisma/client"
 
 type TransferWithStatus = Transfer & {
   status?: number
-  proposalEvents: ProposalEvent[]
-  voteEvents: VoteEvent[]
+  proposalExecutionEvent: ProposalExecutionEvent | null
+  failedHandlerExecutionEvent: FailedHandlerExecutionEvent | null
 }
 
 type TransfersWithStatus = TransferWithStatus[]
@@ -45,11 +45,7 @@ class TransfersService {
 
   public async findTransfer({ id }: { id: string }) {
     const transfer = await this.transfers.findUnique({
-      where: { id },
-      include: {
-        proposalEvents: true,
-        voteEvents: true,
-      },
+      where: { id }
     })
     if (transfer) {
       return this.addLatestStatusToTransfer(transfer)
@@ -126,11 +122,7 @@ class TransfersService {
     }
 
     return {
-      include: {
-        proposalEvents: true,
-        voteEvents: true,
-      },
-      orderBy: { timestamp: "desc" } as Prisma.Enumerable<Prisma.TransferOrderByInput>,
+      orderBy: { timestamp: "desc" } as Prisma.Enumerable<Prisma.TransferOrderByWithRelationInput>,
       where
     }
   }
@@ -144,7 +136,6 @@ class TransfersService {
       const skip = args.after ? 1 : undefined
       const take = args.first + 1
       const {
-        include,
         orderBy,
         where
       } = this.buildQueryObject(args)
@@ -153,7 +144,6 @@ class TransfersService {
         take,
         skip,
         orderBy,
-        include,
         where
       })
       // See if we are "after" another record, indicating a previous page
@@ -168,7 +158,6 @@ class TransfersService {
       const cursor = args.before ? { id: args.before } : undefined
       const skip = cursor ? 1 : undefined
       const {
-        include,
         orderBy,
         where
       } = this.buildQueryObject(args)
@@ -177,7 +166,6 @@ class TransfersService {
         take,
         skip,
         orderBy,
-        include,
         where
       })
       hasNextPage = !!args.before
@@ -211,22 +199,7 @@ class TransfersService {
   }
 
   addLatestStatusToTransfer(transfer: TransferWithStatus) {
-    if (transfer.proposalEvents && transfer.proposalEvents.length > 0) {
-      const reducedProps:{[key: string]: number} = transfer.proposalEvents.reduce((acc: any, value) => {
-        // Group initialization
-        if (!acc[value.timestamp]) {
-          acc[value.timestamp] = []
-        }
-
-        // Grouping
-        acc[value.timestamp] = Math.max(acc[value.timestamp], value.proposalStatus)
-
-        return acc
-      }, {})
-      const finalStatus = Math.max(...Object.values(reducedProps))
-      transfer.status = finalStatus
-    } else {
-      // Active status by default
+    if (transfer.proposalExecutionEvent) {
       transfer.status = 1
     }
 

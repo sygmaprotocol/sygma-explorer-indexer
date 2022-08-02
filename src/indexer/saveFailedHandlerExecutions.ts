@@ -6,39 +6,39 @@ import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 
 const prisma = new PrismaClient()
 
-export async function saveVotes(
+export async function saveFailedHandlerExecutions(
   bridge: EvmBridgeConfig,
   bridgeContract: Bridge,
   provider: ethers.providers.JsonRpcProvider,
   config: ChainbridgeConfig,
 ) {
-  const proposalVoteFilter = bridgeContract.filters.ProposalVote(null, null, null, null)
+  const failedHandlerExecutionFilter = bridgeContract.filters.FailedHandlerExecution(null, null, null)
 
-  const proposalVoteLogs = await provider.getLogs({
-    ...proposalVoteFilter,
+  const failedHandlerExecutionLogs = await provider.getLogs({
+    ...failedHandlerExecutionFilter,
     fromBlock: bridge.deployedBlockNumber,
   })
-  for (const pvl of proposalVoteLogs) {
+  for (const pvl of failedHandlerExecutionLogs) {
     let depositNonceInt
     try {
       const tx = await provider.getTransaction(pvl.transactionHash)
       const { from: transactionSenderAddress } = tx
       const parsedLog = bridgeContract.interface.parseLog(pvl)
 
-      const { depositNonce, status, dataHash } = parsedLog.args
+      const { lowLevelData, originDomainID, depositNonce } = parsedLog.args
       depositNonceInt = depositNonce.toNumber()
 
-      await prisma.voteEvent.create({
+      await prisma.transfer.update({
+        where: {
+          depositNonce: depositNonceInt,
+        },
         data: {
-          voteBlockNumber: pvl.blockNumber,
-          voteTransactionHash: pvl.transactionHash,
-          dataHash: dataHash,
-          timestamp: (await provider.getBlock(pvl.blockNumber)).timestamp,
-          voteStatus: Boolean(status),
-          by: transactionSenderAddress,
-          transfer: {
-            connect: {
+          failedHandlerExecutionEvent: {
+            set: {
+              lowLevelData: lowLevelData,
+              originDomainID: originDomainID,
               depositNonce: depositNonceInt,
+              by: transactionSenderAddress
             },
           },
         },
@@ -48,5 +48,5 @@ export async function saveVotes(
       console.error("DepositNonce", depositNonceInt)
     }
   }
-  console.log(`Added ${bridge.name} ${proposalVoteLogs.length} proposal votes`)
+  console.log(`Added ${bridge.name} \x1b[33m${failedHandlerExecutionLogs.length}\x1b[0m failed handler executions`)
 }
