@@ -6,21 +6,20 @@ import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 
 const prisma = new PrismaClient()
 
-export async function pollVotes(
+export async function pollFailedHandlerExecutions(
   bridge: EvmBridgeConfig,
   bridgeContract: Bridge,
   provider: ethers.providers.JsonRpcProvider,
   config: ChainbridgeConfig,
 ) {
-  const proposalVoteFilter = bridgeContract.filters.ProposalVote(null, null, null, null)
+  const failedHandlerExecutionFilter = bridgeContract.filters.FailedHandlerExecution(null, null, null)
 
   bridgeContract.on(
-    proposalVoteFilter,
-    async (
+    failedHandlerExecutionFilter,
+    async(
+      lowLevelData: string,
       originDomainID: number,
       depositNonce: ethers.BigNumber,
-      status: number, // TODO: Confirm wether this is actually being used
-      dataHash: string,
       tx: Event,
     ) => {
       const depositNonceInt = depositNonce.toNumber()
@@ -29,17 +28,17 @@ export async function pollVotes(
         const { from: transactionSenderAddress } = eventTransaction
         console.log("🚀 ~ file: pollVotes.ts ~ line 32 ~ tx", tx)
 
-        await prisma.voteEvent.create({
+        await prisma.transfer.update({
+          where: {
+            depositNonce: depositNonceInt,
+          },
           data: {
-            voteBlockNumber: tx.blockNumber,
-            voteTransactionHash: tx.transactionHash,
-            dataHash: dataHash,
-            timestamp: (await provider.getBlock(tx.blockNumber)).timestamp,
-            voteStatus: Boolean(status),
-            by: transactionSenderAddress,
-            transfer: {
-              connect: {
+            failedHandlerExecutionEvent: {
+              set: {
+                lowLevelData: lowLevelData,
+                originDomainID: originDomainID,
                 depositNonce: depositNonceInt,
+                by: transactionSenderAddress
               },
             },
           },
@@ -51,5 +50,5 @@ export async function pollVotes(
     },
   )
 
-  console.log(`Bridge on ${bridge.name} listen for proposal votes`)
+  console.log(`Bridge on ${bridge.name} listen for  failed handler execution`)
 }

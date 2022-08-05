@@ -25,7 +25,7 @@ export async function saveDeposits(
   })
   for (const dl of depositLogs) {
     const parsedLog = bridgeContract.interface.parseLog(dl)
-    const { destinationDomainID, resourceID, depositNonce, user, data, handleResponse } = parsedLog.args
+    const { destinationDomainID, resourceID, depositNonce, user, data, handlerResponse } = parsedLog.args
     const depositNonceInt = depositNonce.toNumber()
     const { destinationRecipientAddress, amount } = decodeDataHash(data, bridge.decimals)
     console.time(`Nonce: ${depositNonce}`)
@@ -62,7 +62,7 @@ export async function saveDeposits(
         destinationTokenAddress: destinationTokenAddress.toLocaleLowerCase(),
         amount: amount,
         resourceId: resourceID,
-        handleResponse: handleResponse
+        handlerResponse: handlerResponse
       }
       await prisma.transfer.upsert({
         where: {
