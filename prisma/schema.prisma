@@ -41,7 +41,7 @@ model Transfer {
 type ProposalExecutionEvent {
   originDomainID Int
   depositNonce Int
-  data String
+  dataHash String
   by String
 }
 

@@ -14,12 +14,12 @@ export async function pollProposals(
 ) {
   const proposalExecutionEventFilter = bridgeContract.filters.ProposalExecution(null, null, null)
 
-  bridgeContract.on(proposalExecutionEventFilter, async(originDomainID: number, depositNonce: ethers.BigNumber, data: string, tx: Event) => {
+  bridgeContract.on(proposalExecutionEventFilter, async(originDomainID: number, depositNonce: ethers.BigNumber, dataHash: string, tx: Event) => {
     const depositNonceInt = depositNonce.toNumber()
+    console.time(`ProposalExecution. Nonce: ${depositNonce}`)
     try {
       const eventTransaction = await provider.getTransaction(tx.transactionHash)
       const { from: transactionSenderAddress } = eventTransaction
-      console.log("🚀 ~ file: pollProposals.ts ~ line 34 ~ tx", tx)
 
       await prisma.transfer.update({
         where: {
@@ -30,8 +30,8 @@ export async function pollProposals(
             set: {
               originDomainID: originDomainID,
               depositNonce: depositNonceInt,
-              data: data,
-              by: transactionSenderAddress
+              dataHash: dataHash,
+              by: transactionSenderAddress,
             },
           },
         },
@@ -40,6 +40,7 @@ export async function pollProposals(
       console.error(error)
       console.error("DepositNonce", depositNonceInt)
     }
+    console.timeEnd(`ProposalExecution. Nonce: ${depositNonce}`)
   })
 
   console.log(`Bridge on ${bridge.name} listen for proposal events`)

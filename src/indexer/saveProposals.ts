@@ -23,7 +23,7 @@ export async function saveProposals(
       const tx = await provider.getTransaction(pel.transactionHash)
       const { from: transactionSenderAddress } = tx
       const parsedLog = bridgeContract.interface.parseLog(pel)
-      const { depositNonce, originDomainID, data } = parsedLog.args
+      const { depositNonce, originDomainID, dataHash } = parsedLog.args
       depositNonceInt = depositNonce.toNumber()
 
       await prisma.transfer.update({
@@ -35,7 +35,7 @@ export async function saveProposals(
             set: {
               originDomainID: originDomainID,
               depositNonce: depositNonceInt,
-              data: data,
+              dataHash: dataHash,
               by: transactionSenderAddress
             },
           },

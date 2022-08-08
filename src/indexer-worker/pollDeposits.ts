@@ -34,7 +34,7 @@ export async function pollDeposits(
       try {
         const { destinationRecipientAddress, amount } = decodeDataHash(data, bridge.decimals)
 
-        console.time(`Nonce: ${depositNonce}`)
+        console.time(`Deposit. Nonce: ${depositNonce}`)
 
         let tokenAddress
         const cacheTokenKey = `resourceIDToTokenContractAddress_${resourceID}_${bridge.domainId}`
@@ -80,7 +80,7 @@ export async function pollDeposits(
         console.error("DepositNonce", depositNonceInt)
         console.error("dataTransfer", dataTransfer)
       }
-      console.timeEnd(`Nonce: ${depositNonce}`)
+      console.timeEnd(`Deposit. Nonce: ${depositNonce}`)
     },
   )
 
