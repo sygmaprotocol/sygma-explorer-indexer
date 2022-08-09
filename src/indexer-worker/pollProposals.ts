@@ -12,38 +12,36 @@ export async function pollProposals(
   provider: ethers.providers.JsonRpcProvider,
   config: ChainbridgeConfig,
 ) {
-  const proposalEventFilter = bridgeContract.filters.ProposalEvent(null, null, null, null)
+  const proposalExecutionEventFilter = bridgeContract.filters.ProposalExecution(null, null, null)
 
-  bridgeContract.on(
-    proposalEventFilter,
-    async(originDomainID: number, depositNonce: ethers.BigNumber, status: number, dataHash: string, tx: Event) => {
-      const depositNonceInt = depositNonce.toNumber()
-      try {
-        const eventTransaction = await provider.getTransaction(tx.transactionHash)
-        const { from: transactionSenderAddress } = eventTransaction
-        console.log("🚀 ~ file: pollProposals.ts ~ line 34 ~ tx", tx)
+  bridgeContract.on(proposalExecutionEventFilter, async(originDomainID: number, depositNonce: ethers.BigNumber, dataHash: string, tx: Event) => {
+    const depositNonceInt = depositNonce.toNumber()
+    console.time(`ProposalExecution. Nonce: ${depositNonce}`)
+    try {
+      const eventTransaction = await provider.getTransaction(tx.transactionHash)
+      const { from: transactionSenderAddress } = eventTransaction
 
-        await prisma.proposalEvent.create({
-          data: {
-            proposalEventBlockNumber: tx.blockNumber,
-            proposalEventTransactionHash: tx.transactionHash,
-            dataHash: dataHash,
-            timestamp: (await provider.getBlock(tx.blockNumber)).timestamp,
-            proposalStatus: status,
-            by: transactionSenderAddress,
-            transfer: {
-              connect: {
-                depositNonce: depositNonceInt,
-              },
+      await prisma.transfer.update({
+        where: {
+          depositNonce: depositNonceInt,
+        },
+        data: {
+          proposalExecutionEvent: {
+            set: {
+              originDomainID: originDomainID,
+              depositNonce: depositNonceInt,
+              dataHash: dataHash,
+              by: transactionSenderAddress,
             },
           },
-        })
-      } catch (error) {
-        console.error(error)
-        console.error("DepositNonce", depositNonceInt)
-      }
-    },
-  )
+        },
+      })
+    } catch (error) {
+      console.error(error)
+      console.error("DepositNonce", depositNonceInt)
+    }
+    console.timeEnd(`ProposalExecution. Nonce: ${depositNonce}`)
+  })
 
   console.log(`Bridge on ${bridge.name} listen for proposal events`)
 }

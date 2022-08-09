@@ -5,7 +5,7 @@ import {
 import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
 import { getProvider } from "../utils/helpers"
 
-import { pollVotes } from "./pollVotes"
+import { pollFailedHandlerExecutions } from "./pollFailedHandlerExecutions"
 import { pollProposals } from "./pollProposals"
 import { pollDeposits } from "./pollDeposits"
 
@@ -36,8 +36,8 @@ export async function indexer(
   // PROPOSALS
   await pollProposals(bridge, bridgeContract, provider, config)
 
-  // VOTE_EVENTS
-  await pollVotes(bridge, bridgeContract, provider, config)
+  // Failed Handler Executions
+  await pollFailedHandlerExecutions(bridge, bridgeContract, provider, config)
 
   console.log("finish index")
 }

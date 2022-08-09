@@ -32,7 +32,7 @@ model Transfer {
   sourceTokenAddress String?
 	destinationTokenAddress String?
 
-  handleResponse String?
+  handlerResponse String?
 
   proposalExecutionEvent ProposalExecutionEvent?
   failedHandlerExecutionEvent FailedHandlerExecutionEvent?
