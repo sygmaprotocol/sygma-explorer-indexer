@@ -1,8 +1,9 @@
 import {
   Bridge__factory as BridgeFactory,
   ERC20Handler__factory as Erc20HandlerFactory,
+  ERC721Handler__factory as Erc721HandlerFactory,
 } from "@chainsafe/chainbridge-contracts"
-import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
+import { ChainbridgeConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
 import { getProvider } from "../utils/helpers"
 
 import { saveDeposits } from "./saveDeposits"
@@ -20,15 +21,9 @@ export async function indexDeposits(
 
   const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
 
-  const erc20HandlerContract = Erc20HandlerFactory.connect(
-    bridge.erc20HandlerAddress,
-    provider
-  )
-
   await saveDeposits(
     bridge,
     bridgeContract,
-    erc20HandlerContract,
     provider,
     config
   )

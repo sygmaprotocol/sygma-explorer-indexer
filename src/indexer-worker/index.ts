@@ -1,4 +1,4 @@
-import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
+import { ChainbridgeConfig, EvmBridgeConfig } from "../sygmaTypes"
 import { indexer } from "./indexer"
 
 async function main() {

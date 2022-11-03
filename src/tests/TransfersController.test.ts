@@ -27,7 +27,7 @@ const transferData = {
   status: 1,
   sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
   destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-  handleResponse: null,
+  handlerResponse: null,
   proposalExecutionEvent: {
     originDomainID: 1,
     depositNonce: 3,
@@ -74,7 +74,7 @@ describe("Test TransfersController", () => {
         status: 1,
         sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
         destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-        handleResponse: null,
+        handlerResponse: null,
         proposalExecutionEvent: {
           originDomainID: 1,
           depositNonce: 3,
@@ -120,7 +120,7 @@ describe("Test TransfersController", () => {
         status: 0,
         sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
         destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-        handleResponse: null,
+        handlerResponse: null,
         proposalExecutionEvent: null,
         failedHandlerExecutionEvent: null,
       })
@@ -166,7 +166,7 @@ describe("Test TransfersController", () => {
         status: 1,
         sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
         destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-        handleResponse: null,
+        handlerResponse: null,
         proposalExecutionEvent: null,
         failedHandlerExecutionEvent: {
           lowLevelData: '0x0000000000000000000000000000000000000000000000000000000000000000',

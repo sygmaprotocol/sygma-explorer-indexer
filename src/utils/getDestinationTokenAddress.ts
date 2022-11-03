@@ -1,18 +1,22 @@
 import {
-  ERC20Handler__factory as Erc20HandlerFactory,
+  Bridge__factory as BridgeFactory,
 } from "@chainsafe/chainbridge-contracts"
 
-import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
-import { getProvider } from "./helpers"
+import { ChainbridgeConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
+import { getProvider, getHandlersMap } from "./helpers"
 
-export async function getDestinationTokenAddress(resourceID: string, destinationDomainID: number, config: ChainbridgeConfig) {
+export async function getDestinationTokenAddress(
+  resourceID: string,
+  destinationDomainID: number,
+  config: ChainbridgeConfig,
+) {
   const bridge = config.chains.find(bridge => bridge.domainId === destinationDomainID) as EvmBridgeConfig
   const provider = getProvider(bridge)
   await provider.ready
-  const erc20HandlerContract = Erc20HandlerFactory.connect(
-    bridge.erc20HandlerAddress,
-    provider
-  )
-  const tokenAddress = await erc20HandlerContract._resourceIDToTokenContractAddress(resourceID)
+  const handlersMap = getHandlersMap(bridge, provider)
+  
+  const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
+  const handlerAddress = await bridgeContract._resourceIDToHandlerAddress(resourceID)
+  const tokenAddress = await handlersMap[handlerAddress]._resourceIDToTokenContractAddress(resourceID)
   return tokenAddress
 }

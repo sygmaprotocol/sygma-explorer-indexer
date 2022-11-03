@@ -1,10 +1,13 @@
 import { PrismaClient } from "@prisma/client"
-import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
+import { ChainbridgeConfig, EvmBridgeConfig } from "../sygmaTypes"
 import { indexDeposits, indexProposals, indexFailedHandlerExecutions } from "./indexer"
+
+import {getSygmaConfig} from '../utils/getSygmaConfig'
+
 const prisma = new PrismaClient()
 
 async function main() {
-  const chainbridgeConfig: ChainbridgeConfig = require("../../public/chainbridge-explorer-runtime-config.json")
+  const chainbridgeConfig: ChainbridgeConfig = await getSygmaConfig()
   console.log(
     "🚀 ~ file: index.ts ~ line 8 ~ main ~ chainbridgeConfig",
     chainbridgeConfig
