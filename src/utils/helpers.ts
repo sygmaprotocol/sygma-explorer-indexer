@@ -1,7 +1,16 @@
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
 import { ethers, BigNumber, utils } from "ethers"
 import { TransfersByCursorOptions } from "services/transfers.service"
-import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
+import { ChainbridgeConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
+
+import {
+  Bridge,
+  Bridge__factory as BridgeFactory,
+  ERC20Handler__factory as Erc20HandlerFactory,
+  ERC721Handler__factory as Erc721HandlerFactory,
+  ERC20Handler,
+  ERC721Handler
+} from "@chainsafe/chainbridge-contracts"
 
 const isCelo = (networkId?: number) =>
   [42220, 44787, 62320].includes(networkId ?? 0)
@@ -101,4 +110,20 @@ export function buildQueryParamsToPasss(args: any): TransfersByCursorOptions {
     first: firstCursor,
     last: lastCursor
   }
+}
+
+export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.providers.JsonRpcProvider ) {
+  const erc20HandlerContract = Erc20HandlerFactory.connect(
+    bridge.erc20HandlerAddress,
+    provider
+  )
+  const erc721HandlerContract = Erc721HandlerFactory.connect(
+    bridge.erc721HandlerAddress,
+    provider
+  )
+
+  const handlersMap: HandlersMap = {}
+  handlersMap[bridge.erc20HandlerAddress] = erc20HandlerContract
+  handlersMap[bridge.erc721HandlerAddress] = erc721HandlerContract
+  return handlersMap
 }

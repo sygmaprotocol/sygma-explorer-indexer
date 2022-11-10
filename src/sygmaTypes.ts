@@ -1,3 +1,7 @@
+import {
+  ERC20Handler,
+  ERC721Handler
+} from "@chainsafe/chainbridge-contracts"
 export type TokenConfig = {
   address: string;
   name?: string;
@@ -21,8 +25,10 @@ export type BridgeConfig = {
 export type EvmBridgeConfig = BridgeConfig & {
   bridgeAddress: string;
   erc20HandlerAddress: string;
+  erc721HandlerAddress: string;
   type: "Ethereum";
   deployedBlockNumber?: number;
+  latestBlockNumber?: number;
 };
 
 export type SubstrateBridgeConfig = BridgeConfig & {
@@ -38,3 +44,7 @@ export type SubstrateBridgeConfig = BridgeConfig & {
 export type ChainbridgeConfig = {
   chains: Array<EvmBridgeConfig | SubstrateBridgeConfig>;
 };
+
+export type HandlersMap = {
+  [key: string]: ERC20Handler | ERC721Handler
+}

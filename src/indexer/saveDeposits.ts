@@ -3,9 +3,9 @@ import { ethers } from "ethers"
 import NodeCache from "node-cache"
 
 import { PrismaClient } from "@prisma/client"
-import { getNetworkName, decodeDataHash } from "../utils/helpers"
+import { getNetworkName, decodeDataHash, getHandlersMap } from "../utils/helpers"
 import { Bridge, ERC20Handler } from "@chainsafe/chainbridge-contracts"
-import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
+import { ChainbridgeConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
 import { getDestinationTokenAddress } from "../utils/getDestinationTokenAddress"
 
 const prisma = new PrismaClient()
@@ -14,15 +14,16 @@ const cache = new NodeCache({ stdTTL: 15 })
 export async function saveDeposits(
   bridge: EvmBridgeConfig,
   bridgeContract: Bridge,
-  erc20HandlerContract: ERC20Handler,
   provider: ethers.providers.JsonRpcProvider,
   config: ChainbridgeConfig
 ) {
   const depositFilter = bridgeContract.filters.Deposit(null, null, null, null, null, null)
   const depositLogs = await provider.getLogs({
     ...depositFilter,
-    fromBlock: bridge.deployedBlockNumber
+    fromBlock: bridge.deployedBlockNumber,
+    toBlock: bridge.latestBlockNumber ?? "latest"
   })
+  const handlersMap = getHandlersMap(bridge, provider)
   for (const dl of depositLogs) {
     const parsedLog = bridgeContract.interface.parseLog(dl)
     const { destinationDomainID, resourceID, depositNonce, user, data, handlerResponse } = parsedLog.args
@@ -37,7 +38,8 @@ export async function saveDeposits(
       if (cache.has(cacheTokenKey)) {
         tokenAddress = cache.get(cacheTokenKey) as String
       } else {
-        tokenAddress = await erc20HandlerContract._resourceIDToTokenContractAddress(resourceID)
+        const handlerAddress = await bridgeContract._resourceIDToHandlerAddress(resourceID)
+        tokenAddress = await handlersMap[handlerAddress]._resourceIDToTokenContractAddress(resourceID)
         cache.set(cacheTokenKey, tokenAddress)
       }
       let destinationTokenAddress

@@ -2,7 +2,7 @@ import {
   Bridge__factory as BridgeFactory,
   ERC20Handler__factory as Erc20HandlerFactory,
 } from "@chainsafe/chainbridge-contracts"
-import { ChainbridgeConfig, EvmBridgeConfig } from "../chainbridgeTypes"
+import { ChainbridgeConfig, EvmBridgeConfig } from "../sygmaTypes"
 import { getProvider } from "../utils/helpers"
 
 import { pollFailedHandlerExecutions } from "./pollFailedHandlerExecutions"
