@@ -12,6 +12,7 @@
     "moduleResolution": "node",
     "baseUrl": "./src",
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     /* Advanced Options */
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true

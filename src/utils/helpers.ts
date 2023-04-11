@@ -1,7 +1,7 @@
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
 import { ethers, BigNumber, utils } from "ethers"
 import { TransfersByCursorOptions } from "services/transfers.service"
-import { ChainbridgeConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
+import { EvmBridgeConfig, HandlersMap, SubstrateBridgeConfig, SygmaConfig } from "../sygmaTypes"
 
 import {
   Bridge,
@@ -11,6 +11,7 @@ import {
   ERC20Handler,
   ERC721Handler
 } from "@chainsafe/chainbridge-contracts"
+import { Config, SharedConfigDomains } from "types"
 
 const isCelo = (networkId?: number) =>
   [42220, 44787, 62320].includes(networkId ?? 0)
@@ -71,10 +72,10 @@ export function jsonStringifyWithBigInt(value: any) {
 
 export function getNetworkName(
   domainId: number,
-  chainbridgeConfig: ChainbridgeConfig
+  sygmaConfig: SygmaConfig
 ) {
   return (
-    chainbridgeConfig.chains.find((c) => c.domainId === domainId)?.name || ""
+    sygmaConfig.chains.find((c) => c.domainId === domainId)?.name || ""
   )
 }
 
@@ -112,7 +113,7 @@ export function buildQueryParamsToPasss(args: any): TransfersByCursorOptions {
   }
 }
 
-export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.providers.JsonRpcProvider ) {
+export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.providers.JsonRpcProvider) {
   const erc20HandlerContract = Erc20HandlerFactory.connect(
     bridge.erc20HandlerAddress,
     provider
@@ -127,3 +128,98 @@ export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.provide
   handlersMap[bridge.erc721HandlerAddress] = erc721HandlerContract
   return handlersMap
 }
+
+export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "testnet" | "mainnet" | "local") {
+  const formatedConfig = config.domains.map((domain) => ({
+    domainId: `${domain.id}`,
+    name: stage === 'devnet' ? getNetworkNameFromMap(domain.id, mapedDomainDevnet) : getNetworkNameFromMap(domain.id, mapedDomainTestnet),
+    decimals: domain.nativeTokenDecimals,
+    nativeTokenSymbol: domain.nativeTokenSymbol.toUpperCase(),
+    type: domain.type === "evm" ? "Ethereum" : "Substrate",
+    bridgeAddress: domain.bridge,
+    feeRouterAddress: domain.feeRouterAddress || "",
+    erc20HandlerAddress:
+      domain.handlers.length &&
+      domain.handlers.filter((handler) => handler.type === "erc20")[0].address,
+    erc721HandlerAddress:
+      domain.handlers.length &&
+      domain.handlers.filter((handler) => handler.type === "erc721")[0].address,
+    tokens: [
+      ...domain.resources.map((resource) => ({
+        address: resource.address,
+        decimals: resource.decimals,
+        resourceId: resource.resourceId,
+        type: resource.type,
+        symbol: resource.symbol,
+        feeSettings: { type: "", address: "" },
+        name: resource.symbol,
+      })),
+    ].filter(
+      (resource) =>
+        resource.type !== "permissionlessGeneric" && resource.address !== ""
+    ),
+    confirmations: domain.blockConfirmations,
+    feeHandlers: domain.feeHandlers,
+    rpcUrl: stage === "devnet" ? getRPCUrl(domain.id, mapedDomainDevnet) : getRPCUrl(domain.id, mapedDomainTestnet),
+  }))
+
+  return formatedConfig as Config[]
+}
+
+const getRPCUrl = (id: number, mapedDomain: Array<{id: number, rpcUrl: string}>): string => {
+  const domainFound = mapedDomain.find(domain => domain.id === id)
+  return domainFound?.rpcUrl! || "";
+};
+
+const getNetworkNameFromMap = (id: number, mapedDomain: Array<{id: number, name: string}>): string => {
+  const networkFound = mapedDomain.find(domain => domain.id === id)
+  return networkFound?.name! || "";
+};
+
+const mapedDomainDevnet = [
+  {
+    id: 0,
+    name: 'Goerli',
+    rpcUrl: "https://eth-goerli.g.alchemy.com/v2/wkF4rGEBspanIYTCzspMVFbOPjHP_IhL"
+  },
+  {
+    id: 1,
+    name: "Mumbai",
+    rpcUrl: "https://polygon-mumbai.g.alchemy.com/v2/LquJll0ZH2yYtHx74WScXNSXAj8C1DsP"
+  },
+  {
+    id: 2,
+    name: "Moonbase Alpha",
+    rpcUrl: "https://moonbase-alpha.blastapi.io/be6f59cb-0c85-444f-b8bc-4179bd203cac"
+  },
+  {
+    id: 3,
+    name: "Sepolia",
+    rpcUrl: "https://eth-sepolia.g.alchemy.com/v2/XEdjTRcsZFKjg7Cqx7C6l5KODNZGDxuY"
+  }
+]
+
+const mapedDomainTestnet = [
+  {
+    id: 1,
+    name: "Goerli",
+    rpcUrl: "https://eth-goerli.g.alchemy.com/v2/wkF4rGEBspanIYTCzspMVFbOPjHP_IhL"
+  },
+  {
+    id: 2,
+    name: "Moonbase Alpha",
+    rpcUrl: "https://moonbase-alpha.blastapi.io/be6f59cb-0c85-444f-b8bc-4179bd203cac"
+  },
+  {
+    id: 3,
+    name: "Mumbai",
+    rpcUrl: "https://polygon-mumbai.g.alchemy.com/v2/LquJll0ZH2yYtHx74WScXNSXAj8C1DsP"
+  },
+  {
+    id: 4,
+    name: "Sepolia",
+    rpcUrl: "https://eth-sepolia.g.alchemy.com/v2/XEdjTRcsZFKjg7Cqx7C6l5KODNZGDxuY"
+  }
+]
+
+// Note: if we use the above approach, we will need to created a mapping for mainnet and local
