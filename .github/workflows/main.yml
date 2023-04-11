@@ -34,7 +34,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          yarn --frozen-lockfile --ignore-engines
+          yarn --ignore-engines
           yarn build
           yarn test
 
