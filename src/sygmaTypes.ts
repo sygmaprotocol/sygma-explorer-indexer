@@ -1,7 +1,7 @@
 import {
   ERC20Handler,
   ERC721Handler
-} from "@chainsafe/chainbridge-contracts"
+} from "@buildwithsygma/sygma-contracts"
 export type TokenConfig = {
   address: string;
   name?: string;

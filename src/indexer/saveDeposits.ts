@@ -4,7 +4,7 @@ import NodeCache from "node-cache"
 
 import { PrismaClient } from "@prisma/client"
 import { getNetworkName, decodeDataHash, getHandlersMap } from "../utils/helpers"
-import { Bridge, ERC20Handler } from "@chainsafe/chainbridge-contracts"
+import { Bridge, ERC20Handler } from "@buildwithsygma/sygma-contracts"
 import { ChainbridgeConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
 import { getDestinationTokenAddress } from "../utils/getDestinationTokenAddress"
 

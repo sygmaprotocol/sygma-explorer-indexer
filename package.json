@@ -27,9 +27,11 @@
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.145.0",
+    "@buildwithsygma/sygma-contracts": "^2.2.1",
     "@celo-tools/celo-ethers-wrapper": "^0.0.5",
     "@chainsafe/chainbridge-contracts": "3.1.0",
     "@prisma/client": "^4.1.0",
+    "bn": "^1.0.5",
     "cors": "^2.8.5",
     "docker-secret": "^1.2.4",
     "dotenv": "^10.0.0",
@@ -37,6 +39,7 @@
     "ethers": "^5.4.6",
     "express": "^4.17.1",
     "node-cache": "^5.1.2",
+    "phin": "^3.7.0",
     "pm2": "^5.1.2"
   },
   "devDependencies": {

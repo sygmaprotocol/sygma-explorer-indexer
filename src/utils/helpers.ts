@@ -10,7 +10,7 @@ import {
   ERC721Handler__factory as Erc721HandlerFactory,
   ERC20Handler,
   ERC721Handler
-} from "@chainsafe/chainbridge-contracts"
+} from "@buildwithsygma/sygma-contracts"
 
 const isCelo = (networkId?: number) =>
   [42220, 44787, 62320].includes(networkId ?? 0)

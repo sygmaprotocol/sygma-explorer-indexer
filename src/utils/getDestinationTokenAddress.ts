@@ -1,6 +1,6 @@
 import {
   Bridge__factory as BridgeFactory,
-} from "@chainsafe/chainbridge-contracts"
+} from "@buildwithsygma/sygma-contracts"
 
 import { ChainbridgeConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
 import { getProvider, getHandlersMap } from "./helpers"

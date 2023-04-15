@@ -1,7 +1,7 @@
 import { ethers } from "ethers"
 
 import { PrismaClient } from "@prisma/client"
-import { Bridge } from "@chainsafe/chainbridge-contracts"
+import { Bridge } from "@buildwithsygma/sygma-contracts"
 import { ChainbridgeConfig, EvmBridgeConfig } from "../sygmaTypes"
 
 const prisma = new PrismaClient()

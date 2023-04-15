@@ -8,3 +8,5 @@ logs
 build
 
 public/
+
+.idea
