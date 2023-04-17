@@ -22,6 +22,13 @@ yarn install
 
 ## Usage
 
+### Stub server
+You can run stub server that will follow swagger API definition inside `swagger.yml` by:
+
+`yarn start:stub`
+
+Stub server will be exposed on `localhost:8080`. This will also expose Swagger documentation on `localhost:80/swagger`.
+
 ### Preparation
 Add The following in your `/etc/hosts` file:
 ````
