@@ -11,43 +11,72 @@ generator client {
 }
 
 model Transfer {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  uuid  String @default(uuid()) @map("uuid")
-  depositNonce Int @unique
-  resourceId String
-  fromDomainId Int
-  fromNetworkName String
-  toDomainId Int
-  toNetworkName String
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  depositNonce Int            @unique
+  resource     Resource       @relation(fields: [resourceID], references: [resourceId])
+  resourceID   String         @db.ObjectId
+  fromDomain   Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
+  fromDomainId String         @db.ObjectId
+  toDomain     Domain         @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
+  toDomainId   String         @db.ObjectId
+  sender       String
+  amount       String
+  status       TransferStatus @default(pending)
+  fee          Fee?
+  deposit      Deposit?
+  execution    Execution?
+  timestamp    Int?
+}
 
-  fromAddress String?
-  toAddress String?
-  amount String?
-  timestamp Int?
-  depositTransactionHash String? @unique
-  depositBlockNumber Int?
+enum TransferStatus {
+  pending
+  executed
+  failed
+}
 
-  status Int @default(1)
+model Resource {
+  resourceId String @id @map("_id") @db.ObjectId
+  type       String
 
-  sourceTokenAddress String?
-	destinationTokenAddress String?
+  transfers Transfer[]
+}
 
+model Domain {
+  id               String @id @map("_id") @db.ObjectId
+  name             String
+  lastIndexedBlock String
+
+  fromDomains Transfer[] @relation(name: "fromDomainRelation")
+  toDomains   Transfer[] @relation(name: "toDomainRelation")
+}
+
+model Fee {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  amount       String
+  tokenAddress String
+  tokenSymbol  String
+  transfer     Transfer @relation(fields: [transferId], references: [id])
+  transferId   String   @unique @db.ObjectId
+}
+
+model Deposit {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  transfer        Transfer @relation(fields: [transferId], references: [id])
+  transferId      String   @unique @db.ObjectId
+  type            String
+  txHash          String
+  blockNumber     String
+  depositData     String
   handlerResponse String?
-
-  proposalExecutionEvent ProposalExecutionEvent?
-  failedHandlerExecutionEvent FailedHandlerExecutionEvent?
 }
 
-type ProposalExecutionEvent {
-  originDomainID Int
-  depositNonce Int
-  dataHash String
-  by String
-}
-
-type FailedHandlerExecutionEvent {
-  lowLevelData String
-  originDomainID Int
-  depositNonce Int
-  by String
+model Execution {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  transfer        Transfer @relation(fields: [transferId], references: [id])
+  transferId      String   @unique @db.ObjectId
+  type            String
+  txHash          String
+  blockNumber     String
+  handlerResponse String?
+  dataHash        String?
 }

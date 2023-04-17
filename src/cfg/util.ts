@@ -1,6 +1,6 @@
 // @ts-ignore
 import phin from "phin";
-import { SharedConfiguration } from "./types"
+import {Domain, SharedConfiguration} from "./types"
 
 export async function loadSharedConfiguration(url: string): Promise<SharedConfiguration> {
     try {
@@ -21,4 +21,8 @@ export async function loadSharedConfiguration(url: string): Promise<SharedConfig
         const errMsg = (error as Error).message || "Unknown error";
         throw new Error("Error loading configuration: " + errMsg);
     }
+}
+
+export function getHandler(type: "Erc20"|"Erc721"|"Generic", domain: Domain): string | undefined {
+    return domain.handlers.find(h => h.type == type)?.address
 }

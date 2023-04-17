@@ -7,28 +7,31 @@ import { getNetworkName, decodeDataHash, getHandlersMap } from "../utils/helpers
 import { Bridge, ERC20Handler } from "@buildwithsygma/sygma-contracts"
 import { ChainbridgeConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
 import { getDestinationTokenAddress } from "../utils/getDestinationTokenAddress"
+import {Domain} from "../cfg/types";
 
 const prisma = new PrismaClient()
 const cache = new NodeCache({ stdTTL: 15 })
 
 export async function saveDeposits(
-  bridge: EvmBridgeConfig,
   bridgeContract: Bridge,
   provider: ethers.providers.JsonRpcProvider,
-  config: ChainbridgeConfig
+  config: Domain,
+  fromBlock: string,
+  toBlock: string
 ) {
   const depositFilter = bridgeContract.filters.Deposit(null, null, null, null, null, null)
   const depositLogs = await provider.getLogs({
     ...depositFilter,
-    fromBlock: bridge.deployedBlockNumber,
-    toBlock: bridge.latestBlockNumber ?? "latest"
+    fromBlock: fromBlock,
+    toBlock: toBlock
   })
-  const handlersMap = getHandlersMap(bridge, provider)
+  const handlersMap = getHandlersMap(config, provider)
   for (const dl of depositLogs) {
     const parsedLog = bridgeContract.interface.parseLog(dl)
     const { destinationDomainID, resourceID, depositNonce, user, data, handlerResponse } = parsedLog.args
     const depositNonceInt = depositNonce.toNumber()
-    const { destinationRecipientAddress, amount } = decodeDataHash(data, bridge.decimals)
+    // TODO - HARDCODED 18
+    const { destinationRecipientAddress, amount } = decodeDataHash(data, 18)
     console.time(`Nonce: ${depositNonce}`)
 
     let dataTransfer

@@ -9,44 +9,20 @@ import { getProvider } from "../utils/helpers"
 import { saveDeposits } from "./saveDeposits"
 import { saveProposals } from "./saveProposals"
 import { saveFailedHandlerExecutions } from "./saveFailedHandlerExecutions"
+import {BigNumber} from "ethers";
+import {Domain} from "../cfg/types";
 
-export async function indexDeposits(
-  bridge: EvmBridgeConfig,
-  config: ChainbridgeConfig
-) {
-  console.log(`\nChecking depostis for ${bridge.name}`)
+export async function indexAllEvents(fromBlock: BigNumber, toBlock: BigNumber, domain: Domain, rpcMap: Map<number, string>) {
+  console.log("index all events for domain " + domain.name + " inside range:" + fromBlock + "-" + toBlock)
 
-  const provider = getProvider(bridge)
-  await provider.ready
+  if(!rpcMap.has(domain.id)) {
+    throw new Error("RPC URL not provided for network: " + domain.name)
+  }
+  const rpcUrl = rpcMap.get(domain.id) as string
+  const provider = getProvider(rpcUrl, domain.id)
+  provider.ready
 
-  const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
+  const bridgeContract = BridgeFactory.connect(domain.bridge, provider)
 
-  await saveDeposits(
-    bridge,
-    bridgeContract,
-    provider,
-    config
-  )
-}
-
-export async function indexProposals(bridge: EvmBridgeConfig, config: ChainbridgeConfig) {
-  console.log(`\nChecking proposals executions for ${bridge.name}`)
-
-  const provider = getProvider(bridge)
-  await provider.ready
-
-  const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
-
-  await saveProposals(bridge, bridgeContract, provider, config)
-}
-
-export async function indexFailedHandlerExecutions(bridge: EvmBridgeConfig, config: ChainbridgeConfig) {
-  console.log(`Checking failed handler exectutions for ${bridge.name}`)
-
-  const provider = getProvider(bridge)
-  await provider.ready
-
-  const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
-
-  await saveFailedHandlerExecutions(bridge, bridgeContract, provider, config)
+  await saveDeposits(bridgeContract, provider, domain, fromBlock.toString(), toBlock.toString())
 }

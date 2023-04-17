@@ -4,11 +4,12 @@ import {
 
 import { ChainbridgeConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
 import { getProvider, getHandlersMap } from "./helpers"
+import {Domain} from "../cfg/types";
 
 export async function getDestinationTokenAddress(
   resourceID: string,
   destinationDomainID: number,
-  config: ChainbridgeConfig,
+  config: Domain,
 ) {
   const bridge = config.chains.find(bridge => bridge.domainId === destinationDomainID) as EvmBridgeConfig
   const provider = getProvider(bridge)

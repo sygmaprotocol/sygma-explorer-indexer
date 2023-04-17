@@ -1,0 +1,213 @@
+openapi: 3.0.0
+info:
+  title: Transfers API
+  version: 1.0.0
+paths:
+  /api/transfers:
+    get:
+      summary: Get all transfers (ordered by time)
+      parameters:
+        - name: status
+          in: query
+          description: Transaction status
+          schema:
+            type: string
+            enum: [pending, executed, failed]
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of items per page
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: A list of transfers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transfer'
+
+  /api/sender/{senderAddress}/transfers:
+    get:
+      summary: Get all transfers (ordered by time)
+      parameters:
+        - name: senderAddress
+          in: path
+          description: Sender address
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Transaction status
+          schema:
+            type: string
+            enum: [pending, executed, failed]
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of items per page
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: A list of transfers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transfer'
+
+  /api/resources/{resourceID}/transfers:
+    get:
+      summary: Get all transfers for a specific resource
+      parameters:
+        - name: resourceID
+          in: path
+          description: Resource ID
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Transaction status
+          schema:
+            type: string
+            enum: [pending, executed, failed]
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of items per page
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: A list of transfers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transfer'
+
+  # Add the remaining API endpoints here, following the same pattern
+
+components:
+  schemas:
+    Transfer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+          example: "60f7da143ce83aef2d325dcd"
+        depositNonce:
+          type: integer
+          example: 1
+        resource:
+          $ref: '#/components/schemas/Resource'
+        resourceID:
+          type: string
+          example: "60f7da143ce83aef2d325dcf"
+        fromDomain:
+          $ref: '#/components/schemas/Domain'
+        fromDomainId:
+          type: string
+          example: "60f7da143ce83aef2d325dd0"
+        toDomain:
+          $ref: '#/components/schemas/Domain'
+        toDomainId:
+          type: string
+          example: "60f7da143ce83aef2d325dd1"
+        sender:
+          type: string
+          example: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+        destination:
+          type: string
+          example: "0x742d35Cc6634C0532925a3b844Bc454e4438f44f"
+        amount:
+          type: string
+          example: "1000000000000000000"
+        timestamp:
+          type: integer
+          nullable: true
+          example: 1610489523
+        status:
+          $ref: '#/components/schemas/TransferStatus'
+        deposit:
+          $ref: '#/components/schemas/Deposit'
+          nullable: true
+        execution:
+          $ref: '#/components/schemas/Execution'
+          nullable: true
+    TransferStatus:
+      type: string
+      enum: [pending, executed, failed]
+    Resource:
+      type: object
+      properties:
+        resourceId:
+          type: string
+          format: ObjectId
+          example: "60f7da143ce83aef2d325dcf"
+        type:
+          type: string
+          example: "Token"
+    Domain:
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+          example: "60f7da143ce83aef2d325dd0"
+        name:
+          type: string
+          example: "Ethereum"
+        lastIndexedBlock:
+          type: string
+          example: "12345678"
+    Deposit:
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+          example: "60f7da143ce83aef2d325dd2"
+        transferId:
+          type: string
+          format: ObjectId
+          example: "60f7da143ce83aef2d325dcd"
+        type:
+          type: string
+          example: "ERC20"
+        txHash:
+          type: string
+          example: "0x0e49e662fb2e4398b8989a9f7b52d6b0537f8b0c1b3d3b232462f025e7f79119"
+        blockNumber:
+          type: string
+          example: "12345678"
+        depositData:
+          type: string
+          example: "0x000000000000000000000000742d35cc6634c0532925a3b844bc454e4438f44e000000000000000000000
+

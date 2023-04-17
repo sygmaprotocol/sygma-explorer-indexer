@@ -1,9 +1,8 @@
-import { PrismaClient } from "@prisma/client"
-import { ChainbridgeConfig, EvmBridgeConfig } from "../sygmaTypes"
-import { indexDeposits, indexProposals, indexFailedHandlerExecutions } from "./indexer"
-import { loadSharedConfiguration  } from "../cfg/util"
-import { Domain, SharedConfiguration } from "../cfg/types"
-import { BigNumber } from "ethers"
+import {PrismaClient} from "@prisma/client"
+import {loadSharedConfiguration} from "../cfg/util"
+import {Domain, SharedConfiguration} from "../cfg/types"
+import {BigNumber} from "ethers"
+import {indexAllEvents} from "./indexer";
 
 const prisma = new PrismaClient()
 
@@ -51,10 +50,6 @@ function getLatestBlock(domain: Domain): BigNumber {
 
 function setLastIndexedBlock(domainID: number, latestBlock: any) {
   console.log("set last indexed block for domain " + domainID + " to: " + latestBlock)
-}
-
-async function indexAllEvents(fromBlock: BigNumber, toBlock: BigNumber, domain: Domain) {
-  console.log("index all events for domain " + domain.name + " inside range:" + fromBlock + "-" + toBlock)
 }
 
 async function indexEventsForAllDomains(config: SharedConfiguration): Promise<void> {
