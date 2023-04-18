@@ -19,6 +19,7 @@ model Transfer {
   fromDomainId String         @db.ObjectId
   toDomain     Domain         @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
   toDomainId   String         @db.ObjectId
+  type         String
   sender       String
   amount       String
   status       TransferStatus @default(pending)
@@ -46,8 +47,8 @@ model Domain {
   name             String
   lastIndexedBlock String
 
-  fromDomains Transfer[] @relation(name: "fromDomainRelation")
-  toDomains   Transfer[] @relation(name: "toDomainRelation")
+  transferFrom Transfer[] @relation(name: "fromDomainRelation")
+  transferTo   Transfer[] @relation(name: "toDomainRelation")
 }
 
 model Fee {
@@ -63,7 +64,6 @@ model Deposit {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   transfer        Transfer @relation(fields: [transferId], references: [id])
   transferId      String   @unique @db.ObjectId
-  type            String
   txHash          String
   blockNumber     String
   depositData     String
@@ -74,7 +74,6 @@ model Execution {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   transfer        Transfer @relation(fields: [transferId], references: [id])
   transferId      String   @unique @db.ObjectId
-  type            String
   txHash          String
   blockNumber     String
   handlerResponse String?

@@ -37,7 +37,7 @@ paths:
 
   /api/sender/{senderAddress}/transfers:
     get:
-      summary: Get all transfers (ordered by time)
+      summary: Get all transfers initiated by specific sender
       parameters:
         - name: senderAddress
           in: path
@@ -113,7 +113,7 @@ paths:
 
   /api/domains/from/{domainID}/transfers:
     get:
-      summary: Get all transfers with a specific domain as source or destination
+      summary: Get all transfers with a specific domain as source
       parameters:
         - name: domainID
           in: path
@@ -151,11 +151,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Transfer'
-
 
   /api/domains/to/{domainID}/transfers:
     get:
-      summary: Get all transfers with a specific domain as source or destination
+      summary: Get all transfers with a specific domain as destination
       parameters:
         - name: domainID
           in: path
@@ -194,10 +193,9 @@ paths:
                 items:
                   $ref: '#/components/schemas/Transfer'
 
-
   /api/domains/from/{sourceDomainID}/to/{destinationDomainID}/transfers:
     get:
-      summary: Get all transfers from a source domain to a destination domain
+      summary: Get all transfers from a specific source domain to a specific destination domain
       parameters:
         - name: sourceDomainID
           in: path
@@ -229,7 +227,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/Transfer'
 
-
   /transfers/{id}:
     get:
       summary: Retrieve a expanded specific transfer by its ID
@@ -247,7 +244,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExpandedTransfer'
-
 
 components:
   schemas:
