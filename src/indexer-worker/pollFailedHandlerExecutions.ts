@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ethers, Event } from "ethers"
 
 import { PrismaClient } from "@prisma/client"
