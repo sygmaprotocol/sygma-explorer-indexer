@@ -1,3 +1,4 @@
+//@ts-nocheck
 import {
   Bridge__factory as BridgeFactory,
   ERC20Handler__factory as Erc20HandlerFactory,
