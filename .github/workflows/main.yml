@@ -34,7 +34,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          yarn --ignore-engines
+          yarn install --immutable --ignore-engines
           yarn build
           yarn test
 
