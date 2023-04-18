@@ -1,3 +1,4 @@
+//@ts-nocheck
 import {
   Bridge__factory as BridgeFactory,
 } from "@chainsafe/chainbridge-contracts"
