@@ -23,7 +23,8 @@
     "build:nodejs:container": "docker-compose -f docker-compose.full.yml build nodejs",
     "deploy:prod": "pm2-runtime ecosystem.prod.config.js",
     "deploy:dev": "pm2 start ecosystem.dev.config.js",
-    "start:worker": "ts-node -r tsconfig-paths/register --transpile-only src/indexer-worker/index.ts"
+    "start:worker": "ts-node -r tsconfig-paths/register --transpile-only src/indexer-worker/index.ts",
+    "start:stub": "docker-compose -f docker-compose.stub.yml up"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.145.0",

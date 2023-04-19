@@ -8,3 +8,7 @@ logs
 build
 
 public/
+
+.idea
+
+.yarn/*
