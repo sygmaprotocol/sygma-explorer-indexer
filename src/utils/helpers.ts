@@ -140,7 +140,7 @@ export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "tes
     name: getNetworkNameFromMap(domain.id, mapedRPCUrlPerStage),
     decimals: domain.nativeTokenDecimals,
     nativeTokenSymbol: domain.nativeTokenSymbol.toUpperCase(),
-    type: domain.type === "evm" ? "Ethereum" : "Substrate",
+    type: domain.type,
     bridgeAddress: domain.bridge,
     feeRouterAddress: domain.feeRouterAddress || "",
     erc20HandlerAddress:
