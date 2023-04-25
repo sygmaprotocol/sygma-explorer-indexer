@@ -14,7 +14,7 @@ import {
   ERC20Handler,
   ERC721Handler
 } from "@chainsafe/chainbridge-contracts"
-import { Config, SharedConfigDomains } from "types"
+import { SharedConfigDomains, SharedConfigFormated } from "types"
 
 const isCelo = (networkId?: number) =>
   [42220, 44787, 62320].includes(networkId ?? 0)
@@ -136,12 +136,12 @@ export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "tes
   const mapedRPCUrlPerStage = getRPCUrlMapping(stage)
 
   const formatedConfig = config.domains.map((domain) => ({
-    domainId: `${domain.id}`,
+    id: domain.id,
     name: getNetworkNameFromMap(domain.id, mapedRPCUrlPerStage),
     decimals: domain.nativeTokenDecimals,
     nativeTokenSymbol: domain.nativeTokenSymbol.toUpperCase(),
     type: domain.type,
-    bridgeAddress: domain.bridge,
+    bridge: domain.bridge,
     feeRouterAddress: domain.feeRouterAddress || "",
     erc20HandlerAddress:
       domain.handlers.length &&
@@ -149,26 +149,27 @@ export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "tes
     erc721HandlerAddress:
       domain.handlers.length &&
       domain.handlers.filter((handler) => handler.type === "erc721")[0].address,
-    tokens: [
+    resources: [
       ...domain.resources.map((resource) => ({
         address: resource.address,
         decimals: resource.decimals,
         resourceId: resource.resourceId,
         type: resource.type,
         symbol: resource.symbol,
-        feeSettings: { type: "", address: "" },
-        name: resource.symbol,
       })),
     ].filter(
       (resource) =>
         resource.type !== "permissionlessGeneric" && resource.address !== ""
     ),
-    confirmations: domain.blockConfirmations,
+    blockConfirmations: domain.blockConfirmations,
     feeHandlers: domain.feeHandlers,
-    rpcUrl: getRPCUrl(domain.id, mapedRPCUrlPerStage)
+    rpcUrl: getRPCUrl(domain.id, mapedRPCUrlPerStage),
+    nativeTokenFullName: domain.nativeTokenFullName,
+    nativeTokenDecimals: domain.nativeTokenDecimals,
+    startBlock: domain.startBlock,
   }))
 
-  return formatedConfig as Config[]
+  return formatedConfig as SharedConfigFormated[]
 }
 
 const getRPCUrl = (id: number, mapedDomain: Array<{id: number, rpcUrl: string}>): string => {

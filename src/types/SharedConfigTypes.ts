@@ -31,34 +31,13 @@ export type SharedConfigDomains = {
   domains: SharedConfigDomain[];
 };
 
+export type SharedConfigFormated = {
+  name: string;
+  rpcUrl: string;
+  erc20HandlerAddress: string;
+  erc721HandlerAddress: string;
+} & Omit<SharedConfigDomain, "handlers">;
+
 export type ConfigError = {
   error: { type: "config" | "shared-config"; message: string; name?: string };
 };
-
-export type Config = {
-  domainId: string,
-  name: string,
-  decimals: number,
-  nativeTokenSymbol: string,
-  type: "Ethereum" | "Substrate",
-  bridgeAddress: string,
-  feeRouterAddress: string,
-  erc20HandlerAddress: string,
-  erc721HandlerAddress: string,
-  tokens: Array<{
-    address: string,
-    decimals: number,
-    resourceId: string,
-    type: string,
-    symbol: string,
-    feeSettings: { type: string, address: string },
-    name: string,
-  }>,
-  confirmations: number,
-  feeHandlers: Array<{ address: string, type: "basic" | "oracle" }>,
-  rpcUrl: string,
-}
-
-export type IndexerSharedConfig = {
-  chains: Config[],
-}
