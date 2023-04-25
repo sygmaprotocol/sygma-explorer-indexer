@@ -1,4 +1,4 @@
-import { Config, IndexerSharedConfig } from "types";
+import { SharedConfigFormated } from "types";
 import { getSygmaConfig } from "./getSygmaConfig";
 import devnetSharedConfig from "./mocks/devnet-shared-config";
 import testnetSharedConfig from "./mocks/testnet-shared-config";
@@ -19,24 +19,27 @@ describe('getSygmaConfig', () => {
       new Response(JSON.stringify(devnetSharedConfig), { status: 200, statusText: 'OK' }),
     );
 
-    const sygmaConfig = await getSygmaConfig() as IndexerSharedConfig
+    const sygmaConfig = await getSygmaConfig() as SharedConfigFormated[];
 
     const expectedKeys = [
-      "domainId",
-      "networkId",
-      "name",
-      "decimals",
-      "bridgeAddress",
-      "erc20HandlerAddress",
-      "erc721HandlerAddress",
-      "rpcUrl",
-      "type",
-      "nativeTokenSymbol",
-      "confirmations",
-      "tokens",
-      "feeRouterAddress",
-      "feeHandlers"
+      'id',
+      'name',
+      'decimals',
+      'nativeTokenSymbol',
+      'type',
+      'bridge',
+      'feeRouterAddress',
+      'erc20HandlerAddress',
+      'erc721HandlerAddress',
+      'resources',
+      'blockConfirmations',
+      'feeHandlers',
+      'rpcUrl',
+      'nativeTokenFullName',
+      'nativeTokenDecimals',
+      'startBlock'
     ]
+    
 
     const expectedNetworkNamesandDomainIdsForDevnet = [
       { name: "Goerli", domainId: '0' },
@@ -45,10 +48,10 @@ describe('getSygmaConfig', () => {
       { name: "Sepolia", domainId: '3' },
     ]
 
-    const keys = Object.keys(sygmaConfig.chains[0])
+    const keys = Object.keys(sygmaConfig[0])
 
     // Temporary => filtering PHA domain
-    const filteredConfig = sygmaConfig.chains.filter(domain => domain.domainId !== '5')
+    const filteredConfig = sygmaConfig.filter(domain => domain.id !== 5)
 
     keys.forEach(key => {
       const keyFound = expectedKeys.find(expectedKey => expectedKey === key)
@@ -58,12 +61,12 @@ describe('getSygmaConfig', () => {
     for(let domain of filteredConfig) {
       for(let key in domain){
         if(key === 'name') {
-          const nameFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.name === domain[key as keyof Config])
+          const nameFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.name === domain[key as keyof SharedConfigFormated])
           expect(nameFound?.name).toBeTruthy()
         }
 
         if(key === 'domainId') {
-          const domainIdFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.domainId === domain[key as keyof Config])
+          const domainIdFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.domainId === domain[key as keyof SharedConfigFormated])
           expect(domainIdFound?.domainId).toBeTruthy()
         }
       }
@@ -83,23 +86,25 @@ describe('getSygmaConfig', () => {
       new Response(JSON.stringify(testnetSharedConfig), { status: 200, statusText: 'OK' }),
     );
 
-    const sygmaConfig = await getSygmaConfig() as IndexerSharedConfig
+    const sygmaConfig = await getSygmaConfig() as SharedConfigFormated[]
 
     const expectedKeys = [
-      "domainId",
-      "networkId",
-      "name",
-      "decimals",
-      "bridgeAddress",
-      "erc20HandlerAddress",
-      "erc721HandlerAddress",
-      "rpcUrl",
-      "type",
-      "nativeTokenSymbol",
-      "confirmations",
-      "tokens",
-      "feeRouterAddress",
-      "feeHandlers"
+      'id',
+      'name',
+      'decimals',
+      'nativeTokenSymbol',
+      'type',
+      'bridge',
+      'feeRouterAddress',
+      'erc20HandlerAddress',
+      'erc721HandlerAddress',
+      'resources',
+      'blockConfirmations',
+      'feeHandlers',
+      'rpcUrl',
+      'nativeTokenFullName',
+      'nativeTokenDecimals',
+      'startBlock'
     ]
 
     const expectedNetworkNamesandDomainIdsForDevnet = [
@@ -109,22 +114,22 @@ describe('getSygmaConfig', () => {
       { name: "Sepolia", domainId: '4' },
     ]
 
-    const keys = Object.keys(sygmaConfig.chains[0])
+    const keys = Object.keys(sygmaConfig[0])
 
     keys.forEach(key => {
       const keyFound = expectedKeys.find(expectedKey => expectedKey === key)
       expect(keyFound).toBeTruthy()
     })
 
-    for(let domain of sygmaConfig.chains) {
+    for(let domain of sygmaConfig) {
       for(let key in domain){
         if(key === 'name') {
-          const nameFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.name === domain[key as keyof Config])
+          const nameFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.name === domain[key as keyof SharedConfigFormated])
           expect(nameFound?.name).toBeTruthy()
         }
 
         if(key === 'domainId') {
-          const domainIdFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.domainId === domain[key as keyof Config])
+          const domainIdFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.domainId === domain[key as keyof SharedConfigFormated])
           expect(domainIdFound?.domainId).toBeTruthy()
         }
       }

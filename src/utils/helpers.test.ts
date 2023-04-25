@@ -34,21 +34,24 @@ describe('buildQueryParamsToPasss', () => {
 
 describe('formatConfig', () => {
   const expectedKeys = [
-    "domainId",
-    "networkId",
-    "name",
-    "decimals",
-    "bridgeAddress",
-    "erc20HandlerAddress",
-    "erc721HandlerAddress",
-    "rpcUrl",
-    "type",
-    "nativeTokenSymbol",
-    "confirmations",
-    "tokens",
-    "feeRouterAddress",
-    "feeHandlers"
+    'id',
+    'name',
+    'decimals',
+    'nativeTokenSymbol',
+    'type',
+    'bridge',
+    'feeRouterAddress',
+    'erc20HandlerAddress',
+    'erc721HandlerAddress',
+    'resources',
+    'blockConfirmations',
+    'feeHandlers',
+    'rpcUrl',
+    'nativeTokenFullName',
+    'nativeTokenDecimals',
+    'startBlock'
   ]
+
 
 
   it('should return the config for devnet', () => {
