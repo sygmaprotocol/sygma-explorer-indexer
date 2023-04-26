@@ -132,7 +132,7 @@ export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.provide
   return handlersMap
 }
 
-export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "testnet" | "mainnet" | "local") {
+export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "testnet" | "mainnet" | "local"): SharedConfigFormated[] {
   const mapedRPCUrlPerStage = getRPCUrlMapping(stage)
 
   const formatedConfig = config.domains.map((domain) => ({
@@ -161,7 +161,7 @@ export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "tes
     startBlock: domain.startBlock,
   }))
 
-  return formatedConfig as SharedConfigFormated[]
+  return formatedConfig
 }
 
 const getRPCUrl = (id: number, mapedDomain: Array<{id: number, rpcUrl: string}>): string => {

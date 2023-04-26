@@ -11,29 +11,38 @@ export type SharedConfigHandlers = {
   address: string;
 };
 
-export type SharedConfigDomain = {
+export interface SharedConfigDomainBase<Type> {
   id: number;
   name: string;
-  type: "evm" | "substrate";
+  type: Type;
   bridge: string;
-  feeRouter: string;
-  handlers: Array<SharedConfigHandlers>;
   nativeTokenSymbol: string;
   nativeTokenFullName: string;
   nativeTokenDecimals: number;
   blockConfirmations: number;
   startBlock: number;
   resources: Array<SharedConfigResources>;
-  feeHandlers: Array<{ address: string; type: "basic" | "oracle" }>;
 };
 
-export type SharedConfigDomains = {
-  domains: SharedConfigDomain[];
-};
+export interface EthereumSharedConfigDomain extends SharedConfigDomainBase<"ethereum"> {
+  handlers: Array<SharedConfigHandlers>;
+  feeRouter: string;
+  feeHandlers: Array<SharedConfigHandlers>;
+}
 
-export type SharedConfigFormated = {
+export interface SubstrateSharedConfigDomain extends SharedConfigDomainBase<"substrate"> {
+  handlers: [];
+  feeRouter?: undefined;
+  feeHandlers?: null;
+}
+
+export interface SharedConfigDomains {
+  domains: Array<EthereumSharedConfigDomain | SubstrateSharedConfigDomain>;
+}
+
+export interface SharedConfigFormated extends SharedConfigDomainBase<"ethereum" | "substrate"> {
   rpcUrl: string;
-} & SharedConfigDomain;
+};
 
 export type ConfigError = {
   error: { type: "config" | "shared-config"; message: string; name?: string };
