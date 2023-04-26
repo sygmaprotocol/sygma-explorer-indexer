@@ -16,14 +16,14 @@ export type SharedConfigDomain = {
   name: string;
   type: "evm" | "substrate";
   bridge: string;
-  feeRouterAddress: string;
-  handlers: SharedConfigHandlers[];
+  feeRouter: string;
+  handlers: Array<SharedConfigHandlers>;
   nativeTokenSymbol: string;
   nativeTokenFullName: string;
   nativeTokenDecimals: number;
   blockConfirmations: number;
   startBlock: number;
-  resources: SharedConfigResources[];
+  resources: Array<SharedConfigResources>;
   feeHandlers: Array<{ address: string; type: "basic" | "oracle" }>;
 };
 
@@ -32,11 +32,8 @@ export type SharedConfigDomains = {
 };
 
 export type SharedConfigFormated = {
-  name: string;
   rpcUrl: string;
-  erc20HandlerAddress: string;
-  erc721HandlerAddress: string;
-} & Omit<SharedConfigDomain, "handlers">;
+} & SharedConfigDomain;
 
 export type ConfigError = {
   error: { type: "config" | "shared-config"; message: string; name?: string };

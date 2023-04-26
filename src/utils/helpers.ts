@@ -142,13 +142,8 @@ export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "tes
     nativeTokenSymbol: domain.nativeTokenSymbol.toUpperCase(),
     type: domain.type,
     bridge: domain.bridge,
-    feeRouterAddress: domain.feeRouterAddress || "",
-    erc20HandlerAddress:
-      domain.handlers.length &&
-      domain.handlers.filter((handler) => handler.type === "erc20")[0].address,
-    erc721HandlerAddress:
-      domain.handlers.length &&
-      domain.handlers.filter((handler) => handler.type === "erc721")[0].address,
+    feeRouter: domain.feeRouter || "",
+    handlers: domain.handlers,
     resources: [
       ...domain.resources.map((resource) => ({
         address: resource.address,
@@ -157,10 +152,7 @@ export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "tes
         type: resource.type,
         symbol: resource.symbol,
       })),
-    ].filter(
-      (resource) =>
-        resource.type !== "permissionlessGeneric" && resource.address !== ""
-    ),
+    ],
     blockConfirmations: domain.blockConfirmations,
     feeHandlers: domain.feeHandlers,
     rpcUrl: getRPCUrl(domain.id, mapedRPCUrlPerStage),

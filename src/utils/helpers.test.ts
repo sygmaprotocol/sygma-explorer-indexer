@@ -40,9 +40,8 @@ describe('formatConfig', () => {
     'nativeTokenSymbol',
     'type',
     'bridge',
-    'feeRouterAddress',
-    'erc20HandlerAddress',
-    'erc721HandlerAddress',
+    'feeRouter',
+    'handlers',
     'resources',
     'blockConfirmations',
     'feeHandlers',
@@ -56,8 +55,9 @@ describe('formatConfig', () => {
 
   it('should return the config for devnet', () => {
     const formatedConfig = formatConfig(devnetSharedConfig as unknown as SharedConfigDomains, "devnet")
+    const substrateDomainFiltered = formatedConfig.filter((config) => config.type !== "substrate")
 
-    const keys = Object.keys(formatedConfig[0])
+    const keys = Object.keys(substrateDomainFiltered[0])
     keys.forEach(key => {
       const foundExpectedKey = expectedKeys.find(expectedKey => expectedKey === key)
       expect(foundExpectedKey).not.toBe(undefined)
@@ -66,8 +66,9 @@ describe('formatConfig', () => {
 
   it('should return the config for testnet', () => {
     const formatedConfig = formatConfig(testnetSharedConfig as unknown as SharedConfigDomains, "testnet")
+    const substrateDomainFiltered = formatedConfig.filter((config) => config.type !== "substrate")
 
-    const keys = Object.keys(formatedConfig[0])
+    const keys = Object.keys(substrateDomainFiltered[0])
     keys.forEach(key => {
       const foundExpectedKey = expectedKeys.find(expectedKey => expectedKey === key)
       expect(foundExpectedKey).not.toBe(undefined)
