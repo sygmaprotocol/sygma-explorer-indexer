@@ -1,8 +1,11 @@
 {
-  "name": "chainbridge-explorer-indexer",
+  "name": "sygmaprotocol-explorer-indexer",
   "version": "1.0.0",
   "main": "index.js",
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start:dev": "nodemon",
     "start:prod": "node ./build/index.js",
@@ -49,6 +52,7 @@
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^5.33.0",
+    "cross-fetch": "3.1.5",
     "dotenv-cli": "^4.0.0",
     "eslint": "^8.21.0",
     "eslint-config-standard": "^16.0.3",

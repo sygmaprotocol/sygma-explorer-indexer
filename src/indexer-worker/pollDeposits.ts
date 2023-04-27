@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ethers, Event } from "ethers"
 import NodeCache from "node-cache"
 

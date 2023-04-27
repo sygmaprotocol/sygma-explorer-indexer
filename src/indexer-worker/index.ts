@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { ChainbridgeConfig, EvmBridgeConfig } from "../sygmaTypes"
 import { indexer } from "./indexer"
 

@@ -1,7 +1,10 @@
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
 import { ethers, BigNumber, utils } from "ethers"
 import { TransfersByCursorOptions } from "services/transfers.service"
-import { ChainbridgeConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
+import { EvmBridgeConfig, HandlersMap, SubstrateBridgeConfig, SygmaConfig } from "../sygmaTypes"
+import devnetMapedRPCUrls from "../rpcUrlMappings/devnet.json"
+import testnetMapedRPCUrls from "../rpcUrlMappings/testnet.json"
+import localMapedRPCUrls from "../rpcUrlMappings/local.json"
 
 import {
   Bridge,
@@ -11,6 +14,7 @@ import {
   ERC20Handler,
   ERC721Handler
 } from "@chainsafe/chainbridge-contracts"
+import { SharedConfigDomains, SharedConfigFormated } from "types"
 
 const isCelo = (networkId?: number) =>
   [42220, 44787, 62320].includes(networkId ?? 0)
@@ -71,10 +75,10 @@ export function jsonStringifyWithBigInt(value: any) {
 
 export function getNetworkName(
   domainId: number,
-  chainbridgeConfig: ChainbridgeConfig
+  sygmaConfig: SygmaConfig
 ) {
   return (
-    chainbridgeConfig.chains.find((c) => c.domainId === domainId)?.name || ""
+    sygmaConfig.chains.find((c) => c.domainId === domainId)?.name || ""
   )
 }
 
@@ -112,7 +116,7 @@ export function buildQueryParamsToPasss(args: any): TransfersByCursorOptions {
   }
 }
 
-export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.providers.JsonRpcProvider ) {
+export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.providers.JsonRpcProvider) {
   const erc20HandlerContract = Erc20HandlerFactory.connect(
     bridge.erc20HandlerAddress,
     provider
@@ -126,4 +130,58 @@ export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.provide
   handlersMap[bridge.erc20HandlerAddress] = erc20HandlerContract
   handlersMap[bridge.erc721HandlerAddress] = erc721HandlerContract
   return handlersMap
+}
+
+export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "testnet" | "mainnet" | "local"): SharedConfigFormated[] {
+  const mapedRPCUrlPerStage = getRPCUrlMapping(stage)
+
+  const formatedConfig = config.domains.map((domain) => ({
+    id: domain.id,
+    name: getNetworkNameFromMap(domain.id, mapedRPCUrlPerStage),
+    decimals: domain.nativeTokenDecimals,
+    nativeTokenSymbol: domain.nativeTokenSymbol.toUpperCase(),
+    type: domain.type,
+    bridge: domain.bridge,
+    feeRouter: domain.feeRouter || "",
+    handlers: domain.handlers,
+    resources: [
+      ...domain.resources.map((resource) => ({
+        address: resource.address,
+        decimals: resource.decimals,
+        resourceId: resource.resourceId,
+        type: resource.type,
+        symbol: resource.symbol,
+      })),
+    ],
+    blockConfirmations: domain.blockConfirmations,
+    feeHandlers: domain.feeHandlers,
+    rpcUrl: getRPCUrl(domain.id, mapedRPCUrlPerStage),
+    nativeTokenFullName: domain.nativeTokenFullName,
+    nativeTokenDecimals: domain.nativeTokenDecimals,
+    startBlock: domain.startBlock,
+  }))
+
+  return formatedConfig
+}
+
+const getRPCUrl = (id: number, mapedDomain: Array<{id: number, rpcUrl: string}>): string => {
+  const domainFound = mapedDomain.find(domain => domain.id === id)
+  return domainFound?.rpcUrl! || "";
+};
+
+const getNetworkNameFromMap = (id: number, mapedDomain: Array<{id: number, name: string}>): string => {
+  const networkFound = mapedDomain.find(domain => domain.id === id)
+  return networkFound?.name! || "";
+};
+
+const getRPCUrlMapping = (stage: string) => {
+  if (stage === "devnet") {
+    return devnetMapedRPCUrls
+  } else if (stage === "testnet") {
+    return testnetMapedRPCUrls
+  } else if(stage === 'local') {
+    return localMapedRPCUrls
+  } else {
+    throw new Error("Invalid stage")
+  }
 }

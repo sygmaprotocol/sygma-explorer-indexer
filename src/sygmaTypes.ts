@@ -41,7 +41,7 @@ export type SubstrateBridgeConfig = BridgeConfig & {
   typesFileName: string;
 };
 
-export type ChainbridgeConfig = {
+export type SygmaConfig = {
   chains: Array<EvmBridgeConfig | SubstrateBridgeConfig>;
 };
 

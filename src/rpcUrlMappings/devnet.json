@@ -1,0 +1,22 @@
+[
+  {
+    "id": 0,
+    "name": "Goerli",
+    "rpcUrl": "https://eth-goerli.g.alchemy.com/v2/wkF4rGEBspanIYTCzspMVFbOPjHP_IhL"
+  },
+  {
+    "id": 1,
+    "name": "Mumbai",
+    "rpcUrl": "https://polygon-mumbai.g.alchemy.com/v2/LquJll0ZH2yYtHx74WScXNSXAj8C1DsP"
+  },
+  {
+    "id": 2,
+    "name": "Moonbase Alpha",
+    "rpcUrl": "https://moonbase-alpha.blastapi.io/be6f59cb-0c85-444f-b8bc-4179bd203cac"
+  },
+  {
+    "id": 3,
+    "name": "Sepolia",
+    "rpcUrl": "https://eth-sepolia.g.alchemy.com/v2/XEdjTRcsZFKjg7Cqx7C6l5KODNZGDxuY"
+  }
+]

@@ -1,41 +1,47 @@
-import { SSM } from "@aws-sdk/client-ssm";
-import { secrets } from "docker-secret";
+import dotenv from 'dotenv'
+import { SygmaConfig } from 'sygmaTypes'
+import { SharedConfigDomains, SharedConfigFormated } from 'types'
+import { formatConfig } from './helpers'
 
-const SSM_PARAMETER_NAME = secrets.SSM_PARAMETER_NAME || process.env.SSM_PARAMETER_NAME
+if (process.env.STAGE !== 'devnet') {
+  dotenv.config({
+    path: `${process.cwd()}/.env.testnet`
+  })
+} else {
+  dotenv.config({
+    path: `${process.cwd()}/.env.devnet`
+  })
+}
 
-const ssm = new SSM({
-  region: "us-east-2",
-});
+const getLocalConfig = () => {
+  const localConfig = require("../../public/sygma-explorer-shared-config.json")
+  return formatConfig(localConfig as SharedConfigDomains, "local") as SharedConfigFormated[];
+}
 
-const getLocalConfig = () => require("../../public/sygma-explorer-runtime-config.json")
+const getSharedConfig = async (): Promise<SharedConfigFormated[]> => {
+  const { env: { CONFIG_SERVER_URL, STAGE } } = process
 
-const getConfigFromSSM = async () => {
   try {
-    const data = await ssm.getParameter({
-      Name: SSM_PARAMETER_NAME,
-      WithDecryption: true,
-    });
-    const rawResponse = data.Parameter?.Value;
-    if (rawResponse) {
-      const parsedResponse = JSON.parse(rawResponse);
-      return parsedResponse;
-    }
+    const response = await fetch(CONFIG_SERVER_URL!)
+    const data: SharedConfigDomains = await response.json()
+    const formatedConfig = formatConfig(data, STAGE as "devnet" | "testnet" | "mainnet")
+    return formatedConfig
   } catch (e) {
-    console.warn("AWS SSM request failed");
-    console.error(e);
-    return {error: e}
+    console.error(`Failed to fecth config for ${process.env.STAGE}`, e)
+    return Promise.reject(e)
   }
-};
 
-export async function getSygmaConfig(){
+}
+
+export async function getSygmaConfig(): Promise<SharedConfigFormated[] | { error: { message: string } }> {
   let config
   try {
     if (process.env.NODE_ENV === 'production') {
-      config = await getConfigFromSSM()
+      config = await getSharedConfig()
     } else {
       config = await getLocalConfig()
     }
-  } catch(e) {
+  } catch (e) {
     return { error: { message: "Failed to fetch" } };
   }
 
