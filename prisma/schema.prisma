@@ -22,6 +22,7 @@ model Transfer {
   type         String
   sender       String
   amount       String
+  destination  String
   status       TransferStatus @default(pending)
   fee          Fee?
   deposit      Deposit?
