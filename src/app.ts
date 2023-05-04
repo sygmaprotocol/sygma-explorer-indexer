@@ -6,7 +6,8 @@ import { routes } from "./routes"
 export const app: FastifyInstance = fastify({ logger: true })
 app.register(cors, {
   origin: "*" // in the meantime
-})
+});
+
 app.register(fastifyHealthcheck, {
   healthcheckUrl: "/healthcheck",
   exposeUptime: true,
@@ -16,6 +17,6 @@ app.register(fastifyHealthcheck, {
       return true
     }
   }
-})
+});
 
-routes(app)
+app.register(routes, { prefix: "/api" });
