@@ -1,13 +1,9 @@
-import { NextFunction, Request, Response, Router } from "express"
-export const IndexController: Router = Router()
+import { FastifyReply, FastifyRequest, RawReplyDefaultExpression, RawRequestDefaultExpression } from "fastify"
 
-IndexController.get(
-  "/",
-  async(req: Request, res: Response, next: NextFunction) => {
-    try {
-      res.status(200).send({ data: "Hello!" })
-    } catch (e) {
-      next(e)
-    }
+export const IndexController = async function (request: FastifyRequest, reply: FastifyReply) {
+  try {
+    return reply.status(200).send({ data: "Hello!" })
+  } catch (e) {
+    return reply.status(500).send({ error: e })
   }
-)
+}

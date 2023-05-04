@@ -1,11 +1,14 @@
 import errorMiddleware from "./middlewares/error.middleware"
 import { app } from "./app"
 
-const PORT = process.env.PORT || 8000;
+const PORT: number = Number(process.env.PORT!) || 8000;
 const HOST = process.env.HOST || 'localhost';
+const portToUse = { port: PORT as string | number };
 
-app.use(errorMiddleware)
-
-app.listen(PORT, () => {
-  console.log(`⚡️[server]: Server is running at http://${HOST}:${PORT}`)
-})
+app.listen({ port: PORT }, (err, address) => {
+  if (err) {
+    app.log.error(err)
+    process.exit(1)
+  }
+  console.log(`⚡️[server]: Server is running at ${address}`)
+});

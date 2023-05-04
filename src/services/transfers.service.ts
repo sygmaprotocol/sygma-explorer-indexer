@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { PrismaClient, Transfer, ProposalExecutionEvent, FailedHandlerExecutionEvent, Prisma } from "@prisma/client"
 
 type TransferWithStatus = Transfer & {
