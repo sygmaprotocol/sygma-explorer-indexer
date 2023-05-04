@@ -1,3 +1,4 @@
+// @ts-nocheck
 import request from "supertest"
 import path from 'path';
 

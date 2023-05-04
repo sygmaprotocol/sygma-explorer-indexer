@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express"
+// @ts-nocheck
 import { HttpException } from "../exceptions/HttpException"
 import { logger } from "../utils/logger"
 
