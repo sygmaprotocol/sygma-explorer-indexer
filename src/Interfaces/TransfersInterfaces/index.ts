@@ -5,15 +5,6 @@ export interface ITransfer {
   last?: string;
 }
 
-export interface ITransferOffSet {
-  page?: string;
-  limit?: string;
-}
-
 export interface ITransferById {
   id: string;
-}
-
-export interface ITransferByTransactionHash {
-  hash: string;
 }
