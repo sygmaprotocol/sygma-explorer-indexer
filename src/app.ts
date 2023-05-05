@@ -9,7 +9,7 @@ app.register(cors, {
 });
 
 app.register(fastifyHealthcheck, {
-  healthcheckUrl: "/healthcheck",
+  healthcheckUrl: "/health",
   exposeUptime: true,
   underPressureOptions: {
     healthCheckInterval: 5000,
