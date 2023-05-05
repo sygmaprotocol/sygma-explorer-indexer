@@ -3,7 +3,7 @@ import { ITransfer, ITransferById } from "Interfaces"
 
 import TransfersService from "../services/transfers.service"
 
-import { buildQueryParamsToPasss } from "../utils/helpers"
+import { getPaginationParams } from "../utils/helpers"
 
 const transfersService = new TransfersService()
 
@@ -11,15 +11,11 @@ export const TransfersController = {
   transfers: async function(request: FastifyRequest<{ Querystring: ITransfer }>, reply: FastifyReply) {
     try {
       const { query: { before, first, after, last } } = request
-      const params = buildQueryParamsToPasss({ before, first, after, last })
+      const params = getPaginationParams({ before, first, after, last })
 
       const transfersResult = await transfersService.findTransfersByCursor({
         ...params
       })
-
-      if(!transfersResult.transfers.length){
-        reply.status(404)
-      }
 
       reply.status(200).send(transfersResult)
     } catch (e) {
