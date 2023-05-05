@@ -33,10 +33,6 @@ export const TransfersController = {
         reply.status(404)
       }
 
-      if(!transfer){
-        reply.status(404)
-      }
-
       reply.status(200).send(transfer)
     } catch (e) {
       reply.status(400).send(e)
