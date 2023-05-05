@@ -1,24 +1,32 @@
 // @ts-nocheck
 import { PrismaClient } from "@prisma/client"
-import { EvmBridgeConfig, SygmaConfig } from "../sygmaTypes"
 import { indexDeposits, indexProposals, indexFailedHandlerExecutions } from "./indexer"
 
 import {getSygmaConfig} from '../utils/getSygmaConfig'
-import { Config, IndexerSharedConfig } from "types"
+import { EthereumSharedConfigDomain, SharedConfigDomainBase, SharedConfigFormated } from "types"
 
 const prisma = new PrismaClient()
 
 async function main() {
-  const sygmaconfig = await getSygmaConfig() as IndexerSharedConfig
+  const sygmaconfig = await getSygmaConfig() as SharedConfigFormated[]
   
-  await prisma.$connect()
+  try {
+    await prisma.$connect()
+    console.log("Connected to prisma client")
+  } catch (e) {
+    console.error("Error on prisma connection", e);
+  }
 
   const deleteTransfers = prisma.transfer.deleteMany()
 
-  await prisma.$transaction([deleteTransfers])
+  try {
+    await prisma.$transaction([deleteTransfers])
+  } catch (e) {
+    console.error("Error deleting transfers", e);
+  }
 
-  const evmBridges = sygmaconfig.chains.filter(
-    (c) => c.type !== "Substrate"
+  const evmDomains = sygmaconfig.filter(
+    (domain) => domain.type !== "substrate"
   )
   for (const bridge of evmBridges) {
     await indexDeposits(bridge as Config, sygmaconfig)

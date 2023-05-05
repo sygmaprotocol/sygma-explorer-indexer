@@ -13,11 +13,8 @@ import {
   ERC721Handler__factory as Erc721HandlerFactory,
   ERC20Handler,
   ERC721Handler
-} from "@chainsafe/chainbridge-contracts"
+} from "@buildwithsygma/sygma-contracts"
 import { SharedConfigDomains, SharedConfigFormated } from "types"
-
-const isCelo = (networkId?: number) =>
-  [42220, 44787, 62320].includes(networkId ?? 0)
 
 const getRpcProviderFromHttpUrl = (url: string) => {
   const urlInstance = new URL(url)
@@ -56,9 +53,7 @@ const getRpcProviderFromWebsocket = (
 }
 
 export function getProvider(destinationChainConfig: EvmBridgeConfig) {
-  if (isCelo(destinationChainConfig.networkId)) {
-    return new CeloProvider(destinationChainConfig.rpcUrl)
-  } else if (destinationChainConfig.rpcUrl.startsWith("wss")) {
+  if (destinationChainConfig.rpcUrl.startsWith("wss")) {
     return getRpcProviderFromWebsocket(destinationChainConfig)
   } else {
     return getRpcProviderFromHttpUrl(destinationChainConfig?.rpcUrl)

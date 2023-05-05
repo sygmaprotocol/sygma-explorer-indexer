@@ -3,28 +3,34 @@ import {
   Bridge__factory as BridgeFactory,
   ERC20Handler__factory as Erc20HandlerFactory,
   ERC721Handler__factory as Erc721HandlerFactory,
-} from "@chainsafe/chainbridge-contracts"
+} from "@buildwithsygma/sygma-contracts"
 import { SygmaConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
 import { getProvider } from "../utils/helpers"
 
 import { saveDeposits } from "./saveDeposits"
 import { saveProposals } from "./saveProposals"
 import { saveFailedHandlerExecutions } from "./saveFailedHandlerExecutions"
-import { Config, IndexerSharedConfig } from "types"
+import { Config, EthereumSharedConfigDomain, IndexerSharedConfig, SharedConfigFormated, SubstrateSharedConfigDomain } from "types"
 
 export async function indexDeposits(
-  bridge: Config,
-  config: IndexerSharedConfig
+  domain: EthereumSharedConfigDomain | SubstrateSharedConfigDomain,
+  config: SharedConfigFormated
 ) {
   console.log(`\nChecking depostis for ${bridge.name}`)
 
-  const provider = getProvider(bridge)
-  await provider.ready
+  const provider = getProvider(domain)
+  try {
+    await provider.ready
+  } catch(e){
+    console.error('Error on provider.ready', e);
+  }
+  
+  const { bridge } = domain
 
-  const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
+  const bridgeContract = BridgeFactory.connect(bridge, provider)
 
   await saveDeposits(
-    bridge,
+    domain,
     bridgeContract,
     provider,
     config
