@@ -25,7 +25,13 @@ export const TransfersController = {
   transferById: async function(request: FastifyRequest<{ Params: ITransferById }>, reply: FastifyReply) {
     try {
       const { id } = request.params
-      const transfer = await transfersService.findTransfer({ id })
+
+      let transfer
+      try {
+        transfer = await transfersService.findTransfer({ id })
+      } catch(e) {
+        reply.status(404)
+      }
 
       if(!transfer){
         reply.status(404)

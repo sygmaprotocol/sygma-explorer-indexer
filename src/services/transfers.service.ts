@@ -51,24 +51,10 @@ class TransfersService {
     if (transfer) {
       return this.addLatestStatusToTransfer(transfer)
     } else {
-      return null
+      throw new Error('No transfer found')
     }
   }
 
-  public async findTransferByTransactionHash({ hash }: { hash: string }) {
-    const transfer = await this.transfers.findUnique({
-      where: { depositTransactionHash: hash },
-      include: {
-        proposalEvents: true,
-        voteEvents: true,
-      },
-    })
-    if (transfer) {
-      return this.addLatestStatusToTransfer(transfer)
-    } else {
-      return null
-    }
-  }
 
   public async findAllTransfes({ limit, skipIndex }: AllTransfersOption) {
     const transfers: TransfersWithStatus = await this.transfers.findMany({
