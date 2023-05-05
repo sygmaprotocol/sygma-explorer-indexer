@@ -1,4 +1,3 @@
-import errorMiddleware from "./middlewares/error.middleware"
 import { app } from "./app"
 
 const PORT: number = Number(process.env.PORT!) || 8000;
