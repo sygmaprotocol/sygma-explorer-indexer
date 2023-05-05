@@ -1,12 +1,22 @@
-import express, { Application } from "express"
-import cors from "cors"
-import morgan from "morgan"
+import fastify, { FastifyInstance } from "fastify"
+import cors from "@fastify/cors"
+import fastifyHealthcheck from "fastify-healthcheck"
 import { routes } from "./routes"
-import { stream } from "./utils/logger"
 
-export const app: Application = express()
-app.use(cors())
-app.use(morgan("dev", { stream }))
-app.use(express.json())
+export const app: FastifyInstance = fastify({ logger: true })
+app.register(cors, {
+  origin: "*" // in the meantime
+});
 
-routes(app)
+app.register(fastifyHealthcheck, {
+  healthcheckUrl: "/health",
+  exposeUptime: true,
+  underPressureOptions: {
+    healthCheckInterval: 5000,
+    healthCheck: async () => {
+      return true
+    }
+  }
+});
+
+app.register(routes, { prefix: "/api" });
