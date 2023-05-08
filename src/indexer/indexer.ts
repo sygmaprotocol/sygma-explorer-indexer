@@ -7,16 +7,16 @@ import {
 import { SygmaConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
 import { getProvider } from "../utils/helpers"
 
-import { saveDeposits } from "./saveDeposits"
+import { saveEvmDeposits } from "./saveDeposits"
 import { saveProposals } from "./saveProposals"
 import { saveFailedHandlerExecutions } from "./saveFailedHandlerExecutions"
 import { Config, EthereumSharedConfigDomain, IndexerSharedConfig, SharedConfigFormated, SubstrateSharedConfigDomain } from "types"
 
-export async function indexDeposits(
-  domain: EthereumSharedConfigDomain | SubstrateSharedConfigDomain,
-  config: SharedConfigFormated
+export async function indexEvmDeposits(
+  domain: EthereumSharedConfigDomain,
+  sygmaConfig: SharedConfigFormated[]
 ) {
-  console.log(`\nChecking depostis for ${bridge.name}`)
+  console.log(`\nChecking depostis for ${domain.name}`)
 
   const provider = getProvider(domain)
   try {
@@ -29,32 +29,38 @@ export async function indexDeposits(
 
   const bridgeContract = BridgeFactory.connect(bridge, provider)
 
-  await saveDeposits(
+  const mapResourceIdToTypeOfResource = domain.resources.map((resource) => ({
+    resourceId: resource.resourceId,
+    type: resource.type,
+  }));
+  
+  await saveEvmDeposits({
     domain,
     bridgeContract,
     provider,
-    config
-  )
+    mapResourceIdToTypeOfResource,
+    sygmaConfig
+  });
 }
 
-export async function indexProposals(bridge: Config, config: SygmaConfig) {
-  console.log(`\nChecking proposals executions for ${bridge.name}`)
+// export async function indexProposals(bridge: Config, config: SygmaConfig) {
+//   console.log(`\nChecking proposals executions for ${bridge.name}`)
 
-  const provider = getProvider(bridge)
-  await provider.ready
+//   const provider = getProvider(bridge)
+//   await provider.ready
 
-  const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
+//   const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
 
-  await saveProposals(bridge, bridgeContract, provider, config)
-}
+//   await saveProposals(bridge, bridgeContract, provider, config)
+// }
 
-export async function indexFailedHandlerExecutions(bridge: EvmBridgeConfig, config: SygmaConfig) {
-  console.log(`Checking failed handler exectutions for ${bridge.name}`)
+// export async function indexFailedHandlerExecutions(bridge: EvmBridgeConfig, config: SygmaConfig) {
+//   console.log(`Checking failed handler exectutions for ${bridge.name}`)
 
-  const provider = getProvider(bridge)
-  await provider.ready
+//   const provider = getProvider(bridge)
+//   await provider.ready
 
-  const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
+//   const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
 
-  await saveFailedHandlerExecutions(bridge, bridgeContract, provider, config)
-}
+//   await saveFailedHandlerExecutions(bridge, bridgeContract, provider, config)
+// }

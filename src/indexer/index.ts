@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { PrismaClient } from "@prisma/client"
-import { indexDeposits, indexProposals, indexFailedHandlerExecutions } from "./indexer"
+import { indexEvmDeposits, indexProposals, indexFailedHandlerExecutions } from "./indexer"
 
 import {getSygmaConfig} from '../utils/getSygmaConfig'
 import { EthereumSharedConfigDomain, SharedConfigDomainBase, SharedConfigFormated } from "types"
@@ -25,20 +25,26 @@ async function main() {
     console.error("Error deleting transfers", e);
   }
 
+  // JUST GOERLI AND MUMBAI FOR TESTING PURPOSES
   const evmDomains = sygmaconfig.filter(
-    (domain) => domain.type !== "substrate"
+    (domain) => domain.id === 0 || domain.id === 1
   )
-  for (const bridge of evmBridges) {
-    await indexDeposits(bridge as Config, sygmaconfig)
-  }
-  console.log("\n***\n")
-  for (const bridge of evmBridges) {
-    await indexProposals(bridge as Config, sygmaconfig)
-  }
-  console.log("\n***\n")
-  for (const bridge of evmBridges) {
-    await indexFailedHandlerExecutions(bridge as Config, sygmaconfig)
-  }
+
+  // for await(const domain of evmDomains) {
+  //   await indexEvmDeposits(domain as EthereumSharedConfigDomain, sygmaconfig)
+  // }
+  
+  // NOTE: testing this just for Mumbai
+  await indexEvmDeposits(evmDomains[1] as EthereumSharedConfigDomain, evmDomains)
+  
+  // console.log("\n***\n")
+  // for (const bridge of evmBridges) {
+  //   await indexProposals(bridge as Config, sygmaconfig)
+  // }
+  // console.log("\n***\n")
+  // for (const bridge of evmBridges) {
+  //   await indexFailedHandlerExecutions(bridge as Config, sygmaconfig)
+  // }
 }
 main()
   .catch((e) => {

@@ -14,7 +14,7 @@
     "test:watch": "jest --watch",
     "copy-config-for-dev": "cp ./config/sygma-explorer-runtime-config.example.json ./public/sygma-explorer-runtime-config.json",
     "prisma:generate": "prisma generate",
-    "index:fetch": "ts-node src/indexer",
+    "index:fetch": "NODE_ENV=production ts-node src/indexer",
     "index:fetch:prod": "docker-compose -f docker-compose.full.yml run nodejs node build/indexer/index.js",
     "index:resetDB": "ts-node src/indexer/resetDB",
     "index:resetDB:prod": "docker-compose -f docker-compose.full.yml run nodejs node build/indexer/resetDB.js",

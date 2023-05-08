@@ -1,23 +1,33 @@
 //@ts-nocheck
 import {
   Bridge__factory as BridgeFactory,
-} from "@chainsafe/chainbridge-contracts"
+} from "@buildwithsygma/sygma-contracts"
+import { EthereumSharedConfigDomain, SharedConfigFormated } from "types"
 
-import { ChainbridgeConfig, EvmBridgeConfig, HandlersMap } from "../sygmaTypes"
-import { getProvider, getHandlersMap } from "./helpers"
+import { getProvider, getEVMHandlersMap } from "./helpers"
 
 export async function getDestinationTokenAddress(
   resourceID: string,
   destinationDomainID: number,
-  config: ChainbridgeConfig,
+  sygmaConfig: SharedConfigFormated[],
+  resourceIdMatched: { type: "erc20" | "erc721" | "permissionlessGeneric", resourceId: string }
 ) {
-  const bridge = config.chains.find(bridge => bridge.domainId === destinationDomainID) as EvmBridgeConfig
-  const provider = getProvider(bridge)
-  await provider.ready
-  const handlersMap = getHandlersMap(bridge, provider)
-  
-  const bridgeContract = BridgeFactory.connect(bridge.bridgeAddress, provider)
-  const handlerAddress = await bridgeContract._resourceIDToHandlerAddress(resourceID)
-  const tokenAddress = await handlersMap[handlerAddress]._resourceIDToTokenContractAddress(resourceID)
-  return tokenAddress
+  const destinationDomain = sygmaConfig.find(domain => domain.id === destinationDomainID) as EthereumSharedConfigDomain;
+
+  // NOTE: provisional since there were some deposits that were done to substrate domain
+  if (destinationDomain) {
+    const provider = getProvider(destinationDomain)
+    await provider.ready
+    const handlersMap = getEVMHandlersMap(destinationDomain, provider)
+
+    const bridgeContract = BridgeFactory.connect(destinationDomain.bridge, provider)
+    const handlerAddress = await bridgeContract._resourceIDToHandlerAddress(resourceID)
+    if (resourceIdMatched.resourceId === resourceID && resourceIdMatched.type !== "permissionlessGeneric") {
+      const tokenAddress = await handlersMap[handlerAddress]._resourceIDToTokenContractAddress(resourceID)
+      return tokenAddress
+    }
+  } else {
+    console.log(`Destination domain with id ${destinationDomainID} not found`);
+  }
+
 }

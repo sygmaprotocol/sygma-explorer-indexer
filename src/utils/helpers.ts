@@ -12,9 +12,10 @@ import {
   ERC20Handler__factory as Erc20HandlerFactory,
   ERC721Handler__factory as Erc721HandlerFactory,
   ERC20Handler,
-  ERC721Handler
+  ERC721Handler,
+  PermissionlessGenericHandler__factory as PermissionlessGenericHandler
 } from "@buildwithsygma/sygma-contracts"
-import { SharedConfigDomains, SharedConfigFormated } from "types"
+import { EthereumSharedConfigDomain, SharedConfigDomains, SharedConfigFormated } from "types"
 
 const getRpcProviderFromHttpUrl = (url: string) => {
   const urlInstance = new URL(url)
@@ -30,29 +31,29 @@ const getRpcProviderFromHttpUrl = (url: string) => {
 }
 
 const getRpcProviderFromWebsocket = (
-  destinationChainConfig: EvmBridgeConfig
+  destinationChainConfig: SharedConfigFormated
 ) => {
-  const { rpcUrl, networkId } = destinationChainConfig
+  const { rpcUrl, id } = destinationChainConfig
   if (rpcUrl.includes("infura")) {
     const parts = rpcUrl.split("/")
 
     return new ethers.providers.InfuraWebSocketProvider(
-      networkId,
+      id,
       parts[parts.length - 1]
     )
   } else if (rpcUrl.includes("alchemyapi")) {
     const parts = rpcUrl.split("/")
 
     return new ethers.providers.AlchemyWebSocketProvider(
-      networkId,
+      id,
       parts[parts.length - 1]
     )
   } else {
-    return new ethers.providers.WebSocketProvider(rpcUrl, networkId)
+    return new ethers.providers.WebSocketProvider(rpcUrl, id)
   }
 }
 
-export function getProvider(destinationChainConfig: EvmBridgeConfig) {
+export function getProvider(destinationChainConfig: SharedConfigFormated) {
   if (destinationChainConfig.rpcUrl.startsWith("wss")) {
     return getRpcProviderFromWebsocket(destinationChainConfig)
   } else {
@@ -70,21 +71,35 @@ export function jsonStringifyWithBigInt(value: any) {
 
 export function getNetworkName(
   domainId: number,
-  sygmaConfig: SygmaConfig
+  sygmaConfig: SharedConfigFormated[]
 ) {
   return (
-    sygmaConfig.chains.find((c) => c.domainId === domainId)?.name || ""
+    sygmaConfig.find((c) => c.id === domainId)?.name || ""
   )
 }
 
-export function decodeDataHash(data: string, decimals: number) {
-  const decodedData = ethers.utils.defaultAbiCoder.decode(["uint", "uint"], data)
-  const destinationRecipientAddressLen = decodedData[1].toNumber() * 2 // adjusted for bytes
-  const result = {
-    amount: decodedData[0].toString(),
-    destinationRecipientAddress: `0x${data.slice(130, 130 + destinationRecipientAddressLen)}`
+export function decodeDataHash(data: string, decimals: number, type: "erc20" | "erc721" | "permissionlessGeneric") {
+  if(type === 'erc20'){
+    const decodedData = ethers.utils.defaultAbiCoder.decode(["uint", "uint"], data)
+    const destinationRecipientAddressLen = decodedData[1].toNumber() * 2 // adjusted for bytes
+    const result = {
+      amount: decodedData[0].toString(),
+      destinationRecipientAddress: `0x${data.slice(130, 130 + destinationRecipientAddressLen)}`
+    }
+
+    return result;
+  } else if (type === 'erc721') {
+    const decodedData = ethers.utils.defaultAbiCoder.decode(["uint", "uint"], data)
+    const destinationRecipientAddressLen = decodedData[1].toNumber() * 2 // adjusted for bytes
+    const result = {
+      tokenId: decodedData[0].toString(),
+      destinationRecipientAddress: `0x${data.slice(130, 130 + destinationRecipientAddressLen)}`
+    }
+    return result;
   }
-  return result
+
+  // NOTE: encode for permissionlessGeneric is different
+  return {}
 }
 
 export function buildQueryParamsToPasss(args: any): TransfersByCursorOptions {
@@ -111,19 +126,32 @@ export function buildQueryParamsToPasss(args: any): TransfersByCursorOptions {
   }
 }
 
-export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.providers.JsonRpcProvider) {
+export function getEVMHandlersMap(domain: EthereumSharedConfigDomain, provider: ethers.providers.JsonRpcProvider) {
+  const { address: erc20HandlerAdress } = domain.handlers.find((h) => h.type === "erc20")!
+
   const erc20HandlerContract = Erc20HandlerFactory.connect(
-    bridge.erc20HandlerAddress,
+    erc20HandlerAdress,
     provider
   )
+  
+  const { address: erc721HandlerAddress } = domain.handlers.find((h) => h.type === "erc721")!
+
   const erc721HandlerContract = Erc721HandlerFactory.connect(
-    bridge.erc721HandlerAddress,
+    erc721HandlerAddress,
+    provider
+  )
+
+  const { address: permissionlessGenericHandlerAddress } = domain.handlers.find((h) => h.type === "permissionlessGeneric")!
+
+  const permissionlessGenericHandler = PermissionlessGenericHandler.connect(
+    permissionlessGenericHandlerAddress,
     provider
   )
 
   const handlersMap: HandlersMap = {}
-  handlersMap[bridge.erc20HandlerAddress] = erc20HandlerContract
-  handlersMap[bridge.erc721HandlerAddress] = erc721HandlerContract
+  handlersMap[erc20HandlerAdress] = erc20HandlerContract
+  handlersMap[erc721HandlerAddress] = erc721HandlerContract
+  handlersMap[permissionlessGenericHandlerAddress] = permissionlessGenericHandler
   return handlersMap
 }
 
