@@ -27,7 +27,8 @@
     "deploy:prod": "pm2-runtime ecosystem.prod.config.js",
     "deploy:dev": "pm2 start ecosystem.dev.config.js",
     "start:worker": "ts-node -r tsconfig-paths/register --transpile-only src/indexer-worker/index.ts",
-    "start:stub": "docker-compose -f docker-compose.stub.yml up"
+    "start:stub": "docker-compose -f docker-compose.stub.yml up",
+    "seed": "STAGE='devnet' NODE_ENV='devnet' ts-node ./src/seed"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.145.0",
