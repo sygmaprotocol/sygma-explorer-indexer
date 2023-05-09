@@ -1,4 +1,4 @@
-import { PrismaClient, TransferStatus } from '@prisma/client';
+import { PrismaClient, Transfer, TransferStatus } from '@prisma/client';
 import { getSygmaConfig } from '../utils/getSygmaConfig';
 import { SharedConfigFormated } from 'types';
 import { ethers } from 'ethers';
@@ -27,43 +27,48 @@ const seeder = async () => {
   const domains = await getSygmaConfig();
   const firstDomain = (domains as SharedConfigFormated[])[0];
 
-  const { rpcUrl } = firstDomain
+  const { rpcUrl } = firstDomain;
 
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
   const bridge = Bridge__factory.connect(firstDomain.bridge, provider);
-  const depositFilter = bridge.filters.Deposit(null, null, null, null, null, null)
+  const depositFilter = bridge.filters.Deposit(null, null, null, null, null, null);
   const depositLogs = await provider.getLogs({
     ...depositFilter,
     fromBlock: firstDomain.startBlock,
     toBlock: "latest"
-  })
+  });
 
-  const parsedLogs = depositLogs.map((log) => bridge.interface.parseLog(log));
+
+  const parsedLogs = depositLogs.map((log) => ({ parsedData: bridge.interface.parseLog(log), txHash: log.transactionHash, blockNumber: log.blockNumber }));
 
   // Avoiding generic transfers
-  const filteredResource = '0x0000000000000000000000000000000000000000000000000000000000000500'
+  const filteredResource = '0x0000000000000000000000000000000000000000000000000000000000000500';
 
   const onlyTokensTransfers = parsedLogs.filter((log) => {
-    const { resourceID } = log.args
-    const resourceIDAndType = firstDomain.resources.find((resource) => resource.resourceId === resourceID)
+    const { resourceID } = log.parsedData.args
+    const resourceIDAndType = firstDomain.resources.find((resource) => resource.resourceId === resourceID);
 
-    return resourceIDAndType?.resourceId === resourceID && resourceIDAndType?.resourceId !== filteredResource
+    return resourceIDAndType?.resourceId === resourceID && resourceIDAndType?.resourceId !== filteredResource;
   })
 
   const amountOfTokenTransfers = onlyTokensTransfers.length;
 
   for (const pl of onlyTokensTransfers) {
-    const { destinationDomainID, resourceID, depositNonce, user, data, handlerResponse } = pl.args
+    const { destinationDomainID, resourceID, depositNonce, user, data, handlerResponse } = pl.parsedData.args;
+    const { txHash, blockNumber } = pl
 
-    const destinationDomain = (domains as SharedConfigFormated[]).find((domain) => domain.id === destinationDomainID)
+    const destinationDomain = (domains as SharedConfigFormated[]).find((domain) => domain.id === destinationDomainID);
 
-    const resourceIDAndType = firstDomain.resources.map((resource) => ({ resourceId: resource.resourceId, type: resource.type }))
+    const resourceIDAndType = firstDomain.resources.map((resource) => ({ resourceId: resource.resourceId, type: resource.type, tokenAddress: resource.address, tokenSymbol: resource.symbol }));
 
-    const transferType = resourceIDAndType.find((resource) => resource.resourceId === resourceID)?.type
-    const amountOrTokenId = decodeAmountsOrTokenId(data, 18, transferType as "erc20" | "erc721")
+    const transferType = resourceIDAndType.find((resource) => resource.resourceId === resourceID)?.type;
+    const tokenData = resourceIDAndType.find((resource) => resource.resourceId === resourceID);
+    const amountOrTokenId = decodeAmountsOrTokenId(data, 18, transferType as "erc20" | "erc721");
     const arrayifyData = ethers.utils.arrayify(data);
-   
+
     let filtered
+
+    const transferStatus = ['pending', 'executed', 'failed'][Math.floor(Math.random() * 3)]
 
     filtered = arrayifyData.filter((_, idx) => idx + 1 > 65);
     const hexAddress = ethers.utils.hexlify(filtered);
@@ -74,7 +79,7 @@ const seeder = async () => {
       sender: user,
       amount: amountOrTokenId,
       destination: hexAddress,
-      status: ['pending', 'executed', 'failed'][Math.floor(Math.random() * 3)],
+      status: transferStatus as TransferStatus,
       resource: {
         type: transferType,
         resourceId: resourceID,
@@ -89,46 +94,126 @@ const seeder = async () => {
         lastIndexedBlock: destinationDomain?.startBlock.toString(),
         domainId: `${destinationDomain?.id}`
       }
-    }
+    };
 
-    try {
-      await prismaClient.transfer.create({
-        data: {
-          depositNonce: transferData.depositNonce,
-          type: transferData.type!,
-          sender: transferData.sender,
-          amount: transferData.amount,
-          destination: transferData.destination,
-          status: transferData.status! as TransferStatus,
-          resource: {
-            create: {
-              type: transferData.resource.type!,
-              resourceId: transferData.resource.resourceId!,
-            }
+    if (transferStatus === 'pending') {
+      try {
+        await prismaClient.transfer.create({
+          data: {
+            depositNonce: transferData.depositNonce,
+            type: transferData.type!,
+            sender: transferData.sender,
+            amount: transferData.amount,
+            destination: transferData.destination,
+            status: transferData.status! as TransferStatus,
+            resource: {
+              create: {
+                type: transferData.resource.type!,
+                resourceId: transferData.resource.resourceId!,
+              }
+            },
+            fromDomain: {
+              create: {
+                name: transferData.fromDomain.name!,
+                lastIndexedBlock: transferData.fromDomain.lastIndexedBlock!,
+                domainId: transferData.fromDomain.domainId!,
+              }
+            },
+            toDomain: {
+              create: {
+                name: transferData.toDomain.name!,
+                lastIndexedBlock: transferData.toDomain.lastIndexedBlock!,
+                domainId: transferData.toDomain.domainId!,
+              }
+            },
+            timestamp: Date.now()
           },
-          fromDomain: {
-            create: {
-              name: transferData.fromDomain.name!,
-              lastIndexedBlock: transferData.fromDomain.lastIndexedBlock!,
-              domainId: transferData.fromDomain.domainId!,
-            }
-          },
-          toDomain: {
-            create: {
-              name: transferData.toDomain.name!,
-              lastIndexedBlock: transferData.toDomain.lastIndexedBlock!,
-              domainId: transferData.toDomain.domainId!,
-            }
-          },
-          timestamp: Date.now()
+        });
+      } catch (e) {
+        console.log("Error on creating transfer", e);
+      }
+    } else {
+      let augmentedTransfer = {
+        ...transferData,
+        fee: {
+          amount: amountOrTokenId,
+          tokenAddress: tokenData?.tokenAddress,
+          tokenSymbol: tokenData?.tokenSymbol,
         },
-      });
-    } catch (e) {
-      console.log("Error on creating transfer", e);
+        deposit: {
+          txHash,
+          blockNumber,
+          depositData: data,
+          handlerResponse
+        },
+        execution: {
+          txHash,
+          blockNumber,
+          handlerResponse,
+        }
+      };
+
+      try {
+        await prismaClient.transfer.create({
+          data: {
+            depositNonce: transferData.depositNonce,
+            type: transferData.type!,
+            sender: transferData.sender,
+            amount: transferData.amount,
+            destination: transferData.destination,
+            status: transferData.status! as TransferStatus,
+            resource: {
+              create: {
+                type: transferData.resource.type!,
+                resourceId: transferData.resource.resourceId!,
+              }
+            },
+            fromDomain: {
+              create: {
+                name: transferData.fromDomain.name!,
+                lastIndexedBlock: transferData.fromDomain.lastIndexedBlock!,
+                domainId: transferData.fromDomain.domainId!,
+              }
+            },
+            toDomain: {
+              create: {
+                name: transferData.toDomain.name!,
+                lastIndexedBlock: transferData.toDomain.lastIndexedBlock!,
+                domainId: transferData.toDomain.domainId!,
+              }
+            },
+            fee: {
+              create: {
+                amount: augmentedTransfer.fee.amount,
+                tokenAddress: augmentedTransfer.fee.tokenAddress!,
+                tokenSymbol: augmentedTransfer.fee.tokenSymbol!,
+              }
+            },
+            deposit: {
+              create: {
+                txHash: augmentedTransfer.deposit.txHash,
+                blockNumber: `${augmentedTransfer.deposit.blockNumber}`,
+                depositData: augmentedTransfer.deposit.depositData,
+                handlerResponse: augmentedTransfer.deposit.handlerResponse,
+              }
+            },
+            execution: {
+              create: {
+                txHash: augmentedTransfer.execution.txHash,
+                blockNumber: `${augmentedTransfer.execution.blockNumber}`,
+                handlerResponse: augmentedTransfer.execution.handlerResponse,
+              }
+            },
+            timestamp: Date.now()
+          },
+        });
+      } catch (e) {
+        console.log("Error on creating transfer", e);
+      }
     }
   }
 
-  console.log(`Finished seeding, ${amountOfTokenTransfers} transfers created`)
+  console.log(`Finished seeding, ${amountOfTokenTransfers} transfers created`);
 };
 
 export { seeder };
