@@ -25,16 +25,16 @@ const seeder = async () => {
   }
 
   const domains = await getSygmaConfig();
-  const polygon = (domains as SharedConfigFormated[])[1];
+  const firstDomain = (domains as SharedConfigFormated[])[0];
 
-  const { rpcUrl } = polygon
+  const { rpcUrl } = firstDomain
 
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-  const bridge = Bridge__factory.connect(polygon.bridge, provider);
+  const bridge = Bridge__factory.connect(firstDomain.bridge, provider);
   const depositFilter = bridge.filters.Deposit(null, null, null, null, null, null)
   const depositLogs = await provider.getLogs({
     ...depositFilter,
-    fromBlock: polygon.startBlock,
+    fromBlock: firstDomain.startBlock,
     toBlock: "latest"
   })
 
@@ -44,7 +44,7 @@ const seeder = async () => {
 
   const onlyTokensTransfers = parsedLogs.filter((log) => {
     const { resourceID } = log.args
-    const resourceIDAndType = polygon.resources.find((resource) => resource.resourceId === resourceID)
+    const resourceIDAndType = firstDomain.resources.find((resource) => resource.resourceId === resourceID)
 
     return resourceIDAndType?.resourceId === resourceID && resourceIDAndType?.resourceId !== filteredResource
   })
@@ -56,7 +56,7 @@ const seeder = async () => {
 
     const destinationDomain = (domains as SharedConfigFormated[]).find((domain) => domain.id === destinationDomainID)
 
-    const resourceIDAndType = polygon.resources.map((resource) => ({ resourceId: resource.resourceId, type: resource.type }))
+    const resourceIDAndType = firstDomain.resources.map((resource) => ({ resourceId: resource.resourceId, type: resource.type }))
 
     const transferType = resourceIDAndType.find((resource) => resource.resourceId === resourceID)?.type
     const amountOrTokenId = decodeAmountsOrTokenId(data, 18, transferType as "erc20" | "erc721")
@@ -79,9 +79,9 @@ const seeder = async () => {
         resourceId: resourceID,
       },
       fromDomain: {
-        name: polygon.name,
-        lastIndexedBlock: polygon.startBlock.toString(),
-        domainId: `${polygon.id}`
+        name: firstDomain.name,
+        lastIndexedBlock: firstDomain.startBlock.toString(),
+        domainId: `${firstDomain.id}`
       },
       toDomain: {
         name: destinationDomain?.name,
