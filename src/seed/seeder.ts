@@ -40,6 +40,7 @@ const seeder = async () => {
 
   const parsedLogs = depositLogs.map((log) => bridge.interface.parseLog(log));
 
+  // Avoiding generic transfers
   const filteredResource = '0x0000000000000000000000000000000000000000000000000000000000000500'
 
   const onlyTokensTransfers = parsedLogs.filter((log) => {
