@@ -36,7 +36,7 @@ const getSharedConfig = async (): Promise<SharedConfigFormated[]> => {
 export async function getSygmaConfig(): Promise<SharedConfigFormated[] | { error: { message: string } }> {
   let config
   try {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV !== 'development') {
       config = await getSharedConfig()
     } else {
       config = await getLocalConfig()
