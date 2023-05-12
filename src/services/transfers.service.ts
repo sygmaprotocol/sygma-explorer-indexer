@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { PrismaClient, Transfer, ProposalExecutionEvent, FailedHandlerExecutionEvent, Prisma } from "@prisma/client"
+import { returnQueryParamsForTransfers } from "../utils/helpers"
 
 type TransferWithStatus = Transfer & {
   status?: number
@@ -31,6 +32,7 @@ export type TransfersByCursorOptions = {
 
 class TransfersService {
   public transfers = new PrismaClient().transfer
+  // default settings
   private currentPage: number;
   private currentLimit: number;
   private currentCursor: string;
@@ -44,16 +46,6 @@ class TransfersService {
     } else {
       throw new Error('No transfer found')
     }
-  }
-
-  private isForwardPagination(page: number): boolean {
-    const isForward = this.currentPage && page > this.currentPage;
-    return isForward
-  }
-
-  private isBackwardPagination(page: number) {
-    const isBackward = this.currentPage && page < this.currentPage;
-    return isBackward;
   }
 
   public async findAllTransfes({ page, limit, status }: AllTransfersOption) {
@@ -118,36 +110,17 @@ class TransfersService {
   public async findTransfersByCursor(args: TransfersByCursorOptions) {
     const { page, limit, status } = args;
 
-      // See if we have an additional record, indicating a next page
-      hasNextPage = rawTransfers.length > args.first
-      // Remove the extra record (last element) from the results
-      if (hasNextPage) rawTransfers.pop()
-    } else if (isBackwardPagination(args)) {
-      const take = -1 * (args.last + 1)
-      const cursor = args.before ? { id: args.before } : undefined
-      const skip = cursor ? 1 : undefined
-      const {
-        orderBy,
-        where
-      } = this.buildQueryObject(args)
-      rawTransfers = await this.transfers.findMany({
-        cursor,
-        take,
-        skip,
-        orderBy,
-        where
-      })
-      hasNextPage = !!args.before
-      hasPreviousPage = rawTransfers.length > args.last
-      if (hasPreviousPage) rawTransfers.shift()
-    }
+    const pageSize = parseInt(limit, 10);
+    const pageIndex = parseInt(page, 10) - 1;
+    const skip = pageIndex * pageSize;
 
-    this.currentPage = pageNumber;
-    this.currentLimit = limitNumber;
+    const where = status ? { status } : { };
 
     const transfers = await this.transfers.findMany({
-      take: this.currentLimit,
-      // skip: this.currentLimit,
+      where,
+      take: pageSize + 1,
+      skip: this.currentCursor ? 0 : skip,
+      cursor: this.currentCursor ? { id: this.currentCursor } : undefined,
       orderBy: [{
         timestamp: "asc",
       }],
@@ -156,10 +129,9 @@ class TransfersService {
       }
     })
 
-    if(transfers.length){
-      this.currentCursor = transfers[transfers.length - 1].id;
-    }
+    const transferWithoutTheLastItem = transfers.slice(0, pageSize)
 
+    return transferWithoutTheLastItem;
   }
 
   addLatestStatusToTransfers(transfers: TransfersWithStatus) {
