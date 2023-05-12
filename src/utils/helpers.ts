@@ -175,3 +175,44 @@ const getRPCUrlMapping = (stage: string) => {
     throw new Error("Invalid stage")
   }
 }
+export const returnQueryParamsForTransfers = () => {
+  return {
+    include: {
+      resource: {
+        select: {
+          type: true,
+          resourceId: true,
+        }
+      },
+      toDomain: {
+        select: {
+          name: true,
+          lastIndexedBlock: true,
+          domainId: true,
+        }
+      },
+      fromDomain: {
+        select: {
+          name: true,
+          lastIndexedBlock: true,
+          domainId: true,
+        }
+      },
+      fee: {
+        select: {
+          amount: true,
+          tokenAddress: true,
+          tokenSymbol: true,
+        }
+      },
+      deposit: {
+        select: {
+          txHash: true,
+          blockNumber: true,
+          depositData: true,
+          handlerResponse: true,
+        }
+      }
+    }
+  }
+}

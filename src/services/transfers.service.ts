@@ -10,8 +10,9 @@ type TransferWithStatus = Transfer & {
 type TransfersWithStatus = TransferWithStatus[]
 
 type AllTransfersOption = {
-  limit: number
-  skipIndex: number
+  page: string;
+  limit: string;
+  status?: string;
 }
 
 export type Filters = {
@@ -23,26 +24,16 @@ export type Filters = {
 }
 
 export type TransfersByCursorOptions = {
-  id?: string
-  first?: number
-  last?: number
-  before?: string
-  after?: string
-  filters?: Filters
-}
-type ForwardPaginationArguments = { first: number; after?: string }
-type BackwardPaginationArguments = { last: number; before?: string }
-
-function isForwardPagination(args: TransfersByCursorOptions): args is ForwardPaginationArguments {
-  return "first" in args && args.first !== undefined
-}
-
-function isBackwardPagination(args: TransfersByCursorOptions): args is BackwardPaginationArguments {
-  return "last" in args && args.last !== undefined
-}
+  page: string;
+  limit: string;
+  status?: string;
+};
 
 class TransfersService {
   public transfers = new PrismaClient().transfer
+  private currentPage: number;
+  private currentLimit: number;
+  private currentCursor: string;
 
   public async findTransfer({ id }: { id: string }) {
     const transfer = await this.transfers.findUnique({
@@ -55,21 +46,31 @@ class TransfersService {
     }
   }
 
+  private isForwardPagination(page: number): boolean {
+    const isForward = this.currentPage && page > this.currentPage;
+    return isForward
+  }
 
-  public async findAllTransfes({ limit, skipIndex }: AllTransfersOption) {
-    const transfers: TransfersWithStatus = await this.transfers.findMany({
+  private isBackwardPagination(page: number) {
+    const isBackward = this.currentPage && page < this.currentPage;
+    return isBackward;
+  }
+
+  public async findAllTransfes({ page, limit, status }: AllTransfersOption) {
+    this.currentPage = parseInt(page, 10);
+    const transfers = await this.transfers.findMany({
       take: limit,
-      skip: skipIndex,
       orderBy: [
         {
-          timestamp: "desc",
+          timestamp: "asc",
         },
       ],
       include: {
-        proposalEvents: true,
-        voteEvents: true,
-      },
+        ...returnQueryParamsForTransfers().include,
+      }
     })
+    // FOR PAGINATION USAGE
+    this.currentCursor = transfers[transfers.length - 1].id;
     return this.addLatestStatusToTransfers(transfers)
   }
 
@@ -115,26 +116,7 @@ class TransfersService {
   }
 
   public async findTransfersByCursor(args: TransfersByCursorOptions) {
-    let rawTransfers!: TransfersWithStatus
-    let hasPreviousPage!: boolean
-    let hasNextPage!: boolean
-    if (isForwardPagination(args)) {
-      const cursor = args.after ? { id: args.after } : undefined
-      const skip = args.after ? 1 : undefined
-      const take = args.first + 1
-      const {
-        orderBy,
-        where
-      } = this.buildQueryObject(args)
-      rawTransfers = await this.transfers.findMany({
-        cursor,
-        take,
-        skip,
-        orderBy,
-        where
-      })
-      // See if we are "after" another record, indicating a previous page
-      hasPreviousPage = !!args.after
+    const { page, limit, status } = args;
 
       // See if we have an additional record, indicating a next page
       hasNextPage = rawTransfers.length > args.first
@@ -160,25 +142,24 @@ class TransfersService {
       if (hasPreviousPage) rawTransfers.shift()
     }
 
-    let transfers: Array<TransferWithStatus> = []
-    let startCursor: string = ""
-    let endCursor: string = ""
+    this.currentPage = pageNumber;
+    this.currentLimit = limitNumber;
 
-    if (rawTransfers.length) {
-      transfers = this.addLatestStatusToTransfers(rawTransfers)
-      startCursor = transfers[0].id
-      endCursor = transfers[transfers.length - 1].id
+    const transfers = await this.transfers.findMany({
+      take: this.currentLimit,
+      // skip: this.currentLimit,
+      orderBy: [{
+        timestamp: "asc",
+      }],
+      include: {
+        ...returnQueryParamsForTransfers().include
+      }
+    })
+
+    if(transfers.length){
+      this.currentCursor = transfers[transfers.length - 1].id;
     }
 
-    return {
-      transfers,
-      pageInfo: {
-        hasPreviousPage,
-        hasNextPage,
-        startCursor,
-        endCursor,
-      },
-    }
   }
 
   addLatestStatusToTransfers(transfers: TransfersWithStatus) {

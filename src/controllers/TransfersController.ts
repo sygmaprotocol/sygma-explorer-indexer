@@ -3,18 +3,17 @@ import { ITransfer, ITransferById } from "Interfaces"
 
 import TransfersService from "../services/transfers.service"
 
-import { getPaginationParams } from "../utils/helpers"
-
 const transfersService = new TransfersService()
 
 export const TransfersController = {
   transfers: async function(request: FastifyRequest<{ Querystring: ITransfer }>, reply: FastifyReply) {
     try {
-      const { query: { before, first, after, last } } = request
-      const params = getPaginationParams({ before, first, after, last })
+      const { query: { page, limit, status } } = request
 
-      const transfersResult = await transfersService.findTransfersByCursor({
-        ...params
+      const transfersResult = await transfersService.findAllTransfes({
+        page,
+        limit,
+        status
       })
 
       reply.status(200).send(transfersResult)

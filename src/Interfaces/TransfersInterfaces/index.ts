@@ -1,8 +1,7 @@
 export interface ITransfer {
-  before?: string;
-  first?: string;
-  after?: string;
-  last?: string;
+  page: string;
+  limit: string;
+  status?: string;
 }
 
 export interface ITransferById {
