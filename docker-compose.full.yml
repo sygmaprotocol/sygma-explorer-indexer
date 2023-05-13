@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   mongo1:
-    image: mongo
+    image: mongo:4
     container_name: mongo1
     command: ["--replSet", "my-replica-set", "--bind_ip_all", "--port", "30001"]
     volumes:
@@ -14,7 +14,7 @@ services:
       start_period: 30s
 
   mongo2:
-    image: mongo
+    image: mongo:4
     container_name: mongo2
     command: ["--replSet", "my-replica-set", "--bind_ip_all", "--port", "30002"]
     volumes:
@@ -23,7 +23,7 @@ services:
       - 30002:30002
 
   mongo3:
-    image: mongo
+    image: mongo:4
     container_name: mongo3
     command: ["--replSet", "my-replica-set", "--bind_ip_all", "--port", "30003"]
     volumes:
@@ -35,8 +35,17 @@ services:
     build: 
       context: .
     environment:
-      DATABASE_URL: mongodb://mongo1:30001/chainbridge-explorer-indexer?replicaSet=my-replica-set&authSource=admin&retryWrites=true&w=majority
+      DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer?replicaSet=my-replica-set&authSource=admin&retryWrites=true&w=majority
     ports:
-      - 8001:8001
-    volumes:
-      - ./config/chainbridge-explorer-runtime-config.example.json:/public/chainbridge-explorer-runtime-config.json
+      - "3012:3012"
+
+  seed:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile.seed
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+      - nodejs
+    command: ["yarn", "seed"]

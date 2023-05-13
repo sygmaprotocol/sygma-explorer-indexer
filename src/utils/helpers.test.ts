@@ -1,36 +1,7 @@
 import { SharedConfigDomains } from 'types';
-import { buildQueryParamsToPasss, formatConfig } from './helpers'
+import { formatConfig } from './helpers'
 import devnetSharedConfig from './mocks/devnet-shared-config'
 import testnetSharedConfig from './mocks/testnet-shared-config'
-
-describe('buildQueryParamsToPasss', () => {
-  it('builds query params without passing filters', () => {
-      const expectedKeys = ['before', 'after', 'first', 'last']
-
-      const result = buildQueryParamsToPasss({ before: undefined, first: '10', after: undefined, last: undefined })
-
-      const keys = Object.keys(result)
-      expect(expectedKeys).toEqual(keys)
-  })
-  
-  it('builds query params passing filters', () => {
-    const expectedKeys = ['before', 'after', 'first', 'last', 'filters']
-    
-    const result = buildQueryParamsToPasss({
-      before: undefined,
-      first: '10',
-      after: undefined,
-      last: undefined,
-      filters: {
-        fromAddress: '0xff93B45308FD417dF303D6515aB04D9e89a750Ca'
-      }
-    })
-
-    const keys = Object.keys(result)
-
-    expect(expectedKeys).toEqual(keys)
-  })
-})
 
 describe('formatConfig', () => {
   const expectedKeys = [
