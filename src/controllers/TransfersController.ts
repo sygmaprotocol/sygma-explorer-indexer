@@ -10,7 +10,7 @@ export const TransfersController = {
     try {
       const { query: { page, limit, status } } = request
 
-      const transfersResult = await transfersService.findAllTransfes({
+      const transfersResult = await transfersService.findTransfersByCursor({
         page,
         limit,
         status
