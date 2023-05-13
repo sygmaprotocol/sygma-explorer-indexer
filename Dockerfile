@@ -1,4 +1,4 @@
-FROM node:14.17-alpine AS builder
+FROM node:18.16-alpine AS dev
 
 # update packages
 RUN apk update
@@ -6,31 +6,27 @@ RUN apk update
 # create root application folder
 WORKDIR /app
 
-# copy configs to /app folder
-COPY package*.json ./
-COPY tsconfig.json ./
-COPY yarn.lock ./
-COPY prisma ./prisma/
-COPY public ./public
+# Install node dependencies - done in a separate step so Docker can cache it.
+COPY yarn.lock .
+COPY package.json .
+COPY .env.sample .
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --ignore-scripts --non-interactive --frozen-lockfile && yarn cache clean
 
-# copy source code to /app/src folder
 COPY . .
-
-# check files list
-RUN ls -a
-
-# RUN npm install pm2 -g
 
 RUN yarn build
 
-FROM node:14.17-alpine
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/ecosystem.prod.config.js ./
-COPY --from=builder /app/build ./build
+FROM node:18.16-alpine
 
-EXPOSE 8001
+COPY --from=dev /usr/app/dist /app
+COPY --from=dev /usr/app/package.json /app/
+COPY --from=dev /usr/app/yarn.lock /app/
 
-CMD [ "yarn", "deploy:prod"]
+RUN chown -R node: .
+
+USER node
+
+RUN yarn install --non-interactive --frozen-lockfile --production && yarn cache clean
+
+CMD ["node", "index.js"]
