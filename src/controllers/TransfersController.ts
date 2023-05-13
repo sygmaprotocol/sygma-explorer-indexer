@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify"
+import { Transfer } from "@prisma/client"
 import { ITransfer, ITransferById } from "Interfaces"
 
 import TransfersService from "../services/transfers.service"
@@ -14,7 +15,7 @@ export const TransfersController = {
         page,
         limit,
         status
-      })
+      }) as Transfer[];
 
       reply.status(200).send(transfersResult)
     } catch (e) {
