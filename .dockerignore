@@ -3,7 +3,6 @@ npm-debug.log
 Dockerfile
 .dockerignore
 build
-.env
 data
 script
 volumes
