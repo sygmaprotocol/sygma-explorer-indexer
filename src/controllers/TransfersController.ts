@@ -26,7 +26,7 @@ export const TransfersController = {
       const { id } = request.params
 
       try {
-        const transfer = await transfersService.findTransfer({ id })
+        const transfer = await transfersService.findTransferById({ id }) as Transfer;
         reply.status(200).send(transfer)
       } catch(e) {
         reply.status(404)

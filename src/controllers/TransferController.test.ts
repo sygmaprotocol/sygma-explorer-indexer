@@ -3,7 +3,7 @@ import { app} from '../app'
 import { returnQueryParamsForTransfers } from '../utils/helpers';
 
 describe('TransferController', () => {
-  describe('transfer', () => {
+  describe('transfers', () => {
     it('should return 200 when fetching for 10 transfers', async () => {
       const res = await app.inject({
         method: 'GET',
@@ -150,4 +150,34 @@ describe('TransferController', () => {
       transferToCompare[idxFirstItemSecondPage].id
     );
   })
+
+  describe('transferById', () => {
+    it('should return 200 when fetching for a transfer by id', async () => {
+      const prismaClient = new PrismaClient().transfer;
+      const transferToTest = await prismaClient.findFirst({
+        where: {
+          status: 'executed',
+        },
+        include: {
+          ...returnQueryParamsForTransfers().include,
+        },
+      });
+      const { id }  = transferToTest as Transfer;
+      const res = await app.inject({
+        method: 'GET',
+        url: `/api/transfers/${id}`,
+      });
+      expect(res.statusCode).toEqual(200);
+
+      const data = await res.json() as Transfer;
+      expect(data.id).toEqual(id);
+    });
+    it('should return 404 when fetching for a transfer by id that does not exist', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/transfers/1000',
+      });
+      expect(res.statusCode).toEqual(404);
+    });
+  });
 });

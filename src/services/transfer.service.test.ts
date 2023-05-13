@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Transfer } from "@prisma/client";
 import TransfersService from "./transfers.service";
 import { returnQueryParamsForTransfers } from "../utils/helpers";
 
@@ -185,5 +185,29 @@ describe('TransferService', () => {
         onlyFailedFromService.every((transfer) => transfer.status === 'failed')
       ).toBe(true);
     })
+  });
+
+  describe('findTransferById', () => {
+    it('Should return a transfer by id', async () => {
+      const transferToTest = await prismaClient.transfer.findFirst({
+        where: {
+          status: 'executed'
+        },
+        include: {
+          ...returnQueryParamsForTransfers().include
+        }
+      });
+      const { id, status } = transferToTest as Transfer;
+
+      const transferFromService = await transferService.findTransferById({ id });
+      expect(transferFromService?.id).toEqual(id);
+      expect(transferFromService?.status).toEqual(status);
+    });
+
+    it('Should throw error if transfer not found', async () => {
+      const transferFromService = transferService.findTransferById({ id: 'notFound' });
+      await expect(transferFromService).rejects.toThrowError();
+    });
+
   });
 });
