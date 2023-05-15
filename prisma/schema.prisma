@@ -13,12 +13,12 @@ generator client {
 model Transfer {
   id           String         @id @default(auto()) @map("_id") @db.ObjectId
   depositNonce Int            @unique
-  resource     Resource       @relation(fields: [resourceID], references: [id])
-  resourceID   String         @db.ObjectId
+  resource     Resource       @relation(fields: [resourceID], references: [resourceId])
+  resourceID   String
   fromDomain   Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
-  fromDomainId String         @db.ObjectId
+  fromDomainId String
   toDomain     Domain         @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
-  toDomainId   String         @db.ObjectId
+  toDomainId   String
   type         String
   sender       String
   amount       String
@@ -37,19 +37,17 @@ enum TransferStatus {
 }
 
 model Resource {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  resourceId String
+  resourceId String @id @map("_id")
   type       String
 
   transfers Transfer[]
 }
 
 model Domain {
-  id               String @id @default(auto()) @map("_id") @db.ObjectId
-  domainId         String
-  name             String
-  lastIndexedBlock String
+  id   String     @map("_id") @id
+  name String
 
+  lastIndexedBlock String
   transferFrom Transfer[] @relation(name: "fromDomainRelation")
   transferTo   Transfer[] @relation(name: "toDomainRelation")
 }
