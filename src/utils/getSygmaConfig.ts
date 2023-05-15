@@ -3,15 +3,9 @@ import { SygmaConfig } from 'sygmaTypes'
 import { SharedConfigDomains, SharedConfigFormated } from 'types'
 import { formatConfig } from './helpers'
 
-if (process.env.STAGE !== 'devnet') {
-  dotenv.config({
-    path: `${process.cwd()}/.env.testnet`
-  })
-} else {
-  dotenv.config({
-    path: `${process.cwd()}/.env.devnet`
-  })
-}
+dotenv.config({
+  path: `${process.cwd()}/.env`
+});
 
 const getLocalConfig = () => {
   const localConfig = require("../../public/sygma-explorer-shared-config.json")
