@@ -20,6 +20,7 @@ const seeder = async () => {
   console.log('Start seeding ...');
   try {
     await prismaClient.$connect();
+    console.log("connected to db");
   } catch (e) {
     console.log("Error on connecting to database", e);
   }

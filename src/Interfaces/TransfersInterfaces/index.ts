@@ -8,3 +8,7 @@ export interface ITransfer {
 export interface ITransferById {
   id: string;
 }
+
+export interface ITransferBySender {
+  sender: string;
+}
