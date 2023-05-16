@@ -1,5 +1,5 @@
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
-import { ethers, BigNumber, utils } from "ethers"
+import { ethers } from "ethers"
 import { TransfersByCursorOptions } from "services/transfers.service"
 import { EvmBridgeConfig, HandlersMap, SubstrateBridgeConfig, SygmaConfig } from "../sygmaTypes"
 import devnetMapedRPCUrls from "../rpcUrlMappings/devnet.json"
@@ -92,20 +92,6 @@ export function decodeDataHash(data: string, decimals: number) {
   return result
 }
 
-export function getPaginationParams({ first, last, before, after }: Record<"first" | "last" | "before" | "after", string | undefined>): TransfersByCursorOptions {
-  const beforeCursor = before?.toString()
-  const firstCursor = first ? parseInt(first?.toString()) : undefined
-  const afterCursor = after?.toString()
-  const lastCursor = last ? parseInt(last?.toString()) : undefined
-
-  return {
-    before: beforeCursor,
-    after: afterCursor,
-    first: firstCursor,
-    last: lastCursor
-  }
-}
-
 export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.providers.JsonRpcProvider) {
   const erc20HandlerContract = Erc20HandlerFactory.connect(
     bridge.erc20HandlerAddress,
@@ -173,5 +159,47 @@ const getRPCUrlMapping = (stage: string) => {
     return localMapedRPCUrls
   } else {
     throw new Error("Invalid stage")
+  }
+}
+
+export const returnQueryParamsForTransfers = () => {
+  return {
+    include: {
+      resource: {
+        select: {
+          type: true,
+          resourceId: true,
+        }
+      },
+      toDomain: {
+        select: {
+          name: true,
+          lastIndexedBlock: true,
+          domainId: true,
+        }
+      },
+      fromDomain: {
+        select: {
+          name: true,
+          lastIndexedBlock: true,
+          domainId: true,
+        }
+      },
+      fee: {
+        select: {
+          amount: true,
+          tokenAddress: true,
+          tokenSymbol: true,
+        }
+      },
+      deposit: {
+        select: {
+          txHash: true,
+          blockNumber: true,
+          depositData: true,
+          handlerResponse: true,
+        }
+      }
+    }
   }
 }
