@@ -21,10 +21,15 @@ export type SharedConfig = {
   domains: Array<Domain>
 }
 
+export enum DomainTypes {
+  EVM = "evm",
+  SUBSTRATE = "substrate",
+}
+
 export type Domain = {
   id: number
   name: string
-  type: string
+  type: DomainTypes
   bridge: string
   handlers: Array<Handler>
   nativeTokenSymbol: string
