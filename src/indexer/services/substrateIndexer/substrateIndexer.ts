@@ -1,19 +1,17 @@
 import { ApiPromise, WsProvider } from "@polkadot/api"
-
-import { DomainConfig } from "indexer/config"
-import { PrismaClient } from "@prisma/client"
-
-import { Domain } from "../../types"
+import { Domain, LocalDomainConfig } from "indexer/config"
+import { logger } from "../../../utils/logger"
+import DomainRepository from "indexer/repository/domain"
 
 export class SubstrateIndexer {
-  private prisma: PrismaClient
+  private domainRepository: DomainRepository
   private pastEventsQueryInterval = 2000
   private currentEventsQueryInterval = 10
   private provider!: ApiPromise
-  private domainConfig: DomainConfig
+  private domainConfig: LocalDomainConfig
   private domain: Domain
-  constructor(prisma: PrismaClient, domainConfig: DomainConfig, domain: Domain) {
-    this.prisma = prisma
+  constructor(domainRepository: DomainRepository, domainConfig: LocalDomainConfig, domain: Domain) {
+    this.domainRepository = domainRepository
     this.domainConfig = domainConfig
     this.domain = domain
   }
@@ -38,7 +36,7 @@ export class SubstrateIndexer {
       fromBlock = lastIndexedBlock + 1
     }
 
-    console.debug(`Starting querying past blocks on ${this.domain.name}`)
+    logger.info(`Starting querying past blocks on ${this.domain.name}`)
     do {
       try {
         latestBlock = Number((await this.provider.rpc.chain.getBlock()).block.header.number)
@@ -55,55 +53,40 @@ export class SubstrateIndexer {
         fromBlock += this.pastEventsQueryInterval
         toBlock += this.pastEventsQueryInterval
       } catch (error) {
-        console.error(`Failed to process past events because of: ${error}`)
+        logger.error(`Failed to process past events because of: ${error}`)
       }
     } while (fromBlock < latestBlock)
     // move to next block from the last queried range in past events
     return latestBlock + 1
   }
 
-  async listenOnEvents(fromBlock: number): Promise<void> {
-    console.debug(`Starting querying current blocks for events on ${this.domain.name}`)
+  async listenToEvents(): Promise<void> {
+    logger.info(`Starting querying current blocks for events on ${this.domain.name}`)
+    let latestBlock = await this.indexPastEvents()
     await this.provider.rpc.chain.subscribeNewHeads(async header => {
       // start at last block from past events query and move to new blocks range
-      if (fromBlock + this.currentEventsQueryInterval === Number(header.number)) {
+      if (latestBlock + this.currentEventsQueryInterval === Number(header.number)) {
         // connect executions to deposits
         try {
           // fetch and decode logs
 
           await this.saveDataToDb(this.domain.id, header.number.toString(), this.domain.name)
           // move to next range of blocks
-          fromBlock += this.currentEventsQueryInterval
+          latestBlock += this.currentEventsQueryInterval
         } catch (error) {
-          console.error(`Failed to process current events because of: ${error}`)
+          logger.error(`Failed to process current events because of: ${error}`)
         }
       }
     })
   }
 
   async saveDataToDb(domainID: number, latestBlock: string, domainName: string): Promise<void> {
-    console.debug(`save block on substrate ${this.domain.name}: ${latestBlock}`)
-    await this.prisma.domain.upsert({
-      where: {
-        id: domainID.toString(),
-      },
-      create: {
-        id: domainID.toString(),
-        name: domainName,
-        lastIndexedBlock: latestBlock,
-      },
-      update: {
-        lastIndexedBlock: latestBlock,
-      },
-    })
+    logger.info(`save block on substrate ${this.domain.name}: ${latestBlock}`)
+    await this.domainRepository.upserDomain(domainID, latestBlock, domainName)
   }
 
   async getLastIndexedBlock(domainID: string): Promise<number> {
-    const domainRes = await this.prisma.domain.findFirst({
-      where: {
-        id: domainID,
-      },
-    })
+    const domainRes = await this.domainRepository.getLastIndexedBlock(domainID)
 
     return domainRes ? Number(domainRes.lastIndexedBlock) : 0
   }

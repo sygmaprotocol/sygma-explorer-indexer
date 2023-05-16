@@ -1,20 +1,19 @@
-import { PrismaClient } from "@prisma/client"
 import { Provider } from "@ethersproject/providers"
-
-import { DomainConfig } from "indexer/config"
+import { Domain, LocalDomainConfig } from "indexer/config"
 import { providers } from "ethers"
-import { Domain } from "../../types"
+import DomainRepository from "indexer/repository/domain"
+import { logger } from "../../../utils/logger"
 
 export class EvmIndexer {
   private provider: Provider
   private pastEventsQueryInterval = 2000
   private currentEventsQueryInterval = 10
-  private prisma: PrismaClient
+  private domainRepository: DomainRepository
   private domain: Domain
-  private domainConfig: DomainConfig
-  constructor(domainConfig: DomainConfig, prisma: PrismaClient, domain: Domain) {
+  private domainConfig: LocalDomainConfig
+  constructor(domainConfig: LocalDomainConfig, domainRepository: DomainRepository, domain: Domain) {
     this.provider = providers.getDefaultProvider(domainConfig.url)
-    this.prisma = prisma
+    this.domainRepository = domainRepository
     this.domain = domain
     this.domainConfig = domainConfig
   }
@@ -33,7 +32,7 @@ export class EvmIndexer {
       fromBlock = lastIndexedBlock + 1
     }
 
-    console.debug(`Starting querying past blocks on ${this.domain.name}`)
+    logger.info(`Starting querying past blocks on ${this.domain.name}`)
     do {
       try {
         latestBlock = await this.provider.getBlockNumber()
@@ -50,55 +49,39 @@ export class EvmIndexer {
         fromBlock += this.pastEventsQueryInterval
         toBlock += this.pastEventsQueryInterval
       } catch (error) {
-        console.error(`Failed to process past events because of: ${error}`)
+        logger.error(`Failed to process past events because of: ${error}`)
       }
     } while (fromBlock < latestBlock)
     // move to next block from the last queried range in past events
     return latestBlock + 1
   }
 
-  async listenOnEvents(fromBlock: number): Promise<void> {
-    console.debug(`Starting querying current blocks for events on ${this.domain.name}`)
+  async listenToEvents(): Promise<void> {
+    logger.info(`Starting querying current blocks for events on ${this.domain.name}`)
+    let latestBlock = await this.indexPastEvents()
     this.provider.on("block", async (currentBlock: number) => {
       // start at last block from past events query and move to new blocks range
-      if (fromBlock + this.currentEventsQueryInterval === currentBlock) {
+      if (latestBlock + this.currentEventsQueryInterval === currentBlock) {
         // connect executions to deposits
         try {
           // fetch and decode logs
           await this.saveDataToDb(this.domain.id, currentBlock.toString(), this.domain.name)
           // move to next range of blocks
-          fromBlock += this.currentEventsQueryInterval
+          latestBlock += this.currentEventsQueryInterval
         } catch (error) {
-          console.error(`Failed to process current events because of: ${error}`)
+          logger.error(`Failed to process current events because of: ${error}`)
         }
       }
     })
   }
 
   async saveDataToDb(domainID: number, latestBlock: string, domainName: string): Promise<void> {
-    console.debug(`save block on ${domainName}: ${latestBlock}`)
-
-    await this.prisma.domain.upsert({
-      where: {
-        id: domainID.toString(),
-      },
-      create: {
-        id: domainID.toString(),
-        name: domainName,
-        lastIndexedBlock: latestBlock,
-      },
-      update: {
-        lastIndexedBlock: latestBlock,
-      },
-    })
+    logger.info(`save block on ${domainName}: ${latestBlock}`)
+    this.domainRepository.upserDomain(domainID, latestBlock, domainName)
   }
 
   async getLastIndexedBlock(domainID: string): Promise<number> {
-    const domainRes = await this.prisma.domain.findFirst({
-      where: {
-        id: domainID,
-      },
-    })
+    const domainRes = await this.domainRepository.getLastIndexedBlock(domainID)
 
     return domainRes ? Number(domainRes.lastIndexedBlock) : 0
   }
