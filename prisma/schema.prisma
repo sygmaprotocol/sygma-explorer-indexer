@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "mongodb"
-  url      = "mongodb://localhost:30001,localhost:30002,localhost:30003/test?replicaSet=my-replica-set"
+  url      =  env("DATABASE_URL")
 }
 
 generator client {
@@ -22,7 +22,7 @@ model Transfer {
   sender       String
   destination  String
   amount       String
-  timestamp    Int?
+  timestamp    Int
   status       TransferStatus
   deposit      Deposit?
   execution    Execution?
@@ -37,7 +37,7 @@ enum TransferStatus {
 model Resource {
   resourceId String  @map("_id") @id
   type String
-    transfers Transfer[]
+  transfers Transfer[]
 
 }
 
@@ -68,7 +68,6 @@ model Execution {
   type           String
   txHash         String
   blockNumber    String
-  executionEvent String
 }
 
 
