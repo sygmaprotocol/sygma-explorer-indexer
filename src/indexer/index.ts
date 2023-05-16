@@ -1,7 +1,6 @@
-import { DomainTypes } from "./types"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
-import { getSharedConfig, getLocalConfig } from "./config"
+import { getSharedConfig, getLocalConfig, DomainTypes } from "./config"
 import DomainRepository from "./repository/domain"
 import { logger } from "../utils/logger"
 
