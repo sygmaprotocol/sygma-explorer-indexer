@@ -3,6 +3,10 @@ import { app} from '../app'
 import { returnQueryParamsForTransfers } from '../utils/helpers';
 
 describe('TransferController', () => {
+  let prismaClient: Prisma.TransferDelegate<Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>;
+  beforeAll(() => {
+    prismaClient = new PrismaClient().transfer;
+  })
   describe('transfers', () => {
     it('should return 200 when fetching for 10 transfers', async () => {
       const res = await app.inject({
@@ -65,7 +69,6 @@ describe('TransferController', () => {
     })
   });
   it('should return paginated results providing all the filters', async () => {
-    const prismaClient = new PrismaClient().transfer;
 
     const transferToCompare = await prismaClient.findMany({
       take: 20,
@@ -153,7 +156,6 @@ describe('TransferController', () => {
 
   describe('transferById', () => {
     it('should return 200 when fetching for a transfer by id', async () => {
-      const prismaClient = new PrismaClient().transfer;
       const transferToTest = await prismaClient.findFirst({
         where: {
           status: 'executed',

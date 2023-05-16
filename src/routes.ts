@@ -7,11 +7,17 @@ export async function routes(fastify: FastifyInstance) {
     method: 'GET',
     url: '/transfers',
     handler: TransfersController.transfers
-  })
+  });
 
   fastify.route({
     method: 'GET',
     url: '/transfers/:id',
     handler: TransfersController.transferById
-  })
-}
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/sender/:senderAddress/transfers',
+    handler: TransfersController.transferBySender
+  });
+};

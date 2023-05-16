@@ -10,6 +10,6 @@ export interface ITransferById {
   id: string;
 }
 
-export interface ITransferBySender {
-  sender: string;
+export interface ITransferBySender extends ITransfer {
+  senderAddress: string;
 }

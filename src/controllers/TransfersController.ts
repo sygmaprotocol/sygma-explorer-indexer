@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify"
 import { Transfer } from "@prisma/client"
 import { ITransfer, ITransferById, ITransferBySender } from "Interfaces"
 
-import TransfersService from "../services/transfers.service"
+import TransfersService, { TransfersByCursorOptions } from "../services/transfers.service"
 
 const transfersService = new TransfersService()
 

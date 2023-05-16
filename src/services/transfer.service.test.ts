@@ -208,6 +208,75 @@ describe('TransferService', () => {
       const transferFromService = transferService.findTransferById({ id: 'notFound' });
       await expect(transferFromService).rejects.toThrowError();
     });
+  });
 
+  describe('findTransferByFilterParams', () => {
+    it('Should transfer by filter params: filter = sender address', async () => {
+      const transferToTest = await prismaClient.transfer.findFirst({
+        include: {
+          ...returnQueryParamsForTransfers().include
+        }
+      });
+      const { sender } = transferToTest as Transfer;
+
+      const transferFromSender = await prismaClient.transfer.findMany({
+        where: {
+          sender
+        },
+        include: {
+          ...returnQueryParamsForTransfers().include
+        }
+      });
+
+      expect(
+        transferFromSender.every((transfer) => transfer.sender === sender)
+      ).toBe(true);
+
+      const transferFromServiceBySender = await transferService.findTransferByFilterParams({page: '1', limit: '10', undefined, sender });
+
+      expect(
+        transferFromServiceBySender.every((transfer) => transfer.sender === sender)
+      ).toBe(true);
+
+      expect(transferFromServiceBySender.length).toEqual(transferFromSender.length);
+    });
+
+    it('Should transfer by filter params: filter = sender address & status executed', async () => {
+      const transferToTest = await prismaClient.transfer.findFirst({
+        where: {
+          status: 'executed'
+        },
+        include: {
+          ...returnQueryParamsForTransfers().include
+        }
+      });
+
+      const { sender, status } = transferToTest as Transfer;
+
+      const transferFromSender = await prismaClient.transfer.findMany({
+        where: {
+          sender,
+          status
+        },
+        include: {
+          ...returnQueryParamsForTransfers().include
+        }
+      });
+
+      expect(
+        transferFromSender.every((transfer) => transfer.sender === sender && transfer.status === status)
+      ).toBe(true);
+
+      const transferFromServiceBySender = await transferService.findTransferByFilterParams({page: '1', limit: '10', status, sender });
+
+      expect(
+        transferFromServiceBySender.length
+      ).toEqual(transferFromSender.length);
+
+      expect(
+        transferFromServiceBySender.every((transfer) => transfer.sender === sender && transfer.status === status)
+      ).toBe(true);
+      
+    });
   });
 });
