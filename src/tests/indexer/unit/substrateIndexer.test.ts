@@ -1,6 +1,6 @@
-import { ApiPromise, WsProvider } from "@polkadot/api"
-import { PrismaClient } from "@prisma/client"
-import { DomainTypes } from "indexer/types"
+import { ApiPromise } from "@polkadot/api"
+import DomainRepository from "indexer/repository/domain"
+import { Domain, DomainTypes } from "indexer/config"
 import { SubstrateIndexer } from "../../../../src/indexer/services/substrateIndexer/substrateIndexer"
 
 jest.mock("@polkadot/api")
@@ -8,19 +8,18 @@ jest.mock("@polkadot/api")
 describe("SubstrateIndexer", () => {
   let substrateIndexer: SubstrateIndexer
   let apiPromiseMock: jest.Mocked<ApiPromise>
-  const prismaClientMock = {
-    domain: {
-      findFirst: jest.fn(),
-      upsert: jest.fn(),
-    },
-  } as unknown as PrismaClient
+  const domainRepositoryMock = {
+    upsertDomain: jest.fn(),
+    getLastIndexedBlock: jest.fn(),
+  } as unknown as DomainRepository
 
   const domain = {
     id: 1,
     name: "Domain1",
     type: DomainTypes.SUBSTRATE,
     url: "test",
-  }
+  } as unknown as Domain
+
   const domainConfig = {
     url: "testUrl",
     startBlock: 100,
@@ -29,7 +28,7 @@ describe("SubstrateIndexer", () => {
   beforeEach(() => {
     ApiPromise.create = jest.fn().mockResolvedValueOnce(apiPromiseMock)
 
-    substrateIndexer = new SubstrateIndexer(prismaClientMock, domainConfig, domain)
+    substrateIndexer = new SubstrateIndexer(domainRepositoryMock, domainConfig, domain)
   })
 
   describe("indexPastEvents", () => {

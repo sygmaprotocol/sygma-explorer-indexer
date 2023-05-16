@@ -1,7 +1,7 @@
-import { PrismaClient } from "@prisma/client"
 import { providers } from "ethers"
 import { BaseProvider } from "@ethersproject/providers"
-import { DomainTypes } from "../../../../src/indexer/types"
+import DomainRepository from "indexer/repository/domain"
+import { Domain, DomainTypes, LocalDomainConfig } from "indexer/config"
 import { EvmIndexer } from "../../../../src/indexer/services/evmIndexer/evmIndexer"
 
 jest.mock("@polkadot/api")
@@ -9,25 +9,21 @@ jest.mock("@polkadot/api")
 describe("EvmIndexer", () => {
   let evmIndexer: EvmIndexer
   let providerMock: BaseProvider
-  const prismaClientMock = {
-    domain: {
-      findFirst: jest.fn(),
-      upsert: jest.fn(),
-    },
-  } as unknown as PrismaClient
+  const domainRepositoryMock = {
+    upsertDomain: jest.fn(),
+    getLastIndexedBlock: jest.fn(),
+  } as unknown as DomainRepository
 
   const domain = {
     id: 1,
     name: "Domain1",
     type: DomainTypes.EVM,
     url: "test",
-  }
+  } as unknown as Domain
   const domainConfig = {
     url: "testUrl",
     startBlock: 50,
-  }
-
-  beforeEach(() => {})
+  } as unknown as LocalDomainConfig
 
   it("Should index evm past events when some blocks already indexed", async () => {
     // create a mock Provider object
@@ -36,7 +32,7 @@ describe("EvmIndexer", () => {
     } as unknown as BaseProvider
 
     jest.spyOn(providers, "getDefaultProvider").mockReturnValue(providerMock)
-    evmIndexer = new EvmIndexer(domainConfig, prismaClientMock, domain)
+    evmIndexer = new EvmIndexer(domainConfig, domainRepositoryMock, domain)
 
     evmIndexer.getLastIndexedBlock = jest.fn().mockResolvedValue(100)
     evmIndexer.saveDataToDb = jest.fn().mockResolvedValue(undefined)
@@ -59,7 +55,7 @@ describe("EvmIndexer", () => {
       getBlockNumber: jest.fn().mockResolvedValue(5000),
     } as unknown as BaseProvider
     jest.spyOn(providers, "getDefaultProvider").mockReturnValue(providerMock)
-    evmIndexer = new EvmIndexer(domainConfig, prismaClientMock, domain)
+    evmIndexer = new EvmIndexer(domainConfig, domainRepositoryMock, domain)
 
     evmIndexer.getLastIndexedBlock = jest.fn().mockResolvedValue(0)
     evmIndexer.saveDataToDb = jest.fn().mockResolvedValue(undefined)
