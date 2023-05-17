@@ -24,7 +24,6 @@ export class EvmIndexer {
     let latestBlock = await this.provider.getBlockNumber()
 
     let fromBlock = this.domain.startBlock
-
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
       // move 1 block from last processed db block
       fromBlock = lastIndexedBlock + 1
