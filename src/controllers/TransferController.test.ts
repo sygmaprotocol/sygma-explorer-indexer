@@ -1,4 +1,4 @@
-import { PrismaClient, Transfer } from '@prisma/client';
+import { PrismaClient, Transfer, Prisma } from '@prisma/client';
 import { app} from '../app'
 import { returnQueryParamsForTransfers } from '../utils/helpers';
 
@@ -182,4 +182,48 @@ describe('TransferController', () => {
       expect(res.statusCode).toEqual(404);
     });
   });
+
+  describe('transferBySender', () => {
+    it('should return 200 when fetching for a transfer by sender', async () => {
+      const transferToTest = await prismaClient.findFirst({
+        where: {
+          status: 'executed',
+        },
+        include: {
+          ...returnQueryParamsForTransfers().include,
+        },
+      });
+      const { sender, status }  = transferToTest as Transfer;
+
+      const res = await app.inject({
+        method: 'GET',
+        url: `/api/sender/${sender}/transfers`,
+        query: {
+          page: '1',
+          limit: '10',
+          status: 'executed'
+        }
+      });
+      expect(res.statusCode).toEqual(200);
+
+      const data = await res.json() as Transfer[];
+
+      expect(
+        data.every((transfer: any) => transfer.sender === sender)
+      ).toBe(true);
+    });
+
+    it('Should return 400 when fetching for a transfer that doesn\'t exist', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/sender/0x5A9E123C3c6a4f0920fA72D23cb7b47730e58b46/transfers',
+        query: {
+          page: '1',
+          limit: '10',
+          status: 'executed'
+        }
+      });
+      expect(res.statusCode).toEqual(404);
+    });
+  })
 });

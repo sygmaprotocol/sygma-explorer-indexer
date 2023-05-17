@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify"
 import { Transfer } from "@prisma/client"
 import { ITransfer, ITransferById, ITransferBySender } from "Interfaces"
 
-import TransfersService, { TransfersByCursorOptions } from "../services/transfers.service"
+import TransfersService from "../services/transfers.service"
 
 const transfersService = new TransfersService()
 
@@ -32,14 +32,17 @@ export const TransfersController = {
         reply.status(404)
       }
     },
-    transferBySender: async function(request: FastifyRequest<{ Params: ITransferBySender }>, reply: FastifyReply) {
-      const { sender } = request.params
+    transferBySender: async function(request: FastifyRequest<{ Params: ITransferBySender, Querystring: ITransfer }>, reply: FastifyReply) {
+      const { params: { senderAddress } } = request
+      const { query: { page, limit, status } } = request;
 
       try {
-        const transfer = await transfersService.findTransfer({ sender })
-        reply.status(200).send(transfer)
-      } catch(e) {
+        const transfer = await transfersService.findTransferByFilterParams({page, limit, status, sender: senderAddress })
+
+        if(transfer.length !== 0) reply.status(200).send(transfer)
         reply.status(404)
+      } catch(e) {
+        reply.status(400)
       }
     }
 }

@@ -77,24 +77,28 @@ class TransfersService {
     const queryParams = this.prepareQueryParams({ page, limit, status, sender });
     const { pageSize, skip, where } = queryParams;
     
-    const transfer = await this.transfers.findMany({
-      where,
-      take: pageSize + 1,
-      skip: this.currentCursor ? 0 : skip,
-      cursor: this.currentCursor ? { id: this.currentCursor } : undefined,
-      orderBy: [{
-        timestamp: "asc",
-      }],
-      include: {
-        ...returnQueryParamsForTransfers().include
-      }
-    });
+    try {
+      const transfer = await this.transfers.findMany({
+        where,
+        take: pageSize + 1,
+        skip: this.currentCursor ? 0 : skip,
+        cursor: this.currentCursor ? { id: this.currentCursor } : undefined,
+        orderBy: [{
+          timestamp: "asc",
+        }],
+        include: {
+          ...returnQueryParamsForTransfers().include
+        }
+      });
+  
+      const transferWithoutTheLastItem = transfer.slice(0, pageSize)
+  
+      this.currentCursor = transferWithoutTheLastItem[transfer.length - 1]?.id;
 
-    const transferWithoutTheLastItem = transfer.slice(0, pageSize)
-
-    this.currentCursor = transferWithoutTheLastItem[transfer.length - 1]?.id;
-
-    return transferWithoutTheLastItem;
+      return transferWithoutTheLastItem;
+    } catch(e){
+      throw new Error('Error while fetching transfers');
+    }
   }
 
 }
