@@ -1,5 +1,5 @@
 import { Provider } from "@ethersproject/providers"
-import { Domain, LocalDomainConfig } from "indexer/config"
+import { Domain } from "indexer/config"
 import { providers } from "ethers"
 import DomainRepository from "indexer/repository/domain"
 import { logger } from "../../../utils/logger"
@@ -10,24 +10,22 @@ export class EvmIndexer {
   private currentEventsQueryInterval = 10
   private domainRepository: DomainRepository
   private domain: Domain
-  private domainConfig: LocalDomainConfig
-  constructor(domainConfig: LocalDomainConfig, domainRepository: DomainRepository, domain: Domain) {
-    this.provider = providers.getDefaultProvider(domainConfig.url)
+  constructor(rpcURL: string, domainRepository: DomainRepository, domain: Domain) {
+    this.provider = providers.getDefaultProvider(rpcURL)
     this.domainRepository = domainRepository
     this.domain = domain
-    this.domainConfig = domainConfig
   }
 
   async indexPastEvents(): Promise<number> {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id.toString())
 
-    let toBlock = this.domainConfig.startBlock + this.pastEventsQueryInterval
+    let toBlock = this.domain.startBlock + this.pastEventsQueryInterval
 
     let latestBlock = await this.provider.getBlockNumber()
 
-    let fromBlock = this.domainConfig.startBlock
+    let fromBlock = this.domain.startBlock
 
-    if (lastIndexedBlock && lastIndexedBlock > this.domainConfig.startBlock) {
+    if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
       // move 1 block from last processed db block
       fromBlock = lastIndexedBlock + 1
     }

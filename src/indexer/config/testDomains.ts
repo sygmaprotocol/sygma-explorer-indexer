@@ -1,46 +1,22 @@
 import { LocalDomainConfig } from "."
-
-export const testDomains = new Map<number, LocalDomainConfig>([
+// map domainID: rpcURL
+export const testDomains = new Map<number, string>([
   [
-    0,
-    {
-      url: "https://eth-goerli.g.alchemy.com/v2/wkF4rGEBspanIYTCzspMVFbOPjHP_IhL",
-      startBlock: 7225328,
-    },
+    0, "https://eth-goerli.g.alchemy.com/v2/wkF4rGEBspanIYTCzspMVFbOPjHP_IhL",
   ],
   [
-    1,
-    {
-      url: "https://polygon-mumbai.g.alchemy.com/v2/LquJll0ZH2yYtHx74WScXNSXAj8C1DsP",
-      startBlock: 27171235,
-    },
+    1, "https://polygon-mumbai.g.alchemy.com/v2/LquJll0ZH2yYtHx74WScXNSXAj8C1DsP",
   ],
   [
-    2,
-    {
-      url: "https://moonbase-alpha.blastapi.io/be6f59cb-0c85-444f-b8bc-4179bd203cac",
-      startBlock: 2916751,
-    },
+    2,"https://moonbase-alpha.blastapi.io/be6f59cb-0c85-444f-b8bc-4179bd203cac",
   ],
   [
-    3,
-    {
-      url: "https://eth-sepolia.g.alchemy.com/v2/XEdjTRcsZFKjg7Cqx7C6l5KODNZGDxuY",
-      startBlock: 3054823,
-    },
+    3,"https://eth-sepolia.g.alchemy.com/v2/XEdjTRcsZFKjg7Cqx7C6l5KODNZGDxuY",
   ],
   [
-    5,
-    {
-      url: "wss://rhala-node.phala.network/ws",
-      startBlock: 468700,
-    },
+    5,"wss://rhala-node.phala.network/ws",
   ],
   [
-    6,
-    {
-      url: "https://canto-testnet.plexnode.wtf",
-      startBlock: 1096573,
-    },
+    6, "https://canto-testnet.plexnode.wtf",
   ],
 ])

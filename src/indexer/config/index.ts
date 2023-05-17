@@ -50,7 +50,7 @@ type Resource = {
   decimals: number
 }
 
-export const getLocalConfig = (): Map<number, LocalDomainConfig> => {
+export const getLocalConfig = (): Map<number, string> => {
   return process.env.ENVIRONMENT == Environment.TESTNET ? testDomains : devDomains
 }
 
