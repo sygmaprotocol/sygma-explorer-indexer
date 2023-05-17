@@ -43,7 +43,7 @@ type Handler = {
 }
 
 type Resource = {
-  resourceID: string
+  resourceId: string
   type: ResourceTypes
   address: string
   symbol: string

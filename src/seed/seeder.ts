@@ -1,8 +1,8 @@
-import { PrismaClient, Transfer, TransferStatus } from '@prisma/client';
-import { getSygmaConfig } from '../utils/getSygmaConfig';
-import { SharedConfigFormated } from 'types';
+import { PrismaClient, TransferStatus } from '@prisma/client';
+import { getSharedConfig } from '../indexer/config';
 import { ethers } from 'ethers';
 import { Bridge__factory } from '@chainsafe/chainbridge-contracts';
+import { getLocalConfig } from '../indexer/config';
 const prismaClient = new PrismaClient();
 
 const decodeAmountsOrTokenId = (data: string, decimals: number, type: "erc20" | "erc721") => {
@@ -24,17 +24,26 @@ const seeder = async () => {
     console.log("Error on connecting to database", e);
   }
 
-  const domains = await getSygmaConfig();
-  const firstDomain = (domains as SharedConfigFormated[])[0];
+  const domains = await getSharedConfig("https://cloudflare-ipfs.com/ipfs/QmfPxe4ajcmPBt9Pr2Tr7FeM2Z9ndj9USJwxMdfazo9Jr5"); // using old one because new one dosn't have transfers
+  const localConfig = getLocalConfig();
+  const domainsWithRpcURL = domains.domains.map((domain) => {
+    const rpcURL = localConfig.get(domain.id);
+    return {
+      ...domain,
+      rpcURL
+    }
+  })
+  console.log("🚀 ~ file: seeder.ts:38 ~ domainsWithRpcURL ~ domainsWithRpcURL:", domainsWithRpcURL[0].resources[0])
+  const evmDomain = domainsWithRpcURL.filter((domain) => domain.type === 'evm')[0];
 
-  const { rpcUrl } = firstDomain;
+  const { rpcURL } = evmDomain;
 
-  const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-  const bridge = Bridge__factory.connect(firstDomain.bridge, provider);
+  const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+  const bridge = Bridge__factory.connect(evmDomain.bridge, provider);
   const depositFilter = bridge.filters.Deposit(null, null, null, null, null, null);
   const depositLogs = await provider.getLogs({
     ...depositFilter,
-    fromBlock: firstDomain.startBlock,
+    fromBlock: evmDomain.startBlock,
     toBlock: "latest"
   });
 
@@ -46,14 +55,14 @@ const seeder = async () => {
 
   const onlyTokensTransfers = parsedLogs.filter((log) => {
     const { resourceID } = log.parsedData.args
-    const resourceIDAndType = firstDomain.resources.find((resource) => resource.resourceId === resourceID);
+    const resourceIDAndType = evmDomain.resources.find((resource) => resource.resourceId === resourceID);
 
     return resourceIDAndType?.resourceId === resourceID && resourceIDAndType?.resourceId !== filteredResource;
   })
 
   const amountOfTokenTransfers = onlyTokensTransfers.length;
 
-  const onlyResourcesForTokensTransfers = firstDomain.resources.filter((resource) => resource.type !== 'permissionlessGeneric').map((resource) => ({ resourceId: resource.resourceId, type: resource.type }));
+  const onlyResourcesForTokensTransfers = evmDomain.resources.filter((resource) => resource.type !== 'permissionlessGeneric').map((resource) => ({ resourceId: resource.resourceId, type: resource.type }));
 
   for (const resource of onlyResourcesForTokensTransfers){
     await prismaClient.resource.create({
@@ -65,7 +74,7 @@ const seeder = async () => {
   }
   console.log(`Adding ${onlyResourcesForTokensTransfers.length} resources`);
 
-  for (const domain of domains as SharedConfigFormated[]) {
+  for (const domain of domainsWithRpcURL) {
     const { name, startBlock, id  } = domain;
     await prismaClient.domain.create({
       data: {
@@ -75,15 +84,15 @@ const seeder = async () => {
       }
     });
   }
-  console.log(`Adding ${(domains as SharedConfigFormated[]).length} domains`);
+  console.log(`Adding ${domainsWithRpcURL.length} domains`);
 
   for (const pl of onlyTokensTransfers) {
     const { destinationDomainID, resourceID, depositNonce, user, data, handlerResponse } = pl.parsedData.args;
     const { txHash, blockNumber } = pl
 
-    const destinationDomain = (domains as SharedConfigFormated[]).find((domain) => domain.id === destinationDomainID);
+    const destinationDomain = domainsWithRpcURL.find((domain) => domain.id === destinationDomainID);
 
-    const resourceIDAndType = firstDomain.resources.map((resource) => ({ resourceId: resource.resourceId, type: resource.type, tokenAddress: resource.address, tokenSymbol: resource.symbol }));
+    const resourceIDAndType = evmDomain.resources.map((resource) => ({ resourceId: resource.resourceId, type: resource.type, tokenAddress: resource.address, tokenSymbol: resource.symbol }));
 
     const transferType = resourceIDAndType.find((resource) => resource.resourceId === resourceID)?.type;
     const tokenData = resourceIDAndType.find((resource) => resource.resourceId === resourceID);
@@ -105,7 +114,7 @@ const seeder = async () => {
       destination: hexAddress,
       status: transferStatus as TransferStatus,
       resource: resourceID,
-      fromDomain: `${firstDomain.id}`,
+      fromDomain: `${evmDomain.id}`,
       toDomain: `${destinationDomain?.id}`
     };
 
