@@ -1,6 +1,5 @@
 import dotenv from 'dotenv'
-import { SygmaConfig } from 'sygmaTypes'
-import { SharedConfigDomains, SharedConfigFormated } from 'types'
+import { SharedConfigDomains, SharedConfig } from 'types'
 import { formatConfig } from './helpers'
 
 dotenv.config({
@@ -9,10 +8,10 @@ dotenv.config({
 
 const getLocalConfig = () => {
   const localConfig = require("../../public/sygma-explorer-shared-config.json")
-  return formatConfig(localConfig as SharedConfigDomains, "local") as SharedConfigFormated[];
+  return formatConfig(localConfig as SharedConfigDomains, "local") as SharedConfig[];
 }
 
-const getSharedConfig = async (): Promise<SharedConfigFormated[]> => {
+const getSharedConfig = async (): Promise<SharedConfig[]> => {
   const { env: { CONFIG_SERVER_URL, STAGE } } = process
 
   try {
@@ -22,12 +21,12 @@ const getSharedConfig = async (): Promise<SharedConfigFormated[]> => {
     return formatedConfig
   } catch (e) {
     console.error(`Failed to fecth config for ${process.env.STAGE}`, e)
-    return Promise.reject(e)
+    throw new Error("Failed to fetch config")
   }
 
 }
 
-export async function getSygmaConfig(): Promise<SharedConfigFormated[] | { error: { message: string } }> {
+export async function getSygmaConfig(): Promise<SharedConfig[] | { error: { message: string } }> {
   let config
   try {
     if (process.env.NODE_ENV !== 'development') {

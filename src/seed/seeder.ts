@@ -1,8 +1,8 @@
 import { PrismaClient, Transfer, TransferStatus } from '@prisma/client';
 import { getSygmaConfig } from '../utils/getSygmaConfig';
-import { SharedConfigFormated } from 'types';
+import { SharedConfig } from 'types';
 import { ethers } from 'ethers';
-import { Bridge__factory } from '@chainsafe/chainbridge-contracts';
+import { Bridge__factory } from '@buildwithsygma/sygma-contracts';
 const prismaClient = new PrismaClient();
 
 const decodeAmountsOrTokenId = (data: string, decimals: number, type: "erc20" | "erc721") => {
@@ -25,7 +25,7 @@ const seeder = async () => {
   }
 
   const domains = await getSygmaConfig();
-  const firstDomain = (domains as SharedConfigFormated[])[0];
+  const firstDomain = (domains as SharedConfig[])[0];
 
   const { rpcUrl } = firstDomain;
 
@@ -57,7 +57,7 @@ const seeder = async () => {
     const { destinationDomainID, resourceID, depositNonce, user, data, handlerResponse } = pl.parsedData.args;
     const { txHash, blockNumber } = pl
 
-    const destinationDomain = (domains as SharedConfigFormated[]).find((domain) => domain.id === destinationDomainID);
+    const destinationDomain = (domains as SharedConfig[]).find((domain) => domain.id === destinationDomainID);
 
     const resourceIDAndType = firstDomain.resources.map((resource) => ({ resourceId: resource.resourceId, type: resource.type, tokenAddress: resource.address, tokenSymbol: resource.symbol }));
 

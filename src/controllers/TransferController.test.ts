@@ -1,8 +1,24 @@
-import { PrismaClient, Transfer } from '@prisma/client';
+import { PrismaClient, Transfer, Prisma } from '@prisma/client';
 import { app} from '../app'
 import { returnQueryParamsForTransfers } from '../utils/helpers';
 
 describe('TransferController', () => {
+  let prismaClient: Prisma.TransferDelegate<Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>;
+  let transferToTest: unknown;
+  let expectedKeys: string[];
+  beforeAll(async () => {
+    prismaClient = new PrismaClient().transfer;
+    transferToTest = await prismaClient.findFirst({
+      where: {
+        status: 'executed',
+      },
+      include: {
+        ...returnQueryParamsForTransfers().include,
+      },
+    }) as Transfer;
+    expectedKeys = Object.keys(transferToTest as Transfer);
+  });
+
   describe('transfers', () => {
     it('should return 200 when fetching for 10 transfers', async () => {
       const res = await app.inject({
@@ -16,6 +32,7 @@ describe('TransferController', () => {
       const data = await res.json()
       expect(res.statusCode).toEqual(200)
       expect(data).toHaveLength(10)
+      expect(Object.keys(data[0])).toEqual(expectedKeys)
     });
     it("should return 200 and transfer of pending status", async () => {
       const res = await app.inject({
@@ -30,6 +47,7 @@ describe('TransferController', () => {
       expect(res.statusCode).toEqual(200);
       const data = await res.json();
       expect(data).toHaveLength(10);
+      expect(Object.keys(data[0])).toEqual(expectedKeys);
 
       const everyIsPending = data.every((transfer: any) => transfer.status === 'pending');
       expect(everyIsPending).toBe(true);
@@ -65,8 +83,6 @@ describe('TransferController', () => {
     })
   });
   it('should return paginated results providing all the filters', async () => {
-    const prismaClient = new PrismaClient().transfer;
-
     const transferToCompare = await prismaClient.findMany({
       take: 20,
       orderBy: [
@@ -101,6 +117,7 @@ describe('TransferController', () => {
     expect(
       dataFirstPage.every((transfer: any) => transfer.status === 'executed')
     ).toBe(true);
+    expect(Object.keys(dataFirstPage[0])).toEqual(expectedKeys);
 
     const responseSecondPage = await app.inject({
       method: 'GET',
@@ -117,6 +134,7 @@ describe('TransferController', () => {
     expect(
       dataSecondPage.every((transfer: any) => transfer.status === 'executed')
     ).toBe(true);
+    expect(Object.keys(dataSecondPage[0])).toEqual(expectedKeys);
 
     const goingBack = await app.inject({
       method: 'GET',
@@ -153,16 +171,9 @@ describe('TransferController', () => {
 
   describe('transferById', () => {
     it('should return 200 when fetching for a transfer by id', async () => {
-      const prismaClient = new PrismaClient().transfer;
-      const transferToTest = await prismaClient.findFirst({
-        where: {
-          status: 'executed',
-        },
-        include: {
-          ...returnQueryParamsForTransfers().include,
-        },
-      });
+      
       const { id }  = transferToTest as Transfer;
+      const expectedKeys = Object.keys(transferToTest as Transfer);
       const res = await app.inject({
         method: 'GET',
         url: `/api/transfers/${id}`,
@@ -171,6 +182,7 @@ describe('TransferController', () => {
 
       const data = await res.json() as Transfer;
       expect(data.id).toEqual(id);
+      expect(Object.keys(data)).toEqual(expectedKeys);
     });
     it('should return 404 when fetching for a transfer by id that does not exist', async () => {
       const res = await app.inject({

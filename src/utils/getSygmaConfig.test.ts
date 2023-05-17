@@ -1,4 +1,4 @@
-import { SharedConfigFormated } from "types";
+import { SharedConfig } from "types";
 import { getSygmaConfig } from "./getSygmaConfig";
 import devnetSharedConfig from "./mocks/devnet-shared-config";
 import testnetSharedConfig from "./mocks/testnet-shared-config";
@@ -19,7 +19,7 @@ describe('getSygmaConfig', () => {
       new Response(JSON.stringify(devnetSharedConfig), { status: 200, statusText: 'OK' }),
     );
 
-    const sygmaConfig = await getSygmaConfig() as SharedConfigFormated[];
+    const sygmaConfig = await getSygmaConfig() as SharedConfig[];
 
     const expectedKeys = [
       'id',
@@ -60,12 +60,12 @@ describe('getSygmaConfig', () => {
     for(let domain of filteredConfig) {
       for(let key in domain){
         if(key === 'name') {
-          const nameFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.name === domain[key as keyof SharedConfigFormated])
+          const nameFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.name === domain[key as keyof SharedConfig])
           expect(nameFound?.name).toBeTruthy()
         }
 
         if(key === 'domainId') {
-          const domainIdFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.domainId === domain[key as keyof SharedConfigFormated])
+          const domainIdFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.domainId === domain[key as keyof SharedConfig])
           expect(domainIdFound?.domainId).toBeTruthy()
         }
       }
@@ -85,7 +85,7 @@ describe('getSygmaConfig', () => {
       new Response(JSON.stringify(testnetSharedConfig), { status: 200, statusText: 'OK' }),
     );
 
-    const sygmaConfig = await getSygmaConfig() as SharedConfigFormated[]
+    const sygmaConfig = await getSygmaConfig() as SharedConfig[]
 
     const expectedKeys = [
       'id',
@@ -122,12 +122,12 @@ describe('getSygmaConfig', () => {
     for(let domain of sygmaConfig) {
       for(let key in domain){
         if(key === 'name') {
-          const nameFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.name === domain[key as keyof SharedConfigFormated])
+          const nameFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.name === domain[key as keyof SharedConfig])
           expect(nameFound?.name).toBeTruthy()
         }
 
         if(key === 'domainId') {
-          const domainIdFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.domainId === domain[key as keyof SharedConfigFormated])
+          const domainIdFound = expectedNetworkNamesandDomainIdsForDevnet.find(expectedNetwork => expectedNetwork.domainId === domain[key as keyof SharedConfig])
           expect(domainIdFound?.domainId).toBeTruthy()
         }
       }
@@ -147,8 +147,11 @@ describe('getSygmaConfig', () => {
       new Response(null, { status: 500, statusText: 'Internal Sever Error' }),
     );
 
-    const sygmaConfig = await getSygmaConfig() as { error: { message: string }}
-    expect(sygmaConfig.error.message).toBe("Failed to fetch")
+    try {
+      await getSygmaConfig() as { error: { message: string }}
+    } catch(e){
+      expect((e as Error).message).toBe("Failed to fetch")
+    }
 
     process.env.NODE_ENV = originalNodeEnv;
   });

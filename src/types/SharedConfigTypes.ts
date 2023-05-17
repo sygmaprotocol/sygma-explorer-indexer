@@ -11,7 +11,7 @@ export type SharedConfigHandlers = {
   address: string;
 };
 
-export interface SharedConfigDomainBase<Type> {
+export interface Domains<Type> {
   id: number;
   name: string;
   type: Type;
@@ -24,13 +24,13 @@ export interface SharedConfigDomainBase<Type> {
   resources: Array<SharedConfigResources>;
 };
 
-export interface EthereumSharedConfigDomain extends SharedConfigDomainBase<"ethereum"> {
+export interface EthereumSharedConfigDomain extends Domains<"ethereum"> {
   handlers: Array<SharedConfigHandlers>;
   feeRouter: string;
   feeHandlers: Array<SharedConfigHandlers>;
 }
 
-export interface SubstrateSharedConfigDomain extends SharedConfigDomainBase<"substrate"> {
+export interface SubstrateSharedConfigDomain extends Domains<"substrate"> {
   handlers: [];
   feeRouter?: undefined;
   feeHandlers?: null;
@@ -40,7 +40,7 @@ export interface SharedConfigDomains {
   domains: Array<EthereumSharedConfigDomain | SubstrateSharedConfigDomain>;
 }
 
-export interface SharedConfigFormated extends SharedConfigDomainBase<"ethereum" | "substrate"> {
+export interface SharedConfig extends Domains<"ethereum" | "substrate"> {
   rpcUrl: string;
 };
 

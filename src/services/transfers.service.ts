@@ -36,7 +36,6 @@ class TransfersService {
       })
       return transfer;
     } catch (error) {
-      console.error(error);
       throw new Error('No transfer found');
     }
   }

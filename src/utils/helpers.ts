@@ -13,8 +13,8 @@ import {
   ERC721Handler__factory as Erc721HandlerFactory,
   ERC20Handler,
   ERC721Handler
-} from "@chainsafe/chainbridge-contracts"
-import { SharedConfigDomains, SharedConfigFormated } from "types"
+} from "@buildwithsygma/sygma-contracts"
+import { SharedConfigDomains, SharedConfig } from "types"
 
 const isCelo = (networkId?: number) =>
   [42220, 44787, 62320].includes(networkId ?? 0)
@@ -108,7 +108,7 @@ export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.provide
   return handlersMap
 }
 
-export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "testnet" | "mainnet" | "local"): SharedConfigFormated[] {
+export function formatConfig(config: SharedConfigDomains, stage: "devnet" | "testnet" | "mainnet" | "local"): SharedConfig[] {
   const mapedRPCUrlPerStage = getRPCUrlMapping(stage)
 
   const formatedConfig = config.domains.map((domain) => ({
@@ -162,7 +162,7 @@ const getRPCUrlMapping = (stage: string) => {
   }
 }
 
-export const returnQueryParamsForTransfers = () => {
+export function returnQueryParamsForTransfers(){
   return {
     include: {
       resource: {
