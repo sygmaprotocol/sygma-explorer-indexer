@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url      =  env("DATABASE_URL")
 }
 
 generator client {
@@ -11,22 +11,21 @@ generator client {
 }
 
 model Transfer {
-  id           String         @id @default(auto()) @map("_id") @db.ObjectId
-  depositNonce Int            @unique
-  resource     Resource       @relation(fields: [resourceID], references: [resourceId])
-  resourceID   String         @db.ObjectId
-  fromDomain   Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
-  fromDomainId String         @db.ObjectId
-  toDomain     Domain         @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
-  toDomainId   String         @db.ObjectId
-  type         String
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId 
+  depositNonce Int         @unique
+  resource     Resource    @relation(fields: [resourceID], references: [resourceId])
+  resourceID String
+  fromDomain   Domain       @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
+  fromDomainId String
+  toDomain     Domain       @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
+  toDomainId   String
   sender       String
+  destination  String
   amount       String
-  status       TransferStatus @default(pending)
-  fee          Fee?
+  timestamp    Int
+  status       TransferStatus
   deposit      Deposit?
   execution    Execution?
-  timestamp    Int?
 }
 
 enum TransferStatus {
@@ -36,46 +35,41 @@ enum TransferStatus {
 }
 
 model Resource {
-  resourceId String @id @map("_id") @db.ObjectId
-  type       String
-
+  resourceId String  @map("_id") @id
+  type String
   transfers Transfer[]
+
 }
 
 model Domain {
-  id               String @id @map("_id") @db.ObjectId
-  name             String
-  lastIndexedBlock String
+  id   String     @map("_id") @id
+  name String
 
+  lastIndexedBlock String
   transferFrom Transfer[] @relation(name: "fromDomainRelation")
   transferTo   Transfer[] @relation(name: "toDomainRelation")
 }
 
-model Fee {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  amount       String
-  tokenAddress String
-  tokenSymbol  String
-  transfer     Transfer @relation(fields: [transferId], references: [id])
-  transferId   String   @unique @db.ObjectId
-}
-
 model Deposit {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  transfer        Transfer @relation(fields: [transferId], references: [id])
-  transferId      String   @unique @db.ObjectId
+  transfer        Transfer @relation(fields: [transferId], references: [id]) 
+  transferId      String @unique @db.ObjectId
+  type            String
   txHash          String
   blockNumber     String
   depositData     String
-  handlerResponse String?
+  handlerResponse String
 }
 
 model Execution {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  transfer        Transfer @relation(fields: [transferId], references: [id])
-  transferId      String   @unique @db.ObjectId
-  txHash          String
-  blockNumber     String
-  handlerResponse String?
-  dataHash        String?
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  transfer       Transfer @relation(fields: [transferId], references: [id])
+  transferId     String @unique @db.ObjectId
+  type           String
+  txHash         String
+  blockNumber    String
 }
+
+
+
+
