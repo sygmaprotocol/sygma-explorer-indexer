@@ -9,36 +9,26 @@ async function main() {
   const localDomainsConfig = getLocalConfig()
 
   for (const domain of sharedConfig.domains) {
-    const localdomain = localDomainsConfig.get(domain.id)
-    if (!localdomain) {
+    const rpcURL = localDomainsConfig.get(domain.id)
+    if (!rpcURL) {
       logger.error("local domain is not defined for the domain: " + domain.id)
       continue
     }
 
     if (domain.type == DomainTypes.SUBSTRATE) {
-      const localDomainConfig = localDomainsConfig.get(domain.id)
-      if (!localDomainConfig) {
-        logger.error("domain not configured in local config")
-        continue
-      }
       try {
         const domainRepository = new DomainRepository()
-        const substrateIndexer = new SubstrateIndexer(domainRepository, localDomainConfig, domain)
-        await substrateIndexer.init()
+        const substrateIndexer = new SubstrateIndexer(domainRepository, domain)
+        await substrateIndexer.init(rpcURL)
         substrateIndexer.listenToEvents()
       } catch (err) {
         logger.error(`error on domain: ${domain.id}... skipping`)
         continue
       }
     } else if (domain.type == DomainTypes.EVM) {
-      const localDomainConfig = localDomainsConfig.get(domain.id)
-      if (!localDomainConfig) {
-        logger.error("domain not configured in local config")
-        continue
-      }
       try {
         const domainRepository = new DomainRepository()
-        const evmIndexer = new EvmIndexer(localDomainConfig, domainRepository, domain)
+        const evmIndexer = new EvmIndexer(rpcURL, domainRepository, domain)
         await evmIndexer.listenToEvents()
       } catch (err) {
         logger.error(`error on domain: ${domain.id}... skipping`)
