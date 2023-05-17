@@ -18,13 +18,10 @@ describe("EvmIndexer", () => {
     id: 1,
     name: "Domain1",
     type: DomainTypes.EVM,
-    url: "test",
   } as unknown as Domain
-  const domainConfig = {
-    url: "testUrl",
-    startBlock: 50,
-  } as unknown as LocalDomainConfig
 
+  const rpcURL = "http://test.com"
+  
   it("Should index evm past events when some blocks already indexed", async () => {
     // create a mock Provider object
     providerMock = {
@@ -32,7 +29,7 @@ describe("EvmIndexer", () => {
     } as unknown as BaseProvider
 
     jest.spyOn(providers, "getDefaultProvider").mockReturnValue(providerMock)
-    evmIndexer = new EvmIndexer(domainConfig, domainRepositoryMock, domain)
+    evmIndexer = new EvmIndexer(rpcURL, domainRepositoryMock, domain)
 
     evmIndexer.getLastIndexedBlock = jest.fn().mockResolvedValue(100)
     evmIndexer.saveDataToDb = jest.fn().mockResolvedValue(undefined)
@@ -55,7 +52,7 @@ describe("EvmIndexer", () => {
       getBlockNumber: jest.fn().mockResolvedValue(5000),
     } as unknown as BaseProvider
     jest.spyOn(providers, "getDefaultProvider").mockReturnValue(providerMock)
-    evmIndexer = new EvmIndexer(domainConfig, domainRepositoryMock, domain)
+    evmIndexer = new EvmIndexer(rpcURL, domainRepositoryMock, domain)
 
     evmIndexer.getLastIndexedBlock = jest.fn().mockResolvedValue(0)
     evmIndexer.saveDataToDb = jest.fn().mockResolvedValue(undefined)

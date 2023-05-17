@@ -17,18 +17,14 @@ describe("SubstrateIndexer", () => {
     id: 1,
     name: "Domain1",
     type: DomainTypes.SUBSTRATE,
-    url: "test",
   } as unknown as Domain
 
-  const domainConfig = {
-    url: "testUrl",
-    startBlock: 100,
-  }
+  const rpcUrl = "http://test.com"
 
   beforeEach(() => {
     ApiPromise.create = jest.fn().mockResolvedValueOnce(apiPromiseMock)
 
-    substrateIndexer = new SubstrateIndexer(domainRepositoryMock, domainConfig, domain)
+    substrateIndexer = new SubstrateIndexer(domainRepositoryMock, domain)
   })
 
   describe("indexPastEvents", () => {
