@@ -32,8 +32,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.145.0",
+    "@buildwithsygma/sygma-contracts": "2.3.0",
     "@celo-tools/celo-ethers-wrapper": "^0.0.5",
-    "@chainsafe/chainbridge-contracts": "3.1.0",
     "@fastify/compress": "6.2.1",
     "@fastify/cors": "^8.2.1",
     "@prisma/client": "^4.1.0",

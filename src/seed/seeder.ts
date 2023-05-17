@@ -2,7 +2,7 @@ import { PrismaClient, Transfer, TransferStatus } from '@prisma/client';
 import { getSygmaConfig } from '../utils/getSygmaConfig';
 import { SharedConfigFormated } from 'types';
 import { ethers } from 'ethers';
-import { Bridge__factory } from '@chainsafe/chainbridge-contracts';
+import { Bridge__factory } from '@buildwithsygma/sygma-contracts';
 const prismaClient = new PrismaClient();
 
 const decodeAmountsOrTokenId = (data: string, decimals: number, type: "erc20" | "erc721") => {
@@ -53,6 +53,30 @@ const seeder = async () => {
 
   const amountOfTokenTransfers = onlyTokensTransfers.length;
 
+  const onlyResourcesForTokensTransfers = firstDomain.resources.filter((resource) => resource.type !== 'permissionlessGeneric').map((resource) => ({ resourceId: resource.resourceId, type: resource.type }));
+
+  for (const resource of onlyResourcesForTokensTransfers){
+    await prismaClient.resource.create({
+      data: {
+        resourceId: resource.resourceId,
+        type: resource.type,
+      }
+    });
+  }
+  console.log(`Adding ${onlyResourcesForTokensTransfers.length} resources`);
+
+  for (const domain of domains as SharedConfigFormated[]) {
+    const { name, startBlock, id  } = domain;
+    await prismaClient.domain.create({
+      data: {
+        domainId: `${id}`,
+        name,
+        lastIndexedBlock: startBlock.toString(),
+      }
+    });
+  }
+  console.log(`Adding ${(domains as SharedConfigFormated[]).length} domains`);
+
   for (const pl of onlyTokensTransfers) {
     const { destinationDomainID, resourceID, depositNonce, user, data, handlerResponse } = pl.parsedData.args;
     const { txHash, blockNumber } = pl
@@ -80,20 +104,9 @@ const seeder = async () => {
       amount: amountOrTokenId,
       destination: hexAddress,
       status: transferStatus as TransferStatus,
-      resource: {
-        type: transferType,
-        resourceId: resourceID,
-      },
-      fromDomain: {
-        name: firstDomain.name,
-        lastIndexedBlock: firstDomain.startBlock.toString(),
-        domainId: `${firstDomain.id}`
-      },
-      toDomain: {
-        name: destinationDomain?.name,
-        lastIndexedBlock: destinationDomain?.startBlock.toString(),
-        domainId: `${destinationDomain?.id}`
-      }
+      resource: resourceID,
+      fromDomain: `${firstDomain.id}`,
+      toDomain: `${destinationDomain?.id}`
     };
 
     if (transferStatus === 'pending') {
@@ -107,23 +120,18 @@ const seeder = async () => {
             destination: transferData.destination,
             status: transferData.status! as TransferStatus,
             resource: {
-              create: {
-                type: transferData.resource.type!,
-                resourceId: transferData.resource.resourceId!,
+              connect: {
+                resourceId: transferData.resource,
               }
             },
             fromDomain: {
-              create: {
-                name: transferData.fromDomain.name!,
-                lastIndexedBlock: transferData.fromDomain.lastIndexedBlock!,
-                domainId: transferData.fromDomain.domainId!,
+              connect: {
+                domainId: transferData.fromDomain,
               }
             },
             toDomain: {
-              create: {
-                name: transferData.toDomain.name!,
-                lastIndexedBlock: transferData.toDomain.lastIndexedBlock!,
-                domainId: transferData.toDomain.domainId!,
+              connect: {
+                domainId: transferData.toDomain,
               }
             },
             timestamp: Date.now()
@@ -163,23 +171,18 @@ const seeder = async () => {
             destination: transferData.destination,
             status: transferData.status! as TransferStatus,
             resource: {
-              create: {
-                type: transferData.resource.type!,
-                resourceId: transferData.resource.resourceId!,
+              connect: {
+                resourceId: transferData.resource,
               }
             },
             fromDomain: {
-              create: {
-                name: transferData.fromDomain.name!,
-                lastIndexedBlock: transferData.fromDomain.lastIndexedBlock!,
-                domainId: transferData.fromDomain.domainId!,
+              connect: {
+                domainId: transferData.fromDomain,
               }
             },
             toDomain: {
-              create: {
-                name: transferData.toDomain.name!,
-                lastIndexedBlock: transferData.toDomain.lastIndexedBlock!,
-                domainId: transferData.toDomain.domainId!,
+              connect: {
+                domainId: transferData.toDomain,
               }
             },
             fee: {
