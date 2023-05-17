@@ -20,7 +20,6 @@ export class EvmIndexer {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id.toString())
 
     let toBlock = this.domain.startBlock + this.pastEventsQueryInterval
-
     let latestBlock = await this.provider.getBlockNumber()
     let fromBlock = this.domain.startBlock
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
