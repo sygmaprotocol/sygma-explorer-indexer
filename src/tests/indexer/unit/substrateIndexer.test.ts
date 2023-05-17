@@ -19,8 +19,6 @@ describe("SubstrateIndexer", () => {
     type: DomainTypes.SUBSTRATE,
   } as unknown as Domain
 
-  const rpcUrl = "http://test.com"
-
   beforeEach(() => {
     ApiPromise.create = jest.fn().mockResolvedValueOnce(apiPromiseMock)
 
