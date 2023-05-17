@@ -15,9 +15,9 @@ model Transfer {
   depositNonce Int            @unique
   resource     Resource       @relation(fields: [resourceID], references: [resourceId])
   resourceID   String
-  fromDomain   Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
+  fromDomain   Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [domainId])
   fromDomainId String
-  toDomain     Domain         @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
+  toDomain     Domain         @relation(name: "toDomainRelation", fields: [toDomainId], references: [domainId])
   toDomainId   String
   type         String
   sender       String
@@ -44,7 +44,7 @@ model Resource {
 }
 
 model Domain {
-  id   String     @map("_id") @id
+  domainId   String     @map("_id") @id
   name String
 
   lastIndexedBlock String

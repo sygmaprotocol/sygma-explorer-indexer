@@ -69,7 +69,7 @@ const seeder = async () => {
     const { name, startBlock, id  } = domain;
     await prismaClient.domain.create({
       data: {
-        id: `${id}`,
+        domainId: `${id}`,
         name,
         lastIndexedBlock: startBlock.toString(),
       }
@@ -126,12 +126,12 @@ const seeder = async () => {
             },
             fromDomain: {
               connect: {
-                id: transferData.fromDomain,
+                domainId: transferData.fromDomain,
               }
             },
             toDomain: {
               connect: {
-                id: transferData.toDomain,
+                domainId: transferData.toDomain,
               }
             },
             timestamp: Date.now()
@@ -177,12 +177,12 @@ const seeder = async () => {
             },
             fromDomain: {
               connect: {
-                id: transferData.fromDomain,
+                domainId: transferData.fromDomain,
               }
             },
             toDomain: {
               connect: {
-                id: transferData.toDomain,
+                domainId: transferData.toDomain,
               }
             },
             fee: {
