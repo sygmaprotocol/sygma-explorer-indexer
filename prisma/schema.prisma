@@ -44,12 +44,12 @@ model Resource {
 }
 
 model Domain {
-  domainId   String     @map("_id") @id
-  name String
+  domainId String @id @map("_id")
+  name     String
 
   lastIndexedBlock String
-  transferFrom Transfer[] @relation(name: "fromDomainRelation")
-  transferTo   Transfer[] @relation(name: "toDomainRelation")
+  transferFrom     Transfer[] @relation(name: "fromDomainRelation")
+  transferTo       Transfer[] @relation(name: "toDomainRelation")
 }
 
 model Fee {
