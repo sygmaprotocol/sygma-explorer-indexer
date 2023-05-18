@@ -42,7 +42,6 @@ services:
   seed:
     build:
       context: .
-      dockerfile: ./dockerfiles/Dockerfile.seed
     depends_on:
       - mongo1
       - mongo2
