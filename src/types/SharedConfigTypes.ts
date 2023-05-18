@@ -13,6 +13,7 @@ export type SharedConfigHandlers = {
 
 export interface Domains<Type> {
   id: number;
+  chainId: number;
   name: string;
   type: Type;
   bridge: string;
