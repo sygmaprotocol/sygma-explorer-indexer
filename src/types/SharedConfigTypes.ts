@@ -25,7 +25,7 @@ export interface Domain<Type> {
   resources: Array<SharedConfigResources>
 }
 
-export interface EthereumSharedConfigDomain extends Domain<"ethereum"> {
+export interface EthereumDomain extends Domain<"ethereum"> {
   handlers: Array<SharedConfigHandlers>
   feeRouter: string
   feeHandlers: Array<SharedConfigHandlers>
@@ -38,7 +38,7 @@ export interface SubstrateDomain extends Domain<"substrate"> {
 }
 
 export interface SharedConfigDomains {
-  domains: Array<EthereumSharedConfigDomain | SubstrateDomain>
+  domains: Array<EthereumDomain | SubstrateDomain>
 }
 
 export interface SharedConfig extends Domain<"ethereum" | "substrate"> {

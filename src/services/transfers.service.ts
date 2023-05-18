@@ -1,5 +1,5 @@
 import { PrismaClient, TransferStatus } from "@prisma/client"
-import { returnQueryParamsForTransfers } from "../utils/helpers"
+import { getTransferQueryParams } from "../utils/helpers"
 
 type AllTransfersOption = {
   page: string
@@ -30,7 +30,7 @@ class TransfersService {
       const transfer = await this.transfers.findUnique({
         where: { id },
         include: {
-          ...returnQueryParamsForTransfers().include,
+          ...getTransferQueryParams().include,
         },
       })
       return transfer
@@ -59,7 +59,7 @@ class TransfersService {
         },
       ],
       include: {
-        ...returnQueryParamsForTransfers().include,
+        ...getTransferQueryParams().include,
       },
     })
 

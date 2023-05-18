@@ -1,6 +1,6 @@
 import { PrismaClient, Transfer, Prisma } from "@prisma/client"
 import { app } from "../app"
-import { returnQueryParamsForTransfers } from "../utils/helpers"
+import { getTransferQueryParams } from "../utils/helpers"
 
 describe("TransferController", () => {
   let prismaClient: Prisma.TransferDelegate<Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>
@@ -13,7 +13,7 @@ describe("TransferController", () => {
         status: "executed",
       },
       include: {
-        ...returnQueryParamsForTransfers().include,
+        ...getTransferQueryParams().include,
       },
     })) as Transfer
     expectedKeys = Object.keys(transferToTest as Transfer)
@@ -91,7 +91,7 @@ describe("TransferController", () => {
         },
       ],
       include: {
-        ...returnQueryParamsForTransfers().include,
+        ...getTransferQueryParams().include,
       },
       where: {
         status: "executed",

@@ -1,5 +1,5 @@
 import { PrismaClient, Transfer } from "@prisma/client"
-import { returnQueryParamsForTransfers } from "../utils/helpers"
+import { getTransferQueryParams } from "../utils/helpers"
 import TransfersService from "./transfers.service"
 
 describe("TransferService", () => {
@@ -26,7 +26,7 @@ describe("TransferService", () => {
           },
         ],
         include: {
-          ...returnQueryParamsForTransfers().include,
+          ...getTransferQueryParams().include,
         },
       })
 
@@ -75,7 +75,7 @@ describe("TransferService", () => {
           },
         ],
         include: {
-          ...returnQueryParamsForTransfers().include,
+          ...getTransferQueryParams().include,
         },
       })
 
@@ -122,7 +122,7 @@ describe("TransferService", () => {
           },
         ],
         include: {
-          ...returnQueryParamsForTransfers().include,
+          ...getTransferQueryParams().include,
         },
       })
       expect(fristEightyRecords).toHaveLength(80)
@@ -158,7 +158,7 @@ describe("TransferService", () => {
           },
         ],
         include: {
-          ...returnQueryParamsForTransfers().include,
+          ...getTransferQueryParams().include,
         },
         where: {
           status: "failed",
@@ -176,7 +176,7 @@ describe("TransferService", () => {
           },
         ],
         include: {
-          ...returnQueryParamsForTransfers().include,
+          ...getTransferQueryParams().include,
         },
         where: {
           status: "executed",
@@ -198,7 +198,7 @@ describe("TransferService", () => {
           status: "executed",
         },
         include: {
-          ...returnQueryParamsForTransfers().include,
+          ...getTransferQueryParams().include,
         },
       })
       const { id, status } = transferToTest as Transfer
