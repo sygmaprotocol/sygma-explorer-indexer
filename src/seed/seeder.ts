@@ -1,5 +1,5 @@
 import { PrismaClient, TransferStatus } from "@prisma/client"
-import { BigNumber, ethers } from "ethers"
+import { BigNumber, Signer, ethers } from "ethers"
 import { Bridge__factory } from "@buildwithsygma/sygma-contracts"
 import { getSharedConfig, getLocalConfig } from "../indexer/config"
 
@@ -32,13 +32,12 @@ const seeder = async (): Promise<void> => {
       rpcURL,
     }
   })
-  console.log("🚀 ~ file: seeder.ts:38 ~ domainsWithRpcURL ~ domainsWithRpcURL:", domainsWithRpcURL[0].resources[0])
   const evmDomain = domainsWithRpcURL.filter(domain => domain.type === "evm")[0]
 
   const { rpcURL } = evmDomain
 
   const provider = new ethers.providers.JsonRpcProvider(rpcURL)
-  const bridge = Bridge__factory.connect(evmDomain.bridge, provider)
+  const bridge = Bridge__factory.connect(evmDomain.bridge, provider as unknown as Signer)
   const depositFilter = bridge.filters.Deposit(null, null, null, null, null, null)
   const depositLogs = await provider.getLogs({
     ...depositFilter,
