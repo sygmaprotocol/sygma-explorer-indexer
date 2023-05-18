@@ -39,8 +39,6 @@
     "@buildwithsygma/sygma-contracts": "2.3.0",
     "@celo-tools/celo-ethers-wrapper": "^0.0.5",
     "@ethersproject/providers": "^5.7.2",
-    "@fastify/compress": "6.2.1",
-    "@fastify/cors": "^8.2.1",
     "@polkadot/api": "^10.6.1",
     "@fastify/compress": "6.2.1",
     "@fastify/cors": "^8.2.1",

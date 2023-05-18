@@ -26,7 +26,7 @@ export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.provide
   return handlersMap
 }
 
-export const returnQueryParamsForTransfers = (): any => {
+export const getTransferQueryParams = (): any => {
   return {
     include: {
       resource: {
