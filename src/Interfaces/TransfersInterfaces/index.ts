@@ -1,15 +1,15 @@
-import { TransferStatus } from "@prisma/client";
+import { TransferStatus } from "@prisma/client"
 
 export interface ITransfer {
-  page: string;
-  limit: string;
-  status?: TransferStatus;
+  page: string
+  limit: string
+  status?: TransferStatus
 }
 
 export interface ITransferById {
-  id: string;
+  id: string
 }
 
 export interface ITransferBySender extends ITransfer {
-  senderAddress: string;
+  senderAddress: string
 }

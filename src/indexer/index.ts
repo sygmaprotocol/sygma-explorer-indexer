@@ -1,44 +1,45 @@
-// @ts-nocheck
-import { PrismaClient } from "@prisma/client"
-import { EvmBridgeConfig, SygmaConfig } from "../sygmaTypes"
-import { indexDeposits, indexProposals, indexFailedHandlerExecutions } from "./indexer"
-
-import {getSygmaConfig} from '../utils/getSygmaConfig'
-import { Config, IndexerSharedConfig } from "types"
-
-const prisma = new PrismaClient()
+import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
+import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
+import { getSharedConfig, getLocalConfig, DomainTypes } from "./config"
+import DomainRepository from "./repository/domain"
+import { logger } from "../utils/logger"
 
 async function main() {
-  const sygmaconfig = await getSygmaConfig() as IndexerSharedConfig
-  
-  await prisma.$connect()
+  const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL || "https://config.develop.buildwithsygma.com/share/")
+  const localDomainsConfig = getLocalConfig()
 
-  const deleteTransfers = prisma.transfer.deleteMany()
+  for (const domain of sharedConfig.domains) {
+    const rpcURL = localDomainsConfig.get(domain.id)
+    if (!rpcURL) {
+      logger.error("local domain is not defined for the domain: " + domain.id)
+      continue
+    }
 
-  await prisma.$transaction([deleteTransfers])
-
-  const evmBridges = sygmaconfig.chains.filter(
-    (c) => c.type !== "Substrate"
-  )
-  for (const bridge of evmBridges) {
-    await indexDeposits(bridge as Config, sygmaconfig)
-  }
-  console.log("\n***\n")
-  for (const bridge of evmBridges) {
-    await indexProposals(bridge as Config, sygmaconfig)
-  }
-  console.log("\n***\n")
-  for (const bridge of evmBridges) {
-    await indexFailedHandlerExecutions(bridge as Config, sygmaconfig)
+    if (domain.type == DomainTypes.SUBSTRATE) {
+      try {
+        const domainRepository = new DomainRepository()
+        const substrateIndexer = new SubstrateIndexer(domainRepository, domain)
+        await substrateIndexer.init(rpcURL)
+        substrateIndexer.listenToEvents()
+      } catch (err) {
+        logger.error(`error on domain: ${domain.id}... skipping`)
+        continue
+      }
+    } else if (domain.type == DomainTypes.EVM) {
+      try {
+        const domainRepository = new DomainRepository()
+        const evmIndexer = new EvmIndexer(rpcURL, domainRepository, domain)
+        await evmIndexer.listenToEvents()
+      } catch (err) {
+        logger.error(`error on domain: ${domain.id}... skipping`)
+        continue
+      }
+    } else {
+      logger.error("unsuported type: " + domain.type)
+    }
   }
 }
-main()
-  .catch((e) => {
-    console.error(e)
-    throw e
-  })
-  .finally(async() => {
-    await prisma.$disconnect()
-    console.log("\ndisconnect")
-    process.exit()
-  })
+
+main().catch(e => {
+  logger.error(e)
+})

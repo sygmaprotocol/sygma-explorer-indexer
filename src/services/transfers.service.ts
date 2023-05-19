@@ -1,30 +1,30 @@
 import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
-import { returnQueryParamsForTransfers } from "../utils/helpers"
+import { getTransferQueryParams } from "../utils/helpers"
 
 export type TransfersByCursorOptions = {
-  page: string;
-  limit: string;
-  status?: TransferStatus;
-  [key: string]: string | undefined;
-};
+  page: string
+  limit: string
+  status?: TransferStatus
+  [key: string]: string | undefined
+}
 
 class TransfersService {
   public transfers = new PrismaClient().transfer
-  private currentCursor: string | undefined;
+  private currentCursor: string | undefined
 
   private prepareQueryParams(args: TransfersByCursorOptions) {
-    const { page, limit, ...rest } = args;
+    const { page, limit, ...rest } = args
 
-    const pageSize = parseInt(limit, 10);
-    const pageIndex = parseInt(page, 10) - 1;
-    const skip = pageIndex * pageSize;
+    const pageSize = parseInt(limit, 10)
+    const pageIndex = parseInt(page, 10) - 1
+    const skip = pageIndex * pageSize
 
-    const where = rest ? { ...rest } : { };
+    const where = rest ? { ...rest } : {}
 
     return {
       pageSize,
       skip,
-      where
+      where,
     }
   }
 
@@ -33,73 +33,76 @@ class TransfersService {
       const transfer = await this.transfers.findUnique({
         where: { id },
         include: {
-          ...returnQueryParamsForTransfers().include,
-        }
+          ...getTransferQueryParams().include,
+        },
       })
       return transfer as Transfer
     } catch (error) {
-      console.error(error);
-      throw new Error('No transfer found');
+      console.error(error)
+      throw new Error("No transfer found")
     }
   }
 
   public async findTransfersByCursor(args: TransfersByCursorOptions): Promise<Transfer[]> {
     const { page, limit, status } = args
 
-    const pageSize = parseInt(limit, 10);
-    const pageIndex = parseInt(page, 10) - 1;
-    const skip = pageIndex * pageSize;
+    const pageSize = parseInt(limit, 10)
+    const pageIndex = parseInt(page, 10) - 1
+    const skip = pageIndex * pageSize
 
-    const where = status ? { status } : { };
+    const where = status ? { status } : {}
 
     const transfers = await this.transfers.findMany({
       where,
       take: pageSize + 1,
       skip: this.currentCursor ? 0 : skip,
       cursor: this.currentCursor ? { id: this.currentCursor } : undefined,
-      orderBy: [{
-        timestamp: "asc",
-      }],
+      orderBy: [
+        {
+          timestamp: "asc",
+        },
+      ],
       include: {
-        ...returnQueryParamsForTransfers().include
-      }
+        ...getTransferQueryParams().include,
+      },
     })
-    
-    const transferWithoutTheLastItem = transfers.slice(0, pageSize)
-    
-    this.currentCursor = transferWithoutTheLastItem[transfers.length - 1]?.id;
 
-    return transferWithoutTheLastItem;
+    const transferWithoutTheLastItem = transfers.slice(0, pageSize)
+
+    this.currentCursor = transferWithoutTheLastItem[transfers.length - 1]?.id
+
+    return transferWithoutTheLastItem
   }
 
-  public async findTransferByFilterParams(args: TransfersByCursorOptions){
-    const { page, limit, status, sender } = args;
-    const queryParams = this.prepareQueryParams({ page, limit, status, sender });
-    const { pageSize, skip, where } = queryParams;
-    
+  public async findTransferByFilterParams(args: TransfersByCursorOptions): Promise<Transfer[]> {
+    const { page, limit, status, sender } = args
+    const queryParams = this.prepareQueryParams({ page, limit, status, sender })
+    const { pageSize, skip, where } = queryParams
+
     try {
       const transfer = await this.transfers.findMany({
         where,
         take: pageSize + 1,
         skip: this.currentCursor ? 0 : skip,
         cursor: this.currentCursor ? { id: this.currentCursor } : undefined,
-        orderBy: [{
-          timestamp: "asc",
-        }],
+        orderBy: [
+          {
+            timestamp: "asc",
+          },
+        ],
         include: {
-          ...returnQueryParamsForTransfers().include
-        }
-      });
-  
-      const transferWithoutTheLastItem = transfer.slice(0, pageSize)
-  
-      this.currentCursor = transferWithoutTheLastItem[transfer.length - 1]?.id;
+          ...getTransferQueryParams().include,
+        },
+      })
 
-      return transferWithoutTheLastItem;
-    } catch(e){
-      throw new Error('Error while fetching transfers');
+      const transferWithoutTheLastItem = transfer.slice(0, pageSize)
+
+      this.currentCursor = transferWithoutTheLastItem[transfer.length - 1]?.id
+
+      return transferWithoutTheLastItem
+    } catch (e) {
+      throw new Error("Error while fetching transfers")
     }
   }
-
 }
 export default TransfersService
