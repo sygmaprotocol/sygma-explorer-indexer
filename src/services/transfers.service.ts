@@ -12,7 +12,7 @@ class TransfersService {
   public transfers = new PrismaClient().transfer
   private currentCursor: string | undefined
 
-  private prepareQueryParams(args: TransfersByCursorOptions) {
+  private prepareQueryParams(args: TransfersByCursorOptions): { pageSize: number; skip: number; where: any } {
     const { page, limit, ...rest } = args
 
     const pageSize = parseInt(limit, 10)

@@ -33,7 +33,7 @@ export const TransfersController = {
       void reply.status(200).send(transfer)
     } catch (e) {
       logger.error(e)
-      void reply.status(404)
+      void reply.status(400)
     }
   },
   transferBySender: async function (
