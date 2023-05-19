@@ -1,8 +1,6 @@
 import { PrismaClient, Transfer } from "@prisma/client";
 import TransfersService from "./transfers.service";
 import { returnQueryParamsForTransfers } from "../utils/helpers";
-import fs from 'fs'
-
 
 describe('TransferService', () => {
   let prismaClient: PrismaClient;
@@ -78,9 +76,8 @@ describe('TransferService', () => {
         }
       });
 
-      const firstTenRecords = thirtyRecords.slice(0, 10);
-      const secondTenRecords = thirtyRecords.slice(10, 20);
-      const thirdTenRecords = thirtyRecords.slice(20, 30);
+      const firstTenRecords = thirtyRecords.slice(0, 10)
+      const secondTenRecords = thirtyRecords.slice(10, 20)
 
       const firstTen = await transferService.findTransfersByCursor({ page: '1', limit: '10' });
       expect(firstTen).toHaveLength(10);

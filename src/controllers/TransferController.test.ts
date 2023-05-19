@@ -1,6 +1,10 @@
 import { PrismaClient, Transfer, Prisma } from '@prisma/client';
+import { logger } from "../utils/logger"
 import { app} from '../app'
 import { returnQueryParamsForTransfers } from '../utils/helpers';
+
+
+const loogerSpy = jest.spyOn(logger, "error")
 
 describe('TransferController', () => {
   let prismaClient: Prisma.TransferDelegate<Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>;
@@ -66,6 +70,7 @@ describe('TransferController', () => {
         }
       });
       expect(res.statusCode).toEqual(400);
+      expect(loogerSpy).toHaveBeenCalled();
     })
   });
   it('should return paginated results providing all the filters', async () => {
@@ -180,6 +185,7 @@ describe('TransferController', () => {
         url: '/api/transfers/1000',
       });
       expect(res.statusCode).toEqual(404);
+      expect(loogerSpy).toHaveBeenCalled();
     });
   });
 
@@ -224,6 +230,7 @@ describe('TransferController', () => {
         }
       });
       expect(res.statusCode).toEqual(404);
+      expect(loogerSpy).toHaveBeenCalled();
     });
   })
 });
