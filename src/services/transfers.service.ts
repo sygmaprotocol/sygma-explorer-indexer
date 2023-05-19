@@ -12,14 +12,14 @@ class TransfersService {
   public transfers = new PrismaClient().transfer
   private currentCursor: string | undefined
 
-  private prepareQueryParams(args: TransfersByCursorOptions): { pageSize: number; skip: number; where: any } {
+  private prepareQueryParams(args: TransfersByCursorOptions): { pageSize: number; skip: number; where: (TransferStatus & { sender: string }) | {} } {
     const { page, limit, ...rest } = args
 
     const pageSize = parseInt(limit, 10)
     const pageIndex = parseInt(page, 10) - 1
     const skip = pageIndex * pageSize
 
-    const where = rest ? { ...rest } : {}
+    const where = rest ? { ...rest } : ({} as (TransferStatus & { sender: string }) | {})
 
     return {
       pageSize,
@@ -29,28 +29,21 @@ class TransfersService {
   }
 
   public async findTransferById({ id }: { id: string }): Promise<Transfer> {
-    try {
-      const transfer = await this.transfers.findUnique({
-        where: { id },
-        include: {
-          ...getTransferQueryParams().include,
-        },
-      })
-      return transfer as Transfer
-    } catch (error) {
-      console.error(error)
-      throw new Error("No transfer found")
-    }
+    const transfer = await this.transfers.findUnique({
+      where: { id },
+      include: {
+        ...getTransferQueryParams().include,
+      },
+    })
+    if (!transfer) throw new Error("Transfer not found")
+    return transfer as Transfer
   }
 
   public async findTransfersByCursor(args: TransfersByCursorOptions): Promise<Transfer[]> {
     const { page, limit, status } = args
 
-    const pageSize = parseInt(limit, 10)
-    const pageIndex = parseInt(page, 10) - 1
-    const skip = pageIndex * pageSize
-
-    const where = status ? { status } : {}
+    const queryParams = this.prepareQueryParams({ page, limit, status })
+    const { pageSize, skip, where } = queryParams
 
     const transfers = await this.transfers.findMany({
       where,
@@ -69,6 +62,8 @@ class TransfersService {
 
     const transferWithoutTheLastItem = transfers.slice(0, pageSize)
 
+    if (transferWithoutTheLastItem.length === 0) throw new Error("No transfers found")
+
     this.currentCursor = transferWithoutTheLastItem[transfers.length - 1]?.id
 
     return transferWithoutTheLastItem
@@ -79,30 +74,28 @@ class TransfersService {
     const queryParams = this.prepareQueryParams({ page, limit, status, sender })
     const { pageSize, skip, where } = queryParams
 
-    try {
-      const transfer = await this.transfers.findMany({
-        where,
-        take: pageSize + 1,
-        skip: this.currentCursor ? 0 : skip,
-        cursor: this.currentCursor ? { id: this.currentCursor } : undefined,
-        orderBy: [
-          {
-            timestamp: "asc",
-          },
-        ],
-        include: {
-          ...getTransferQueryParams().include,
+    const transfer = await this.transfers.findMany({
+      where,
+      take: pageSize + 1,
+      skip: this.currentCursor ? 0 : skip,
+      cursor: this.currentCursor ? { id: this.currentCursor } : undefined,
+      orderBy: [
+        {
+          timestamp: "asc",
         },
-      })
+      ],
+      include: {
+        ...getTransferQueryParams().include,
+      },
+    })
 
-      const transferWithoutTheLastItem = transfer.slice(0, pageSize)
+    const transferWithoutTheLastItem = transfer.slice(0, pageSize)
 
-      this.currentCursor = transferWithoutTheLastItem[transfer.length - 1]?.id
+    if (transferWithoutTheLastItem.length === 0) throw new Error("No transfers found")
 
-      return transferWithoutTheLastItem
-    } catch (e) {
-      throw new Error("Error while fetching transfers")
-    }
+    this.currentCursor = transferWithoutTheLastItem[transfer.length - 1]?.id
+
+    return transferWithoutTheLastItem
   }
 }
 export default TransfersService

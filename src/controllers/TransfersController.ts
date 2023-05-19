@@ -22,7 +22,7 @@ export const TransfersController = {
       void reply.status(200).send(transfersResult)
     } catch (e) {
       logger.error(e)
-      void reply.status(400).send(e)
+      void reply.status(404).send(e)
     }
   },
   transferById: async function (request: FastifyRequest<{ Params: ITransferById }>, reply: FastifyReply): Promise<void> {
@@ -33,7 +33,7 @@ export const TransfersController = {
       void reply.status(200).send(transfer)
     } catch (e) {
       logger.error(e)
-      void reply.status(400)
+      void reply.status(404)
     }
   },
   transferBySender: async function (
@@ -50,11 +50,10 @@ export const TransfersController = {
     try {
       const transfer = await transfersService.findTransferByFilterParams({ page, limit, status, sender: senderAddress })
 
-      if (transfer.length !== 0) void reply.status(200).send(transfer)
-      void reply.status(404)
+      void reply.status(200).send(transfer)
     } catch (e) {
       logger.error(e)
-      void reply.status(400)
+      void reply.status(404)
     }
   },
 }

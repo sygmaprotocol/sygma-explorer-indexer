@@ -58,7 +58,7 @@ describe("TransferController", () => {
       const everyIsPending = data.every((transfer: Transfer) => transfer.status === "executed")
       expect(everyIsPending).toBe(true)
     })
-    it("should return 400 when fetching for 10 transfers with invalid status", async () => {
+    it("should return 404 when fetching for 10 transfers with invalid status", async () => {
       const res = await app.inject({
         method: "GET",
         url: "/api/transfers",
@@ -68,7 +68,7 @@ describe("TransferController", () => {
           status: "no status",
         },
       })
-      expect(res.statusCode).toEqual(400)
+      expect(res.statusCode).toEqual(404)
       expect(loogerSpy).toHaveBeenCalled()
     })
   })
@@ -166,7 +166,7 @@ describe("TransferController", () => {
         method: "GET",
         url: "/api/transfers/1000",
       })
-      expect(res.statusCode).toEqual(400)
+      expect(res.statusCode).toEqual(404)
       expect(loogerSpy).toHaveBeenCalled()
     })
   })
