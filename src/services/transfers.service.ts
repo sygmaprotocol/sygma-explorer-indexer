@@ -1,11 +1,5 @@
-import { PrismaClient, TransferStatus } from "@prisma/client"
+import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
 import { getTransferQueryParams } from "../utils/helpers"
-
-type AllTransfersOption = {
-  page: string
-  limit: string
-  status?: string
-}
 
 export type Filters = {
   fromAddress?: string
@@ -25,7 +19,7 @@ class TransfersService {
   public transfers = new PrismaClient().transfer
   private currentCursor: string | undefined
 
-  public async findTransferById({ id }: { id: string }) {
+  public async findTransferById({ id }: { id: string }): Promise<Transfer> {
     try {
       const transfer = await this.transfers.findUnique({
         where: { id },
@@ -33,13 +27,13 @@ class TransfersService {
           ...getTransferQueryParams().include,
         },
       })
-      return transfer
+      return transfer as Transfer
     } catch (error) {
       throw new Error("No transfer found")
     }
   }
 
-  public async findTransfersByCursor(args: TransfersByCursorOptions) {
+  public async findTransfersByCursor(args: TransfersByCursorOptions): Promise<Transfer[]> {
     const { page, limit, status } = args
 
     const pageSize = parseInt(limit, 10)

@@ -81,7 +81,6 @@ describe("TransferService", () => {
 
       const firstTenRecords = thirtyRecords.slice(0, 10)
       const secondTenRecords = thirtyRecords.slice(10, 20)
-      const thirdTenRecords = thirtyRecords.slice(20, 30)
 
       const firstTen = await transferService.findTransfersByCursor({ page: "1", limit: "10" })
       expect(firstTen).toHaveLength(10)

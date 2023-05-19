@@ -1,13 +1,14 @@
 import { FastifyReply, FastifyRequest } from "fastify"
 import { Transfer } from "@prisma/client"
 import { ITransfer, ITransferById } from "Interfaces"
+import { logger } from "../utils/logger"
 
 import TransfersService from "../services/transfers.service"
 
 const transfersService = new TransfersService()
 
 export const TransfersController = {
-  transfers: async function (request: FastifyRequest<{ Querystring: ITransfer }>, reply: FastifyReply) {
+  transfers: async function (request: FastifyRequest<{ Querystring: ITransfer }>, reply: FastifyReply): Promise<void> {
     try {
       const {
         query: { page, limit, status },
@@ -19,19 +20,21 @@ export const TransfersController = {
         status,
       })
 
-      reply.status(200).send(transfersResult)
+      void reply.status(200).send(transfersResult)
     } catch (e) {
-      reply.status(400).send(e)
+      logger.error(e)
+      void reply.status(400).send(e)
     }
   },
-  transferById: async function (request: FastifyRequest<{ Params: ITransferById }>, reply: FastifyReply) {
+  transferById: async function (request: FastifyRequest<{ Params: ITransferById }>, reply: FastifyReply): Promise<void> {
     const { id } = request.params
 
     try {
       const transfer = (await transfersService.findTransferById({ id })) as Transfer
-      reply.status(200).send(transfer)
+      void reply.status(200).send(transfer)
     } catch (e) {
-      reply.status(404)
+      logger.error(e)
+      void reply.status(404)
     }
   },
 }

@@ -1,6 +1,9 @@
 import { PrismaClient, Transfer, Prisma } from "@prisma/client"
+import { logger } from "../utils/logger"
 import { app } from "../app"
 import { getTransferQueryParams } from "../utils/helpers"
+
+const loogerSpy = jest.spyOn(logger, "error")
 
 describe("TransferController", () => {
   let prismaClient: Prisma.TransferDelegate<Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>
@@ -29,7 +32,7 @@ describe("TransferController", () => {
           limit: "10",
         },
       })
-      const data = await res.json()
+      const data: Transfer[] = await res.json()
       expect(res.statusCode).toEqual(200)
       expect(data).toHaveLength(10)
       expect(Object.keys(data[0])).toEqual(expectedKeys)
@@ -45,11 +48,11 @@ describe("TransferController", () => {
         },
       })
       expect(res.statusCode).toEqual(200)
-      const data = await res.json()
+      const data: Transfer[] = await res.json()
       expect(data).toHaveLength(10)
       expect(Object.keys(data[0])).toEqual(expectedKeys)
 
-      const everyIsPending = data.every((transfer: any) => transfer.status === "pending")
+      const everyIsPending = data.every((transfer: Transfer) => transfer.status === "pending")
       expect(everyIsPending).toBe(true)
     })
     it("should return 200 and transfer of executed status", async () => {
@@ -63,10 +66,10 @@ describe("TransferController", () => {
         },
       })
       expect(res.statusCode).toEqual(200)
-      const data = await res.json()
+      const data: Transfer[] = await res.json()
       expect(data).toHaveLength(10)
 
-      const everyIsPending = data.every((transfer: any) => transfer.status === "executed")
+      const everyIsPending = data.every((transfer: Transfer) => transfer.status === "executed")
       expect(everyIsPending).toBe(true)
     })
     it("should return 400 when fetching for 10 transfers with invalid status", async () => {
@@ -80,6 +83,7 @@ describe("TransferController", () => {
         },
       })
       expect(res.statusCode).toEqual(400)
+      expect(loogerSpy).toHaveBeenCalled()
     })
   })
   it("should return paginated results providing all the filters", async () => {
@@ -98,7 +102,7 @@ describe("TransferController", () => {
       },
     })
 
-    expect(transferToCompare.every((transfer: any) => transfer.status === "executed")).toBe(true)
+    expect(transferToCompare.every((transfer: Transfer) => transfer.status === "executed")).toBe(true)
 
     const responseFirstPage = await app.inject({
       method: "GET",
@@ -109,10 +113,10 @@ describe("TransferController", () => {
         status: "executed",
       },
     })
-    const dataFirstPage = await responseFirstPage.json()
+    const dataFirstPage: Transfer[] = await responseFirstPage.json()
 
     expect(dataFirstPage).toHaveLength(10)
-    expect(dataFirstPage.every((transfer: any) => transfer.status === "executed")).toBe(true)
+    expect(dataFirstPage.every((transfer: Transfer) => transfer.status === "executed")).toBe(true)
     expect(Object.keys(dataFirstPage[0])).toEqual(expectedKeys)
 
     const responseSecondPage = await app.inject({
@@ -124,10 +128,10 @@ describe("TransferController", () => {
         status: "executed",
       },
     })
-    const dataSecondPage = await responseSecondPage.json()
+    const dataSecondPage: Transfer[] = await responseSecondPage.json()
 
     expect(dataSecondPage).toHaveLength(10)
-    expect(dataSecondPage.every((transfer: any) => transfer.status === "executed")).toBe(true)
+    expect(dataSecondPage.every((transfer: Transfer) => transfer.status === "executed")).toBe(true)
     expect(Object.keys(dataSecondPage[0])).toEqual(expectedKeys)
 
     const goingBack = await app.inject({
@@ -139,10 +143,10 @@ describe("TransferController", () => {
         status: "executed",
       },
     })
-    const dataGoingBack = await goingBack.json()
+    const dataGoingBack: Transfer[] = await goingBack.json()
 
     expect(dataGoingBack).toHaveLength(10)
-    expect(dataGoingBack.every((transfer: any) => transfer.status === "executed")).toBe(true)
+    expect(dataGoingBack.every((transfer: Transfer) => transfer.status === "executed")).toBe(true)
     expect(dataGoingBack[0].id).toEqual(dataFirstPage[0].id)
 
     const idxLastItemFirstPage = transferToCompare.findIndex((transfer: Transfer) => transfer.id === dataFirstPage[dataFirstPage.length - 1].id)
@@ -163,7 +167,7 @@ describe("TransferController", () => {
       })
       expect(res.statusCode).toEqual(200)
 
-      const data = await res.json()
+      const data: Transfer = await res.json()
       expect(data.id).toEqual(id)
       expect(Object.keys(data)).toEqual(expectedKeys)
     })
@@ -173,6 +177,7 @@ describe("TransferController", () => {
         url: "/api/transfers/1000",
       })
       expect(res.statusCode).toEqual(404)
+      expect(loogerSpy).toHaveBeenCalled()
     })
   })
 })
