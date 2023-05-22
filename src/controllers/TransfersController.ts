@@ -3,6 +3,7 @@ import { ITransfer, ITransferById, ITransferBySender } from "Interfaces"
 import { logger } from "../utils/logger"
 
 import TransfersService from "../services/transfers.service"
+import { TransferNotFoundError } from "../utils/helpers"
 
 const transfersService = new TransfersService()
 
@@ -21,8 +22,12 @@ export const TransfersController = {
 
       void reply.status(200).send(transfersResult)
     } catch (e) {
-      logger.error(e)
-      void reply.status(404).send(e)
+      if (e instanceof TransferNotFoundError) {
+        void reply.status(404)
+      } else {
+        logger.error(e)
+        void reply.status(500)
+      }
     }
   },
   transferById: async function (request: FastifyRequest<{ Params: ITransferById }>, reply: FastifyReply): Promise<void> {
@@ -32,8 +37,12 @@ export const TransfersController = {
       const transfer = await transfersService.findTransferById({ id })
       void reply.status(200).send(transfer)
     } catch (e) {
-      logger.error(e)
-      void reply.status(404)
+      if (e instanceof TransferNotFoundError) {
+        void reply.status(404)
+      } else {
+        logger.error(e)
+        void reply.status(500)
+      }
     }
   },
   transferBySender: async function (
@@ -52,8 +61,12 @@ export const TransfersController = {
 
       void reply.status(200).send(transfer)
     } catch (e) {
-      logger.error(e)
-      void reply.status(404)
+      if (e instanceof TransferNotFoundError) {
+        void reply.status(404)
+      } else {
+        logger.error(e)
+        void reply.status(500)
+      }
     }
   },
 }

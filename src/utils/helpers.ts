@@ -68,3 +68,9 @@ export const getTransferQueryParams = (): IncludedQueryParams => {
     },
   }
 }
+
+export class TransferNotFoundError extends Error {
+  constructor(message: string) {
+    super(message)
+  }
+}

@@ -1,5 +1,5 @@
 import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
-import { getTransferQueryParams } from "../utils/helpers"
+import { TransferNotFoundError, getTransferQueryParams } from "../utils/helpers"
 
 export type TransfersByCursorOptions = {
   page: string
@@ -35,7 +35,7 @@ class TransfersService {
         ...getTransferQueryParams().include,
       },
     })
-    if (!transfer) throw new Error("Transfer not found")
+    if (!transfer) throw new TransferNotFoundError("Transfer not found")
     return transfer as Transfer
   }
 
@@ -62,7 +62,7 @@ class TransfersService {
 
     const transferWithoutTheLastItem = transfers.slice(0, pageSize)
 
-    if (transferWithoutTheLastItem.length === 0) throw new Error("No transfers found")
+    if (transferWithoutTheLastItem.length === 0) throw new TransferNotFoundError("No transfers found")
 
     this.currentCursor = transferWithoutTheLastItem[transfers.length - 1]?.id
 
@@ -91,7 +91,7 @@ class TransfersService {
 
     const transferWithoutTheLastItem = transfer.slice(0, pageSize)
 
-    if (transferWithoutTheLastItem.length === 0) throw new Error("No transfers found")
+    if (transferWithoutTheLastItem.length === 0) throw new TransferNotFoundError("No transfers found")
 
     this.currentCursor = transferWithoutTheLastItem[transfer.length - 1]?.id
 
