@@ -6,7 +6,7 @@ describe("TransferService", () => {
   let prismaClient: PrismaClient
   let transferService: TransfersService
 
-  beforeEach(() => {
+  beforeAll(() => {
     prismaClient = new PrismaClient()
     transferService = new TransfersService()
   })
@@ -81,7 +81,6 @@ describe("TransferService", () => {
 
       const firstTenRecords = thirtyRecords.slice(0, 10)
       const secondTenRecords = thirtyRecords.slice(10, 20)
-      const thirdTenRecords = thirtyRecords.slice(20, 30)
 
       const firstTen = await transferService.findTransfersByCursor({ page: "1", limit: "10" })
       expect(firstTen).toHaveLength(10)
@@ -208,9 +207,70 @@ describe("TransferService", () => {
       expect(transferFromService?.status).toEqual(status)
     })
 
-    it("Should throw error if transfer not found", async () => {
-      const transferFromService = transferService.findTransferById({ id: "notFound" })
+    it("Should throw error if transfer is found by id", async () => {
+      const transferFromService = transferService.findTransferById({ id: "5ec9e5aaf29e0b5a17c0f4d2" })
       await expect(transferFromService).rejects.toThrowError()
+    })
+  })
+
+  describe("findTransferByFilterParams", () => {
+    it("Should transfer by filter params: filter = sender address", async () => {
+      const transferToTest = await prismaClient.transfer.findFirst({
+        include: {
+          ...getTransferQueryParams().include,
+        },
+      })
+      const { sender } = transferToTest as Transfer
+
+      const transferFromSender = await prismaClient.transfer.findMany({
+        where: {
+          sender,
+        },
+        include: {
+          ...getTransferQueryParams().include,
+        },
+      })
+
+      expect(transferFromSender.every(transfer => transfer.sender === sender)).toBe(true)
+
+      const transferFromServiceBySender = await transferService.findTransferByFilterParams({ page: "1", limit: "10", undefined, sender })
+
+      expect(transferFromServiceBySender.every(transfer => transfer.sender === sender)).toBe(true)
+
+      expect(transferFromServiceBySender.length).toEqual(transferFromSender.length)
+    })
+
+    it("Should transfer by filter params: filter = sender address & status executed", async () => {
+      const transferToTest = await prismaClient.transfer.findFirst({
+        where: {
+          status: "executed",
+        },
+        include: {
+          ...getTransferQueryParams().include,
+        },
+      })
+
+      const { sender, status } = transferToTest as Transfer
+
+      const transferFromSender = await prismaClient.transfer.findMany({
+        where: {
+          sender,
+          status,
+        },
+        include: {
+          ...getTransferQueryParams().include,
+        },
+      })
+
+      expect(transferFromSender.every(transfer => transfer.sender === sender && transfer.status === status)).toBe(true)
+
+      transferService = new TransfersService() // To test with reseted cursor
+
+      const transferFromServiceBySender = await transferService.findTransferByFilterParams({ page: "1", limit: "10", status, sender })
+
+      expect(transferFromServiceBySender.length).toEqual(transferFromSender.length)
+
+      expect(transferFromServiceBySender.every(transfer => transfer.sender === sender && transfer.status === status)).toBe(true)
     })
   })
 })

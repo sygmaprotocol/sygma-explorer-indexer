@@ -1,6 +1,7 @@
 import { BigNumber, Signer, ethers } from "ethers"
 import { ERC20Handler__factory as Erc20HandlerFactory, ERC721Handler__factory as Erc721HandlerFactory } from "@buildwithsygma/sygma-contracts"
 import { EvmBridgeConfig, HandlersMap, SygmaConfig } from "../sygmaTypes"
+import { IncludedQueryParams } from "../Interfaces"
 
 export function getNetworkName(domainId: number, sygmaConfig: SygmaConfig): string {
   return sygmaConfig.chains.find(c => c.domainId === domainId)?.name || ""
@@ -26,7 +27,7 @@ export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.provide
   return handlersMap
 }
 
-export const getTransferQueryParams = (): any => {
+export const getTransferQueryParams = (): IncludedQueryParams => {
   return {
     include: {
       resource: {
@@ -65,5 +66,11 @@ export const getTransferQueryParams = (): any => {
         },
       },
     },
+  }
+}
+
+export class NotFound extends Error {
+  constructor(message: string) {
+    super(message)
   }
 }

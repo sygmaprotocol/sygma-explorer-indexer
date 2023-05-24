@@ -61,15 +61,6 @@ model Fee {
   transferId   String   @unique @db.ObjectId
 }
 
-model Fee {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  amount       String
-  tokenAddress String
-  tokenSymbol  String
-  transfer     Transfer @relation(fields: [transferId], references: [id])
-  transferId   String   @unique @db.ObjectId
-}
-
 model Deposit {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   transfer        Transfer @relation(fields: [transferId], references: [id])
