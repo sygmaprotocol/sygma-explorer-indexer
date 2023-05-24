@@ -1,5 +1,5 @@
 import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
-import { TransferNotFoundError, getTransferQueryParams } from "../utils/helpers"
+import { NotFound, getTransferQueryParams } from "../utils/helpers"
 
 export type TransfersByCursorOptions = {
   page: string
@@ -35,7 +35,7 @@ class TransfersService {
         ...getTransferQueryParams().include,
       },
     })
-    if (!transfer) throw new TransferNotFoundError("Transfer not found")
+    if (!transfer) throw new NotFound("Transfer not found")
     return transfer as Transfer
   }
 

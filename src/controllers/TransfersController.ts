@@ -3,7 +3,7 @@ import { ITransfer, ITransferById, ITransferBySender } from "Interfaces"
 import { logger } from "../utils/logger"
 
 import TransfersService from "../services/transfers.service"
-import { TransferNotFoundError } from "../utils/helpers"
+import { NotFound } from "../utils/helpers"
 
 const transfersService = new TransfersService()
 
@@ -33,7 +33,7 @@ export const TransfersController = {
       const transfer = await transfersService.findTransferById({ id })
       void reply.status(200).send(transfer)
     } catch (e) {
-      if (e instanceof TransferNotFoundError) {
+      if (e instanceof NotFound) {
         void reply.status(404)
       } else {
         logger.error(e)
