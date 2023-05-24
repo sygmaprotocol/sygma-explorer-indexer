@@ -22,12 +22,8 @@ export const TransfersController = {
 
       void reply.status(200).send(transfersResult)
     } catch (e) {
-      if (e instanceof TransferNotFoundError) {
-        void reply.status(404)
-      } else {
-        logger.error(e)
-        void reply.status(500)
-      }
+      logger.error(e)
+      void reply.status(500)
     }
   },
   transferById: async function (request: FastifyRequest<{ Params: ITransferById }>, reply: FastifyReply): Promise<void> {
@@ -61,12 +57,8 @@ export const TransfersController = {
 
       void reply.status(200).send(transfer)
     } catch (e) {
-      if (e instanceof TransferNotFoundError) {
-        void reply.status(404)
-      } else {
-        logger.error(e)
-        void reply.status(500)
-      }
+      logger.error(e)
+      void reply.status(500)
     }
   },
 }

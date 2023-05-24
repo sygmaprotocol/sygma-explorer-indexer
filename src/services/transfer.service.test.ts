@@ -188,11 +188,6 @@ describe("TransferService", () => {
       expect(onlyExecutedFromService.every(transfer => transfer.status === "executed")).toBe(true)
       expect(onlyFailedFromService.every(transfer => transfer.status === "failed")).toBe(true)
     })
-
-    it("Should return error when no transfer are found by the normal params", async () => {
-      const transfers = transferService.findTransfersByCursor({ page: "1000", limit: "20" })
-      await expect(transfers).rejects.toThrowError()
-    })
   })
 
   describe("findTransferById", () => {
@@ -276,11 +271,6 @@ describe("TransferService", () => {
       expect(transferFromServiceBySender.length).toEqual(transferFromSender.length)
 
       expect(transferFromServiceBySender.every(transfer => transfer.sender === sender && transfer.status === status)).toBe(true)
-    })
-
-    it("Should throw error when no tranafer is found by sender", async () => {
-      const transferFromServiceBySender = transferService.findTransferByFilterParams({ page: "1", limit: "10", sender: "notFound" })
-      await expect(transferFromServiceBySender).rejects.toThrowError()
     })
   })
 })

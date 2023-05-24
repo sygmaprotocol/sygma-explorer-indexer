@@ -198,7 +198,7 @@ describe("TransferController", () => {
       expect(data.every((transfer: Transfer) => transfer.sender === sender)).toBe(true)
     })
 
-    it("Should return 404 when fetching for a transfer that doesn't exist", async () => {
+    it("Should return 200 and a empty when fetching for a transfer that doesn't exist", async () => {
       const res = await app.inject({
         method: "GET",
         url: "/api/sender/0x5A9E123C3c6a4f0920fA72D23cb7b47730e58b46/transfers",
@@ -209,7 +209,9 @@ describe("TransferController", () => {
         },
       })
 
-      expect(res.statusCode).toEqual(404)
+      expect(res.statusCode).toEqual(200)
+      const data: Transfer[] = await res.json()
+      expect(data).toHaveLength(0)
     })
   })
 })

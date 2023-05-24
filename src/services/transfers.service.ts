@@ -62,8 +62,6 @@ class TransfersService {
 
     const transferWithoutTheLastItem = transfers.slice(0, pageSize)
 
-    if (transferWithoutTheLastItem.length === 0) throw new TransferNotFoundError("No transfers found")
-
     this.currentCursor = transferWithoutTheLastItem[transfers.length - 1]?.id
 
     return transferWithoutTheLastItem
@@ -90,8 +88,6 @@ class TransfersService {
     })
 
     const transferWithoutTheLastItem = transfer.slice(0, pageSize)
-
-    if (transferWithoutTheLastItem.length === 0) throw new TransferNotFoundError("No transfers found")
 
     this.currentCursor = transferWithoutTheLastItem[transfer.length - 1]?.id
 
