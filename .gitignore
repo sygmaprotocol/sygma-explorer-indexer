@@ -9,6 +9,8 @@ build
 
 public/
 
+.idea/
+
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
