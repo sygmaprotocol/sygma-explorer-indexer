@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2022 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 //@ts-nocheck
 import {
   Bridge__factory as BridgeFactory,

@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2022 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { SharedConfigFormated } from "types";
 import { getSygmaConfig } from "./getSygmaConfig";
 import devnetSharedConfig from "./mocks/devnet-shared-config";

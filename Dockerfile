@@ -1,3 +1,5 @@
+# The Licensed Work is (c) 2022 Sygma
+# SPDX-License-Identifier: LGPL-3.0-only
 FROM node:14.17-alpine AS builder
 
 # update packages

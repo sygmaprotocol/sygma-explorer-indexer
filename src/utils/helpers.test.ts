@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2022 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { SharedConfigDomains } from 'types';
 import { buildQueryParamsToPasss, formatConfig } from './helpers'
 import devnetSharedConfig from './mocks/devnet-shared-config'

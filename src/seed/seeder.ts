@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2022 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { PrismaClient, Transfer, TransferStatus } from '@prisma/client';
 import { getSygmaConfig } from '../utils/getSygmaConfig';
 import { SharedConfigFormated } from 'types';

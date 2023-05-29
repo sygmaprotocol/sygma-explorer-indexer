@@ -1,0 +1,36 @@
+{
+  "ignore": [
+    "*.txt",
+    "./data",
+    ".github/",
+    ".idea",
+    "*.yml",
+    "*.yaml",
+    "README.md",
+    "prisma/",
+    ".dockerignore",
+    ".gitignore",
+    ".prettierrc",
+    ".env",
+    ".env.**",
+    "yarn.lock",
+    "public/",
+    "jest.config.js"
+  ],
+  "license": "header.txt",
+  "licenseFormats": {
+    "js": {
+      "prepend": "/*",
+      "append": " */",
+      "eachLine": {
+        "prepend": " * "
+      }
+    },
+    "dotfile|^Dockerfile": {
+      "eachLine": {
+        "prepend": "# "
+      }
+    }
+  },
+  "trailingWhitespace": "TRIM"
+}

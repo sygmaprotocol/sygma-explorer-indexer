@@ -24,11 +24,12 @@
     "start:full": "docker-compose -f docker-compose.full.yml up -d",
     "start:stop": "docker-compose -f docker-compose.full.yml down",
     "build:nodejs:container": "docker-compose -f docker-compose.full.yml build nodejs",
-    "deploy:prod": "pm2-runtime ecosystem.prod.config.js",
-    "deploy:dev": "pm2 start ecosystem.dev.config.js",
     "start:worker": "ts-node -r tsconfig-paths/register --transpile-only src/indexer-worker/index.ts",
     "start:stub": "docker-compose -f docker-compose.stub.yml up",
-    "seed": "STAGE='devnet' NODE_ENV='devnet' ts-node ./src/seed"
+    "seed": "STAGE='devnet' NODE_ENV='devnet' ts-node ./src/seed",
+    "license-check": "license-check-and-add check -f license-config.json",
+    "license-add": "license-check-and-add add -f license-config.json",
+    "license-remove": "license-check-and-add remove -f license-config.json"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.145.0",
@@ -44,8 +45,8 @@
     "ethers": "^5.4.6",
     "fastify": "4.17.0",
     "fastify-healthcheck": "^4.4.0",
-    "node-cache": "^5.1.2",
-    "pm2": "^5.1.2"
+    "license-check-and-add": "^4.0.5",
+    "node-cache": "^5.1.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",

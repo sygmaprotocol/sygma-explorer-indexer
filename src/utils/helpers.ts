@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2022 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
 import { ethers, BigNumber, utils } from "ethers"
 import { TransfersByCursorOptions } from "services/transfers.service"
