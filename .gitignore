@@ -11,6 +11,8 @@ public/
 
 .idea/
 
+.dist/
+
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
