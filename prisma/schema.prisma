@@ -28,6 +28,7 @@ model Transfer {
   deposit      Deposit?
   execution    Execution?
   timestamp    Int?
+  ofacComply   Boolean?
 }
 
 enum TransferStatus {
