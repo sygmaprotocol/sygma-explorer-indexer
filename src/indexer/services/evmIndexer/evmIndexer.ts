@@ -8,6 +8,7 @@ import TransferRepository from "indexer/repository/transfer"
 import ExecutionRepository from "indexer/repository/execution"
 import { TransferStatus } from "@prisma/client"
 import FeeRepository from "indexer/repository/fee"
+import { checkSanctionedAddress } from "services/ofac.service"
 import { logger } from "../../../utils/logger"
 import { getLogs } from "./evmfilter"
 import { DecodedLogs } from "./evmTypes"
@@ -120,8 +121,12 @@ export class EvmIndexer {
         decodedLogs.deposit.map(async decodedLog => {
           let transfer = await this.transferRepository.findByNonce(decodedLog.depositNonce, decodedLog.fromDomainId)
 
+          const { sender } = decodedLog
+
+          const ofacComply = await checkSanctionedAddress(sender)
+
           if (!transfer) {
-            transfer = await this.transferRepository.insertDepositTransfer(decodedLog)
+            transfer = await this.transferRepository.insertDepositTransfer(decodedLog, ofacComply)
           } else {
             await this.transferRepository.updateTransfer(decodedLog, transfer.id)
           }

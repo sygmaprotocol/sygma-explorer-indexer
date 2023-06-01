@@ -18,7 +18,7 @@ type ChainAnalysisResponse = {
     | []
 }
 
-export const checkSanctionedAddress = async (address: string): Promise<ChainAnalysisResponse> => {
+export const checkSanctionedAddress = async (address: string): Promise<boolean> => {
   const url = `${CHAIN_ANALYSIS_URL!}${address}`
   const response = await fetch(url, {
     headers: {
@@ -27,5 +27,5 @@ export const checkSanctionedAddress = async (address: string): Promise<ChainAnal
     },
   })
   const data = (await response.json()) as ChainAnalysisResponse
-  return data
+  return data.identifications.length ? true : false
 }

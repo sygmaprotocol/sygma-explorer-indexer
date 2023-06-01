@@ -31,7 +31,7 @@ export type TransferMetadataeta = {
 class TransferRepository {
   public transfer = new PrismaClient().transfer
 
-  public async insertDepositTransfer(decodedLog: DecodedDepositLog): Promise<Transfer> {
+  public async insertDepositTransfer(decodedLog: DecodedDepositLog, ofacComply: boolean): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: decodedLog.depositNonce,
@@ -56,6 +56,7 @@ class TransferRepository {
         },
       },
       timestamp: decodedLog.timestamp,
+      ofacComply,
     }
     return await this.transfer.create({ data: transferData })
   }
