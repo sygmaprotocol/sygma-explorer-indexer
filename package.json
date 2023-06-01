@@ -43,6 +43,7 @@
     "@fastify/compress": "6.2.1",
     "@fastify/cors": "^8.2.1",
     "@prisma/client": "^4.1.0",
+    "@types/mongodb": "^4.0.7",
     "cors": "^2.8.5",
     "docker-secret": "^1.2.4",
     "dotenv": "^10.0.0",

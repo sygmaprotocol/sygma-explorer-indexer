@@ -10,7 +10,7 @@ export enum Environment {
   TESTNET = "testnet",
   STAGE = "devnet",
 }
-export enum ResourceTypes {
+export const enum ResourceTypes {
   ERC20 = "erc20",
   ERC721 = "erc721",
   PERMISSIONED_GENERIC = "permissionedGeneric",
@@ -31,6 +31,7 @@ export type Domain = {
   name: string
   type: DomainTypes
   bridge: string
+  feeHandlers: Array<FeeHandlerType>
   handlers: Array<Handler>
   nativeTokenSymbol: string
   nativeTokenDecimals: number
@@ -42,7 +43,12 @@ type Handler = {
   address: string
 }
 
-type Resource = {
+type FeeHandlerType = {
+  type: string
+  address: string
+}
+
+export type Resource = {
   resourceId: string
   type: ResourceTypes
   address: string

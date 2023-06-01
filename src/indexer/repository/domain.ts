@@ -3,7 +3,7 @@ import { Domain, PrismaClient } from "@prisma/client"
 class DomainRepository {
   public domain = new PrismaClient().domain
 
-  public async upsertDomain(domainID: number, latestBlock: string, domainName: string): Promise<void> {
+  public async upserDomain(domainID: number, latestBlock: string, domainName: string): Promise<void> {
     await this.domain.upsert({
       where: {
         id: domainID.toString(),

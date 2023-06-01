@@ -1,7 +1,7 @@
 import { ApiPromise, WsProvider } from "@polkadot/api"
-import { Domain, } from "indexer/config"
-import { logger } from "../../../utils/logger"
+import { Domain } from "indexer/config"
 import DomainRepository from "indexer/repository/domain"
+import { logger } from "../../../utils/logger"
 
 export class SubstrateIndexer {
   private domainRepository: DomainRepository

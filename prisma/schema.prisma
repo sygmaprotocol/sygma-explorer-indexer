@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url      =  env("DATABASE_URL")
 }
 
 generator client {
@@ -21,8 +21,8 @@ model Transfer {
   toDomainId   String
   type         String
   sender       String
-  amount       String
   destination  String
+  amount       String
   status       TransferStatus @default(pending)
   fee          Fee?
   deposit      Deposit?
@@ -42,6 +42,7 @@ model Resource {
   type       String
 
   transfers Transfer[]
+
 }
 
 model Domain {
@@ -53,31 +54,26 @@ model Domain {
   transferTo       Transfer[] @relation(name: "toDomainRelation")
 }
 
-model Fee {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  amount       String
-  tokenAddress String
-  tokenSymbol  String
-  transfer     Transfer @relation(fields: [transferId], references: [id])
-  transferId   String   @unique @db.ObjectId
-}
-
 model Deposit {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  transfer        Transfer @relation(fields: [transferId], references: [id])
-  transferId      String   @unique @db.ObjectId
+  transfer        Transfer @relation(fields: [transferId], references: [id]) 
+  transferId      String @unique @db.ObjectId
+  type            String
   txHash          String
   blockNumber     String
   depositData     String
-  handlerResponse String?
+  handlerResponse String
 }
 
 model Execution {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  transfer        Transfer @relation(fields: [transferId], references: [id])
-  transferId      String   @unique @db.ObjectId
-  txHash          String
-  blockNumber     String
-  handlerResponse String?
-  dataHash        String?
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  transfer       Transfer @relation(fields: [transferId], references: [id])
+  transferId     String @unique @db.ObjectId
+  type           String
+  txHash         String
+  blockNumber    String
 }
+
+
+
+
