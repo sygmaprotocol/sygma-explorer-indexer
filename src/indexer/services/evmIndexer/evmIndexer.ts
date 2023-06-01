@@ -128,7 +128,7 @@ export class EvmIndexer {
           if (!transfer) {
             transfer = await this.transferRepository.insertDepositTransfer(decodedLog, ofacComply)
           } else {
-            await this.transferRepository.updateTransfer(decodedLog, transfer.id)
+            await this.transferRepository.updateTransfer(decodedLog, transfer.id, ofacComply)
           }
 
           const deposit = {

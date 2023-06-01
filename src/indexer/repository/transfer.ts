@@ -89,7 +89,7 @@ class TransferRepository {
     return await this.transfer.create({ data: transferData })
   }
 
-  public async updateTransfer(decodedLog: DecodedDepositLog, id: string): Promise<Transfer> {
+  public async updateTransfer(decodedLog: DecodedDepositLog, id: string, ofacComply: boolean): Promise<Transfer> {
     const transferData = {
       depositNonce: decodedLog.depositNonce,
       // type: decodedLog.transferType,
@@ -112,6 +112,7 @@ class TransferRepository {
         },
       },
       timestamp: decodedLog.timestamp,
+      ofacComply,
     }
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
