@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "mongodb"
-  url      =  env("DATABASE_URL")
+  url      = "mongodb://localhost:30001,localhost:30002,localhost:30003/test?replicaSet=my-replica-set"
 }
 
 generator client {
@@ -13,19 +13,23 @@ generator client {
 model Transfer {
   id           String         @id @default(auto()) @map("_id") @db.ObjectId 
   depositNonce Int         @unique
-  resource     Resource    @relation(fields: [resourceID], references: [resourceId])
-  resourceID String
+  resource     Resource?    @relation(fields: [resourceID], references: [id])
+  resourceID String?
   fromDomain   Domain       @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
   fromDomainId String
-  toDomain     Domain       @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
-  toDomainId   String
-  sender       String
-  destination  String
-  amount       String
-  timestamp    Int
+  toDomain     Domain?       @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
+  toDomainId   String?
+  sender       String?
+  destination  String?
+  amount       String?
+  timestamp    Int?
   status       TransferStatus
   deposit      Deposit?
   execution    Execution?
+  fee          Fee?
+
+  @@unique(fields: [depositNonce, fromDomainId], name: "nonceDomain")
+
 }
 
 enum TransferStatus {
@@ -35,7 +39,7 @@ enum TransferStatus {
 }
 
 model Resource {
-  resourceId String  @map("_id") @id
+  id String  @map("_id") @id
   type String
   transfers Transfer[]
 
@@ -65,11 +69,19 @@ model Execution {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   transfer       Transfer @relation(fields: [transferId], references: [id])
   transferId     String @unique @db.ObjectId
-  type           String
+  type           String?
   txHash         String
   blockNumber    String
 }
 
+model Fee {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  amount       String
+  tokenAddress String
+  tokenSymbol  String
+  transfer     Transfer @relation(fields: [transferId], references: [id])
+  transferId   String   @unique @db.ObjectId
+}
 
 
 
