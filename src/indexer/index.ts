@@ -1,12 +1,13 @@
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
-import { getSharedConfig, getLocalConfig, DomainTypes } from "./config"
+import { getSharedConfig, getLocalConfig, DomainTypes, SharedConfig, Domain } from "./config"
 import DomainRepository from "./repository/domain"
 import DepositRepository from "./repository/deposit"
 import TransferRepository from "./repository/transfer"
 import ExecutionRepository from "./repository/execution"
 import FeeRepository from "./repository/fee"
+import ResourceRepository from "./repository/resource"
 
 async function main() {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL || "https://config.develop.buildwithsygma.com/share/")
@@ -17,6 +18,10 @@ async function main() {
   const transferRepository = new TransferRepository()
   const executionRepository = new ExecutionRepository()
   const feeRepository = new FeeRepository()
+  const resourceRepository = new ResourceRepository()
+
+  await insertDomains(sharedConfig.domains,resourceRepository, domainRepository)
+
   for (const domain of sharedConfig.domains) {
     const rpcURL = localDomainsConfig.get(domain.id)
     if (!rpcURL) {
@@ -51,6 +56,12 @@ main().catch(e => {
   logger.error(e)
 })
 
-process.on("unhandledRejection", (reason, promise) => {
-  console.log("Unhandled Rejection:", reason)
-})
+async function insertDomains(domains: Array<Domain>, resourceRepository: ResourceRepository, domainRepository: DomainRepository) {
+for (const domain of domains) {
+  await domainRepository.upserDomain(domain.id, domain.startBlock.toString(), domain.name)
+  for(const resource of domain.resources) {
+
+    await resourceRepository.insertResource({id: resource.resourceId, type: resource.type})
+  }
+}
+}

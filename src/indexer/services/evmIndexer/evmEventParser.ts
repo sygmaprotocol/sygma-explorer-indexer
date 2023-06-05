@@ -1,8 +1,7 @@
 import BasicFeeHandlerContract from "@chainsafe/chainbridge-contracts/build/contracts/BasicFeeHandler.json"
 import { BigNumber } from "@ethersproject/bignumber"
-import { Contract, LogDescription, Provider, TransactionReceipt, toBeHex, getBytes, formatUnits, AbiCoder, hexlify, Log } from "ethers"
+import { Contract, LogDescription, Provider, TransactionReceipt, getBytes, formatUnits, AbiCoder, hexlify, Log } from "ethers"
 import { Domain, Resource, ResourceTypes } from "indexer/config"
-import { ResourceType } from "@aws-sdk/client-ssm"
 import { BridgeABI } from "../contract/constants"
 import { logger } from "../../../utils/logger"
 import { getERC20Contract } from "../contract"
@@ -159,10 +158,10 @@ export function parseFailedHandlerExecution(log: Log, decodedLog: LogDescription
 }
 
 function decodeAmountsOrTokenId(data: string, decimals: number, type: ResourceTypes | "") {
-  if (type === ResourceTypes.ERC20) {
+  if (type === ResourceTypes.FUNGIBLE) {
     const amount = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0]
     return formatUnits(amount, decimals)
-  } else if (type === ResourceTypes.ERC721) {
+  } else if (type === ResourceTypes.NON_FUNGIBLE) {
     const tokenId = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0]
     return tokenId.toString()
   }
