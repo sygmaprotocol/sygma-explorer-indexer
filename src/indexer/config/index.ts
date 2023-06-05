@@ -11,8 +11,8 @@ export enum Environment {
   STAGE = "devnet",
 }
 export const enum ResourceTypes {
-  ERC20 = "erc20",
-  ERC721 = "erc721",
+  FUNGIBLE = "FUNGIBLE",
+  NON_FUNGIBLE = "nonFungible",
   PERMISSIONED_GENERIC = "permissionedGeneric",
   PERMISSIONLESS_GENERIC = "permissionlessGeneric",
 }
