@@ -76,7 +76,7 @@ class TransfersService {
 
     const transfer = await this.transfers.findMany({
       where,
-      take: pageSize + 1,
+      take,
       skip,
       orderBy: [
         {
