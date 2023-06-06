@@ -12,7 +12,6 @@ class TransfersService {
   public transfers = new PrismaClient().transfer
 
   private prepareQueryParams(args: TransfersByCursorOptions): {
-    pageSize: number
     skip: number
     take: number
     where: (TransferStatus & { sender: string }) | {}
@@ -27,7 +26,6 @@ class TransfersService {
     const where = rest ? { ...rest } : ({} as (TransferStatus & { sender: string }) | {})
 
     return {
-      pageSize,
       skip,
       take,
       where,
