@@ -272,5 +272,43 @@ describe("TransferService", () => {
 
       expect(transferFromServiceBySender.every(transfer => transfer.sender === sender && transfer.status === status)).toBe(true)
     })
+
+    it("Should transfer by filter params: filter = sender addres and going forward and backwards", async () => {
+      const transferToTest = await prismaClient.transfer.findMany({
+        take: undefined,
+      })
+
+      const senderCounts = transferToTest.reduce((counts, transfer) => {
+        const { sender } = transfer
+        counts[sender] = (counts[sender] || 0) + 1
+        return counts
+      }, {} as Record<string, number>)
+      
+      const senderWithMostTransfers = Object.entries(senderCounts).reduce((max, [sender, count]) => {
+        return count > max.count ? { sender, count } : max
+      }, { sender: "", count: 0 })
+      
+      const { sender } = senderWithMostTransfers
+
+      const transferFromSender = await transferService.findTransferByFilterParams({ page: "1", limit: "5", sender })
+      
+      expect(transferFromSender.every(transfer => transfer.sender === sender)).toBe(true)
+      expect(transferFromSender.length).toEqual(5)
+
+      const transferFromSenderGoingForward = await transferService.findTransferByFilterParams({ page: "2", limit: "5", sender })
+
+      expect(transferFromSenderGoingForward.every(transfer => transfer.sender === sender)).toBe(true)
+      expect(transferFromSenderGoingForward.length).toEqual(5)
+
+      const lastFromFirstBatch = transferFromSender[transferFromSender.length - 1]
+      const firstFromSecondBatch = transferFromSenderGoingForward[0]
+
+      const indexLastFromFirstBatch = transferToTest.findIndex(transfer => transfer.id === lastFromFirstBatch.id)
+      const indexFirstFromSecondBatch = transferToTest.findIndex(transfer => transfer.id === firstFromSecondBatch.id)
+
+      expect(indexLastFromFirstBatch).toEqual(indexFirstFromSecondBatch - 1)
+      expect(indexFirstFromSecondBatch).toBeGreaterThan(indexLastFromFirstBatch)
+    })
   })
 })
+
