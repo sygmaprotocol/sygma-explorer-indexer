@@ -10,20 +10,26 @@ export type TransfersByCursorOptions = {
 
 class TransfersService {
   public transfers = new PrismaClient().transfer
-  private currentPage = 1
 
-  private prepareQueryParams(args: TransfersByCursorOptions): { pageSize: number; skip: number; where: (TransferStatus & { sender: string }) | {} } {
+  private prepareQueryParams(args: TransfersByCursorOptions): {
+    pageSize: number
+    skip: number
+    take: number
+    where: (TransferStatus & { sender: string }) | {}
+  } {
     const { page, limit, ...rest } = args
 
     const pageSize = parseInt(limit, 10)
     const pageIndex = parseInt(page, 10)
     const skip = (pageIndex - 1) * pageSize
+    const take = pageSize
 
     const where = rest ? { ...rest } : ({} as (TransferStatus & { sender: string }) | {})
 
     return {
       pageSize,
       skip,
+      take,
       where,
     }
   }
@@ -43,11 +49,11 @@ class TransfersService {
     const { page, limit, status } = args
 
     const queryParams = this.prepareQueryParams({ page, limit, status })
-    const { pageSize, skip, where } = queryParams
+    const { skip, take, where } = queryParams
 
     const transfers = await this.transfers.findMany({
       where,
-      take: pageSize + 1,
+      take,
       skip,
       orderBy: [
         {
@@ -59,18 +65,14 @@ class TransfersService {
       },
     })
 
-    const transferWithoutTheLastItem = transfers.slice(0, pageSize)
-
-    this.currentPage++
-
-    return transferWithoutTheLastItem
+    return transfers
   }
 
   public async findTransferByFilterParams(args: TransfersByCursorOptions): Promise<Transfer[]> {
     const { page, limit, status, sender } = args
 
     const queryParams = this.prepareQueryParams({ page, limit, status, sender })
-    const { pageSize, skip, where } = queryParams
+    const { skip, take, where } = queryParams
 
     const transfer = await this.transfers.findMany({
       where,
@@ -86,12 +88,7 @@ class TransfersService {
       },
     })
 
-    const transferWithoutTheLastItem = transfer.slice(0, pageSize)
-
-    this.currentPage++
-
-    return transferWithoutTheLastItem
+    return transfer
   }
 }
 export default TransfersService
-
