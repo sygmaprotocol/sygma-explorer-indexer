@@ -1,4 +1,4 @@
-FROM node:14.17-alpine AS builder
+FROM node:18-alpine AS builder
 
 # update packages
 RUN apk update
@@ -25,7 +25,7 @@ RUN ls -a
 
 RUN yarn build
 
-FROM node:14.17-alpine
+FROM node:18-alpine
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/ecosystem.prod.config.js ./
