@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "mongodb"
-  url      = "mongodb://localhost:30001,localhost:30002,localhost:30003/test?replicaSet=my-replica-set"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
