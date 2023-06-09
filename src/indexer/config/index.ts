@@ -35,7 +35,6 @@ export type Domain = {
   startBlock: number
   resources: Array<Resource>
 }
-
 type Handler = {
   type: ResourceTypes
   address: string
