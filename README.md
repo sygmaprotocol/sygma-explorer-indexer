@@ -32,8 +32,12 @@ Stub server will be exposed on `localhost:8080`. This will also expose Swagger d
 ### Env definition
 
 ```bash
-DATABASE_URL=''
-```
+DATABASE_URL="mongodb://<HOST>:<PORT>/<DATABASE_NAME>?replicaSet<REPLICA_NAME>t&authSource=admin&retryWrites=true&w=majority"
+STAGE=""
+CHAIN_ANALYSIS_API_KEY=""
+CHAIN_ANALYSIS_URL=""
+ENVIRONMENT="" # testnet || devnet
+ ```
 
 
 ### Build
