@@ -40,6 +40,10 @@
             { 
                "name": "mychainbridgesecret",
                "valueFrom": "arn:aws:ssm:us-east-2:852551629426:parameter/chainbridge/example"
+            },
+            { 
+                "name": "RPC_URL_CONFIG",
+                "valueFrom": "arn:aws:ssm:us-east-2:852551629426:parameter/sygma/devnet/RPC_URL"
             }
          ]
       },
