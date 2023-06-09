@@ -5,7 +5,7 @@ import { Domain } from "indexer/config"
 enum Topics {
   DEPOSIT = "Deposit(uint8,bytes32,uint64,address,bytes,bytes)",
   FAILED_HANDLER_EXECUTION = "FailedHandlerExecution(bytes,uint8,uint64)",
-  PROPOSAL_EXECUTION = "ProposalExecution(uint8,uint64,bytes32)",
+  PROPOSAL_EXECUTION = "ProposalExecution(uint8,uint64,bytes32,bytes)",
   FEE_COLLECTED = "FeeCollected(address,uint8,uint8,bytes32,uint256,address)",
 }
 

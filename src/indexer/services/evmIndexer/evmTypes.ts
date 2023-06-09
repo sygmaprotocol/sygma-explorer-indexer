@@ -1,20 +1,3 @@
-import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
-import { BaseProvider } from "@ethersproject/providers"
-
-export type DecodedFeeDistributedLog = {
-  tokenAmount: string
-  timestamp: Date
-  blockNumber: number
-  withdrawalCollector: string
-  from: string
-  resourceID: string
-  tokenName: string
-  tokenSymbol: string
-  tokenContract: string
-  tokenDecimals: number
-}
-
-export type ExtendedBaseProvider = BaseProvider & CeloProvider
 export type DecodedLogs = {
   deposit: Array<DecodedDepositLog>
   proposalExecution: Array<DecodedProposalExecutionLog>

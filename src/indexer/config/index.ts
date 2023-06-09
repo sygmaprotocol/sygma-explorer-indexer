@@ -72,6 +72,7 @@ export const getSharedConfig = async (url: string): Promise<SharedConfig> => {
 export const getSsmDomainConfig = (): Map<number, string> => {
   const parsedResponse = JSON.parse(
     process.env.RPC_URL_CONFIG ||
+      // remove this after testing
       `[
     {
         "id": 1,

@@ -72,7 +72,7 @@ export class EvmIndexer {
 
         const logs = await getLogs(this.provider, this.domain, fromBlock, toBlock)
         if (logs.length > 0) {
-          logger.debug(`Found past events on ${this.domain.name} in block range [${fromBlock}-${toBlock}]`)
+          logger.info(`Found past events on ${this.domain.name} in block range [${fromBlock}-${toBlock}]`)
         }
         const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap)
 
@@ -123,8 +123,7 @@ export class EvmIndexer {
 
       await Promise.all(
         decodedLogs.deposit.map(async decodedLog => {
-          let transfer = await this.transferRepository.findByNonce(decodedLog.depositNonce, decodedLog.toDomainId)
-
+          let transfer = await this.transferRepository.findByNonceToDomainId(decodedLog.depositNonce, decodedLog.toDomainId)
           if (!transfer) {
             transfer = await this.transferRepository.insertDepositTransfer(decodedLog)
           } else {
@@ -160,7 +159,7 @@ export class EvmIndexer {
 
       await Promise.all(
         decodedLogs.proposalExecution.map(async decodedLog => {
-          let transfer = await this.transferRepository.findByNonce(decodedLog.depositNonce, decodedLog.fromDomainId || "")
+          let transfer = await this.transferRepository.findByNonceFromDomainId(decodedLog.depositNonce, decodedLog.fromDomainId || "")
           if (!transfer) {
             transfer = await this.transferRepository.insertExecutionTransfer(decodedLog)
           } else {
@@ -180,7 +179,7 @@ export class EvmIndexer {
 
       await Promise.all(
         decodedLogs.errors.map(async error => {
-          let transfer = await this.transferRepository.findByNonce(error.depositNonce, error.domainId.toString())
+          let transfer = await this.transferRepository.findByNonceFromDomainId(error.depositNonce, error.domainId.toString())
           if (!transfer) {
             transfer = await this.transferRepository.insertFailedTransfer(error)
           } else {

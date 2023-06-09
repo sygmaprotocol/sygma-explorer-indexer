@@ -115,11 +115,20 @@ class TransferRepository {
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 
-  public async findByNonce(nonce: number, domainId: string): Promise<Transfer | null> {
+  public async findByNonceFromDomainId(nonce: number, fromDomainId: string): Promise<Transfer | null> {
     return await this.transfer.findFirst({
       where: {
         depositNonce: nonce,
-        fromDomainId: domainId,
+        fromDomainId: fromDomainId,
+      },
+    })
+  }
+
+  public async findByNonceToDomainId(nonce: number, toDomainId: string): Promise<Transfer | null> {
+    return await this.transfer.findFirst({
+      where: {
+        depositNonce: nonce,
+        toDomainId: toDomainId,
       },
     })
   }
