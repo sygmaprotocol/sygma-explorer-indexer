@@ -84,6 +84,10 @@ export const getSsmDomainConfig = (): Map<number, string> => {
     {
         "id": 100,
         "endpoint": "https://canto-testnet.plexnode.wtf"
+    },
+    {
+      "id": 101,
+      "endpoint": "https://rpc.gnosischain.com/"
     }
   ]`,
   ) as RpcUrlConfig
