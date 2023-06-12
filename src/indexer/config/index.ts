@@ -69,31 +69,11 @@ export const getSharedConfig = async (url: string): Promise<SharedConfig> => {
 }
 
 export const getSsmDomainConfig = (): Map<number, string> => {
-  const parsedResponse = JSON.parse(
-    process.env.RPC_URL_CONFIG ||
-      // remove this after testing
-      `[
-    {
-        "id": 1,
-        "endpoint": "https://eth-goerli.g.alchemy.com/v2/MQcsWqD94N1zldBRzG9XkdBM88LzgQLh"
-    },
-    {
-        "id": 2,
-        "endpoint": "https://eth-sepolia.g.alchemy.com/v2/M3RtUsouiiQ2KgADdSJq2pzWfhr4CXoW"
-    },
-    {
-        "id": 100,
-        "endpoint": "https://canto-testnet.plexnode.wtf"
-    },
-    {
-      "id": 101,
-      "endpoint": "https://rpc.gnosischain.com/"
-    }
-  ]`,
-  ) as RpcUrlConfig
+  const parsedResponse = JSON.parse(process.env.RPC_URL_CONFIG!) as RpcUrlConfig
   const rpcUrlMap = new Map<number, string>()
   for (const rpcConfig of parsedResponse) {
     rpcUrlMap.set(rpcConfig.id, rpcConfig.endpoint)
   }
+
   return rpcUrlMap
 }
