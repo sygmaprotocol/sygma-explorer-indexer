@@ -1,6 +1,6 @@
 import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
-import { DecodedDepositLog, DecodedFailedHandlerExecution, DecodedProposalExecutionLog } from "indexer/services/evmIndexer/evmTypes"
 import { ObjectId } from "mongodb"
+import { DecodedDepositLog, DecodedFailedHandlerExecution, DecodedProposalExecutionLog } from "../services/evmIndexer/evmTypes"
 
 export type TransferMetadataeta = {
   id: string
@@ -35,7 +35,6 @@ class TransferRepository {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: decodedLog.depositNonce,
-      // type: decodedLog.transferType,
       sender: decodedLog.sender,
       amount: decodedLog.amount,
       destination: decodedLog.destination,
@@ -92,7 +91,6 @@ class TransferRepository {
   public async updateTransfer(decodedLog: DecodedDepositLog, id: string, ofacComply: boolean): Promise<Transfer> {
     const transferData = {
       depositNonce: decodedLog.depositNonce,
-      // type: decodedLog.transferType,
       sender: decodedLog.sender,
       amount: decodedLog.amount,
       destination: decodedLog.destination,
@@ -117,11 +115,20 @@ class TransferRepository {
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 
-  public async findByNonce(nonce: number, domainId: string): Promise<Transfer | null> {
+  public async findByNonceFromDomainId(nonce: number, fromDomainId: string): Promise<Transfer | null> {
     return await this.transfer.findFirst({
       where: {
         depositNonce: nonce,
-        fromDomainId: domainId,
+        fromDomainId: fromDomainId,
+      },
+    })
+  }
+
+  public async findByNonceToDomainId(nonce: number, toDomainId: string): Promise<Transfer | null> {
+    return await this.transfer.findFirst({
+      where: {
+        depositNonce: nonce,
+        toDomainId: toDomainId,
       },
     })
   }

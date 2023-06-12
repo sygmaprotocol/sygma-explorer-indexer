@@ -1,6 +1,6 @@
 import { ApiPromise, WsProvider } from "@polkadot/api"
 import { Domain } from "indexer/config"
-import DomainRepository from "indexer/repository/domain"
+import DomainRepository from "../../repository/domain"
 import { logger } from "../../../utils/logger"
 
 export class SubstrateIndexer {
@@ -46,12 +46,12 @@ export class SubstrateIndexer {
           toBlock = fromBlock + this.pastEventsQueryInterval
         }
 
-        await this.saveDataToDb(this.domain.id, toBlock.toString(), this.domain.name)
+        await this.saveDataToDb(this.domain.id, toBlock.toString())
         // move to next range of blocks
         fromBlock += this.pastEventsQueryInterval
         toBlock += this.pastEventsQueryInterval
       } catch (error) {
-        logger.error(`Failed to process past events because of: ${error}`)
+        logger.error(`Failed to process past events because of: ${(error as Error).message}`)
       }
     } while (fromBlock < latestBlock)
     // move to next block from the last queried range in past events
@@ -68,19 +68,19 @@ export class SubstrateIndexer {
         try {
           // fetch and decode logs
 
-          await this.saveDataToDb(this.domain.id, header.number.toString(), this.domain.name)
+          await this.saveDataToDb(this.domain.id, header.number.toString())
           // move to next range of blocks
           latestBlock += this.currentEventsQueryInterval
         } catch (error) {
-          logger.error(`Failed to process current events because of: ${error}`)
+          logger.error(`Failed to process current events because of: ${(error as Error).message}`)
         }
       }
     })
   }
 
-  async saveDataToDb(domainID: number, latestBlock: string, domainName: string): Promise<void> {
+  async saveDataToDb(domainID: number, latestBlock: string): Promise<void> {
     logger.info(`save block on substrate ${this.domain.name}: ${latestBlock}`)
-    await this.domainRepository.upserDomain(domainID, latestBlock, domainName)
+    await this.domainRepository.updateBlock(latestBlock, domainID)
   }
 
   async getLastIndexedBlock(domainID: string): Promise<number> {

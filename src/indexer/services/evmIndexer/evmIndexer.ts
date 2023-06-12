@@ -1,14 +1,13 @@
 import { Domain, Resource } from "indexer/config"
-import { ethers, Provider} from "ethers"
-import DomainRepository from "indexer/repository/domain"
+import { ethers, Provider } from "ethers"
 import { ObjectId } from "mongodb"
-
-import DepositRepository from "indexer/repository/deposit"
-import TransferRepository from "indexer/repository/transfer"
-import ExecutionRepository from "indexer/repository/execution"
 import { TransferStatus } from "@prisma/client"
-import FeeRepository from "indexer/repository/fee"
-import { checkSanctionedAddress } from "services/ofac.service"
+
+import DepositRepository from "../../repository/deposit"
+import TransferRepository from "../../repository/transfer"
+import ExecutionRepository from "../../repository/execution"
+import DomainRepository from "../../repository/domain"
+import FeeRepository from "../../repository/fee"
 import { logger } from "../../../utils/logger"
 import { getLogs } from "./evmfilter"
 import { DecodedLogs } from "./evmTypes"
@@ -59,7 +58,7 @@ export class EvmIndexer {
       // move 1 block from last processed db block
       fromBlock = lastIndexedBlock + 1
     }
-    logger.info(`Starting querying past blocks on ${this.domain.name}`)
+    logger.info(`Starting querying past blocks on ${this.domain.name}, domainID: ${this.domain.id}`)
     do {
       try {
         latestBlock = await this.provider.getBlockNumber()
@@ -73,7 +72,7 @@ export class EvmIndexer {
 
         const logs = await getLogs(this.provider, this.domain, fromBlock, toBlock)
         if (logs.length > 0) {
-          logger.debug(`Found past events on ${this.domain.name} in block range [${fromBlock}-${toBlock}]`)
+          logger.info(`Found past events on ${this.domain.name} in block range [${fromBlock}-${toBlock}]`)
         }
         const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap)
 
@@ -82,7 +81,7 @@ export class EvmIndexer {
         fromBlock += this.pastEventsQueryInterval
         toBlock += this.pastEventsQueryInterval
       } catch (error) {
-        logger.error(`Failed to process past events because of: ${error}`)
+        logger.error(`Failed to process past events because of: ${(error as Error).message}`)
       }
     } while (fromBlock < latestBlock)
     // move to next block from the last queried range in past events
@@ -90,41 +89,41 @@ export class EvmIndexer {
   }
 
   async listenToEvents(): Promise<void> {
-    logger.info(`Starting querying current blocks for events on ${this.domain.name}`)
+    logger.info(`Starting querying blocks for events on ${this.domain.name}, domainID: ${this.domain.id}`)
     let latestBlock = await this.indexPastEvents()
-    this.provider.on("block", async (currentBlock: number) => {
-      // start at last block from past events query and move to new blocks range
-      if (latestBlock + this.currentEventsQueryInterval === currentBlock) {
-        // connect executions to deposits
-        try {
-          // fetch and decode logs
-          const logs = await getLogs(this.provider, this.domain, latestBlock, currentBlock)
-          if (logs.length > 0) {
-            logger.debug(`Found past events on ${this.domain.name} in block range [${latestBlock}-${currentBlock}]`)
+    await this.provider.on("block", (currentBlock: number): void => {
+      const handleBlockEvent = async (): Promise<void> => {
+        // start at last block from past events query and move to new blocks range
+        if (latestBlock + this.currentEventsQueryInterval === currentBlock) {
+          // connect executions to deposits
+          try {
+            // fetch and decode logs
+            const logs = await getLogs(this.provider, this.domain, latestBlock, currentBlock)
+            if (logs.length > 0) {
+              logger.debug(`Found past events on ${this.domain.name} in block range [${latestBlock}-${currentBlock}]`)
+            }
+            const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap)
+            await this.saveDataToDb(decodedLogs, this.domain.id, currentBlock.toString(), this.domain.name)
+            // move to next range of blocks
+            latestBlock += this.currentEventsQueryInterval
+            return
+          } catch (error) {
+            logger.error(`Failed to process current events because of: ${(error as Error).message}`)
           }
-          const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap)
-          await this.saveDataToDb(decodedLogs, this.domain.id, currentBlock.toString(), this.domain.name)
-          // move to next range of blocks
-          latestBlock += this.currentEventsQueryInterval
-        } catch (error) {
-          logger.error(`Failed to process current events because of: ${error}`)
+          return undefined
         }
       }
+      void handleBlockEvent()
     })
   }
 
   async saveDataToDb(decodedLogs: DecodedLogs, domainID: number, latestBlock: string, domainName: string): Promise<void> {
     try {
-      const transferMap = new Map()
+      const transferMap = new Map<string, string>()
 
       await Promise.all(
         decodedLogs.deposit.map(async decodedLog => {
-          let transfer = await this.transferRepository.findByNonce(decodedLog.depositNonce, decodedLog.fromDomainId)
-
-          const { sender } = decodedLog
-
-          const ofacComply = await checkSanctionedAddress(sender)
-
+          let transfer = await this.transferRepository.findByNonceToDomainId(decodedLog.depositNonce, decodedLog.toDomainId)
           if (!transfer) {
             transfer = await this.transferRepository.insertDepositTransfer(decodedLog, ofacComply)
           } else {
@@ -149,7 +148,7 @@ export class EvmIndexer {
         decodedLogs.feeCollected.map(async fee => {
           const feeData = {
             id: new ObjectId().toString(),
-            transferId: transferMap.get(fee.txHash),
+            transferId: transferMap.get(fee.txHash) || "",
             tokenSymbol: fee.tokenSymbol,
             tokenAddress: fee.tokenAddress,
             amount: fee.amount,
@@ -160,11 +159,11 @@ export class EvmIndexer {
 
       await Promise.all(
         decodedLogs.proposalExecution.map(async decodedLog => {
-          let transfer = await this.transferRepository.findByNonce(decodedLog.depositNonce, decodedLog.fromDomainId || "")
+          let transfer = await this.transferRepository.findByNonceFromDomainId(decodedLog.depositNonce, decodedLog.fromDomainId || "")
           if (!transfer) {
             transfer = await this.transferRepository.insertExecutionTransfer(decodedLog)
           } else {
-            this.transferRepository.updateStatus(TransferStatus.executed, transfer.id)
+            await this.transferRepository.updateStatus(TransferStatus.executed, transfer.id)
           }
 
           const execution = {
@@ -174,17 +173,17 @@ export class EvmIndexer {
             txHash: decodedLog.txHash,
             blockNumber: decodedLog.blockNumber.toString(),
           }
-          this.executionRepository.insertExecution(execution)
+          await this.executionRepository.insertExecution(execution)
         }),
       )
 
       await Promise.all(
         decodedLogs.errors.map(async error => {
-          let transfer = await this.transferRepository.findByNonce(error.depositNonce, error.domainId.toString())
+          let transfer = await this.transferRepository.findByNonceFromDomainId(error.depositNonce, error.domainId.toString())
           if (!transfer) {
             transfer = await this.transferRepository.insertFailedTransfer(error)
           } else {
-            this.transferRepository.updateStatus(TransferStatus.failed, transfer.id)
+            await this.transferRepository.updateStatus(TransferStatus.failed, transfer.id)
           }
 
           const execution = {
@@ -194,15 +193,15 @@ export class EvmIndexer {
             blockNumber: error.blockNumber.toString(),
             type: null,
           }
-          this.executionRepository.insertExecution(execution)
+          await this.executionRepository.insertExecution(execution)
         }),
       )
     } catch (error) {
-      logger.error(`Failed saving data because of: ${error}`)
+      logger.error(`Failed saving data because of: ${(error as Error).message}`)
     }
 
-    logger.info(`save block on ${domainName}: ${latestBlock}`)
-    this.domainRepository.upserDomain(domainID, latestBlock, domainName)
+    logger.info(`save block on ${domainName}: ${latestBlock}, domainID: ${domainID}`)
+    await this.domainRepository.updateBlock(latestBlock, domainID)
   }
 
   async getLastIndexedBlock(domainID: string): Promise<number> {
