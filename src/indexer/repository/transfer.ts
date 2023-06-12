@@ -1,6 +1,6 @@
 import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
-import { DecodedDepositLog, DecodedFailedHandlerExecution, DecodedProposalExecutionLog } from "indexer/services/evmIndexer/evmTypes"
 import { ObjectId } from "mongodb"
+import { DecodedDepositLog, DecodedFailedHandlerExecution, DecodedProposalExecutionLog } from "../services/evmIndexer/evmTypes"
 
 export type TransferMetadataeta = {
   id: string
@@ -35,7 +35,6 @@ class TransferRepository {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: decodedLog.depositNonce,
-      // type: decodedLog.transferType,
       sender: decodedLog.sender,
       amount: decodedLog.amount,
       destination: decodedLog.destination,
@@ -91,7 +90,6 @@ class TransferRepository {
   public async updateTransfer(decodedLog: DecodedDepositLog, id: string): Promise<Transfer> {
     const transferData = {
       depositNonce: decodedLog.depositNonce,
-      // type: decodedLog.transferType,
       sender: decodedLog.sender,
       amount: decodedLog.amount,
       destination: decodedLog.destination,

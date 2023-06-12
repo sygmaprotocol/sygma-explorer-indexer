@@ -1,4 +1,4 @@
-import BasicFeeHandlerContract from "@chainsafe/chainbridge-contracts/build/contracts/BasicFeeHandler.json"
+import BasicFeeHandlerContract from "@buildwithsygma/sygma-contracts/build/contracts/BasicFeeHandler.json"
 import { BigNumber } from "@ethersproject/bignumber"
 import {
   Contract,

@@ -1,11 +1,11 @@
 import {
   Bridge as BridgeType,
   BasicFeeHandler as BasicFeeHandlerType,
-  FeeHandlerWithOracle as FeeHandlerWithOracleType,
+  DynamicFeeHandler as FeeHandlerWithOracleType,
   ERC20Handler as ERC20HandlerType,
   ERC721Handler as ERC721HandlerType,
-  GenericHandler as GenericHandlerType,
-} from "@chainsafe/chainbridge-contracts"
+  PermissionlessGenericHandler as GenericHandlerType,
+} from "@buildwithsygma/sygma-contracts"
 import { Contract } from "ethers"
 
 export * from "./contract"

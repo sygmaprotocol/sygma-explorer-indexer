@@ -1,6 +1,6 @@
 import { Provider, Log, id } from "ethers"
 
-import { Domain } from "indexer/config"
+import { Domain } from "../../config"
 
 enum Topics {
   DEPOSIT = "Deposit(uint8,bytes32,uint64,address,bytes,bytes)",

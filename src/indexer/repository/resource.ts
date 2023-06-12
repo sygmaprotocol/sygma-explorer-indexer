@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client"
-import { ResourceTypes } from "indexer/config"
+import { ResourceTypes } from "../config"
 
 class ResourceRepository {
   public resource = new PrismaClient().resource

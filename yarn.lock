@@ -1380,15 +1380,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chainsafe/chainbridge-contracts@npm:3.1.0":
-  version: 3.1.0
-  resolution: "@chainsafe/chainbridge-contracts@npm:3.1.0"
-  peerDependencies:
-    ethers: ">= 5.0.0"
-  checksum: 5cb2ee6d7b07044bb787cb45907202b84d3872ef00b304a5e7ed61f093afcbd59dfcbb41c8673c46fce88de9ea8d57efdddaf69077fa6ccc2527aadb6c757403
-  languageName: node
-  linkType: hard
-
 "@chainsafe/eslint-config@npm:^1.1.0":
   version: 1.1.0
   resolution: "@chainsafe/eslint-config@npm:1.1.0"
@@ -11588,7 +11579,6 @@ __metadata:
     "@aws-sdk/client-ssm": ^3.145.0
     "@buildwithsygma/sygma-contracts": 2.3.0
     "@celo-tools/celo-ethers-wrapper": ^0.0.5
-    "@chainsafe/chainbridge-contracts": 3.1.0
     "@chainsafe/eslint-config": ^1.1.0
     "@ethersproject/bignumber": ^5.7.0
     "@ethersproject/providers": ^5.7.2
