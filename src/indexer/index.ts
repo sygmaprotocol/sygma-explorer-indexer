@@ -10,7 +10,7 @@ import FeeRepository from "./repository/fee"
 import ResourceRepository from "./repository/resource"
 
 async function main(): Promise<void> {
-  const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL || "https://config.develop.buildwithsygma.com/share/")
+  const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
 
   const domainRepository = new DomainRepository()
   const depositRepository = new DepositRepository()
@@ -20,7 +20,9 @@ async function main(): Promise<void> {
   const resourceRepository = new ResourceRepository()
 
   await insertDomains(sharedConfig.domains, resourceRepository, domainRepository)
+
   const rpcUrlConfig = getSsmDomainConfig()
+
   for (const domain of sharedConfig.domains) {
     const rpcURL = rpcUrlConfig.get(domain.id)
     if (!rpcURL) {
