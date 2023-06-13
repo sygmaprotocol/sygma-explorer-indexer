@@ -9,6 +9,7 @@ import ExecutionRepository from "../../repository/execution"
 import DomainRepository from "../../repository/domain"
 import FeeRepository from "../../repository/fee"
 import { logger } from "../../../utils/logger"
+import { checkSanctionedAddress } from "../../../services/ofac.service"
 import { getLogs } from "./evmfilter"
 import { DecodedLogs } from "./evmTypes"
 import { decodeLogs } from "./evmEventParser"
@@ -124,6 +125,11 @@ export class EvmIndexer {
       await Promise.all(
         decodedLogs.deposit.map(async decodedLog => {
           let transfer = await this.transferRepository.findByNonceToDomainId(decodedLog.depositNonce, decodedLog.toDomainId)
+
+          const { sender } = decodedLog
+
+          const ofacComply = await checkSanctionedAddress(sender)
+
           if (!transfer) {
             transfer = await this.transferRepository.insertDepositTransfer(decodedLog, ofacComply)
           } else {
