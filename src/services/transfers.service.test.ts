@@ -233,7 +233,7 @@ describe("TransferService", () => {
 
       expect(transferFromSender.every(transfer => transfer.sender === sender)).toBe(true)
 
-      const transferFromServiceBySender = await transferService.findTransferByFilterParams({ page: "1", limit: "10", undefined, sender })
+      const transferFromServiceBySender = await transferService.findTransferByFilterParams({ page: "1", limit: "10", undefined, sender: sender! })
 
       expect(transferFromServiceBySender.every(transfer => transfer.sender === sender)).toBe(true)
 
@@ -266,7 +266,7 @@ describe("TransferService", () => {
 
       transferService = new TransfersService() // To test with reseted cursor
 
-      const transferFromServiceBySender = await transferService.findTransferByFilterParams({ page: "1", limit: "10", status, sender })
+      const transferFromServiceBySender = await transferService.findTransferByFilterParams({ page: "1", limit: "10", status, sender: sender! })
 
       expect(transferFromServiceBySender.length).toEqual(transferFromSender.length)
 
@@ -280,18 +280,21 @@ describe("TransferService", () => {
 
       const senderCounts = transferToTest.reduce((counts, transfer) => {
         const { sender } = transfer
-        counts[sender] = (counts[sender] || 0) + 1
+        counts[sender!] = (counts[sender!] || 0) + 1
         return counts
       }, {} as Record<string, number>)
-      
-      const senderWithMostTransfers = Object.entries(senderCounts).reduce((max, [sender, count]) => {
-        return count > max.count ? { sender, count } : max
-      }, { sender: "", count: 0 })
-      
+
+      const senderWithMostTransfers = Object.entries(senderCounts).reduce(
+        (max, [sender, count]) => {
+          return count > max.count ? { sender, count } : max
+        },
+        { sender: "", count: 0 },
+      )
+
       const { sender } = senderWithMostTransfers
 
       const transferFromSender = await transferService.findTransferByFilterParams({ page: "1", limit: "5", sender })
-      
+
       expect(transferFromSender.every(transfer => transfer.sender === sender)).toBe(true)
       expect(transferFromSender.length).toEqual(5)
 
@@ -311,4 +314,3 @@ describe("TransferService", () => {
     })
   })
 })
-

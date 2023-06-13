@@ -1,7 +1,7 @@
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
-import { getSharedConfig, DomainTypes, Domain, getSsmDomainConfig } from "./config"
+import { getSharedConfig, DomainTypes, Domain, getSsmDomainConfig, getDomainsToIndex } from "./config"
 import DomainRepository from "./repository/domain"
 import DepositRepository from "./repository/deposit"
 import TransferRepository from "./repository/transfer"
@@ -23,7 +23,9 @@ async function main(): Promise<void> {
 
   const rpcUrlConfig = getSsmDomainConfig()
 
-  for (const domain of sharedConfig.domains) {
+  const domainsToIndex = getDomainsToIndex(sharedConfig.domains)
+
+  for (const domain of domainsToIndex) {
     const rpcURL = rpcUrlConfig.get(domain.id)
     if (!rpcURL) {
       logger.error(`local domain is not defined for the domain: ${domain.id}`)

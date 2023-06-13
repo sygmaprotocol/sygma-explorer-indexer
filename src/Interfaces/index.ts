@@ -1,1 +1,1 @@
-export * from './TransfersInterfaces'
+export * from "./TransfersInterfaces"

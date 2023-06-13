@@ -77,3 +77,15 @@ export const getSsmDomainConfig = (): Map<number, string> => {
 
   return rpcUrlMap
 }
+
+// Note: based on the actual env vars that we pass, map the domains that we are going to use
+export const getDomainsToIndex = (domains: Domain[]): Domain[] => {
+  const parsedResponse = JSON.parse(process.env.RPC_URL_CONFIG!) as RpcUrlConfig
+
+  const domainsToUse = domains.filter(domain => {
+    const domainToIndex = parsedResponse.find(rpcData => rpcData.id === domain.id)
+    return domainToIndex !== undefined
+  })
+
+  return domainsToUse
+}

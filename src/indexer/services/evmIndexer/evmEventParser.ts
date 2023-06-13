@@ -170,14 +170,24 @@ export function parseFailedHandlerExecution(log: Log, decodedLog: LogDescription
   }
 }
 
-function decodeAmountsOrTokenId(data: string, decimals: number, type: ResourceTypes | ""): string {
-  if (type === ResourceTypes.FUNGIBLE) {
+function decodeAmountsOrTokenId(data: string, decimals: number, resourceType: string): string {
+  if (resourceType === "fungible") {
     const amount = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0] as BigNumberish
     return formatUnits(amount, decimals)
-  } else if (type === ResourceTypes.NON_FUNGIBLE) {
+  } else if (resourceType === "nonfungible") {
     const tokenId = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0] as number
     return tokenId.toString()
   }
+
+  // This doesn't seem to work
+  // if (resourceType === ResourceTypes.FUNGIBLE) {
+  //   const amount = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0] as BigNumberish
+  //   return formatUnits(amount, decimals)
+  // }
+  // else if (resourceType === ResourceTypes.NON_FUNGIBLE) {
+  //   const tokenId = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0] as number
+  //   return tokenId.toString()
+  // }
 
   return ""
 }
