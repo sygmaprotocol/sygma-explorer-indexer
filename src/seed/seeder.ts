@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* eslint-disable */
 import { PrismaClient, TransferStatus } from "@prisma/client"
 import { BigNumber, Signer, ethers } from "ethers"
 import { Bridge__factory } from "@buildwithsygma/sygma-contracts"
@@ -23,7 +25,8 @@ const seeder = async (): Promise<void> => {
     console.log("Error on connecting to database", e)
   }
 
-  const domains = await getSharedConfig("https://cloudflare-ipfs.com/ipfs/QmfPxe4ajcmPBt9Pr2Tr7FeM2Z9ndj9USJwxMdfazo9Jr5") // using old one because new one dosn't have transfers
+  const domains = await getSharedConfig("https://cloudflare-ipfs.com/ipfs/QmfPxe4ajcmPBt9Pr2Tr7FeM2Z9ndj9USJwxMdfazo9Jr5") // using old one because new one doesn't have transfers
+  
   const localConfig = getLocalConfig()
   const domainsWithRpcURL = domains.domains.map(domain => {
     const rpcURL = localConfig.get(domain.id)

@@ -1,6 +1,6 @@
 import { TransferStatus } from "@prisma/client"
 import { Domain, Resource } from "indexer/config"
-import { ethers, Provider } from "ethers"
+import { ethers } from "ethers"
 import { ObjectId } from "mongodb"
 
 import DepositRepository from "../../repository/deposit"
@@ -14,7 +14,7 @@ import { DecodedLogs } from "./evmTypes"
 import { decodeLogs } from "./evmEventParser"
 
 export class EvmIndexer {
-  private provider: Provider
+  private provider: ethers.JsonRpcProvider
   private pastEventsQueryInterval = 1000
   private currentEventsQueryInterval = 10
   private domainRepository: DomainRepository

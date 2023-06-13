@@ -174,8 +174,7 @@ function decodeAmountsOrTokenId(data: string, decimals: number, resourceType: st
   if (resourceType === "fungible") {
     const amount = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0] as BigNumberish
     return formatUnits(amount, decimals)
-  }
-  else if (resourceType === "nonfungible") {
+  } else if (resourceType === "nonfungible") {
     const tokenId = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0] as number
     return tokenId.toString()
   }
