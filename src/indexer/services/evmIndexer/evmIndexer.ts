@@ -1,7 +1,7 @@
+import { TransferStatus } from "@prisma/client"
 import { Domain, Resource } from "indexer/config"
 import { ethers, Provider } from "ethers"
 import { ObjectId } from "mongodb"
-import { TransferStatus } from "@prisma/client"
 
 import DepositRepository from "../../repository/deposit"
 import TransferRepository from "../../repository/transfer"
