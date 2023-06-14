@@ -79,9 +79,7 @@ class TransferRepository {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: decodedLog.depositNonce,
-
       fromDomainId: decodedLog.domainId,
-
       status: TransferStatus.failed,
     }
     return await this.transfer.create({ data: transferData })
