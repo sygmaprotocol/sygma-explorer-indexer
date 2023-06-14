@@ -11,13 +11,13 @@ generator client {
 }
 
 model Transfer {
-  id           String         @id @default(auto()) @map("_id") @db.ObjectId 
-  depositNonce Int         @unique
-  resource     Resource?    @relation(fields: [resourceID], references: [id])
-  resourceID String?
-  fromDomain   Domain       @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  depositNonce Int            @unique
+  resource     Resource?      @relation(fields: [resourceID], references: [id])
+  resourceID   String?
+  fromDomain   Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
   fromDomainId String
-  toDomain     Domain?       @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
+  toDomain     Domain?        @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
   toDomainId   String?
   sender       String?
   destination  String?
@@ -29,7 +29,6 @@ model Transfer {
   fee          Fee?
 
   @@unique(fields: [depositNonce, fromDomainId], name: "nonceDomain")
-
 }
 
 enum TransferStatus {
@@ -39,25 +38,24 @@ enum TransferStatus {
 }
 
 model Resource {
-  id String  @map("_id") @id
-  type String
+  id        String     @id @map("_id")
+  type      String
   transfers Transfer[]
-
 }
 
 model Domain {
-  id   String     @map("_id") @id
+  id   String @id @map("_id")
   name String
 
   lastIndexedBlock String
-  transferFrom Transfer[] @relation(name: "fromDomainRelation")
-  transferTo   Transfer[] @relation(name: "toDomainRelation")
+  transferFrom     Transfer[] @relation(name: "fromDomainRelation")
+  transferTo       Transfer[] @relation(name: "toDomainRelation")
 }
 
 model Deposit {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  transfer        Transfer @relation(fields: [transferId], references: [id]) 
-  transferId      String @unique @db.ObjectId
+  transfer        Transfer @relation(fields: [transferId], references: [id])
+  transferId      String   @unique @db.ObjectId
   type            String
   txHash          String
   blockNumber     String
@@ -66,12 +64,12 @@ model Deposit {
 }
 
 model Execution {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  transfer       Transfer @relation(fields: [transferId], references: [id])
-  transferId     String @unique @db.ObjectId
-  type           String?
-  txHash         String
-  blockNumber    String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  transfer    Transfer @relation(fields: [transferId], references: [id])
+  transferId  String   @unique @db.ObjectId
+  type        String?
+  txHash      String
+  blockNumber String
 }
 
 model Fee {
@@ -82,6 +80,3 @@ model Fee {
   transfer     Transfer @relation(fields: [transferId], references: [id])
   transferId   String   @unique @db.ObjectId
 }
-
-
-

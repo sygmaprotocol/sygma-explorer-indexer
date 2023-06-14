@@ -1,3 +1,5 @@
+import { logger } from "../../utils/logger"
+
 export type LocalDomainConfig = {
   url: string
   startBlock: number
@@ -63,7 +65,7 @@ export const getSharedConfig = async (url: string): Promise<SharedConfig> => {
     const response = await fetch(url)
     return (await response.json()) as SharedConfig
   } catch (e) {
-    console.error(`Failed to fecth config for ${process.env.STAGE || ""}`, e)
+    logger.error(`Failed to fecth config for ${process.env.STAGE || ""}`, e)
     return Promise.reject(e)
   }
 }
