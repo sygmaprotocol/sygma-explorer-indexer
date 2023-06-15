@@ -1,44 +1,69 @@
-// @ts-nocheck
-import { PrismaClient } from "@prisma/client"
-import { EvmBridgeConfig, SygmaConfig } from "../sygmaTypes"
-import { indexDeposits, indexProposals, indexFailedHandlerExecutions } from "./indexer"
+import { logger } from "../utils/logger"
+import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
+import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
+import { getSharedConfig, DomainTypes, Domain, getSsmDomainConfig, getDomainsToIndex } from "./config"
+import DomainRepository from "./repository/domain"
+import DepositRepository from "./repository/deposit"
+import TransferRepository from "./repository/transfer"
+import ExecutionRepository from "./repository/execution"
+import FeeRepository from "./repository/fee"
+import ResourceRepository from "./repository/resource"
 
-import {getSygmaConfig} from '../utils/getSygmaConfig'
-import { Config, IndexerSharedConfig } from "types"
+async function main(): Promise<void> {
+  const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
 
-const prisma = new PrismaClient()
+  const domainRepository = new DomainRepository()
+  const depositRepository = new DepositRepository()
+  const transferRepository = new TransferRepository()
+  const executionRepository = new ExecutionRepository()
+  const feeRepository = new FeeRepository()
+  const resourceRepository = new ResourceRepository()
 
-async function main() {
-  const sygmaconfig = await getSygmaConfig() as IndexerSharedConfig
-  
-  await prisma.$connect()
+  await insertDomains(sharedConfig.domains, resourceRepository, domainRepository)
 
-  const deleteTransfers = prisma.transfer.deleteMany()
+  const rpcUrlConfig = getSsmDomainConfig()
 
-  await prisma.$transaction([deleteTransfers])
+  const domainsToIndex = getDomainsToIndex(sharedConfig.domains)
 
-  const evmBridges = sygmaconfig.chains.filter(
-    (c) => c.type !== "Substrate"
-  )
-  for (const bridge of evmBridges) {
-    await indexDeposits(bridge as Config, sygmaconfig)
-  }
-  console.log("\n***\n")
-  for (const bridge of evmBridges) {
-    await indexProposals(bridge as Config, sygmaconfig)
-  }
-  console.log("\n***\n")
-  for (const bridge of evmBridges) {
-    await indexFailedHandlerExecutions(bridge as Config, sygmaconfig)
+  for (const domain of domainsToIndex) {
+    const rpcURL = rpcUrlConfig.get(domain.id)
+    if (!rpcURL) {
+      logger.error(`local domain is not defined for the domain: ${domain.id}`)
+      continue
+    }
+
+    if (domain.type == DomainTypes.SUBSTRATE) {
+      try {
+        const substrateIndexer = new SubstrateIndexer(domainRepository, domain)
+        await substrateIndexer.init(rpcURL)
+        await substrateIndexer.listenToEvents()
+      } catch (err) {
+        logger.error(`error on domain: ${domain.id}... skipping`)
+        continue
+      }
+    } else if (domain.type == DomainTypes.EVM) {
+      try {
+        const evmIndexer = new EvmIndexer(domain, rpcURL, domainRepository, depositRepository, transferRepository, executionRepository, feeRepository)
+        await evmIndexer.listenToEvents()
+      } catch (err) {
+        logger.error(`error on domain: ${domain.id}... skipping`)
+        continue
+      }
+    } else {
+      logger.error(`unsuported type: ${JSON.stringify(domain)}`)
+    }
   }
 }
-main()
-  .catch((e) => {
-    console.error(e)
-    throw e
-  })
-  .finally(async() => {
-    await prisma.$disconnect()
-    console.log("\ndisconnect")
-    process.exit()
-  })
+
+main().catch(e => {
+  logger.error(e)
+})
+
+async function insertDomains(domains: Array<Domain>, resourceRepository: ResourceRepository, domainRepository: DomainRepository): Promise<void> {
+  for (const domain of domains) {
+    await domainRepository.insertDomain(domain.id, domain.startBlock.toString(), domain.name)
+    for (const resource of domain.resources) {
+      await resourceRepository.insertResource({ id: resource.resourceId, type: resource.type })
+    }
+  }
+}

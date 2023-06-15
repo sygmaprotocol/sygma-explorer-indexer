@@ -4,19 +4,20 @@ import fastifyHealthcheck from "fastify-healthcheck"
 import { routes } from "./routes"
 
 export const app: FastifyInstance = fastify({ logger: true })
-app.register(cors, {
-  origin: "*" // in the meantime
-});
+void app.register(cors, {
+  origin: "*", // in the meantime
+})
 
-app.register(fastifyHealthcheck, {
+void app.register(fastifyHealthcheck, {
   healthcheckUrl: "/health",
   exposeUptime: true,
   underPressureOptions: {
     healthCheckInterval: 5000,
+    // eslint-disable-next-line @typescript-eslint/require-await
     healthCheck: async () => {
       return true
-    }
-  }
-});
+    },
+  },
+})
 
-app.register(routes, { prefix: "/api" });
+void app.register(routes, { prefix: "/api" })

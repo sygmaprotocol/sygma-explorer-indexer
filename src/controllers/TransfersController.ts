@@ -1,35 +1,64 @@
 import { FastifyReply, FastifyRequest } from "fastify"
-import { ITransfer, ITransferById } from "Interfaces"
+import { ITransfer, ITransferById, ITransferBySender } from "../Interfaces"
+import { logger } from "../utils/logger"
 
 import TransfersService from "../services/transfers.service"
-
-import { getPaginationParams } from "../utils/helpers"
+import { NotFound } from "../utils/helpers"
 
 const transfersService = new TransfersService()
 
 export const TransfersController = {
-  transfers: async function(request: FastifyRequest<{ Querystring: ITransfer }>, reply: FastifyReply) {
+  transfers: async function (request: FastifyRequest<{ Querystring: ITransfer }>, reply: FastifyReply): Promise<void> {
     try {
-      const { query: { before, first, after, last } } = request
-      const params = getPaginationParams({ before, first, after, last })
+      const {
+        query: { page, limit, status },
+      } = request
 
       const transfersResult = await transfersService.findTransfersByCursor({
-        ...params
+        page,
+        limit,
+        status,
       })
 
-      reply.status(200).send(transfersResult)
+      void reply.status(200).send(transfersResult)
     } catch (e) {
-      reply.status(400).send(e)
+      logger.error(e)
+      void reply.status(500)
     }
   },
-  transferById: async function(request: FastifyRequest<{ Params: ITransferById }>, reply: FastifyReply) {
-      const { id } = request.params
+  transferById: async function (request: FastifyRequest<{ Params: ITransferById }>, reply: FastifyReply): Promise<void> {
+    const { id } = request.params
 
-      try {
-        const transfer = await transfersService.findTransfer({ id })
-        reply.status(200).send(transfer)
-      } catch(e) {
-        reply.status(404)
+    try {
+      const transfer = await transfersService.findTransferById({ id })
+      void reply.status(200).send(transfer)
+    } catch (e) {
+      if (e instanceof NotFound) {
+        void reply.status(404)
+      } else {
+        logger.error(e)
+        void reply.status(500)
       }
     }
+  },
+  transferBySender: async function (
+    request: FastifyRequest<{ Params: ITransferBySender; Querystring: ITransfer }>,
+    reply: FastifyReply,
+  ): Promise<void> {
+    const {
+      params: { senderAddress },
+    } = request
+    const {
+      query: { page, limit, status },
+    } = request
+
+    try {
+      const transfer = await transfersService.findTransferByFilterParams({ page, limit, status, sender: senderAddress })
+
+      void reply.status(200).send(transfer)
+    } catch (e) {
+      logger.error(e)
+      void reply.status(500)
+    }
+  },
 }

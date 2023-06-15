@@ -1,7 +1,7 @@
-import { seeder } from "./seeder";
+import { seeder } from "./seeder"
 
-const main = async () => {
-  await seeder();
+const main = async (): Promise<void> => {
+  await seeder()
 }
 
-main();
+void main()

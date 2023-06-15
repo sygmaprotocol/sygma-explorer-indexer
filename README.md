@@ -2,17 +2,24 @@
 
 ## Table of Contents
 
-- [Features](#features)
+- [Preparations](#preparations)
 - [Install](#install)
 - [Usage](#usage)
 <!-- - [License](#license) -->
-
-## Features
 
 ### Stack
 
 - NodeJS + [Typescript](https://github.com/microsoft/TypeScript)
 
+## Preparations
+Add The following in your `/etc/hosts` file:
+````
+127.0.0.1       mongo1
+127.0.0.1       mongo2
+127.0.0.1       mongo3
+````
+
+This is required to run the mongo replicas locally and have access to them.
 
 ## Install
 
@@ -31,14 +38,28 @@ Stub server will be exposed on `localhost:8080`. This will also expose Swagger d
 
 ### Env definition
 
+This are the env variables that are required:
+
 ```bash
-DATABASE_URL="mongodb://<HOST>:<PORT>/<DATABASE_NAME>?replicaSet<REPLICA_NAME>t&authSource=admin&retryWrites=true&w=majority"
+DATABASE_URL="mongodb://<HOST>:<PORT>/<DATABASE_NAME>?replicaSet=<REPLICA_NAME>&authSource=admin&retryWrites=true&w=majority"
 STAGE=""
 CHAIN_ANALYSIS_API_KEY=""
 CHAIN_ANALYSIS_URL=""
 ENVIRONMENT="" # testnet || devnet
+RPC_URL_CONFIG="[ { "id": DOMAIN_ID, "endpoint": DOMAIN_ENDPOINT } ]"
  ```
 
+### Running locally
+
+```bash
+docker compose -f ./docker-compose.only-mongo.yml up
+
+npx prisma generate
+
+yarn index:fetch
+
+yarn start:dev
+```
 
 ### Build
 
@@ -55,6 +76,9 @@ For testing use the command:
 ````
 yarn test
 ````
+
+
+
 
 
 
