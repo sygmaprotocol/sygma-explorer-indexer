@@ -1,7 +1,7 @@
 FROM node:18-alpine AS builder
 
 # update packages
-RUN apt update
+RUN apk update
 
 # create root application folder
 WORKDIR /app
@@ -19,7 +19,7 @@ COPY yarn.lock ./
 COPY prisma ./prisma/
 COPY public ./public
 
-RUN yarn install
+RUN yarn install --frozen-lockfile
 
 # copy source code to /app/src folder
 COPY . .
@@ -35,7 +35,6 @@ RUN yarn build
 FROM node:18-alpine
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/ecosystem.dev.config.js ./
 COPY --from=builder /app/build ./build
 
 EXPOSE 3012
