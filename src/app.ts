@@ -13,6 +13,7 @@ void app.register(fastifyHealthcheck, {
   exposeUptime: true,
   underPressureOptions: {
     healthCheckInterval: 5000,
+    // eslint-disable-next-line @typescript-eslint/require-await
     healthCheck: async () => {
       return true
     },

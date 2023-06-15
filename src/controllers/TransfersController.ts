@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify"
-import { ITransfer, ITransferById, ITransferBySender } from "Interfaces"
+import { ITransfer, ITransferById, ITransferBySender } from "../Interfaces"
 import { logger } from "../utils/logger"
 
 import TransfersService from "../services/transfers.service"

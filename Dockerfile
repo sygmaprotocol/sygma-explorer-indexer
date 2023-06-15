@@ -1,4 +1,4 @@
-FROM node:lts AS builder
+FROM node:18-alpine AS builder
 
 # update packages
 RUN apt update
@@ -32,7 +32,7 @@ RUN yarn prisma:generate
 
 RUN yarn build
 
-FROM node:lts
+FROM node:18-alpine
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/ecosystem.dev.config.js ./

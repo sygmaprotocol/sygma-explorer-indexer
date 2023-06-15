@@ -20,4 +20,10 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
     url: "/sender/:senderAddress/transfers",
     handler: TransfersController.transferBySender,
   })
+
+  fastify.route({
+    method: 'GET',
+    url: '/transfers/:id',
+    handler: TransfersController.transferById
+  })
 }
