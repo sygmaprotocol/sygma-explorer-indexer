@@ -1,1 +1,1 @@
-export * from './SharedConfigTypes'
+export * from "./SharedConfigTypes"

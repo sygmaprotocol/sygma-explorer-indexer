@@ -19,21 +19,21 @@ export type IncludedQueryParams = {
     resource: {
       select: {
         type: boolean
-        resourceId: boolean
+        id: boolean
       }
     }
     toDomain: {
       select: {
         name: boolean
         lastIndexedBlock: boolean
-        domainId: boolean
+        id: boolean
       }
     }
     fromDomain: {
       select: {
         name: boolean
         lastIndexedBlock: boolean
-        domainId: boolean
+        id: boolean
       }
     }
     fee: {
