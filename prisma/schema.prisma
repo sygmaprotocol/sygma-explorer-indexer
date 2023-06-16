@@ -11,23 +11,23 @@ generator client {
 }
 
 model Transfer {
-  id           String         @id @default(auto()) @map("_id") @db.ObjectId
-  depositNonce Int            @unique
-  resource     Resource?      @relation(fields: [resourceID], references: [id])
-  resourceID   String?
-  fromDomain   Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
-  fromDomainId String
-  toDomain     Domain?        @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
-  toDomainId   String?
-  sender       String?
-  destination  String?
-  amount       String?
-  timestamp    Int?
-  status       TransferStatus
-  deposit      Deposit?
-  execution    Execution?
-  fee          Fee?
-  ofacComply   Boolean?
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  depositNonce  Int            @unique
+  resource      Resource?      @relation(fields: [resourceID], references: [id])
+  resourceID    String?
+  fromDomain    Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
+  fromDomainId  String
+  toDomain      Domain?        @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
+  toDomainId    String?
+  sender        String?
+  destination   String?
+  amount        String?
+  timestamp     Int?
+  status        TransferStatus
+  deposit       Deposit?
+  execution     Execution?
+  fee           Fee?
+  addressStatus String?
 
   @@unique(fields: [depositNonce, fromDomainId], name: "nonceDomain")
 }
@@ -51,26 +51,6 @@ model Domain {
   lastIndexedBlock String
   transferFrom     Transfer[] @relation(name: "fromDomainRelation")
   transferTo       Transfer[] @relation(name: "toDomainRelation")
-}
-
-model Deposit {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  transfer        Transfer @relation(fields: [transferId], references: [id])
-  transferId      String   @unique @db.ObjectId
-  type            String
-  txHash          String
-  blockNumber     String
-  depositData     String
-  handlerResponse String
-}
-
-model Execution {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  transfer    Transfer @relation(fields: [transferId], references: [id])
-  transferId  String   @unique @db.ObjectId
-  type        String?
-  txHash      String
-  blockNumber String
 }
 
 model Deposit {
