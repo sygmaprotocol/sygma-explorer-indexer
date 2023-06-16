@@ -11,7 +11,6 @@ RUN corepack prepare yarn@stable --activate
 RUN yarn set version stable
 
 # copy configs to /app folder
-COPY .yarn ./
 COPY .yarnrc.yml ./
 COPY package*.json ./
 COPY tsconfig.json ./
