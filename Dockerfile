@@ -1,4 +1,4 @@
-FROM node:lts AS builder
+FROM node:18-alpine AS builder
 
 # update packages
 RUN apt update
@@ -11,7 +11,6 @@ RUN corepack prepare yarn@stable --activate
 RUN yarn set version stable
 
 # copy configs to /app folder
-COPY .yarn ./
 COPY .yarnrc.yml ./
 COPY package*.json ./
 COPY tsconfig.json ./
@@ -32,10 +31,9 @@ RUN yarn prisma:generate
 
 RUN yarn build
 
-FROM node:lts
+FROM node:18-alpine
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/ecosystem.dev.config.js ./
 COPY --from=builder /app/build ./build
 
 EXPOSE 3012

@@ -34,21 +34,21 @@ export const getTransferQueryParams = (): IncludedQueryParams => {
       resource: {
         select: {
           type: true,
-          resourceId: true,
+          id: true,
         },
       },
       toDomain: {
         select: {
           name: true,
           lastIndexedBlock: true,
-          domainId: true,
+          id: true,
         },
       },
       fromDomain: {
         select: {
           name: true,
           lastIndexedBlock: true,
-          domainId: true,
+          id: true,
         },
       },
       fee: {

@@ -1,15 +1,13 @@
-import { TransferStatus } from "@prisma/client"
 import { Domain, Resource } from "indexer/config"
 import { ethers } from "ethers"
-import { ObjectId } from "mongodb"
 
+import { saveDepositLogs, saveFailedHandlerExecutionLogs, saveFeeLogs, saveProposalExecutionLogs } from "../../../utils/indexer"
 import DepositRepository from "../../repository/deposit"
 import TransferRepository from "../../repository/transfer"
 import ExecutionRepository from "../../repository/execution"
 import DomainRepository from "../../repository/domain"
 import FeeRepository from "../../repository/fee"
 import { logger } from "../../../utils/logger"
-import { checkSanctionedAddress } from "../../../services/ofac.service"
 import { getLogs } from "./evmfilter"
 import { DecodedLogs } from "./evmTypes"
 import { decodeLogs } from "./evmEventParser"
@@ -123,84 +121,19 @@ export class EvmIndexer {
       const transferMap = new Map<string, string>()
 
       await Promise.all(
-        decodedLogs.deposit.map(async decodedLog => {
-          let transfer = await this.transferRepository.findByNonceToDomainId(decodedLog.depositNonce, decodedLog.toDomainId)
-
-          const { sender } = decodedLog
-
-          const ofacComply = await checkSanctionedAddress(sender)
-
-          if (!transfer) {
-            transfer = await this.transferRepository.insertDepositTransfer(decodedLog, ofacComply)
-          } else {
-            await this.transferRepository.updateTransfer(decodedLog, transfer.id, ofacComply)
-          }
-
-          const deposit = {
-            id: new ObjectId().toString(),
-            type: decodedLog.transferType,
-            txHash: decodedLog.txHash,
-            blockNumber: decodedLog.blockNumber.toString(),
-            depositData: decodedLog.depositData,
-            handlerResponse: decodedLog.handlerResponse,
-            transferId: transfer.id,
-          }
-          await this.depositRepository.insertDeposit(deposit)
-
-          transferMap.set(decodedLog.txHash, transfer.id)
-        }),
+        decodedLogs.deposit.map(async decodedLog => saveDepositLogs(decodedLog, this.transferRepository, this.depositRepository, transferMap)),
       )
+
+      await Promise.all(decodedLogs.feeCollected.map(async fee => saveFeeLogs(fee, transferMap, this.feeRepository)))
+
       await Promise.all(
-        decodedLogs.feeCollected.map(async fee => {
-          const feeData = {
-            id: new ObjectId().toString(),
-            transferId: transferMap.get(fee.txHash) || "",
-            tokenSymbol: fee.tokenSymbol,
-            tokenAddress: fee.tokenAddress,
-            amount: fee.amount,
-          }
-          await this.feeRepository.insertFee(feeData)
-        }),
+        decodedLogs.proposalExecution.map(async decodedLog =>
+          saveProposalExecutionLogs(decodedLog, this.transferRepository, this.executionRepository),
+        ),
       )
 
       await Promise.all(
-        decodedLogs.proposalExecution.map(async decodedLog => {
-          let transfer = await this.transferRepository.findByNonceFromDomainId(decodedLog.depositNonce, decodedLog.fromDomainId || "")
-          if (!transfer) {
-            transfer = await this.transferRepository.insertExecutionTransfer(decodedLog)
-          } else {
-            await this.transferRepository.updateStatus(TransferStatus.executed, transfer.id)
-          }
-
-          const execution = {
-            id: new ObjectId().toString(),
-            transferId: transfer.id,
-            type: decodedLog.transferType,
-            txHash: decodedLog.txHash,
-            blockNumber: decodedLog.blockNumber.toString(),
-          }
-          await this.executionRepository.insertExecution(execution)
-        }),
-      )
-
-      await Promise.all(
-        decodedLogs.errors.map(async error => {
-          let transfer = await this.transferRepository.findByNonceFromDomainId(error.depositNonce, error.domainId.toString())
-          if (!transfer) {
-            transfer = await this.transferRepository.insertFailedTransfer(error)
-          } else {
-            await this.transferRepository.updateStatus(TransferStatus.failed, transfer.id)
-          }
-
-          const execution = {
-            id: new ObjectId().toString(),
-            transferId: transfer.id,
-            txHash: error.txHash,
-            blockNumber: error.blockNumber.toString(),
-            type: null,
-          }
-          await this.executionRepository.insertExecution(execution)
-        }),
+        decodedLogs.errors.map(async error => saveFailedHandlerExecutionLogs(error, this.transferRepository, this.executionRepository)),
       )
     } catch (error) {
       logger.error(`Failed saving data because of: ${(error as Error).message}`)

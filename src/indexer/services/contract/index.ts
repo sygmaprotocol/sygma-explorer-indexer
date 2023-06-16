@@ -1,7 +1,7 @@
 import {
   Bridge as BridgeType,
   BasicFeeHandler as BasicFeeHandlerType,
-  DynamicFeeHandler as FeeHandlerWithOracleType,
+  DynamicERC20FeeHandlerEVM as FeeHandlerWithOracleType,
   ERC20Handler as ERC20HandlerType,
   ERC721Handler as ERC721HandlerType,
   PermissionlessGenericHandler as GenericHandlerType,

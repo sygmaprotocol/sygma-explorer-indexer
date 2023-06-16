@@ -1,19 +1,22 @@
 // @ts-nocheck
 /* eslint-disable */
 import { PrismaClient, TransferStatus } from "@prisma/client"
-import { BigNumber, Signer, ethers } from "ethers"
+import { Signer, ethers, AbiCoder, formatUnits } from "ethers"
 import { Bridge__factory } from "@buildwithsygma/sygma-contracts"
-import { getSharedConfig, getLocalConfig } from "../indexer/config"
+import { getSharedConfig } from "../indexer/config"
 
 const prismaClient = new PrismaClient()
 
 const decodeAmountsOrTokenId = (data: string, decimals: number, type: "erc20" | "erc721"): string => {
+  const abiCoder = AbiCoder.defaultAbiCoder()
   if (type === "erc20") {
-    const amount = (ethers.utils.defaultAbiCoder.decode(["uint256"], data) as Array<string>)[0]
-    return ethers.utils.formatUnits(amount, decimals)
+    const amount = abiCoder.decode(["uint256"], data)
+    const amountValue = amount.toArray()[0] as string
+    return formatUnits(amountValue, decimals)
   } else {
-    const tokenId = (ethers.utils.defaultAbiCoder.decode(["uint256"], data) as Array<string>)[0]
-    return tokenId.toString()
+    const tokenId = abiCoder.decode(["uint256"], data)
+    const tokenIdValue = tokenId.toArray()[0] as BigInt
+    return tokenIdValue.toString()
   }
 }
 
@@ -26,7 +29,6 @@ const seeder = async (): Promise<void> => {
   }
 
   const domains = await getSharedConfig("https://cloudflare-ipfs.com/ipfs/QmfPxe4ajcmPBt9Pr2Tr7FeM2Z9ndj9USJwxMdfazo9Jr5") // using old one because new one doesn't have transfers
-  
   const localConfig = getLocalConfig()
   const domainsWithRpcURL = domains.domains.map(domain => {
     const rpcURL = localConfig.get(domain.id)

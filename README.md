@@ -2,17 +2,24 @@
 
 ## Table of Contents
 
-- [Features](#features)
+- [Preparations](#preparations)
 - [Install](#install)
 - [Usage](#usage)
 <!-- - [License](#license) -->
-
-## Features
 
 ### Stack
 
 - NodeJS + [Typescript](https://github.com/microsoft/TypeScript)
 
+## Preparations
+Add The following in your `/etc/hosts` file:
+````
+127.0.0.1       mongo1
+127.0.0.1       mongo2
+127.0.0.1       mongo3
+````
+
+This is required to run the mongo replicas locally and have access to them.
 
 ## Install
 
@@ -29,50 +36,30 @@ You can run stub server that will follow swagger API definition inside `swagger.
 
 Stub server will be exposed on `localhost:8080`. This will also expose Swagger documentation on `localhost:80/swagger`.
 
-### Preparation
-Add The following in your `/etc/hosts` file:
-````
-127.0.0.1       mongo1
-127.0.0.1       mongo2
-127.0.0.1       mongo3
-````
+### Env definition
 
-Start mongoDB for development:
-```
-yarn start:mongo
-```
+This are the env variables that are required:
 
-Copy the example config to public directory with command: 
-```
-yarn copy-config-for-dev
-```
-Copy example env: 
-````
-cp .env.example .env
-````
-Generate prisma assets
-````
+```bash
+DATABASE_URL="mongodb://<HOST>:<PORT>/<DATABASE_NAME>?replicaSet=<REPLICA_NAME>&authSource=admin&retryWrites=true&w=majority"
+STAGE=""
+CHAIN_ANALYSIS_API_KEY=""
+CHAIN_ANALYSIS_URL=""
+ENVIRONMENT="" # testnet || devnet
+RPC_URL_CONFIG="[ { "id": DOMAIN_ID, "endpoint": DOMAIN_ENDPOINT } ]"
+ ```
+
+### Running locally
+
+```bash
+docker compose -f ./docker-compose.only-mongo.yml up
+
 npx prisma generate
-````
 
-Fetch data from blockchain:
+yarn index:fetch
 
-````
-yarn index:bootstrap
-````
-### Development
-For running a local instance use the command:
-
-```
 yarn start:dev
 ```
-
-You can use `GET` on `/transfers` to get the transfers data
-
-````
-curl http://localhost:8000/transfers
-````
-
 
 ### Build
 
@@ -89,6 +76,9 @@ For testing use the command:
 ````
 yarn test
 ````
+
+
+
 
 
 

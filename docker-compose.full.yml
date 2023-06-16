@@ -38,13 +38,3 @@ services:
       DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer?replicaSet=my-replica-set&authSource=admin&retryWrites=true&w=majority
     ports:
       - "3012:3012"
-
-  seed:
-    build:
-      context: .
-    depends_on:
-      - mongo1
-      - mongo2
-      - mongo3
-      - nodejs
-    command: ["yarn", "seed"]
