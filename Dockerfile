@@ -36,6 +36,6 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/build ./build
 
-EXPOSE 3012
+EXPOSE 8000
 
 CMD [ "node", "./build/index.js"]
