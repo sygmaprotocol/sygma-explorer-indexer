@@ -45,6 +45,7 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ env.TAG }}
+          
 
   deploy:
    needs: push
@@ -76,7 +77,7 @@ jobs:
            awsRegion=${{ env.AWS_REGION }}
 
      - name: Configure AWS Credentials
-       uses: aws-actions/configure-aws-credentials@v1ß
+       uses: aws-actions/configure-aws-credentials@v1
        with:
          role-to-assume: arn:aws:iam::${{ env.AWS_TESTNET }}:role/github-actions-${{ env.ENVIRONMENT }}-chainbridge
          aws-region: ${{ env.AWS_REGION }}
