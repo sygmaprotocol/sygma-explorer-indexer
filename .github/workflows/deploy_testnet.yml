@@ -76,13 +76,12 @@ jobs:
          repository: sygmaprotocol/devops
          token: ${{ secrets.GHCR_TOKEN }}
          ref: main
-         path: sygma-explorer
 
      - name: render jinja2 templates to task definition json files
        uses: cuchi/jinja2-action@v1.2.0
        with:
-         template: 'ecs/task_definition-explorer-indexer-${{ env.ENVIRONMENT }}.j2'
-         output_file: 'ecs/task_definition-explorer-indexer-${{ env.ENVIRONMENT }}.json'
+         template: 'sygma-explorer/ecs/task_definition-explorer-indexer-${{ env.ENVIRONMENT }}.j2'
+         output_file: 'sygma-explorer/secs/task_definition-explorer-indexer-${{ env.ENVIRONMENT }}.json'
          data_format: json
          variables: |
            awsAccountId=${{ env.AWS_TESTNET }}
