@@ -73,7 +73,7 @@ jobs:
        uses: actions/checkout@v3
        with:
          repository: sygmaprotocol/devops
-         token: ${{ secrets.GITHUB_TOKEN }}
+         token: ${{ secrets.GHCR_TOKEN }}
          ref: main
 
      - name: render jinja2 templates to task definition json files
