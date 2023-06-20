@@ -97,7 +97,7 @@ jobs:
      - name: Deploy to Amazon ECS
        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
        with:
-         task-definition: sygma-explorer/ecs/task_definition_${{ env.ENVIRONMENT }}.json
+         task-definition: sygma-explorer/ecs/task_definition-explorer-indexer-${{ env.ENVIRONMENT }}.json
          service: explorer-indexer-service-${{ env.ENVIRONMENT }}
          cluster: sygma-explorer-${{ env.ENVIRONMENT }}
          wait-for-service-stability: true
