@@ -64,6 +64,7 @@ jobs:
    permissions:
      contents: read
      id-token: write
+     actions: write
 
    steps:
      - name: checkout the source code
@@ -75,6 +76,7 @@ jobs:
          repository: sygmaprotocol/devops
          token: ${{ secrets.GHCR_TOKEN }}
          ref: main
+         path: sygma-explorer
 
      - name: render jinja2 templates to task definition json files
        uses: cuchi/jinja2-action@v1.2.0
