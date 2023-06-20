@@ -74,7 +74,7 @@ jobs:
        with:
          repository: sygmaprotocol/devops
          token: ${{ secrets.GITHUB_TOKEN }}
-         path: sygma-explorer
+         ref: main
 
      - name: render jinja2 templates to task definition json files
        uses: cuchi/jinja2-action@v1.2.0
