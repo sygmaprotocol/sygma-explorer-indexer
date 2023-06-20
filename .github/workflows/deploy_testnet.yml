@@ -21,7 +21,6 @@ jobs:
 
     permissions:
       contents: read
-      id-token: write
       packages: write
 
     steps:
@@ -36,8 +35,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build / tag / push docker image into ghcr
         id: build-and-push-tag
