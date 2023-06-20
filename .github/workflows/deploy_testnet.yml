@@ -66,14 +66,15 @@ jobs:
      id-token: write
 
    steps:
-    #  - name: checkout the source code
-    #    uses: actions/checkout@v3
+     - name: checkout the source code
+       uses: actions/checkout@v3
 
      - name: checkout ecs repo
        uses: actions/checkout@v3
        with:
          repository: sygmaprotocol/devops
          token: ${{ secrets.GITHUB_TOKEN }}
+         path: sygma-explorer
 
      - name: render jinja2 templates to task definition json files
        uses: cuchi/jinja2-action@v1.2.0
