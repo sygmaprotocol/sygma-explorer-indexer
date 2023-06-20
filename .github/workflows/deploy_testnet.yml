@@ -55,7 +55,7 @@ jobs:
 
       - name: build / tag / push docker image into ghcr
         id: build-and-push-ref
-        uses: docker/build-push-action@v3f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        uses: docker/build-push-action@vf2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           context: .
           push: true
