@@ -4,9 +4,10 @@ import TransferRepository from "../../../indexer/repository/transfer";
 import { Transfer, TransferStatus } from "@prisma/client";
 import { logger } from "../../../utils/logger";
 import DepositRepository from "../../../indexer/repository/deposit";
+import { DepositDataToSave, ProposalExecutionDataToSave } from "../../../indexer/services/substrateIndexer/substrateTypes";
 
 export async function saveProposalExecution(
-  proposalExecutionData: any,
+  proposalExecutionData: ProposalExecutionDataToSave,
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
 ): Promise<void> {
@@ -14,7 +15,7 @@ export async function saveProposalExecution(
   } = proposalExecutionData
 
   let transfer = await transferRepository.findByNonceFromDomainId(
-    depositNonce,
+    Number(depositNonce),
     originDomainId
   )
 
@@ -23,7 +24,7 @@ export async function saveProposalExecution(
     try {
       await transferRepository.insertExecutionSubstrateTransfer(
         originDomainId,
-        depositNonce,
+        Number(depositNonce),
       )
     } catch (e) {
       logger.error(`Error inserting substrate proposal execution transfer: ${e}`)
@@ -48,11 +49,11 @@ export async function saveProposalExecution(
 }
 
 export async function saveDeposit(
-  substrateDepositData: any,
+  substrateDepositData: DepositDataToSave,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository
 ): Promise<void> {
-  const { destinationDomainId, depositNonce, txIdentifier, blockNumber, depositData, handlerResponse, sender, resourceId
+  const { destDomainId: destinationDomainId, depositNonce, txIdentifier, blockNumber, depositData, handlerResponse, sender, resourceId
   } = substrateDepositData
   const transferData = {
     id: new ObjectId().toString(),

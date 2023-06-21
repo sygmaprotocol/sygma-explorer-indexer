@@ -59,7 +59,7 @@ class TransferRepository {
     return await this.transfer.create({ data: transferData })
   }
 
-  public async insertSubstrateDepositTransfer(substrateDepositData: Transfer): Promise<Transfer> {
+  public async insertSubstrateDepositTransfer(substrateDepositData: any): Promise<Transfer> { //TODO: fix type
     return await this.transfer.create({ data: substrateDepositData })
   }
 
