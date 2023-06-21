@@ -59,6 +59,10 @@ class TransferRepository {
     return await this.transfer.create({ data: transferData })
   }
 
+  public async insertSubstrateDepositTransfer(substrateDepositData: Transfer): Promise<Transfer> {
+    return await this.transfer.create({ data: substrateDepositData })
+  }
+
   public async insertExecutionTransfer(decodedLog: DecodedProposalExecutionLog): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
@@ -72,6 +76,23 @@ class TransferRepository {
       destination: null,
       amount: null,
     }
+    return await this.transfer.create({ data: transferData })
+  }
+
+  public async insertExecutionSubstrateTransfer(originDomainId: string, depositNonce: number): Promise<Transfer> {
+    const transferData = {
+      id: new ObjectId().toString(),
+      depositNonce: depositNonce,
+      fromDomainId: originDomainId,
+      timestamp: null,
+      status: TransferStatus.executed,
+      resourceID: null,
+      toDomainId: null,
+      sender: null,
+      destination: null,
+      amount: null,
+    }
+
     return await this.transfer.create({ data: transferData })
   }
 

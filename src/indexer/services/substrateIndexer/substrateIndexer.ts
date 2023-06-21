@@ -1,17 +1,35 @@
 import { ApiPromise, WsProvider } from "@polkadot/api"
-import { Domain } from "indexer/config"
+import { Domain, getSsmDomainConfig, getSharedConfig } from "../../config"
 import DomainRepository from "../../repository/domain"
 import { logger } from "../../../utils/logger"
+import ExecutionRepository from "../../../indexer/repository/execution"
+import DepositRepository from "../../../indexer/repository/deposit"
+import { saveDeposit, saveProposalExecution } from "../../../utils/indexer/substrate"
+import TransferRepository from "../../../indexer/repository/transfer"
+
+type ProposalExecutionEvent = { event: { data: { originDomainId: string; depositNonce: string; dataHash: string } } }
 
 export class SubstrateIndexer {
   private domainRepository: DomainRepository
-  private pastEventsQueryInterval = 2000
+  private executionRepository: ExecutionRepository
+  private depositRepository: DepositRepository
+  private transferRepository: TransferRepository
+  private pastEventsQueryInterval = 1
   private currentEventsQueryInterval = 10
   private provider!: ApiPromise
   private domain: Domain
-  constructor(domainRepository: DomainRepository, domain: Domain) {
+  constructor(
+    domainRepository: DomainRepository,
+    domain: Domain,
+    executionRepository: ExecutionRepository,
+    depositRepository: DepositRepository,
+    transferRepository: TransferRepository,
+  ) {
     this.domainRepository = domainRepository
     this.domain = domain
+    this.executionRepository = executionRepository
+    this.depositRepository = depositRepository
+    this.transferRepository = transferRepository
   }
   async init(rpcUrl: string): Promise<void> {
     const wsProvider = new WsProvider(rpcUrl)
@@ -23,11 +41,12 @@ export class SubstrateIndexer {
   async indexPastEvents(): Promise<number> {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id.toString())
 
-    let toBlock = this.domain.startBlock + this.pastEventsQueryInterval
+    const currentBlock = await this.provider.rpc.chain.getBlock()
 
-    let latestBlock = Number((await this.provider.rpc.chain.getBlock()).block.header.number)
+    let latestBlock = Number(currentBlock.block.header.number)
+    let toBlock = latestBlock
 
-    let fromBlock = this.domain.startBlock
+    let fromBlock = lastIndexedBlock
 
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
       // move 1 block from last processed db block
@@ -37,7 +56,7 @@ export class SubstrateIndexer {
     logger.info(`Starting querying past blocks on ${this.domain.name}`)
     do {
       try {
-        latestBlock = Number((await this.provider.rpc.chain.getBlock()).block.header.number)
+        latestBlock = Number(currentBlock.block.header.number) // SINCE IT A DO WHILE, IT GETS THE FIRST CALL TO THE LATEST BLOCK. THERE IS GOING TO BE A DIFF, AND THIS IS WHY THIS INDEX PAST EVENTS
         // check block range for getting logs query exceeds latestBlock on network
         // if true -> get logs until that block, else query next range of blocks
         if (fromBlock + this.pastEventsQueryInterval >= latestBlock) {
@@ -46,7 +65,63 @@ export class SubstrateIndexer {
           toBlock = fromBlock + this.pastEventsQueryInterval
         }
 
-        await this.saveDataToDb(this.domain.id, toBlock.toString())
+        const blockHash = await this.provider.rpc.chain.getBlockHash(fromBlock)
+        const signedBlock = await this.provider.rpc.chain.getBlock(blockHash)
+        const at = await this.provider.at(blockHash)
+        const allRecords = await at.query.system.events()
+
+        // @ts-ignore
+        const proposalExecutionEvent = allRecords.find(
+          ({ event }: any) => event.method === "ProposalExecution" && event.section === "sygmaBridge",
+        ) as ProposalExecutionEvent
+        // @ts-ignore
+        const depositEvent = allRecords.find(({ event }: any) => event.method === "Deposit" && event.section === "sygmaBridge")
+
+        const sectionIndex = signedBlock.block.extrinsics.findIndex(ex => ex.method.section === "sygmaBridge")
+
+        const txIdentifier = `${fromBlock}-${sectionIndex}` //this is like the txHash but for the substrate
+
+        if (proposalExecutionEvent !== undefined) {
+          const { data } = (proposalExecutionEvent.event as any).toHuman()
+
+          const { originDomainId, depositNonce } = data
+
+          this.saveProposalExecutionToDb(this.domain.id, fromBlock.toString(), {
+            originDomainId,
+            depositNonce: Number(depositNonce),
+            txIdentifier,
+            blockNumber: `${fromBlock}`,
+          })
+        } else if (depositEvent !== undefined) {
+          const { data } = (depositEvent.event as any).toHuman()
+
+          /**
+           * data: {
+                destDomainId: '1',
+                resourceId: '0x0000000000000000000000000000000000000000000000000000000000001000',
+                depositNonce: '8',
+                sender: '43vNPAxiYuWSvxapizZJ9xtNu3out1xu3gxu3zbCpeoqRZRK',
+                transferType: 'FungibleTransfer',
+                depositData: '0x000000000000000000000000000000000000000000000002b480699e53fe00000000000000000000000000000000000000000000000000000000000000000014d31e89fecccf6f2de10eac92adfff48d802b695c',
+                handlerResponse: ''
+              }
+           */
+
+          const { destDomainId: destinationDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
+
+          this.saveDepositToDb(this.domain.id, fromBlock.toString(), {
+            destinationDomainId,
+            resourceId,
+            depositNonce: Number(depositNonce),
+            sender,
+            transferType,
+            depositData,
+            handlerResponse,
+            txIdentifier,
+            blockNumber: `${fromBlock}`,
+          })
+        }
+
         // move to next range of blocks
         fromBlock += this.pastEventsQueryInterval
         toBlock += this.pastEventsQueryInterval
@@ -78,9 +153,27 @@ export class SubstrateIndexer {
     })
   }
 
-  async saveDataToDb(domainID: number, latestBlock: string): Promise<void> {
+  async saveProposalExecutionToDb(domainID: number, latestBlock: string, proposalExecutionData?: any): Promise<void> {
     logger.info(`save block on substrate ${this.domain.name}: ${latestBlock}`)
-    await this.domainRepository.updateBlock(latestBlock, domainID)
+    logger.info(`domain Id: ${domainID}, latestBlock: ${latestBlock}`)
+    logger.info("Saving proposal execution")
+
+    /**
+     * to insert this execution I need to update the transfer
+     * to update the transfer I need to get the transfer by depositNonce + domain id => because this is unique combination
+     */
+    await saveProposalExecution(proposalExecutionData, this.executionRepository, this.transferRepository)
+  }
+
+  async saveDepositToDb(domainID: number, latestBlock: string, depositData?: any): Promise<void> {
+    logger.info(`save block on substrate ${this.domain.name}: ${latestBlock}`)
+    logger.info(`domain Id: ${domainID}, latestBlock: ${latestBlock}`)
+
+    logger.info("Saving deposit")
+    /**
+     * to insert deposit I need to fill first the transfer entity
+     */
+    await saveDeposit(depositData, this.transferRepository, this.depositRepository)
   }
 
   async getLastIndexedBlock(domainID: string): Promise<number> {

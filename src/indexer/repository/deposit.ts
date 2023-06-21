@@ -1,7 +1,8 @@
 import { Deposit, PrismaClient } from "@prisma/client"
 
 class DepositRepository {
-  public deposit = new PrismaClient().deposit
+  public prismaClient = new PrismaClient()
+  public deposit = this.prismaClient.deposit
 
   public async insertDeposit(deposit: Deposit): Promise<void> {
     await this.deposit.create({ data: deposit })

@@ -1,4 +1,5 @@
 import { Domain, PrismaClient } from "@prisma/client"
+import { logger } from "../../utils/logger"
 
 class DomainRepository {
   public domain = new PrismaClient().domain
@@ -16,15 +17,20 @@ class DomainRepository {
     }
   }
   public async updateBlock(blockNumber: string, domainID: number): Promise<void> {
-    await this.domain.update({
-      where: {
-        id: domainID.toString(),
-      },
-      data: {
-        lastIndexedBlock: blockNumber,
-      },
-    })
+    try {
+      await this.domain.update({
+        where: {
+          id: domainID.toString(),
+        },
+        data: {
+          lastIndexedBlock: blockNumber,
+        },
+      })
+    } catch (error) {
+      logger.error(`Error updating block number for domain ${domainID.toString()}: ${error}`)
+    }
   }
+
   public async getLastIndexedBlock(domainID: string): Promise<Domain | null> {
     return await this.domain.findFirst({
       where: {
