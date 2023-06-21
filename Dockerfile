@@ -26,7 +26,6 @@ COPY . .
 # check files list
 RUN ls -a
 
-RUN npm install pm2 -g
 RUN yarn prisma:generate
 
 RUN yarn build
