@@ -8,9 +8,14 @@ import TransferRepository from "./repository/transfer"
 import ExecutionRepository from "./repository/execution"
 import FeeRepository from "./repository/fee"
 import ResourceRepository from "./repository/resource"
+import { OfacComplianceService } from "../services/ofac.service"
 
 async function main(): Promise<void> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
+  const ofacComplianceService = new OfacComplianceService(
+    process.env.CHAIN_ANALYSIS_URL!,
+    process.env.CHAIN_ANALYSIS_API_KEY!
+  )
 
   const domainRepository = new DomainRepository()
   const depositRepository = new DepositRepository()
@@ -43,7 +48,7 @@ async function main(): Promise<void> {
       }
     } else if (domain.type == DomainTypes.EVM) {
       try {
-        const evmIndexer = new EvmIndexer(domain, rpcURL, domainRepository, depositRepository, transferRepository, executionRepository, feeRepository)
+        const evmIndexer = new EvmIndexer(domain, rpcURL, domainRepository, depositRepository, transferRepository, executionRepository, feeRepository, ofacComplianceService)
         await evmIndexer.listenToEvents()
       } catch (err) {
         logger.error(`error on domain: ${domain.id}... skipping`)

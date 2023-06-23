@@ -11,6 +11,7 @@ import { logger } from "../../../utils/logger"
 import { getLogs } from "./evmfilter"
 import { DecodedLogs } from "./evmTypes"
 import { decodeLogs } from "./evmEventParser"
+import { OfacComplianceService } from "../../../services/ofac.service"
 
 export class EvmIndexer {
   private provider: ethers.JsonRpcProvider
@@ -23,6 +24,8 @@ export class EvmIndexer {
   private feeRepository: FeeRepository
   private domain: Domain
   private resourceMap: Map<string, Resource>
+  private ofacComplianceService: OfacComplianceService
+
   constructor(
     domain: Domain,
     rpcURL: string,
@@ -31,6 +34,7 @@ export class EvmIndexer {
     transferRepository: TransferRepository,
     executionRepository: ExecutionRepository,
     feeRepository: FeeRepository,
+    ofacComplianceService: OfacComplianceService
   ) {
     this.provider = new ethers.JsonRpcProvider(rpcURL)
     this.domainRepository = domainRepository
@@ -39,6 +43,7 @@ export class EvmIndexer {
     this.transferRepository = transferRepository
     this.executionRepository = executionRepository
     this.feeRepository = feeRepository
+    this.ofacComplianceService = ofacComplianceService
 
     this.resourceMap = new Map<string, Resource>()
     domain.resources.map((resource: Resource) => this.resourceMap.set(resource.resourceId, resource))
@@ -121,7 +126,7 @@ export class EvmIndexer {
       const transferMap = new Map<string, string>()
 
       await Promise.all(
-        decodedLogs.deposit.map(async decodedLog => saveDepositLogs(decodedLog, this.transferRepository, this.depositRepository, transferMap)),
+        decodedLogs.deposit.map(async decodedLog => saveDepositLogs(decodedLog, this.transferRepository, this.depositRepository, transferMap, this.ofacComplianceService)),
       )
 
       await Promise.all(decodedLogs.feeCollected.map(async fee => saveFeeLogs(fee, transferMap, this.feeRepository)))

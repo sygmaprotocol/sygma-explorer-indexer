@@ -35,7 +35,6 @@ class TransferRepository {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: decodedLog.depositNonce,
-      sender: decodedLog.sender,
       amount: decodedLog.amount,
       destination: decodedLog.destination,
       status: TransferStatus.pending,
@@ -55,7 +54,13 @@ class TransferRepository {
         },
       },
       timestamp: decodedLog.timestamp,
-      addressStatus,
+      account: {
+        create: {
+          id: new ObjectId().toString(),
+          address: decodedLog.sender,
+          addressStatus
+        }
+      }
     }
     return await this.transfer.create({ data: transferData })
   }
@@ -69,7 +74,6 @@ class TransferRepository {
       status: TransferStatus.executed,
       resourceID: decodedLog.resourceID,
       toDomainId: null,
-      sender: null,
       destination: null,
       amount: null,
     }
@@ -89,7 +93,6 @@ class TransferRepository {
   public async updateTransfer(decodedLog: DecodedDepositLog, id: string, addressStatus: string): Promise<Transfer> {
     const transferData = {
       depositNonce: decodedLog.depositNonce,
-      sender: decodedLog.sender,
       amount: decodedLog.amount,
       destination: decodedLog.destination,
       resource: {
@@ -108,7 +111,14 @@ class TransferRepository {
         },
       },
       timestamp: decodedLog.timestamp,
-      addressStatus,
+      account: {
+        create: {
+          id: new ObjectId().toString(),
+          address: decodedLog.sender,
+          addressStatus
+        }
+
+      }
     }
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }

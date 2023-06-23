@@ -33,7 +33,7 @@ import {
 import { getERC20Contract } from "../../indexer/services/contract"
 import FeeRepository from "../../indexer/repository/fee"
 import ExecutionRepository from "../../indexer/repository/execution"
-import { checkSanctionedAddress } from "../../services/ofac.service"
+import { OfacComplianceService } from "../../services/ofac.service"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
 
@@ -197,12 +197,13 @@ export async function saveDepositLogs(
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
+  ofacComplianceService: OfacComplianceService,
 ): Promise<void> {
   let transfer = await transferRepository.findByNonceToDomainId(decodedLog.depositNonce, decodedLog.toDomainId)
 
   const { sender } = decodedLog
 
-  const addressStatus = await checkSanctionedAddress(sender)
+  const addressStatus = await ofacComplianceService.checkSanctionedAddress(sender)
 
   if (!transfer) {
     transfer = await transferRepository.insertDepositTransfer(decodedLog, addressStatus)

@@ -11,25 +11,32 @@ generator client {
 }
 
 model Transfer {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
-  depositNonce  Int            @unique
-  resource      Resource?      @relation(fields: [resourceID], references: [id])
-  resourceID    String?
-  fromDomain    Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
-  fromDomainId  String
-  toDomain      Domain?        @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
-  toDomainId    String?
-  sender        String?
-  destination   String?
-  amount        String?
-  timestamp     Int?
-  status        TransferStatus
-  deposit       Deposit?
-  execution     Execution?
-  fee           Fee?
-  addressStatus String?
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  depositNonce Int            @unique
+  resource     Resource?      @relation(fields: [resourceID], references: [id])
+  resourceID   String?
+  fromDomain   Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
+  fromDomainId String
+  toDomain     Domain?        @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
+  toDomainId   String?
+  destination  String?
+  amount       String?
+  timestamp    Int?
+  status       TransferStatus
+  deposit      Deposit?
+  execution    Execution?
+  fee          Fee?
+  account      Account?       @relation(fields: [accountId], references: [id])
+  accountId    String?
 
   @@unique(fields: [depositNonce, fromDomainId], name: "nonceDomain")
+}
+
+model Account {
+  id            String     @id @map("_id")
+  address       String?
+  addressStatus String
+  Transfer      Transfer[]
 }
 
 enum TransferStatus {
