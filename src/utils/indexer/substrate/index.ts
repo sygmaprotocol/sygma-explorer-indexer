@@ -22,10 +22,11 @@ export async function saveProposalExecution(
   // there is no transfer but still we have proposal execution
   if (!transfer) {
     try {
-      await transferRepository.insertExecutionSubstrateTransfer(
-        originDomainId,
-        Number(depositNonce),
-      )
+      await transferRepository.insertExecutionTransfer({
+        depositNonce: Number(depositNonce),
+        fromDomainId: originDomainId,
+        timestamp: null,
+        resourceID: null
     } catch (e) {
       logger.error(`Error inserting substrate proposal execution transfer: ${e}`)
     }

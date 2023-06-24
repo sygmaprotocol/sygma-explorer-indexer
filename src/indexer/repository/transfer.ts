@@ -63,36 +63,19 @@ class TransferRepository {
     return await this.transfer.create({ data: substrateDepositData })
   }
 
-  public async insertExecutionTransfer(decodedLog: DecodedProposalExecutionLog): Promise<Transfer> {
-    const transferData = {
-      id: new ObjectId().toString(),
-      depositNonce: decodedLog.depositNonce,
-      fromDomainId: decodedLog.fromDomainId,
-      timestamp: decodedLog.timestamp,
-      status: TransferStatus.executed,
-      resourceID: decodedLog.resourceID,
-      toDomainId: null,
-      sender: null,
-      destination: null,
-      amount: null,
-    }
-    return await this.transfer.create({ data: transferData })
-  }
-
-  public async insertExecutionSubstrateTransfer(originDomainId: string, depositNonce: number): Promise<Transfer> {
+  public async insertExecutionTransfer({ depositNonce, fromDomainId, timestamp, resourceID }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp" | "resourceID">): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: depositNonce,
-      fromDomainId: originDomainId,
-      timestamp: null,
+      fromDomainId: fromDomainId,
+      timestamp: timestamp,
       status: TransferStatus.executed,
-      resourceID: null,
+      resourceID: resourceID,
       toDomainId: null,
       sender: null,
       destination: null,
       amount: null,
     }
-
     return await this.transfer.create({ data: transferData })
   }
 
