@@ -69,6 +69,7 @@ export class SubstrateIndexer {
         const blockHash = await this.provider.rpc.chain.getBlockHash(fromBlock)
         const signedBlock = await this.provider.rpc.chain.getBlock(blockHash)
         const at = await this.provider.at(blockHash)
+        const timestamp = Number((await at.query.timestamp.now()).toString())
         const allRecords = await at.query.system.events()
 
         // we get the proposal execution events - ts-ignore because of allRecords
@@ -96,6 +97,7 @@ export class SubstrateIndexer {
               depositNonce: depositNonce,
               txIdentifier,
               blockNumber: `${fromBlock}`,
+              timestamp
             })
           })
         } else if (depositEvents.length) {
@@ -114,6 +116,7 @@ export class SubstrateIndexer {
               handlerResponse,
               txIdentifier,
               blockNumber: `${fromBlock}`,
+              timestamp
             })
           })
         }
@@ -141,6 +144,7 @@ export class SubstrateIndexer {
           const blockHash = await this.provider.rpc.chain.getBlockHash(latestBlock)
           const signedBlock = await this.provider.rpc.chain.getBlock(blockHash)
           const at = await this.provider.at(blockHash)
+          const timestamp = Number(await at.query.timestamp.now().toString())
           const allRecords = await at.query.system.events()
 
           // we get the proposal execution events - ts-ignore because of allRecords
@@ -186,6 +190,7 @@ export class SubstrateIndexer {
                 handlerResponse,
                 txIdentifier,
                 blockNumber: `${latestBlock}`,
+                timestamp
               })
             })
           }

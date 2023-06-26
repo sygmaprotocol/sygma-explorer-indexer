@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { AbiCoder, formatEther } from 'ethers'
 import ExecutionRepository from "../../../indexer/repository/execution";
 import TransferRepository from "../../../indexer/repository/transfer";
 import { Transfer, TransferStatus } from "@prisma/client";
@@ -11,7 +12,7 @@ export async function saveProposalExecution(
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
 ): Promise<void> {
-  const { originDomainId, depositNonce, txIdentifier, blockNumber
+  const { originDomainId, depositNonce, txIdentifier, blockNumber, timestamp
   } = proposalExecutionData
 
   let transfer = await transferRepository.findByNonceFromDomainId(
@@ -25,7 +26,7 @@ export async function saveProposalExecution(
       await transferRepository.insertExecutionTransfer({
         depositNonce: Number(depositNonce),
         fromDomainId: originDomainId,
-        timestamp: null,
+        timestamp,
         resourceID: null
       })
     } catch (e) {
@@ -55,13 +56,16 @@ export async function saveDeposit(
   transferRepository: TransferRepository,
   depositRepository: DepositRepository
 ): Promise<void> {
-  const { destDomainId: destinationDomainId, depositNonce, txIdentifier, blockNumber, depositData, handlerResponse, sender, resourceId
+  const { destDomainId: destinationDomainId, depositNonce, txIdentifier, blockNumber, depositData, handlerResponse, sender, resourceId, timestamp
   } = substrateDepositData
+
+  const decodedAmount = getDecodedAmount(depositData)
+  
   const transferData = {
     id: new ObjectId().toString(),
     depositNonce: Number(depositNonce),
     sender: sender,
-    amount: null, // TODO: decode this from deposit data
+    amount: decodedAmount,
     status: TransferStatus.pending,
     resource: {
       connect: {
@@ -78,7 +82,7 @@ export async function saveDeposit(
         id: destinationDomainId
       }
     },
-    timestamp: null, // TODO: check dot api to get timestamp
+    timestamp: timestamp,
   }
 
   let insertedTransfer: Transfer | undefined
@@ -107,4 +111,11 @@ export async function saveDeposit(
 
   }
 
+}
+
+function getDecodedAmount(depositData: string): string {
+  const abiCoder = AbiCoder.defaultAbiCoder()
+  const parsedAmount = `0x${depositData.substring(2).slice(0, 64)}`
+  const decodedDepositData = abiCoder.decode(["uint256"], parsedAmount)
+  return formatEther(decodedDepositData[0].toString())
 }

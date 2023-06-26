@@ -10,9 +10,9 @@ export type RawDepositData = {
   handlerResponse: string,
 }
 
-export type ProposalExecutionDataToSave = Omit<RawProposalExecutionData, "dataHash"> & { txIdentifier: string, blockNumber: string }
+export type ProposalExecutionDataToSave = Omit<RawProposalExecutionData, "dataHash"> & { txIdentifier: string, blockNumber: string, timestamp: number }
 
-export type DepositDataToSave = RawDepositData & { txIdentifier: string, blockNumber: string }
+export type DepositDataToSave = RawDepositData & { txIdentifier: string, blockNumber: string, timestamp: number }
 
 export type ProposalExecutionEvent = { event: { data: RawProposalExecutionData } }
 
