@@ -6,8 +6,8 @@ import ExecutionRepository from "../../../indexer/repository/execution"
 import DepositRepository from "../../../indexer/repository/deposit"
 import { saveDeposit, saveProposalExecution } from "../../../utils/indexer/substrate"
 import TransferRepository from "../../../indexer/repository/transfer"
-import { DepositDataToSave, DepositEvent, ProposalExecutionDataToSave, ProposalExecutionEvent, RawProposalExecutionData, SygmaPalleteEvents } from "./substrateTypes"
-import { getSubstrateEvent } from "./substrateEventParser"
+import { DepositDataToSave, DepositEvent, ProposalExecutionDataToSave, ProposalExecutionEvent, SygmaPalleteEvents } from "./substrateTypes"
+import { getSubstrateEvents } from "./substrateEventParser"
 
 export class SubstrateIndexer {
   private domainRepository: DomainRepository
@@ -73,11 +73,11 @@ export class SubstrateIndexer {
 
         // we get the proposal execution events - ts-ignore because of allRecords
         // @ts-ignore
-        const proposalExecutionEvent = getSubstrateEvent(SygmaPalleteEvents.ProposalExecution, allRecords) as ProposalExecutionEvent
+        const proposalExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.ProposalExecution, allRecords) as Array<ProposalExecutionEvent>
 
         // we get the deposit events - ts-ignore because of allRecords
         // @ts-ignore
-        const depositEvent = getSubstrateEvent(SygmaPalleteEvents.Deposit, allRecords) as DepositEvent
+        const depositEvents = getSubstrateEvents(SygmaPalleteEvents.Deposit, allRecords) as Array<DepositEvent>
 
         // we get the index of the section in the extrinsic
         const sectionIndex = signedBlock.block.extrinsics.findIndex(ex => ex.method.section === "sygmaBridge")
@@ -85,32 +85,36 @@ export class SubstrateIndexer {
         // this is our identifier for the tx
         const txIdentifier = `${fromBlock}-${sectionIndex}` //this is like the txHash but for the substrate
 
-        if (proposalExecutionEvent !== undefined) {
-          const { data } = (proposalExecutionEvent.event as any).toHuman()
+        if (proposalExecutionEvents.length) {
+          proposalExecutionEvents.forEach((proposalExecutionEvent: ProposalExecutionEvent) => {
+            const { data } = (proposalExecutionEvent.event as any).toHuman()
 
-          const { originDomainId, depositNonce } = data
+            const { originDomainId, depositNonce } = data
 
-          this.saveProposalExecutionToDb(this.domain.id, fromBlock.toString(), {
-            originDomainId,
-            depositNonce: depositNonce,
-            txIdentifier,
-            blockNumber: `${fromBlock}`,
+            this.saveProposalExecutionToDb(this.domain.id, fromBlock.toString(), {
+              originDomainId,
+              depositNonce: depositNonce,
+              txIdentifier,
+              blockNumber: `${fromBlock}`,
+            })
           })
-        } else if (depositEvent !== undefined) {
-          const { data } = (depositEvent.event as any).toHuman()
+        } else if (depositEvents.length) {
+          depositEvents.forEach((depositEvent: DepositEvent) => {
+            const { data } = (depositEvent.event as any).toHuman()
 
-          const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
+            const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
 
-          this.saveDepositToDb(this.domain.id, fromBlock.toString(), {
-            destDomainId,
-            resourceId,
-            depositNonce: depositNonce,
-            sender,
-            transferType,
-            depositData,
-            handlerResponse,
-            txIdentifier,
-            blockNumber: `${fromBlock}`,
+            this.saveDepositToDb(this.domain.id, fromBlock.toString(), {
+              destDomainId,
+              resourceId,
+              depositNonce: depositNonce,
+              sender,
+              transferType,
+              depositData,
+              handlerResponse,
+              txIdentifier,
+              blockNumber: `${fromBlock}`,
+            })
           })
         }
 
@@ -130,7 +134,7 @@ export class SubstrateIndexer {
     let latestBlock = await this.indexPastEvents()
     await this.provider.rpc.chain.subscribeNewHeads(async header => {
       // start at last block from past events query and move to new blocks range
-      if (latestBlock + this.currentEventsQueryInterval === Number(header.number)) {
+      if (latestBlock + this.currentEventsQueryInterval < Number(header.number)) {
         // connect executions to deposits
         try {
           // fetch and decode logs
@@ -141,11 +145,11 @@ export class SubstrateIndexer {
 
           // we get the proposal execution events - ts-ignore because of allRecords
           // @ts-ignore
-          const proposalExecutionEvent = getSubstrateEvent(SygmaPalleteEvents.ProposalExecution, allRecords) as ProposalExecutionEvent
+          const proposalExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.ProposalExecution, allRecords) as Array<ProposalExecutionEvent>
 
           // we get the deposit events - ts-ignore because of allRecords
           // @ts-ignore
-          const depositEvent = getSubstrateEvent(SygmaPalleteEvents.Deposit, allRecords) as DepositEvent
+          const depositEvents = getSubstrateEvents(SygmaPalleteEvents.Deposit, allRecords) as Array<DepositEvent>
 
           // we get the index of the section in the extrinsic
           const sectionIndex = signedBlock.block.extrinsics.findIndex(ex => ex.method.section === "sygmaBridge")
@@ -153,32 +157,36 @@ export class SubstrateIndexer {
           // this is our identifier for the tx
           const txIdentifier = `${latestBlock}-${sectionIndex}` //this is like the txHash but for the substrate
 
-          if (proposalExecutionEvent !== undefined) {
-            const { data } = (proposalExecutionEvent.event as any).toHuman()
+          if (proposalExecutionEvents.length) {
+            proposalExecutionEvents.forEach((proposalExecutionEvent: ProposalExecutionEvent) => {
+              const { data } = (proposalExecutionEvent.event as any).toHuman()
 
-            const { originDomainId, depositNonce } = data
-  
-            this.saveProposalExecutionToDb(this.domain.id, latestBlock.toString(), {
-              originDomainId,
-              depositNonce: depositNonce,
-              txIdentifier,
-              blockNumber: `${latestBlock}`,
+              const { originDomainId, depositNonce } = data
+
+              this.saveProposalExecutionToDb(this.domain.id, latestBlock.toString(), {
+                originDomainId,
+                depositNonce: depositNonce,
+                txIdentifier,
+                blockNumber: `${latestBlock}`,
+              })
             })
-          } else if (depositEvent !== undefined) {
-            const { data } = (depositEvent.event as any).toHuman()
-  
-            const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
-  
-            this.saveDepositToDb(this.domain.id, latestBlock.toString(), {
-              destDomainId,
-              resourceId,
-              depositNonce: depositNonce,
-              sender,
-              transferType,
-              depositData,
-              handlerResponse,
-              txIdentifier,
-              blockNumber: `${latestBlock}`,
+          } else if (depositEvents.length) {
+            depositEvents.forEach((depositEvent: DepositEvent) => {
+              const { data } = (depositEvent.event as any).toHuman()
+
+              const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
+
+              this.saveDepositToDb(this.domain.id, latestBlock.toString(), {
+                destDomainId,
+                resourceId,
+                depositNonce: depositNonce,
+                sender,
+                transferType,
+                depositData,
+                handlerResponse,
+                txIdentifier,
+                blockNumber: `${latestBlock}`,
+              })
             })
           }
 

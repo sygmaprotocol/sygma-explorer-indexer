@@ -1,10 +1,10 @@
 import { DepositEvent, ProposalExecutionEvent, SubstrateEvent, SygmaPalleteEvents } from "./substrateTypes";
 
-export function getSubstrateEvent(event: SygmaPalleteEvents, records: Array<SubstrateEvent>): ProposalExecutionEvent | DepositEvent {
+export function getSubstrateEvents(event: SygmaPalleteEvents, records: Array<SubstrateEvent>): Array<ProposalExecutionEvent | DepositEvent> {
   switch (event) {
     case SygmaPalleteEvents.ProposalExecution:
-      return records.find(({ event: { method, section } }: SubstrateEvent) => method === event && section === "sygmaBridge") as unknown as ProposalExecutionEvent
+      return records.filter(({ event: { method, section } }: SubstrateEvent) => method === event && section === "sygmaBridge") as unknown as Array<ProposalExecutionEvent>
     case SygmaPalleteEvents.Deposit:
-      return records.find(({ event: { method, section } }: SubstrateEvent) => method === event && section === "sygmaBridge") as unknown as DepositEvent
+      return records.filter(({ event: { method, section } }: SubstrateEvent) => method === event && section === "sygmaBridge") as unknown as Array<DepositEvent>
   }
 }

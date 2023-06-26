@@ -27,6 +27,7 @@ export async function saveProposalExecution(
         fromDomainId: originDomainId,
         timestamp: null,
         resourceID: null
+      })
     } catch (e) {
       logger.error(`Error inserting substrate proposal execution transfer: ${e}`)
     }
@@ -58,7 +59,7 @@ export async function saveDeposit(
   } = substrateDepositData
   const transferData = {
     id: new ObjectId().toString(),
-    depositNonce: depositNonce,
+    depositNonce: Number(depositNonce),
     sender: sender,
     amount: null, // TODO: decode this from deposit data
     status: TransferStatus.pending,
@@ -83,11 +84,11 @@ export async function saveDeposit(
   let insertedTransfer: Transfer | undefined
   try {
     insertedTransfer = await transferRepository.insertSubstrateDepositTransfer(transferData)
-  } catch (e){
+  } catch (e) {
     logger.error(`Error inserting substrate deposit: ${e}`)
   }
 
-  if(insertedTransfer !== undefined) {
+  if (insertedTransfer !== undefined) {
     const deposit = {
       id: new ObjectId().toString(),
       type: "fungible", // TODO: remove this hardcoded string
