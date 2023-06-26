@@ -200,17 +200,12 @@ export class SubstrateIndexer {
   }
 
   async saveProposalExecutionToDb(domainID: number, latestBlock: string, proposalExecutionData: ProposalExecutionDataToSave): Promise<void> {
-    logger.info("Saving proposal execution")
-    logger.info(`save block on substrate ${this.domain.name}: ${latestBlock}`)
-    logger.info(`domain Id: ${domainID}, latestBlock: ${latestBlock}`)
-
+    logger.info(`Saving proposal execution. Save block on substrate ${this.domain.name}: ${latestBlock}, domain Id: ${domainID}`)
     await saveProposalExecution(proposalExecutionData, this.executionRepository, this.transferRepository)
   }
 
   async saveDepositToDb(domainID: number, latestBlock: string, depositData: DepositDataToSave): Promise<void> {
-    logger.info("Saving deposit")
-    logger.info(`save block on substrate ${this.domain.name}: ${latestBlock}`)
-    logger.info(`domain Id: ${domainID}, latestBlock: ${latestBlock}`)
+    logger.info(`Saving deposit. Save block on substrate ${this.domain.name}: ${latestBlock}, domain Id: ${domainID}`)
 
     await saveDeposit(depositData, this.transferRepository, this.depositRepository)
   }
