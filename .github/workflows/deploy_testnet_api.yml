@@ -1,0 +1,101 @@
+name: Deploy Explorer API
+
+on:
+  release:
+    types:
+      - published
+
+env:
+  AWS_REGION: '${{ secrets.AWS_REGION }}'
+  ENVIRONMENT: TESTNET
+  AWS_TESTNET: '${{ secrets.AWS_ARN }}'
+  REGISTRY: 'ghcr.io'
+  TAG: 'stable'
+
+jobs:
+  push:
+    name: push
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+
+    steps:
+      - name: checkout the source code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: login to ghcr
+        id: ghcr
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: build / tag / push docker image into ghcr
+        id: build-and-push-tag
+        uses: docker/build-push-action@v3
+        with:
+          context: ./api
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}-api:${{ env.TAG }}
+
+      - name: build / tag / push docker image into ghcr
+        id: build-and-push-ref
+        uses: docker/build-push-action@v3
+        with:
+          context: ./api
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}-api:${{ github.ref_name }}
+          
+
+  deploy:
+   needs: push
+   name: deploy
+   runs-on: ubuntu-latest
+
+   permissions:
+     contents: read
+     id-token: write
+     actions: write
+
+   steps:
+     - name: checkout the source code
+       uses: actions/checkout@v3
+
+     - name: checkout ecs repo
+       uses: actions/checkout@v3
+       with:
+         repository: sygmaprotocol/devops
+         token: ${{ secrets.GHCR_TOKEN }}
+         ref: main
+
+     - name: render jinja2 templates to task definition json files
+       uses: cuchi/jinja2-action@v1.2.0
+       with:
+         template: 'sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.j2'
+         output_file: 'sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.json'
+         data_format: json
+         variables: |
+           awsAccountId=${{ env.AWS_TESTNET }}
+           awsRegion=${{ env.AWS_REGION }}
+
+     - name: Configure AWS Credentials
+       uses: aws-actions/configure-aws-credentials@v1
+       with:
+         role-to-assume: arn:aws:iam::${{ env.AWS_TESTNET }}:role/github-actions-${{ env.ENVIRONMENT }}-chainbridge
+         aws-region: ${{ env.AWS_REGION }}
+         role-session-name: GithubActions
+
+     - name: Deploy to Amazon ECS
+       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+       with:
+         task-definition: sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.json
+         service: explorer-api-service-${{ env.ENVIRONMENT }}
+         cluster: sygma-explorer-${{ env.ENVIRONMENT }}
+         wait-for-service-stability: true
