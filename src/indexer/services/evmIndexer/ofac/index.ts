@@ -1,14 +1,14 @@
+import url from "url"
+
+type ChainAnalysisIdentIfication = {
+  category: string
+  name: string
+  description: string
+  url: string
+}
+
 type ChainAnalysisResponse = {
-  identifications:
-    | [
-        {
-          category: string
-          name: string
-          description: string
-          url: string
-        },
-      ]
-    | []
+  identifications: Array<ChainAnalysisIdentIfication> | []
 }
 
 export class OfacComplianceService {
@@ -21,7 +21,8 @@ export class OfacComplianceService {
   }
 
   public async checkSanctionedAddress(address: string): Promise<string> {
-    const response = await fetch(`${this.chainAnalisysUrl}${address}`, {
+    const urlToUse = url.resolve(this.chainAnalisysUrl, address)
+    const response = await fetch(urlToUse, {
       headers: {
         "X-API-Key": `${this.chainAnalisysApiKey}`,
         Accept: "application/json",

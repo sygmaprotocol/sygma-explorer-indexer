@@ -33,7 +33,7 @@ import {
 import { getERC20Contract } from "../../indexer/services/contract"
 import FeeRepository from "../../indexer/repository/fee"
 import ExecutionRepository from "../../indexer/repository/execution"
-import { OfacComplianceService } from "../../services/ofac.service"
+import { OfacComplianceService } from "../../indexer/services/evmIndexer/ofac"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
 
