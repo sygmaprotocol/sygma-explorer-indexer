@@ -41,7 +41,8 @@ jobs:
         id: build-and-push-tag
         uses: docker/build-push-action@v3
         with:
-          context: ./api
+          context: .
+          file: Dockerfile.api
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.repository }}-api:${{ env.TAG }}
 
