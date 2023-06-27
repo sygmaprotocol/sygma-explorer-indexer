@@ -37,4 +37,4 @@ COPY --from=builder /app/build ./build
 LABEL org.opencontainers.image.source https://github.com/sygmaprotocol/sygma-explorer-indexer
 EXPOSE 8000
 
-CMD [ "node", "./build/indexer/index.js"]
+CMD [ "node", "./build/index.js"]

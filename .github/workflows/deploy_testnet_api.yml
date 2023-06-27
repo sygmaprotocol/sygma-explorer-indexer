@@ -1,4 +1,4 @@
-name: Deploy Explorer Indexer
+name: Deploy Explorer API
 
 on:
   release:
@@ -41,17 +41,17 @@ jobs:
         id: build-and-push-tag
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: ./api
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ env.TAG }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}-api:${{ env.TAG }}
 
       - name: build / tag / push docker image into ghcr
         id: build-and-push-ref
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: ./api
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}-api:${{ github.ref_name }}
           
 
   deploy:
@@ -78,12 +78,14 @@ jobs:
      - name: render jinja2 templates to task definition json files
        uses: cuchi/jinja2-action@v1.2.0
        with:
-         template: 'sygma-explorer/ecs/task_definition-explorer-indexer-${{ env.ENVIRONMENT }}.j2'
-         output_file: 'sygma-explorer/ecs/task_definition-explorer-indexer-${{ env.ENVIRONMENT }}.json'
+         template: 'sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.j2'
+         output_file: 'sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.json'
          data_format: json
          variables: |
            awsAccountId=${{ env.AWS_TESTNET }}
            awsRegion=${{ env.AWS_REGION }}
+           DB_USERNAME=${{ secrets.DB_USERNAME }}
+           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
 
      - name: Configure AWS Credentials
        uses: aws-actions/configure-aws-credentials@v1
@@ -95,7 +97,7 @@ jobs:
      - name: Deploy to Amazon ECS
        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
        with:
-         task-definition: sygma-explorer/ecs/task_definition-explorer-indexer-${{ env.ENVIRONMENT }}.json
-         service: explorer-indexer-service-${{ env.ENVIRONMENT }}
+         task-definition: sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.json
+         service: explorer-api-service-${{ env.ENVIRONMENT }}
          cluster: sygma-explorer-${{ env.ENVIRONMENT }}
          wait-for-service-stability: true
