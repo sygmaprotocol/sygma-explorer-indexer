@@ -1,7 +1,7 @@
 import { Domain, Resource } from "indexer/config"
 import { ethers } from "ethers"
 
-import { saveDepositLogs, saveFailedHandlerExecutionLogs, saveFeeLogs, saveProposalExecutionLogs } from "../../../utils/indexer"
+import { saveDepositLogs, saveFailedHandlerExecutionLogs, saveFeeLogs, saveProposalExecutionLogs } from "../../utils"
 import DepositRepository from "../../repository/deposit"
 import TransferRepository from "../../repository/transfer"
 import ExecutionRepository from "../../repository/execution"

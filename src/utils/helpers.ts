@@ -66,6 +66,12 @@ export const getTransferQueryParams = (): IncludedQueryParams => {
           handlerResponse: true,
         },
       },
+      account: {
+        select: {
+          address: true,
+          addressStatus: true,
+        },
+      },
     },
   }
 }

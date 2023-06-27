@@ -51,5 +51,11 @@ export type IncludedQueryParams = {
         handlerResponse: boolean
       }
     }
+    account: {
+      select: {
+        address: boolean
+        addressStatus: boolean
+      }
+    }
   }
 }

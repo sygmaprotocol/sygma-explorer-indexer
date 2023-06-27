@@ -1,6 +1,6 @@
 import { Provider, Log } from "ethers"
 import { Domain, Resource } from "../../config"
-import { getDecodedLogs } from "../../../utils/indexer"
+import { getDecodedLogs } from "../../utils"
 import { logger } from "../../../utils/logger"
 import { DecodedLogs } from "./evmTypes"
 
