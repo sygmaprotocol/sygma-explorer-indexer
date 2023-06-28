@@ -74,7 +74,7 @@ export class SubstrateIndexer {
           this.executionRepository,
           this.transferRepository,
           this.depositRepository,
-          this.domainRepository
+          this.domainRepository,
         )
 
         // move to next range of blocks
@@ -117,23 +117,6 @@ export class SubstrateIndexer {
         }
       }
     })
-  }
-
-  async saveProposalExecutionToDb(domainID: number, latestBlock: string, proposalExecutionData: ProposalExecutionDataToSave): Promise<void> {
-    logger.info(`Saving proposal execution. Save block on substrate ${this.domain.name}: ${latestBlock}, domain Id: ${domainID}`)
-    await saveProposalExecution(proposalExecutionData, this.executionRepository, this.transferRepository)
-  }
-
-  async saveDepositToDb(domainID: number, latestBlock: string, depositData: DepositDataToSave): Promise<void> {
-    logger.info(`Saving deposit. Save block on substrate ${this.domain.name}: ${latestBlock}, domain Id: ${domainID}`)
-
-    await saveDeposit(domainID, depositData, this.transferRepository, this.depositRepository)
-  }
-
-  async saveFailedHandlerExecution(domainID: number, latestBlock: string, failedHandlerExecutionData: FailedHandlerExecutionToSave) {
-    logger.info(`Saving failed proposal execution. Save block on substrate ${this.domain.name}: ${latestBlock}, domain Id: ${domainID}`)
-    
-    await saveFailedHandlerExecution(failedHandlerExecutionData, this.executionRepository, this.transferRepository)
   }
 
   async getLastIndexedBlock(domainID: string): Promise<number> {
