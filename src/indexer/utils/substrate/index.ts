@@ -7,6 +7,8 @@ import { logger } from "../../../utils/logger";
 import DepositRepository from "../../repository/deposit";
 import { DepositDataToSave, FailedHandlerExecutionToSave, ProposalExecutionDataToSave, SubstrateTypeTransfer } from "../../services/substrateIndexer/substrateTypes";
 
+const originDomainId = '3'
+
 export async function saveProposalExecution(
   proposalExecutionData: ProposalExecutionDataToSave,
   executionRepository: ExecutionRepository,
@@ -116,7 +118,7 @@ export async function saveDeposit(
     },
     fromDomain: {
       connect: {
-        id: '3'
+        id: originDomainId
       },
     },
     toDomain: {
@@ -137,7 +139,7 @@ export async function saveDeposit(
   if (insertedTransfer !== undefined) {
     const deposit = {
       id: new ObjectId().toString(),
-      type: "fungible", // TODO: remove this hardcoded string
+      type:  SubstrateTypeTransfer.Fungible,
       txHash: txIdentifier,
       blockNumber: blockNumber,
       depositData: depositData,
@@ -152,7 +154,6 @@ export async function saveDeposit(
     }
 
   }
-
 }
 
 function getDecodedAmount(depositData: string): string {
