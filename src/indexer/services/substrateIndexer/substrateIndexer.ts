@@ -80,6 +80,9 @@ export class SubstrateIndexer {
         // @ts-ignore
         const depositEvents = getSubstrateEvents(SygmaPalleteEvents.Deposit, allRecords) as Array<DepositEvent>
 
+        // @ts-ignore-next-line
+        const failedHandlerExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.FailedHandlerExecution, allRecords) as Array<FailedHandlerExecutionEvent>
+
         // we get the index of the section in the extrinsic
         const sectionIndex = signedBlock.block.extrinsics.findIndex(ex => ex.method.section === "sygmaBridge")
 
@@ -116,6 +119,23 @@ export class SubstrateIndexer {
               handlerResponse,
               txIdentifier,
               blockNumber: `${fromBlock}`,
+              timestamp
+            })
+          })
+        } else if (proposalExecutionEvents.length) {
+          failedHandlerExecutionEvents.forEach((failedHandlerExecutionEvent: FailedHandlerExecutionEvent) => {
+            console.log("🚀 ~ file: substrateIndexer.ts:153 ~ SubstrateIndexer ~ listenToEvents ~ failedHandlerExecutionEvent:", (failedHandlerExecutionEvent.event as any).toHuman())
+
+            const { data } = (failedHandlerExecutionEvent.event as any).toHuman() as FailedHandlerExecutionEvent['event']
+
+            const { originDomainId, depositNonce, error } = data
+
+            this.saveFailedHandlerExecution(this.domain.id, latestBlock.toString(), {
+              originDomainId,
+              depositNonce: depositNonce,
+              error,
+              txIdentifier,
+              blockNumber: `${latestBlock}`,
               timestamp
             })
           })
@@ -166,7 +186,7 @@ export class SubstrateIndexer {
 
           if (proposalExecutionEvents.length) {
             proposalExecutionEvents.forEach((proposalExecutionEvent: ProposalExecutionEvent) => {
-              const { data } = (proposalExecutionEvent.event as any).toHuman()
+              const { data } = (proposalExecutionEvent.event as any).toHuman() as ProposalExecutionEvent['event']
 
               const { originDomainId, depositNonce } = data
 
@@ -179,10 +199,10 @@ export class SubstrateIndexer {
             })
           } else if (depositEvents.length) {
             depositEvents.forEach((depositEvent: DepositEvent) => {
-              const { data } = (depositEvent.event as any).toHuman()
+              const { data } = (depositEvent.event as any).toHuman() as DepositEvent['event']
 
               const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
-
+              
               this.saveDepositToDb(this.domain.id, latestBlock.toString(), {
                 destDomainId,
                 resourceId,
@@ -201,8 +221,6 @@ export class SubstrateIndexer {
               const { data } = (failedHandlerExecutionEvent.event as any).toHuman() as FailedHandlerExecutionEvent['event']
 
               const { originDomainId, depositNonce, error } = data
-
-              console.log("TIME STAMP", timestamp)
 
               this.saveFailedHandlerExecution(this.domain.id, latestBlock.toString(), {
                 originDomainId,
@@ -232,11 +250,12 @@ export class SubstrateIndexer {
   async saveDepositToDb(domainID: number, latestBlock: string, depositData: DepositDataToSave): Promise<void> {
     logger.info(`Saving deposit. Save block on substrate ${this.domain.name}: ${latestBlock}, domain Id: ${domainID}`)
 
-    await saveDeposit(depositData, this.transferRepository, this.depositRepository)
+    await saveDeposit(domainID, depositData, this.transferRepository, this.depositRepository)
   }
 
   async saveFailedHandlerExecution(domainID: number, latestBlock: string, failedHandlerExecutionData: FailedHandlerExecutionToSave) {
     logger.info(`Saving failed proposal execution. Save block on substrate ${this.domain.name}: ${latestBlock}, domain Id: ${domainID}`)
+    
     await saveFailedHandlerExecution(failedHandlerExecutionData, this.executionRepository, this.transferRepository)
   }
 
