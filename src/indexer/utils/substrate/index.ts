@@ -191,7 +191,7 @@ export async function saveEvents(
   const timestamp = Number((await at.query.timestamp.now()).toString())
   const allRecords = await at.query.system.events() as unknown as Array<SubstrateEvent>
 
-  // we get the proposal execution events - ts-ignore because of allRecords
+  // we get the proposal execution events
   const proposalExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.ProposalExecution, allRecords) as Array<ProposalExecutionEvent>
 
   // we get the deposit events - ts-ignore because of allRecords
