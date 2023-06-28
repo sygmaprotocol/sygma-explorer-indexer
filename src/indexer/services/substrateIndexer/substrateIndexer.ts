@@ -32,7 +32,7 @@ export class SubstrateIndexer {
   async init(rpcUrl: string): Promise<void> {
     const wsProvider = new WsProvider(rpcUrl)
     this.provider = await ApiPromise.create({
-      provider: wsProvider
+      provider: wsProvider,
     })
   }
 
@@ -107,7 +107,7 @@ export class SubstrateIndexer {
             this.executionRepository,
             this.transferRepository,
             this.depositRepository,
-            this.domainRepository
+            this.domainRepository,
           )
 
           // move to next range of blocks

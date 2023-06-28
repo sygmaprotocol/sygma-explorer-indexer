@@ -1,30 +1,36 @@
-import { ObjectId } from "mongodb";
-import { AbiCoder, formatEther } from 'ethers'
-import { BlockHash } from '@polkadot/types/interfaces'
-import { ApiPromise } from "@polkadot/api";
-import ExecutionRepository from "../../repository/execution";
-import TransferRepository from "../../repository/transfer";
-import { Transfer, TransferStatus } from "@prisma/client";
-import { logger } from "../../../utils/logger";
-import DepositRepository from "../../repository/deposit";
-import { DepositDataToSave, DepositEvent, FailedHandlerExecutionEvent, FailedHandlerExecutionToSave, ProposalExecutionDataToSave, ProposalExecutionEvent, SubstrateEvent, SubstrateTypeTransfer, SygmaPalleteEvents } from "../../services/substrateIndexer/substrateTypes";
-import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes";
-import { Domain } from "../../../indexer/config";
-import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser";
-import DomainRepository from "../../../indexer/repository/domain";
+import { ObjectId } from "mongodb"
+import { AbiCoder, formatEther } from "ethers"
+import { BlockHash } from "@polkadot/types/interfaces"
+import { ApiPromise } from "@polkadot/api"
+import { Transfer, TransferStatus } from "@prisma/client"
+import ExecutionRepository from "../../repository/execution"
+import TransferRepository from "../../repository/transfer"
+import { logger } from "../../../utils/logger"
+import DepositRepository from "../../repository/deposit"
+import {
+  DepositDataToSave,
+  DepositEvent,
+  FailedHandlerExecutionEvent,
+  FailedHandlerExecutionToSave,
+  ProposalExecutionDataToSave,
+  ProposalExecutionEvent,
+  SubstrateEvent,
+  SubstrateTypeTransfer,
+  SygmaPalleteEvents,
+} from "../../services/substrateIndexer/substrateTypes"
+import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes"
+import { Domain } from "../../../indexer/config"
+import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser"
+import DomainRepository from "../../../indexer/repository/domain"
 
 export async function saveProposalExecution(
   proposalExecutionData: ProposalExecutionDataToSave,
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
 ): Promise<void> {
-  const { originDomainId, depositNonce, txIdentifier, blockNumber, timestamp
-  } = proposalExecutionData
+  const { originDomainId, depositNonce, txIdentifier, blockNumber, timestamp } = proposalExecutionData
 
-  let transfer = await transferRepository.findByNonceFromDomainId(
-    Number(depositNonce),
-    originDomainId
-  )
+  const transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
 
   // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
@@ -33,7 +39,7 @@ export async function saveProposalExecution(
         depositNonce: Number(depositNonce),
         fromDomainId: originDomainId,
         timestamp,
-        resourceID: null
+        resourceID: null,
       })
     } catch (e) {
       logger.error(`Error inserting substrate proposal execution transfer: ${e}`)
@@ -51,7 +57,7 @@ export async function saveProposalExecution(
     transferId: transfer!.id,
     type: SubstrateTypeTransfer.Fungible,
     txHash: txIdentifier,
-    blockNumber: blockNumber
+    blockNumber: blockNumber,
   }
 
   await executionRepository.insertExecution(execution)
@@ -64,10 +70,7 @@ export async function saveFailedHandlerExecution(
 ) {
   const { originDomainId, depositNonce, error, txIdentifier, blockNumber, timestamp } = failedHandlerExecutionData
 
-  let transfer = await transferRepository.findByNonceFromDomainId(
-    Number(depositNonce),
-    originDomainId
-  )
+  const transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
 
   // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
@@ -92,20 +95,28 @@ export async function saveFailedHandlerExecution(
     transferId: transfer!.id,
     type: SubstrateTypeTransfer.Fungible,
     txHash: txIdentifier,
-    blockNumber: blockNumber
+    blockNumber: blockNumber,
   }
 
   await executionRepository.insertExecution(execution)
-
 }
 
 export async function saveDeposit(
   originDomainId: number,
   substrateDepositData: DepositDataToSave,
   transferRepository: TransferRepository,
-  depositRepository: DepositRepository
+  depositRepository: DepositRepository,
 ): Promise<void> {
-  const { destDomainId: destinationDomainId, depositNonce, txIdentifier, blockNumber, depositData, handlerResponse, sender, resourceId, timestamp
+  const {
+    destDomainId: destinationDomainId,
+    depositNonce,
+    txIdentifier,
+    blockNumber,
+    depositData,
+    handlerResponse,
+    sender,
+    resourceId,
+    timestamp,
   } = substrateDepositData
 
   const decodedAmount = getDecodedAmount(depositData)
@@ -121,7 +132,7 @@ export async function saveDeposit(
       fromDomainId: `${originDomainId}`,
       toDomainId: `${destinationDomainId}`,
       timestamp: timestamp,
-      destination: '' // FIX
+      destination: "", // FIX
     }
     try {
       await transferRepository.updateTransfer(dataTransferToUpdate, foundTransfer.id)
@@ -129,7 +140,6 @@ export async function saveDeposit(
       logger.error(`Error updating substrate deposit transfer: ${e}`)
     }
   }
-
 
   const transferData = {
     id: new ObjectId().toString(),
@@ -157,7 +167,7 @@ export async function saveDeposit(
       blockNumber: blockNumber,
       depositData: depositData,
       handlerResponse: handlerResponse,
-      transferId: insertedTransfer!.id,
+      transferId: insertedTransfer.id,
     }
 
     try {
@@ -165,7 +175,6 @@ export async function saveDeposit(
     } catch (e) {
       logger.error(`Error inserting substrate deposit: ${e}`)
     }
-
   }
 }
 
@@ -189,7 +198,7 @@ export async function saveEvents(
   const signedBlock = await provider.rpc.chain.getBlock(blockHash)
   const at = await provider.at(blockHash)
   const timestamp = Number((await at.query.timestamp.now()).toString())
-  const allRecords = await at.query.system.events() as unknown as Array<SubstrateEvent>
+  const allRecords = (await at.query.system.events()) as unknown as Array<SubstrateEvent>
 
   // we get the proposal execution events
   const proposalExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.ProposalExecution, allRecords) as Array<ProposalExecutionEvent>
@@ -211,13 +220,20 @@ export async function saveEvents(
     const { originDomainId, depositNonce } = data
 
     try {
-      await saveProposalExecutionToDb(domain, block.toString(), {
-        originDomainId,
-        depositNonce: depositNonce,
-        txIdentifier,
-        blockNumber: `${block}`,
-        timestamp
-      }, executionRepository, transferRepository, domainRepository)
+      await saveProposalExecutionToDb(
+        domain,
+        block.toString(),
+        {
+          originDomainId,
+          depositNonce: depositNonce,
+          txIdentifier,
+          blockNumber: `${block}`,
+          timestamp,
+        },
+        executionRepository,
+        transferRepository,
+        domainRepository,
+      )
     } catch (e) {
       logger.error(`Error saving proposal execution to db: ${e}`)
     }
@@ -241,16 +257,16 @@ export async function saveEvents(
         handlerResponse,
         txIdentifier,
         blockNumber: `${block}`,
-        timestamp
+        timestamp,
       },
       transferRepository,
       depositRepository,
-      domainRepository)
+      domainRepository,
+    )
   })
 
   failedHandlerExecutionEvents.forEach((failedHandlerExecutionEvent: FailedHandlerExecutionEvent) => {
-
-    const { data } = (failedHandlerExecutionEvent.event as any).toHuman() as FailedHandlerExecutionEvent['event']
+    const { data } = (failedHandlerExecutionEvent.event as any).toHuman() as FailedHandlerExecutionEvent["event"]
 
     const { originDomainId, depositNonce, error } = data
 
@@ -263,11 +279,12 @@ export async function saveEvents(
         error,
         txIdentifier,
         blockNumber: `${block}`,
-        timestamp
+        timestamp,
       },
       executionRepository,
       transferRepository,
-      domainRepository)
+      domainRepository,
+    )
   })
 }
 
@@ -277,7 +294,7 @@ export async function saveProposalExecutionToDb(
   proposalExecutionData: ProposalExecutionDataToSave,
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
-  domainRepository: DomainRepository
+  domainRepository: DomainRepository,
 ): Promise<void> {
   logger.info(`Saving proposal execution. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
@@ -292,7 +309,7 @@ export async function saveDepositToDb(
   depositData: DepositDataToSave,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
-  domainRepository: DomainRepository
+  domainRepository: DomainRepository,
 ): Promise<void> {
   logger.info(`Saving deposit. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
@@ -307,7 +324,7 @@ export async function saveFailedHandlerExecutionToDb(
   failedHandlerExecutionData: FailedHandlerExecutionToSave,
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
-  domainRepository: DomainRepository
+  domainRepository: DomainRepository,
 ): Promise<void> {
   logger.info(`Saving failed proposal execution. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 

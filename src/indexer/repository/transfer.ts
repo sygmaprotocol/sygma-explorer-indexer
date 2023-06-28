@@ -54,13 +54,14 @@ class TransferRepository {
           id: decodedLog.toDomainId,
         },
       },
-      timestamp: decodedLog.timestamp,
+      timestamp: new Date(decodedLog.timestamp * 1000),
     }
     return await this.transfer.create({ data: transferData })
   }
 
-  public async insertSubstrateDepositTransfer(substrateDepositData: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">): Promise<Transfer> {
-
+  public async insertSubstrateDepositTransfer(
+    substrateDepositData: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">,
+  ): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: substrateDepositData.depositNonce,
@@ -69,31 +70,36 @@ class TransferRepository {
       status: TransferStatus.pending,
       resource: {
         connect: {
-          id: substrateDepositData.resourceID
-        }
+          id: substrateDepositData.resourceID,
+        },
       },
       fromDomain: {
         connect: {
-          id: substrateDepositData.fromDomainId
+          id: substrateDepositData.fromDomainId,
         },
       },
       toDomain: {
         connect: {
-          id: substrateDepositData.toDomainId
-        }
+          id: substrateDepositData.toDomainId,
+        },
       },
-      timestamp: substrateDepositData.timestamp,
+      timestamp: new Date(substrateDepositData.timestamp * 1000),
     }
 
     return await this.transfer.create({ data: transferData })
   }
 
-  public async insertExecutionTransfer({ depositNonce, fromDomainId, timestamp, resourceID }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp" | "resourceID">): Promise<Transfer> {
+  public async insertExecutionTransfer({
+    depositNonce,
+    fromDomainId,
+    timestamp,
+    resourceID,
+  }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp" | "resourceID">): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: depositNonce,
       fromDomainId: fromDomainId,
-      timestamp: timestamp,
+      timestamp: new Date(timestamp! * 1000),
       status: TransferStatus.executed,
       resourceID: resourceID,
       toDomainId: null,
@@ -114,7 +120,19 @@ class TransferRepository {
     return await this.transfer.create({ data: transferData })
   }
 
-  public async updateTransfer({ depositNonce, sender, amount, destination, resourceID, fromDomainId, toDomainId, timestamp }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp">, id: string): Promise<Transfer> {
+  public async updateTransfer(
+    {
+      depositNonce,
+      sender,
+      amount,
+      destination,
+      resourceID,
+      fromDomainId,
+      toDomainId,
+      timestamp,
+    }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp">,
+    id: string,
+  ): Promise<Transfer> {
     const transferData = {
       depositNonce: depositNonce,
       sender: sender,
@@ -135,7 +153,7 @@ class TransferRepository {
           id: toDomainId,
         },
       },
-      timestamp: timestamp,
+      timestamp: new Date(timestamp * 1000),
     }
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
