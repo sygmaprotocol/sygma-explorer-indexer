@@ -114,28 +114,28 @@ class TransferRepository {
     return await this.transfer.create({ data: transferData })
   }
 
-  public async updateTransfer(decodedLog: DecodedDepositLog, id: string): Promise<Transfer> {
+  public async updateTransfer({ depositNonce, sender, amount, destination, resourceID, fromDomainId, toDomainId, timestamp }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp">, id: string): Promise<Transfer> {
     const transferData = {
-      depositNonce: decodedLog.depositNonce,
-      sender: decodedLog.sender,
-      amount: decodedLog.amount,
-      destination: decodedLog.destination,
+      depositNonce: depositNonce,
+      sender: sender,
+      amount: amount,
+      destination: destination,
       resource: {
         connect: {
-          id: decodedLog.resourceID,
+          id: resourceID,
         },
       },
       fromDomain: {
         connect: {
-          id: decodedLog.fromDomainId,
+          id: fromDomainId,
         },
       },
       toDomain: {
         connect: {
-          id: decodedLog.toDomainId,
+          id: toDomainId,
         },
       },
-      timestamp: decodedLog.timestamp,
+      timestamp: timestamp,
     }
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }

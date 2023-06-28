@@ -1,14 +1,17 @@
 import { ObjectId } from "mongodb";
 import { AbiCoder, formatEther } from 'ethers'
+import { BlockHash } from '@polkadot/types/interfaces'
+import { ApiPromise } from "@polkadot/api";
 import ExecutionRepository from "../../repository/execution";
 import TransferRepository from "../../repository/transfer";
 import { Transfer, TransferStatus } from "@prisma/client";
 import { logger } from "../../../utils/logger";
 import DepositRepository from "../../repository/deposit";
-import { DepositDataToSave, FailedHandlerExecutionToSave, ProposalExecutionDataToSave, SubstrateTypeTransfer } from "../../services/substrateIndexer/substrateTypes";
+import { DepositDataToSave, DepositEvent, FailedHandlerExecutionEvent, FailedHandlerExecutionToSave, ProposalExecutionDataToSave, ProposalExecutionEvent, SubstrateEvent, SubstrateTypeTransfer, SygmaPalleteEvents } from "../../services/substrateIndexer/substrateTypes";
 import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes";
-
-const originDomainId = '3'
+import { Domain } from "../../../indexer/config";
+import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser";
+import DomainRepository from "../../../indexer/repository/domain";
 
 export async function saveProposalExecution(
   proposalExecutionData: ProposalExecutionDataToSave,
@@ -23,7 +26,7 @@ export async function saveProposalExecution(
     originDomainId
   )
 
-  // there is no transfer but still we have proposal execution
+  // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
     try {
       await transferRepository.insertExecutionTransfer({
@@ -46,7 +49,7 @@ export async function saveProposalExecution(
   const execution = {
     id: new ObjectId().toString(),
     transferId: transfer!.id,
-    type: "fungible", // TODO: remove this hardcoded string
+    type: SubstrateTypeTransfer.Fungible,
     txHash: txIdentifier,
     blockNumber: blockNumber
   }
@@ -58,7 +61,7 @@ export async function saveFailedHandlerExecution(
   failedHandlerExecutionData: FailedHandlerExecutionToSave,
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
-){
+) {
   const { originDomainId, depositNonce, error, txIdentifier, blockNumber, timestamp } = failedHandlerExecutionData
 
   let transfer = await transferRepository.findByNonceFromDomainId(
@@ -66,8 +69,8 @@ export async function saveFailedHandlerExecution(
     originDomainId
   )
 
-   // there is no transfer but still we have proposal execution
-   if (!transfer) {
+  // there is no transfer yet, but a proposal execution exists
+  if (!transfer) {
     try {
       await transferRepository.insertFailedTransfer({
         depositNonce: Number(depositNonce),
@@ -93,7 +96,7 @@ export async function saveFailedHandlerExecution(
   }
 
   await executionRepository.insertExecution(execution)
-  
+
 }
 
 export async function saveDeposit(
@@ -106,30 +109,38 @@ export async function saveDeposit(
   } = substrateDepositData
 
   const decodedAmount = getDecodedAmount(depositData)
-  
+
+  const foundTransfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), `${originDomainId}`)
+
+  if (foundTransfer) {
+    const dataTransferToUpdate = {
+      depositNonce: Number(depositNonce),
+      sender,
+      amount: decodedAmount,
+      resourceID: resourceId,
+      fromDomainId: `${originDomainId}`,
+      toDomainId: `${destinationDomainId}`,
+      timestamp: timestamp,
+      destination: '' // FIX
+    }
+    try {
+      await transferRepository.updateTransfer(dataTransferToUpdate, foundTransfer.id)
+    } catch (e) {
+      logger.error(`Error updating substrate deposit transfer: ${e}`)
+    }
+  }
+
+
   const transferData = {
     id: new ObjectId().toString(),
     depositNonce: Number(depositNonce),
-    sender: sender,
+    sender,
     amount: decodedAmount,
-    status: TransferStatus.pending,
-    resource: {
-      connect: {
-        id: resourceId
-      }
-    },
-    fromDomain: {
-      connect: {
-        id: originDomainId
-      },
-    },
-    toDomain: {
-      connect: {
-        id: destinationDomainId
-      }
-    },
+    resourceID: resourceId,
+    fromDomainId: `${originDomainId}`,
+    toDomainId: `${destinationDomainId}`,
     timestamp: timestamp,
-  }
+  } as Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">
 
   let insertedTransfer: Transfer | undefined
   try {
@@ -141,7 +152,7 @@ export async function saveDeposit(
   if (insertedTransfer !== undefined) {
     const deposit = {
       id: new ObjectId().toString(),
-      type:  SubstrateTypeTransfer.Fungible,
+      type: SubstrateTypeTransfer.Fungible,
       txHash: txIdentifier,
       blockNumber: blockNumber,
       depositData: depositData,
@@ -163,4 +174,144 @@ function getDecodedAmount(depositData: string): string {
   const parsedAmount = `0x${depositData.substring(2).slice(0, 64)}`
   const decodedDepositData = abiCoder.decode(["uint256"], parsedAmount)
   return formatEther(decodedDepositData[0].toString())
+}
+
+export async function saveEvents(
+  blockHash: BlockHash,
+  provider: ApiPromise,
+  block: number,
+  domain: Domain,
+  executionRepository: ExecutionRepository,
+  transferRepository: TransferRepository,
+  depositRepository: DepositRepository,
+  domainRepository: DomainRepository,
+) {
+  const signedBlock = await provider.rpc.chain.getBlock(blockHash)
+  const at = await provider.at(blockHash)
+  const timestamp = Number((await at.query.timestamp.now()).toString())
+  const allRecords = await at.query.system.events() as unknown as Array<SubstrateEvent>
+
+  // we get the proposal execution events - ts-ignore because of allRecords
+  const proposalExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.ProposalExecution, allRecords) as Array<ProposalExecutionEvent>
+
+  // we get the deposit events - ts-ignore because of allRecords
+  const depositEvents = getSubstrateEvents(SygmaPalleteEvents.Deposit, allRecords) as Array<DepositEvent>
+
+  const failedHandlerExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.FailedHandlerExecution, allRecords) as Array<FailedHandlerExecutionEvent>
+
+  // we get the index of the section in the extrinsic
+  const sectionIndex = signedBlock.block.extrinsics.findIndex(ex => ex.method.section === "sygmaBridge")
+
+  // this is our identifier for the tx
+  const txIdentifier = `${block}-${sectionIndex}` //this is like the txHash but for the substrate
+
+  proposalExecutionEvents.forEach(async (proposalExecutionEvent: ProposalExecutionEvent) => {
+    const { data } = (proposalExecutionEvent.event as any).toHuman()
+
+    const { originDomainId, depositNonce } = data
+
+    try {
+      await saveProposalExecutionToDb(domain, block.toString(), {
+        originDomainId,
+        depositNonce: depositNonce,
+        txIdentifier,
+        blockNumber: `${block}`,
+        timestamp
+      }, executionRepository, transferRepository, domainRepository)
+    } catch (e) {
+      logger.error(`Error saving proposal execution to db: ${e}`)
+    }
+  })
+
+  depositEvents.forEach(async (depositEvent: DepositEvent) => {
+    const { data } = (depositEvent.event as any).toHuman()
+
+    const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
+
+    await saveDepositToDb(
+      domain,
+      block.toString(),
+      {
+        destDomainId,
+        resourceId,
+        depositNonce: depositNonce,
+        sender,
+        transferType,
+        depositData,
+        handlerResponse,
+        txIdentifier,
+        blockNumber: `${block}`,
+        timestamp
+      },
+      transferRepository,
+      depositRepository,
+      domainRepository)
+  })
+
+  failedHandlerExecutionEvents.forEach((failedHandlerExecutionEvent: FailedHandlerExecutionEvent) => {
+
+    const { data } = (failedHandlerExecutionEvent.event as any).toHuman() as FailedHandlerExecutionEvent['event']
+
+    const { originDomainId, depositNonce, error } = data
+
+    saveFailedHandlerExecutionToDb(
+      domain,
+      block.toString(),
+      {
+        originDomainId,
+        depositNonce: depositNonce,
+        error,
+        txIdentifier,
+        blockNumber: `${block}`,
+        timestamp
+      },
+      executionRepository,
+      transferRepository,
+      domainRepository)
+  })
+}
+
+export async function saveProposalExecutionToDb(
+  domain: Domain,
+  latestBlock: string,
+  proposalExecutionData: ProposalExecutionDataToSave,
+  executionRepository: ExecutionRepository,
+  transferRepository: TransferRepository,
+  domainRepository: DomainRepository
+): Promise<void> {
+  logger.info(`Saving proposal execution. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
+
+  await saveProposalExecution(proposalExecutionData, executionRepository, transferRepository)
+
+  await domainRepository.updateBlock(latestBlock, domain.id)
+}
+
+export async function saveDepositToDb(
+  domain: Domain,
+  latestBlock: string,
+  depositData: DepositDataToSave,
+  transferRepository: TransferRepository,
+  depositRepository: DepositRepository,
+  domainRepository: DomainRepository
+): Promise<void> {
+  logger.info(`Saving deposit. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
+
+  await saveDeposit(domain.id, depositData, transferRepository, depositRepository)
+
+  await domainRepository.updateBlock(latestBlock, domain.id)
+}
+
+export async function saveFailedHandlerExecutionToDb(
+  domain: Domain,
+  latestBlock: string,
+  failedHandlerExecutionData: FailedHandlerExecutionToSave,
+  executionRepository: ExecutionRepository,
+  transferRepository: TransferRepository,
+  domainRepository: DomainRepository
+): Promise<void> {
+  logger.info(`Saving failed proposal execution. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
+
+  await saveFailedHandlerExecution(failedHandlerExecutionData, executionRepository, transferRepository)
+
+  await domainRepository.updateBlock(latestBlock, domain.id)
 }

@@ -1,13 +1,11 @@
 import { ApiPromise, WsProvider } from "@polkadot/api"
-import { Domain, getSsmDomainConfig, getSharedConfig } from "../../config"
+import { Domain } from "../../config"
 import DomainRepository from "../../repository/domain"
 import { logger } from "../../../utils/logger"
 import ExecutionRepository from "../../../indexer/repository/execution"
 import DepositRepository from "../../../indexer/repository/deposit"
-import { saveDeposit, saveFailedHandlerExecution, saveProposalExecution } from "../../utils/substrate"
 import TransferRepository from "../../../indexer/repository/transfer"
-import { DepositDataToSave, DepositEvent, FailedHandlerExecutionEvent, FailedHandlerExecutionToSave, ProposalExecutionDataToSave, ProposalExecutionEvent, SygmaPalleteEvents } from "./substrateTypes"
-import { getSubstrateEvents } from "./substrateEventParser"
+import { saveEvents } from "../../../indexer/utils/substrate"
 
 export class SubstrateIndexer {
   private domainRepository: DomainRepository
@@ -66,80 +64,18 @@ export class SubstrateIndexer {
           toBlock = fromBlock + this.pastEventsQueryInterval
         }
 
-        const blockHash = await this.provider.rpc.chain.getBlockHash(fromBlock)
-        const signedBlock = await this.provider.rpc.chain.getBlock(blockHash)
-        const at = await this.provider.at(blockHash)
-        const timestamp = Number((await at.query.timestamp.now()).toString())
-        const allRecords = await at.query.system.events()
+        const blockHash = await this.provider.rpc.chain.getBlockHash(toBlock)
 
-        // we get the proposal execution events - ts-ignore because of allRecords
-        // @ts-ignore
-        const proposalExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.ProposalExecution, allRecords) as Array<ProposalExecutionEvent>
-
-        // we get the deposit events - ts-ignore because of allRecords
-        // @ts-ignore
-        const depositEvents = getSubstrateEvents(SygmaPalleteEvents.Deposit, allRecords) as Array<DepositEvent>
-
-        // @ts-ignore-next-line
-        const failedHandlerExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.FailedHandlerExecution, allRecords) as Array<FailedHandlerExecutionEvent>
-
-        // we get the index of the section in the extrinsic
-        const sectionIndex = signedBlock.block.extrinsics.findIndex(ex => ex.method.section === "sygmaBridge")
-
-        // this is our identifier for the tx
-        const txIdentifier = `${fromBlock}-${sectionIndex}` //this is like the txHash but for the substrate
-
-        if (proposalExecutionEvents.length) {
-          proposalExecutionEvents.forEach((proposalExecutionEvent: ProposalExecutionEvent) => {
-            const { data } = (proposalExecutionEvent.event as any).toHuman()
-
-            const { originDomainId, depositNonce } = data
-
-            this.saveProposalExecutionToDb(this.domain.id, fromBlock.toString(), {
-              originDomainId,
-              depositNonce: depositNonce,
-              txIdentifier,
-              blockNumber: `${fromBlock}`,
-              timestamp
-            })
-          })
-        } else if (depositEvents.length) {
-          depositEvents.forEach((depositEvent: DepositEvent) => {
-            const { data } = (depositEvent.event as any).toHuman()
-
-            const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
-
-            this.saveDepositToDb(this.domain.id, fromBlock.toString(), {
-              destDomainId,
-              resourceId,
-              depositNonce: depositNonce,
-              sender,
-              transferType,
-              depositData,
-              handlerResponse,
-              txIdentifier,
-              blockNumber: `${fromBlock}`,
-              timestamp
-            })
-          })
-        } else if (proposalExecutionEvents.length) {
-          failedHandlerExecutionEvents.forEach((failedHandlerExecutionEvent: FailedHandlerExecutionEvent) => {
-            console.log("🚀 ~ file: substrateIndexer.ts:153 ~ SubstrateIndexer ~ listenToEvents ~ failedHandlerExecutionEvent:", (failedHandlerExecutionEvent.event as any).toHuman())
-
-            const { data } = (failedHandlerExecutionEvent.event as any).toHuman() as FailedHandlerExecutionEvent['event']
-
-            const { originDomainId, depositNonce, error } = data
-
-            this.saveFailedHandlerExecution(this.domain.id, latestBlock.toString(), {
-              originDomainId,
-              depositNonce: depositNonce,
-              error,
-              txIdentifier,
-              blockNumber: `${latestBlock}`,
-              timestamp
-            })
-          })
-        }
+        await saveEvents(
+          blockHash,
+          this.provider,
+          toBlock,
+          this.domain,
+          this.executionRepository,
+          this.transferRepository,
+          this.depositRepository,
+          this.domainRepository
+        )
 
         // move to next range of blocks
         fromBlock += this.pastEventsQueryInterval
@@ -162,76 +98,17 @@ export class SubstrateIndexer {
         try {
           // fetch and decode logs
           const blockHash = await this.provider.rpc.chain.getBlockHash(latestBlock)
-          const signedBlock = await this.provider.rpc.chain.getBlock(blockHash)
-          const at = await this.provider.at(blockHash)
-          const timestamp = Number(await at.query.timestamp.now().toString())
-          const allRecords = await at.query.system.events()
 
-          // we get the proposal execution events - ts-ignore because of allRecords
-          // @ts-ignore-next-line
-          const proposalExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.ProposalExecution, allRecords) as Array<ProposalExecutionEvent>
-
-          // we get the deposit events - ts-ignore because of allRecords
-          // @ts-ignore-next-line
-          const depositEvents = getSubstrateEvents(SygmaPalleteEvents.Deposit, allRecords) as Array<DepositEvent>
-
-          // @ts-ignore-next-line
-          const failedHandlerExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.FailedHandlerExecution, allRecords) as Array<FailedHandlerExecutionEvent>
-
-          // we get the index of the section in the extrinsic
-          const sectionIndex = signedBlock.block.extrinsics.findIndex(ex => ex.method.section === "sygmaBridge")
-
-          // this is our identifier for the tx
-          const txIdentifier = `${latestBlock}-${sectionIndex}` //this is like the txHash but for the substrate
-
-          if (proposalExecutionEvents.length) {
-            proposalExecutionEvents.forEach((proposalExecutionEvent: ProposalExecutionEvent) => {
-              const { data } = (proposalExecutionEvent.event as any).toHuman() as ProposalExecutionEvent['event']
-
-              const { originDomainId, depositNonce } = data
-
-              this.saveProposalExecutionToDb(this.domain.id, latestBlock.toString(), {
-                originDomainId,
-                depositNonce: depositNonce,
-                txIdentifier,
-                blockNumber: `${latestBlock}`,
-              })
-            })
-          } else if (depositEvents.length) {
-            depositEvents.forEach((depositEvent: DepositEvent) => {
-              const { data } = (depositEvent.event as any).toHuman() as DepositEvent['event']
-
-              const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
-              
-              this.saveDepositToDb(this.domain.id, latestBlock.toString(), {
-                destDomainId,
-                resourceId,
-                depositNonce: depositNonce,
-                sender,
-                transferType,
-                depositData,
-                handlerResponse,
-                txIdentifier,
-                blockNumber: `${latestBlock}`,
-                timestamp
-              })
-            })
-          } else if (proposalExecutionEvents.length) {
-            failedHandlerExecutionEvents.forEach((failedHandlerExecutionEvent: FailedHandlerExecutionEvent) => {
-              const { data } = (failedHandlerExecutionEvent.event as any).toHuman() as FailedHandlerExecutionEvent['event']
-
-              const { originDomainId, depositNonce, error } = data
-
-              this.saveFailedHandlerExecution(this.domain.id, latestBlock.toString(), {
-                originDomainId,
-                depositNonce: depositNonce,
-                error,
-                txIdentifier,
-                blockNumber: `${latestBlock}`,
-                timestamp
-              })
-            })
-          }
+          await saveEvents(
+            blockHash,
+            this.provider,
+            latestBlock,
+            this.domain,
+            this.executionRepository,
+            this.transferRepository,
+            this.depositRepository,
+            this.domainRepository
+          )
 
           // move to next range of blocks
           latestBlock += this.currentEventsQueryInterval

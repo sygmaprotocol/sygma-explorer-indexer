@@ -34,7 +34,7 @@ async function main(): Promise<void> {
 
     if (domain.type == DomainTypes.SUBSTRATE) {
       try {
-        const substrateIndexer = new SubstrateIndexer(domainRepository, domain)
+        const substrateIndexer = new SubstrateIndexer(domainRepository, domain, executionRepository, depositRepository, transferRepository)
         await substrateIndexer.init(rpcURL)
         await substrateIndexer.listenToEvents()
       } catch (err) {
