@@ -6,6 +6,7 @@ import { Transfer, TransferStatus } from "@prisma/client";
 import { logger } from "../../../utils/logger";
 import DepositRepository from "../../repository/deposit";
 import { DepositDataToSave, FailedHandlerExecutionToSave, ProposalExecutionDataToSave, SubstrateTypeTransfer } from "../../services/substrateIndexer/substrateTypes";
+import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes";
 
 const originDomainId = '3'
 
@@ -96,6 +97,7 @@ export async function saveFailedHandlerExecution(
 }
 
 export async function saveDeposit(
+  originDomainId: number,
   substrateDepositData: DepositDataToSave,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository

@@ -59,8 +59,33 @@ class TransferRepository {
     return await this.transfer.create({ data: transferData })
   }
 
-  public async insertSubstrateDepositTransfer(substrateDepositData: any): Promise<Transfer> { //TODO: fix type
-    return await this.transfer.create({ data: substrateDepositData })
+  public async insertSubstrateDepositTransfer(substrateDepositData: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">): Promise<Transfer> {
+
+    const transferData = {
+      id: new ObjectId().toString(),
+      depositNonce: substrateDepositData.depositNonce,
+      sender: substrateDepositData.sender,
+      amount: substrateDepositData.amount,
+      status: TransferStatus.pending,
+      resource: {
+        connect: {
+          id: substrateDepositData.resourceID
+        }
+      },
+      fromDomain: {
+        connect: {
+          id: substrateDepositData.fromDomainId
+        },
+      },
+      toDomain: {
+        connect: {
+          id: substrateDepositData.toDomainId
+        }
+      },
+      timestamp: substrateDepositData.timestamp,
+    }
+
+    return await this.transfer.create({ data: transferData })
   }
 
   public async insertExecutionTransfer({ depositNonce, fromDomainId, timestamp, resourceID }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp" | "resourceID">): Promise<Transfer> {
