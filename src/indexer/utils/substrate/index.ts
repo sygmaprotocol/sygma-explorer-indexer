@@ -1,11 +1,11 @@
 import { ObjectId } from "mongodb";
 import { AbiCoder, formatEther } from 'ethers'
-import ExecutionRepository from "../../../indexer/repository/execution";
-import TransferRepository from "../../../indexer/repository/transfer";
+import ExecutionRepository from "../../repository/execution";
+import TransferRepository from "../../repository/transfer";
 import { Transfer, TransferStatus } from "@prisma/client";
 import { logger } from "../../../utils/logger";
-import DepositRepository from "../../../indexer/repository/deposit";
-import { DepositDataToSave, FailedHandlerExecutionToSave, ProposalExecutionDataToSave, SubstrateTypeTransfer } from "../../../indexer/services/substrateIndexer/substrateTypes";
+import DepositRepository from "../../repository/deposit";
+import { DepositDataToSave, FailedHandlerExecutionToSave, ProposalExecutionDataToSave, SubstrateTypeTransfer } from "../../services/substrateIndexer/substrateTypes";
 
 export async function saveProposalExecution(
   proposalExecutionData: ProposalExecutionDataToSave,

@@ -17,10 +17,10 @@ import Bridge from "@buildwithsygma/sygma-contracts/build/contracts/Bridge.json"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ObjectId } from "mongodb"
 import { TransferStatus } from "@prisma/client"
-import TransferRepository from "../../../indexer/repository/transfer"
-import DepositRepository from "../../../indexer/repository/deposit"
-import { logger } from "../../logger"
-import { Domain, Resource } from "../../../indexer/config"
+import TransferRepository from "../../repository/transfer"
+import DepositRepository from "../../repository/deposit"
+import { logger } from "../../../utils/logger"
+import { Domain, Resource } from "../../config"
 import {
   DecodedDepositLog,
   DecodedFailedHandlerExecution,
@@ -29,10 +29,10 @@ import {
   DecodedProposalExecutionLog,
   EventType,
   FeeHandlerType,
-} from "../../../indexer/services/evmIndexer/evmTypes"
-import { getERC20Contract } from "../../../indexer/services/contract"
-import FeeRepository from "../../../indexer/repository/fee"
-import ExecutionRepository from "../../../indexer/repository/execution"
+} from "../../services/evmIndexer/evmTypes"
+import { getERC20Contract } from "../../services/contract"
+import FeeRepository from "../../repository/fee"
+import ExecutionRepository from "../../repository/execution"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
 

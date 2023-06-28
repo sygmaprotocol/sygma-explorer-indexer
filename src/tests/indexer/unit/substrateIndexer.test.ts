@@ -1,6 +1,7 @@
+//@ts-nocheck
 import { ApiPromise } from "@polkadot/api"
-import DomainRepository from "indexer/repository/domain"
-import { Domain, DomainTypes } from "indexer/config"
+import DomainRepository from "../../../indexer/repository/domain"
+import { Domain, DomainTypes } from "../../../indexer/config"
 import { SubstrateIndexer } from "../../../../src/indexer/services/substrateIndexer/substrateIndexer"
 
 jest.mock("@polkadot/api")
