@@ -4,9 +4,9 @@ import DomainRepository from "../../repository/domain"
 import { logger } from "../../../utils/logger"
 import ExecutionRepository from "../../../indexer/repository/execution"
 import DepositRepository from "../../../indexer/repository/deposit"
-import { saveDeposit, saveProposalExecution } from "../../../utils/indexer/substrate"
+import { saveDeposit, saveFailedHandlerExecution, saveProposalExecution } from "../../../utils/indexer/substrate"
 import TransferRepository from "../../../indexer/repository/transfer"
-import { DepositDataToSave, DepositEvent, ProposalExecutionDataToSave, ProposalExecutionEvent, SygmaPalleteEvents } from "./substrateTypes"
+import { DepositDataToSave, DepositEvent, FailedHandlerExecutionEvent, FailedHandlerExecutionToSave, ProposalExecutionDataToSave, ProposalExecutionEvent, SygmaPalleteEvents } from "./substrateTypes"
 import { getSubstrateEvents } from "./substrateEventParser"
 
 export class SubstrateIndexer {
@@ -148,12 +148,15 @@ export class SubstrateIndexer {
           const allRecords = await at.query.system.events()
 
           // we get the proposal execution events - ts-ignore because of allRecords
-          // @ts-ignore
+          // @ts-ignore-next-line
           const proposalExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.ProposalExecution, allRecords) as Array<ProposalExecutionEvent>
 
           // we get the deposit events - ts-ignore because of allRecords
-          // @ts-ignore
+          // @ts-ignore-next-line
           const depositEvents = getSubstrateEvents(SygmaPalleteEvents.Deposit, allRecords) as Array<DepositEvent>
+
+          // @ts-ignore-next-line
+          const failedHandlerExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.FailedHandlerExecution, allRecords) as Array<FailedHandlerExecutionEvent>
 
           // we get the index of the section in the extrinsic
           const sectionIndex = signedBlock.block.extrinsics.findIndex(ex => ex.method.section === "sygmaBridge")
@@ -193,12 +196,29 @@ export class SubstrateIndexer {
                 timestamp
               })
             })
+          } else if (proposalExecutionEvents.length) {
+            failedHandlerExecutionEvents.forEach((failedHandlerExecutionEvent: FailedHandlerExecutionEvent) => {
+              const { data } = (failedHandlerExecutionEvent.event as any).toHuman() as FailedHandlerExecutionEvent['event']
+
+              const { originDomainId, depositNonce, error } = data
+
+              console.log("TIME STAMP", timestamp)
+
+              this.saveFailedHandlerExecution(this.domain.id, latestBlock.toString(), {
+                originDomainId,
+                depositNonce: depositNonce,
+                error,
+                txIdentifier,
+                blockNumber: `${latestBlock}`,
+                timestamp
+              })
+            })
           }
 
           // move to next range of blocks
           latestBlock += this.currentEventsQueryInterval
         } catch (error) {
-          logger.error(`Failed to process current events because of: ${(error as Error).message}`)
+          logger.error(`Failed to process current events because of: ${error}`)
         }
       }
     })
@@ -213,6 +233,11 @@ export class SubstrateIndexer {
     logger.info(`Saving deposit. Save block on substrate ${this.domain.name}: ${latestBlock}, domain Id: ${domainID}`)
 
     await saveDeposit(depositData, this.transferRepository, this.depositRepository)
+  }
+
+  async saveFailedHandlerExecution(domainID: number, latestBlock: string, failedHandlerExecutionData: FailedHandlerExecutionToSave) {
+    logger.info(`Saving failed proposal execution. Save block on substrate ${this.domain.name}: ${latestBlock}, domain Id: ${domainID}`)
+    await saveFailedHandlerExecution(failedHandlerExecutionData, this.executionRepository, this.transferRepository)
   }
 
   async getLastIndexedBlock(domainID: string): Promise<number> {

@@ -79,11 +79,11 @@ class TransferRepository {
     return await this.transfer.create({ data: transferData })
   }
 
-  public async insertFailedTransfer(decodedLog: DecodedFailedHandlerExecution): Promise<Transfer> {
+  public async insertFailedTransfer({ depositNonce, domainId }: Pick<DecodedFailedHandlerExecution, "depositNonce" | "domainId">): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
-      depositNonce: decodedLog.depositNonce,
-      fromDomainId: decodedLog.domainId,
+      depositNonce: depositNonce,
+      fromDomainId: domainId,
       status: TransferStatus.failed,
     }
     return await this.transfer.create({ data: transferData })

@@ -5,7 +5,7 @@ import TransferRepository from "../../../indexer/repository/transfer";
 import { Transfer, TransferStatus } from "@prisma/client";
 import { logger } from "../../../utils/logger";
 import DepositRepository from "../../../indexer/repository/deposit";
-import { DepositDataToSave, ProposalExecutionDataToSave } from "../../../indexer/services/substrateIndexer/substrateTypes";
+import { DepositDataToSave, FailedHandlerExecutionToSave, ProposalExecutionDataToSave, SubstrateTypeTransfer } from "../../../indexer/services/substrateIndexer/substrateTypes";
 
 export async function saveProposalExecution(
   proposalExecutionData: ProposalExecutionDataToSave,
@@ -49,6 +49,48 @@ export async function saveProposalExecution(
   }
 
   await executionRepository.insertExecution(execution)
+}
+
+export async function saveFailedHandlerExecution(
+  failedHandlerExecutionData: FailedHandlerExecutionToSave,
+  executionRepository: ExecutionRepository,
+  transferRepository: TransferRepository,
+){
+  const { originDomainId, depositNonce, error, txIdentifier, blockNumber, timestamp } = failedHandlerExecutionData
+
+  let transfer = await transferRepository.findByNonceFromDomainId(
+    Number(depositNonce),
+    originDomainId
+  )
+
+   // there is no transfer but still we have proposal execution
+   if (!transfer) {
+    try {
+      await transferRepository.insertFailedTransfer({
+        depositNonce: Number(depositNonce),
+        domainId: originDomainId,
+      })
+    } catch (e) {
+      logger.error(`Error inserting failed substrate proposal execution transfer: ${e}`)
+    }
+  } else {
+    try {
+      await transferRepository.updateStatus(TransferStatus.failed, transfer.id)
+    } catch (e) {
+      logger.error(`Error updating substrate failed proposal execution transfer: ${e}`)
+    }
+  }
+
+  const execution = {
+    id: new ObjectId().toString(),
+    transferId: transfer!.id,
+    type: SubstrateTypeTransfer.Fungible,
+    txHash: txIdentifier,
+    blockNumber: blockNumber
+  }
+
+  await executionRepository.insertExecution(execution)
+  
 }
 
 export async function saveDeposit(
