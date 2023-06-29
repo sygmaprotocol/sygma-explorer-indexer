@@ -69,25 +69,22 @@ class TransferRepository {
       sender: substrateDepositData.sender,
       amount: substrateDepositData.amount,
       status: TransferStatus.pending,
-      fromDomainId: substrateDepositData.fromDomainId,
-      // resourceID: substrateDepositData.resourceID,
-      // toDomainId: substrateDepositData.toDomainId,
-      // resource: {
-      //   connect: {
-      //     id: substrateDepositData.resourceID,
-      //   },
-      // },
-      // fromDomain: {
-      //   connect: {
-      //     id: '3',
-      //   },
-      // },
-      // toDomain: {
-      //   connect: {
-      //     id: '1',
-      //   },
-      // },
-      timestamp: new Date(substrateDepositData.timestamp * 1000),
+      resource: {
+        connect: {
+          id: substrateDepositData.resourceID,
+        },
+      },
+      fromDomain: {
+        connect: {
+          id: substrateDepositData.fromDomainId,
+        },
+      },
+      toDomain: {
+        connect: {
+          id: substrateDepositData.toDomainId,
+        },
+      },
+      timestamp: new Date(substrateDepositData.timestamp),
     }
 
     const t = await this.transfer.create({ data: transferData })
@@ -106,7 +103,7 @@ class TransferRepository {
       id: new ObjectId().toString(),
       depositNonce: depositNonce,
       fromDomainId: fromDomainId,
-      timestamp: new Date(timestamp! * 1000),
+      timestamp: new Date(timestamp * 1000),
       status: TransferStatus.executed,
       resourceID: resourceID,
       toDomainId: null,
@@ -145,24 +142,13 @@ class TransferRepository {
       sender: sender,
       amount: amount,
       destination: destination,
-      resource: {
-        connect: {
-          id: resourceID,
-        },
-      },
-      fromDomain: {
-        connect: {
-          id: fromDomainId,
-        },
-      },
-      toDomain: {
-        connect: {
-          id: toDomainId,
-        },
-      },
-      timestamp: new Date(timestamp * 1000),
+      resourceID: resourceID,
+      fromDomainId: fromDomainId,
+      toDomainId: toDomainId,
+      timestamp: new Date(timestamp),
     }
     console.log("🚀 ~ file: transfer.ts:161 ~ TransferRepository ~ transferData:", transferData)
+
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 

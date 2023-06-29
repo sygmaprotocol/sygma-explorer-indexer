@@ -32,7 +32,7 @@
     "deploy:dev": "pm2 start ecosystem.dev.config.js",
     "start:worker": "ts-node -r tsconfig-paths/register --transpile-only src/indexer-worker/index.ts",
     "start:stub": "docker-compose -f docker-compose.stub.yml up",
-    "seed": "STAGE='devnet' NODE_ENV='devnet' ts-node ./src/seed"
+    "index:substrate": "nodemon"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.145.0",
@@ -44,6 +44,7 @@
     "@fastify/cors": "^8.2.1",
     "@openzeppelin/contracts": "^4.8.3",
     "@polkadot/api": "^10.6.1",
+    "@polkadot/types": "10.9.1",
     "@prisma/client": "^4.1.0",
     "@types/mongodb": "^4.0.7",
     "cors": "^2.8.5",

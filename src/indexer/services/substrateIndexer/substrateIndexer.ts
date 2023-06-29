@@ -38,12 +38,14 @@ export class SubstrateIndexer {
 
   async indexPastEvents(): Promise<number> {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id.toString())
+    // let toBlock = this.domain.startBlock + this.pastEventsQueryInterval
 
     const currentBlock = await this.provider.rpc.chain.getBlock()
 
     let latestBlock = Number(currentBlock.block.header.number)
     let toBlock = latestBlock
 
+    // let fromBlock = this.domain.startBlock
     let fromBlock = lastIndexedBlock
 
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
@@ -122,11 +124,18 @@ export class SubstrateIndexer {
 
   async getLastIndexedBlock(domainID: string): Promise<number> {
     const domainRes = await this.domainRepository.getLastIndexedBlock(domainID)
-    // return domainRes?.lastIndexedBlock !== 0 ? Number(domainRes.lastIndexedBlock) : 0
 
-    // return domainRes ? Number(domainRes.lastIndexedBlock) : 0
-    // return 4167438 // this is khala blocknumber
-    return 2858055 // this is phala blocknumber
+    let lastIndexedBlock: number = 0
+
+    if(domainRes?.id === "1") {
+      lastIndexedBlock =  domainRes ? Number(domainRes.lastIndexedBlock) : 0
+    } else if (domainRes?.id === "2") {
+      lastIndexedBlock = 4167438
+    } else if(domainRes?.id === "3") {
+      lastIndexedBlock = 2858055
+    }
+
+    return lastIndexedBlock
 
     // return this.domain.startBlock
     // this for testnets
