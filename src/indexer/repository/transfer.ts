@@ -60,33 +60,40 @@ class TransferRepository {
   }
 
   public async insertSubstrateDepositTransfer(
-    substrateDepositData: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">,
+    substrateDepositData: any
   ): Promise<Transfer> {
+    console.log("🚀 ~ file: transfer.ts:66 ~ TransferRepository ~ substrateDepositData:", substrateDepositData)
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: substrateDepositData.depositNonce,
       sender: substrateDepositData.sender,
       amount: substrateDepositData.amount,
       status: TransferStatus.pending,
-      resource: {
-        connect: {
-          id: substrateDepositData.resourceID,
-        },
-      },
-      fromDomain: {
-        connect: {
-          id: substrateDepositData.fromDomainId,
-        },
-      },
-      toDomain: {
-        connect: {
-          id: substrateDepositData.toDomainId,
-        },
-      },
+      fromDomainId: substrateDepositData.fromDomainId,
+      // resourceID: substrateDepositData.resourceID,
+      // toDomainId: substrateDepositData.toDomainId,
+      // resource: {
+      //   connect: {
+      //     id: substrateDepositData.resourceID,
+      //   },
+      // },
+      // fromDomain: {
+      //   connect: {
+      //     id: '3',
+      //   },
+      // },
+      // toDomain: {
+      //   connect: {
+      //     id: '1',
+      //   },
+      // },
       timestamp: new Date(substrateDepositData.timestamp * 1000),
     }
 
-    return await this.transfer.create({ data: transferData })
+    const t = await this.transfer.create({ data: transferData })
+    console.log("🚀 ~ file: transfer.ts:93 ~ TransferRepository ~ t:", t)
+
+    return t
   }
 
   public async insertExecutionTransfer({
@@ -155,6 +162,7 @@ class TransferRepository {
       },
       timestamp: new Date(timestamp * 1000),
     }
+    console.log("🚀 ~ file: transfer.ts:161 ~ TransferRepository ~ transferData:", transferData)
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 

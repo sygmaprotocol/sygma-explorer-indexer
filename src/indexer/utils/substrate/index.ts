@@ -30,12 +30,12 @@ export async function saveProposalExecution(
 ): Promise<void> {
   const { originDomainId, depositNonce, txIdentifier, blockNumber, timestamp } = proposalExecutionData
 
-  const transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
+  let transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
 
   // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
     try {
-      await transferRepository.insertExecutionTransfer({
+      transfer = await transferRepository.insertExecutionTransfer({
         depositNonce: Number(depositNonce),
         fromDomainId: originDomainId,
         timestamp,
@@ -67,8 +67,8 @@ export async function saveFailedHandlerExecution(
   failedHandlerExecutionData: FailedHandlerExecutionToSave,
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
-) {
-  const { originDomainId, depositNonce, error, txIdentifier, blockNumber, timestamp } = failedHandlerExecutionData
+): Promise<void> {
+  const { originDomainId, depositNonce, txIdentifier, blockNumber } = failedHandlerExecutionData
 
   const transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
 
@@ -123,6 +123,7 @@ export async function saveDeposit(
 
   const foundTransfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), `${originDomainId}`)
 
+  console.log("🚀 ~ file: index.ts:129 ~ foundTransfer:", foundTransfer)
   if (foundTransfer) {
     const dataTransferToUpdate = {
       depositNonce: Number(depositNonce),
@@ -142,7 +143,6 @@ export async function saveDeposit(
   }
 
   const transferData = {
-    id: new ObjectId().toString(),
     depositNonce: Number(depositNonce),
     sender,
     amount: decodedAmount,
@@ -216,8 +216,13 @@ export async function saveEvents(
 
   proposalExecutionEvents.forEach(async (proposalExecutionEvent: ProposalExecutionEvent) => {
     const { data } = (proposalExecutionEvent.event as any).toHuman()
+    console.log(
+      "🚀 ~ file: index.ts:209 ~ proposalExecutionEvents.forEach ~ (proposalExecutionEvent.event as any).toHuman():",
+      (proposalExecutionEvent.event as any).toHuman(),
+    )
 
     const { originDomainId, depositNonce } = data
+    console.log("🚀 ~ file: index.ts:227 ~ proposalExecutionEvents.forEach ~ originDomainId:", originDomainId)
 
     try {
       await saveProposalExecutionToDb(
@@ -241,6 +246,7 @@ export async function saveEvents(
 
   depositEvents.forEach(async (depositEvent: DepositEvent) => {
     const { data } = (depositEvent.event as any).toHuman()
+    console.log("🚀 ~ file: index.ts:224 ~ depositEvents.forEach ~ (depositEvent.event as any).toHuman():", (depositEvent.event as any).toHuman())
 
     const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
 

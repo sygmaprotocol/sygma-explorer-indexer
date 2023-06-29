@@ -78,6 +78,7 @@ export class SubstrateIndexer {
         )
 
         // move to next range of blocks
+        console.log("FROM BLOCK", fromBlock)
         fromBlock += this.pastEventsQueryInterval
         toBlock += this.pastEventsQueryInterval
       } catch (error) {
@@ -121,7 +122,19 @@ export class SubstrateIndexer {
 
   async getLastIndexedBlock(domainID: string): Promise<number> {
     const domainRes = await this.domainRepository.getLastIndexedBlock(domainID)
+    // return domainRes?.lastIndexedBlock !== 0 ? Number(domainRes.lastIndexedBlock) : 0
 
-    return domainRes ? Number(domainRes.lastIndexedBlock) : 0
+    // return domainRes ? Number(domainRes.lastIndexedBlock) : 0
+    // return 4167438 // this is khala blocknumber
+    return 2858055 // this is phala blocknumber
+
+    // return this.domain.startBlock
+    // this for testnets
+    // return 206764
+    // return 227820
+    // return 206885
+    // return 239340
+    // return 240159
+    // return 206883
   }
 }
