@@ -98,15 +98,20 @@ class TransferRepository {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: depositNonce,
-      fromDomainId: fromDomainId,
-      timestamp: new Date(timestamp! * 1000),
       status: TransferStatus.executed,
-      resourceID: resourceID,
-      toDomainId: null,
       sender: null,
       destination: null,
       amount: null,
-    }
+      resource: resourceID !== null ? resourceID : undefined,
+      toDomainId: undefined,
+      fromDomain: {
+        connect: {
+          id: fromDomainId,
+        }
+      },
+      timestamp: new Date(timestamp),
+    } as unknown as  Transfer
+
     return await this.transfer.create({ data: transferData })
   }
 

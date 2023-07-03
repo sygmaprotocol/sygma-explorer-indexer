@@ -30,12 +30,11 @@ export async function saveProposalExecution(
 ): Promise<void> {
   const { originDomainId, depositNonce, txIdentifier, blockNumber, timestamp } = proposalExecutionData
 
-  const transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
-
+  let transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
   // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
     try {
-      await transferRepository.insertExecutionTransfer({
+      transfer = await transferRepository.insertExecutionTransfer({
         depositNonce: Number(depositNonce),
         fromDomainId: originDomainId,
         timestamp,
@@ -59,8 +58,11 @@ export async function saveProposalExecution(
     txHash: txIdentifier,
     blockNumber: blockNumber,
   }
-
-  await executionRepository.insertExecution(execution)
+  try {
+    await executionRepository.insertExecution(execution)
+  } catch (e) {
+    logger.error(`Error inserting substrate proposal execution: ${e}`)
+  }
 }
 
 export async function saveFailedHandlerExecution(
@@ -237,6 +239,9 @@ export async function saveEvents(
     } catch (e) {
       logger.error(`Error saving proposal execution to db: ${e}`)
     }
+
+    await domainRepository.updateBlock(block.toString(), domain.id)
+    logger.info(`save block on ${domain.name}: ${block.toString()}, domainID: ${domain.id}`)
   })
 
   depositEvents.forEach(async (depositEvent: DepositEvent) => {
@@ -244,47 +249,61 @@ export async function saveEvents(
 
     const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
 
-    await saveDepositToDb(
-      domain,
-      block.toString(),
-      {
-        destDomainId,
-        resourceId,
-        depositNonce: depositNonce,
-        sender,
-        transferType,
-        depositData,
-        handlerResponse,
-        txIdentifier,
-        blockNumber: `${block}`,
-        timestamp,
-      },
-      transferRepository,
-      depositRepository,
-      domainRepository,
-    )
+    try {
+      await saveDepositToDb(
+        domain,
+        block.toString(),
+        {
+          destDomainId,
+          resourceId,
+          depositNonce: depositNonce,
+          sender,
+          transferType,
+          depositData,
+          handlerResponse,
+          txIdentifier,
+          blockNumber: `${block}`,
+          timestamp,
+        },
+        transferRepository,
+        depositRepository,
+        domainRepository,
+      )
+    } catch (e) {
+      logger.error(`Error saving deposit to db: ${e}`)
+    }
+
+    await domainRepository.updateBlock(block.toString(), domain.id)
+    logger.info(`save block on ${domain.name}: ${block.toString()}, domainID: ${domain.id}`)
   })
 
-  failedHandlerExecutionEvents.forEach((failedHandlerExecutionEvent: FailedHandlerExecutionEvent) => {
+  failedHandlerExecutionEvents.forEach(async (failedHandlerExecutionEvent: FailedHandlerExecutionEvent) => {
     const { data } = (failedHandlerExecutionEvent.event as any).toHuman() as FailedHandlerExecutionEvent["event"]
 
     const { originDomainId, depositNonce, error } = data
 
-    saveFailedHandlerExecutionToDb(
-      domain,
-      block.toString(),
-      {
-        originDomainId,
-        depositNonce: depositNonce,
-        error,
-        txIdentifier,
-        blockNumber: `${block}`,
-        timestamp,
-      },
-      executionRepository,
-      transferRepository,
-      domainRepository,
-    )
+    try {
+      await saveFailedHandlerExecutionToDb(
+        domain,
+        block.toString(),
+        {
+          originDomainId,
+          depositNonce: depositNonce,
+          error,
+          txIdentifier,
+          blockNumber: `${block}`,
+          timestamp,
+        },
+        executionRepository,
+        transferRepository,
+        domainRepository,
+      )
+    } catch (e) {
+      logger.error(`Error saving failed handler execution to db: ${e}`)
+    }
+
+    await domainRepository.updateBlock(block.toString(), domain.id)
+    logger.info(`save block on ${domain.name}: ${block.toString()}, domainID: ${domain.id}`)
   })
 }
 

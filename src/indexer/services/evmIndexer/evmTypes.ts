@@ -26,7 +26,7 @@ export type DecodedProposalExecutionLog = {
   from: string
   depositNonce: number
   txHash: string
-  timestamp: number | null
+  timestamp: number
   resourceID: string | null
 
   transferType: string
