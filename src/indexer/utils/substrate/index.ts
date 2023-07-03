@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { ObjectId } from "mongodb"
 import { AbiCoder, formatEther } from "ethers"
 import { BlockHash } from "@polkadot/types/interfaces"
 import { ApiPromise } from "@polkadot/api"
 import { Transfer, TransferStatus } from "@prisma/client"
+import { BigNumber } from "@ethersproject/bignumber"
 import ExecutionRepository from "../../repository/execution"
 import TransferRepository from "../../repository/transfer"
 import { logger } from "../../../utils/logger"
@@ -41,7 +43,7 @@ export async function saveProposalExecution(
         resourceID: null,
       })
     } catch (e) {
-      logger.error(`Error inserting substrate proposal execution transfer: ${e}`)
+      logger.error("Error inserting substrate proposal execution transfer:", e)
     }
   } else {
     try {
@@ -61,7 +63,7 @@ export async function saveProposalExecution(
   try {
     await executionRepository.insertExecution(execution)
   } catch (e) {
-    logger.error(`Error inserting substrate proposal execution: ${e}`)
+    logger.error("Error inserting substrate proposal execution:", e)
   }
 }
 
@@ -69,8 +71,8 @@ export async function saveFailedHandlerExecution(
   failedHandlerExecutionData: FailedHandlerExecutionToSave,
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
-) {
-  const { originDomainId, depositNonce, error, txIdentifier, blockNumber, timestamp } = failedHandlerExecutionData
+): Promise<void> {
+  const { originDomainId, depositNonce, txIdentifier, blockNumber } = failedHandlerExecutionData
 
   const transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
 
@@ -82,13 +84,13 @@ export async function saveFailedHandlerExecution(
         domainId: originDomainId,
       })
     } catch (e) {
-      logger.error(`Error inserting failed substrate proposal execution transfer: ${e}`)
+      logger.error("Error inserting failed substrate proposal execution transfer:", e)
     }
   } else {
     try {
       await transferRepository.updateStatus(TransferStatus.failed, transfer.id)
     } catch (e) {
-      logger.error(`Error updating substrate failed proposal execution transfer: ${e}`)
+      logger.error("Error updating substrate failed proposal execution transfer:", e)
     }
   }
 
@@ -139,7 +141,7 @@ export async function saveDeposit(
     try {
       await transferRepository.updateTransfer(dataTransferToUpdate, foundTransfer.id)
     } catch (e) {
-      logger.error(`Error updating substrate deposit transfer: ${e}`)
+      logger.error("Error updating substrate deposit transfer:", e)
     }
   }
 
@@ -158,7 +160,7 @@ export async function saveDeposit(
   try {
     insertedTransfer = await transferRepository.insertSubstrateDepositTransfer(transferData)
   } catch (e) {
-    logger.error(`Error inserting substrate deposit: ${e}`)
+    logger.error("Error inserting substrate deposit:", e)
   }
 
   if (insertedTransfer !== undefined) {
@@ -175,7 +177,7 @@ export async function saveDeposit(
     try {
       await depositRepository.insertDeposit(deposit)
     } catch (e) {
-      logger.error(`Error inserting substrate deposit: ${e}`)
+      logger.error("Error inserting substrate deposit:", e)
     }
   }
 }
@@ -184,7 +186,7 @@ function getDecodedAmount(depositData: string): string {
   const abiCoder = AbiCoder.defaultAbiCoder()
   const parsedAmount = `0x${depositData.substring(2).slice(0, 64)}`
   const decodedDepositData = abiCoder.decode(["uint256"], parsedAmount)
-  return formatEther(decodedDepositData[0].toString())
+  return formatEther((decodedDepositData[0] as BigNumber).toString())
 }
 
 export async function saveEvents(
@@ -196,7 +198,7 @@ export async function saveEvents(
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   domainRepository: DomainRepository,
-) {
+): Promise<void> {
   const signedBlock = await provider.rpc.chain.getBlock(blockHash)
   const at = await provider.at(blockHash)
   const timestamp = Number((await at.query.timestamp.now()).toString())
@@ -217,7 +219,7 @@ export async function saveEvents(
   const txIdentifier = `${block}-${sectionIndex}` //this is like the txHash but for the substrate
 
   proposalExecutionEvents.forEach(async (proposalExecutionEvent: ProposalExecutionEvent) => {
-    const { data } = (proposalExecutionEvent.event as any).toHuman()
+    const { data } = proposalExecutionEvent.event.toHuman()
 
     const { originDomainId, depositNonce } = data
 
@@ -237,7 +239,7 @@ export async function saveEvents(
         domainRepository,
       )
     } catch (e) {
-      logger.error(`Error saving proposal execution to db: ${e}`)
+      logger.error("Error saving proposal execution to db:", e)
     }
 
     await domainRepository.updateBlock(block.toString(), domain.id)
@@ -245,7 +247,7 @@ export async function saveEvents(
   })
 
   depositEvents.forEach(async (depositEvent: DepositEvent) => {
-    const { data } = (depositEvent.event as any).toHuman()
+    const { data } = depositEvent.event.toHuman()
 
     const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
 
@@ -270,7 +272,7 @@ export async function saveEvents(
         domainRepository,
       )
     } catch (e) {
-      logger.error(`Error saving deposit to db: ${e}`)
+      logger.error("Error saving deposit to db:", e)
     }
 
     await domainRepository.updateBlock(block.toString(), domain.id)
@@ -278,7 +280,7 @@ export async function saveEvents(
   })
 
   failedHandlerExecutionEvents.forEach(async (failedHandlerExecutionEvent: FailedHandlerExecutionEvent) => {
-    const { data } = (failedHandlerExecutionEvent.event as any).toHuman() as FailedHandlerExecutionEvent["event"]
+    const { data } = failedHandlerExecutionEvent.event.toHuman()
 
     const { originDomainId, depositNonce, error } = data
 
@@ -299,7 +301,7 @@ export async function saveEvents(
         domainRepository,
       )
     } catch (e) {
-      logger.error(`Error saving failed handler execution to db: ${e}`)
+      logger.error("Error saving failed handler execution to db:", e)
     }
 
     await domainRepository.updateBlock(block.toString(), domain.id)

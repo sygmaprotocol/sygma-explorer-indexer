@@ -201,7 +201,11 @@ export async function saveDepositLogs(
   if (!transfer) {
     transfer = await transferRepository.insertDepositTransfer(decodedLog)
   } else {
-    await transferRepository.updateTransfer(decodedLog, transfer.id)
+    const dataToSave = {
+      ...decodedLog,
+      timestamp: decodedLog.timestamp * 1000,
+    }
+    await transferRepository.updateTransfer(dataToSave, transfer.id)
   }
 
   const deposit = {
@@ -236,7 +240,11 @@ export async function saveProposalExecutionLogs(
 ): Promise<void> {
   let transfer = await transferRepository.findByNonceFromDomainId(decodedLog.depositNonce, decodedLog.fromDomainId || "")
   if (!transfer) {
-    transfer = await transferRepository.insertExecutionTransfer(decodedLog)
+    const dataToInsert = {
+      ...decodedLog,
+      timestamp: decodedLog.timestamp * 1000,
+    }
+    transfer = await transferRepository.insertExecutionTransfer(dataToInsert)
   } else {
     await transferRepository.updateStatus(TransferStatus.executed, transfer.id)
   }

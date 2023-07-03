@@ -27,17 +27,21 @@ export type FailedHandlerExecutionToSave = Omit<RawProposalExecutionData, "dataH
 
 export type DepositDataToSave = RawDepositData & { txIdentifier: string; blockNumber: string; timestamp: number }
 
-export type ProposalExecutionEvent = { event: { data: RawProposalExecutionData } }
+export type ProposalExecutionEvent = { event: { toHuman: () => { data: RawProposalExecutionData } } }
 
 export type DepositEvent = {
   event: {
-    data: RawDepositData
+    toHuman: () => {
+      data: RawDepositData
+    }
   }
 }
 
 export type FailedHandlerExecutionEvent = {
   event: {
-    data: RawFailedHandlerExecutionData
+    toHuman: () => {
+      data: RawFailedHandlerExecutionData
+    }
   }
 }
 

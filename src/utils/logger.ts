@@ -12,6 +12,7 @@ if (!fs.existsSync(logDir)) {
 }
 
 // Define log format
+// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
 const logFormat = winston.format.printf(({ timestamp, level, message }) => `${timestamp} ${level}: ${message}`)
 
 /*

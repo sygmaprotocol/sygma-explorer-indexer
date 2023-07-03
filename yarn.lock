@@ -11444,6 +11444,7 @@ __metadata:
     "@fastify/cors": ^8.2.1
     "@openzeppelin/contracts": ^4.8.3
     "@polkadot/api": ^10.6.1
+    "@polkadot/types": 10.9.1
     "@prisma/client": ^4.1.0
     "@rushstack/eslint-patch": ^1.2.0
     "@types/cors": ^2.8.12

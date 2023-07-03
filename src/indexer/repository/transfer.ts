@@ -54,7 +54,7 @@ class TransferRepository {
           id: decodedLog.toDomainId,
         },
       },
-      timestamp: new Date(decodedLog.timestamp * 1000),
+      timestamp: new Date(decodedLog.timestamp * 1000), // this is only being used by evm service
     }
     return await this.transfer.create({ data: transferData })
   }
@@ -83,7 +83,7 @@ class TransferRepository {
           id: substrateDepositData.toDomainId,
         },
       },
-      timestamp: new Date(substrateDepositData.timestamp * 1000),
+      timestamp: new Date(substrateDepositData.timestamp),
     }
 
     return await this.transfer.create({ data: transferData })
@@ -107,10 +107,10 @@ class TransferRepository {
       fromDomain: {
         connect: {
           id: fromDomainId,
-        }
+        },
       },
       timestamp: new Date(timestamp),
-    } as unknown as  Transfer
+    } as unknown as Transfer
 
     return await this.transfer.create({ data: transferData })
   }
@@ -158,7 +158,7 @@ class TransferRepository {
           id: toDomainId,
         },
       },
-      timestamp: new Date(timestamp * 1000),
+      timestamp: new Date(timestamp),
     }
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }

@@ -38,13 +38,13 @@ export class SubstrateIndexer {
 
   async indexPastEvents(): Promise<number> {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id.toString())
+    let toBlock = this.domain.startBlock + this.pastEventsQueryInterval
 
     const currentBlock = await this.provider.rpc.chain.getBlock()
 
     let latestBlock = Number(currentBlock.block.header.number)
-    let toBlock = latestBlock
 
-    let fromBlock = lastIndexedBlock
+    let fromBlock = this.domain.startBlock
 
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
       // move 1 block from last processed db block
@@ -81,7 +81,7 @@ export class SubstrateIndexer {
         fromBlock += this.pastEventsQueryInterval
         toBlock += this.pastEventsQueryInterval
       } catch (error) {
-        logger.error(`Failed to process past events because of: ${error}`)
+        logger.error(`Failed to process past events because of:`, error)
       }
     } while (fromBlock < latestBlock)
     // move to next block from the last queried range in past events
@@ -122,6 +122,6 @@ export class SubstrateIndexer {
   async getLastIndexedBlock(domainID: string): Promise<number> {
     const domainRes = await this.domainRepository.getLastIndexedBlock(domainID)
 
-    return domainRes ? Number(domainRes.lastIndexedBlock) : 0
+    return domainRes ? Number(domainRes.lastIndexedBlock) : this.domain.startBlock
   }
 }

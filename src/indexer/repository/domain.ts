@@ -27,7 +27,7 @@ class DomainRepository {
         },
       })
     } catch (error) {
-      logger.error(`Error updating block number for domain ${domainID.toString()}: ${error}`)
+      logger.error(`Error updating block number for domain ${domainID.toString()}`, error)
     }
   }
 
