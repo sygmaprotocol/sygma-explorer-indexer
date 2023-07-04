@@ -1,17 +1,33 @@
 import { ApiPromise, WsProvider } from "@polkadot/api"
-import { Domain } from "indexer/config"
+import { Domain } from "../../config"
 import DomainRepository from "../../repository/domain"
 import { logger } from "../../../utils/logger"
+import ExecutionRepository from "../../../indexer/repository/execution"
+import DepositRepository from "../../../indexer/repository/deposit"
+import TransferRepository from "../../../indexer/repository/transfer"
+import { saveEvents } from "../../../indexer/utils/substrate"
 
 export class SubstrateIndexer {
   private domainRepository: DomainRepository
-  private pastEventsQueryInterval = 2000
-  private currentEventsQueryInterval = 10
+  private executionRepository: ExecutionRepository
+  private depositRepository: DepositRepository
+  private transferRepository: TransferRepository
+  private pastEventsQueryInterval = 1
+  private currentEventsQueryInterval = 1
   private provider!: ApiPromise
   private domain: Domain
-  constructor(domainRepository: DomainRepository, domain: Domain) {
+  constructor(
+    domainRepository: DomainRepository,
+    domain: Domain,
+    executionRepository: ExecutionRepository,
+    depositRepository: DepositRepository,
+    transferRepository: TransferRepository,
+  ) {
     this.domainRepository = domainRepository
     this.domain = domain
+    this.executionRepository = executionRepository
+    this.depositRepository = depositRepository
+    this.transferRepository = transferRepository
   }
   async init(rpcUrl: string): Promise<void> {
     const wsProvider = new WsProvider(rpcUrl)
@@ -22,10 +38,11 @@ export class SubstrateIndexer {
 
   async indexPastEvents(): Promise<number> {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id.toString())
-
     let toBlock = this.domain.startBlock + this.pastEventsQueryInterval
 
-    let latestBlock = Number((await this.provider.rpc.chain.getBlock()).block.header.number)
+    const currentBlock = await this.provider.rpc.chain.getBlock()
+
+    let latestBlock = Number(currentBlock.block.header.number)
 
     let fromBlock = this.domain.startBlock
 
@@ -37,7 +54,8 @@ export class SubstrateIndexer {
     logger.info(`Starting querying past blocks on ${this.domain.name}`)
     do {
       try {
-        latestBlock = Number((await this.provider.rpc.chain.getBlock()).block.header.number)
+        latestBlock = Number(currentBlock.block.header.number)
+
         // check block range for getting logs query exceeds latestBlock on network
         // if true -> get logs until that block, else query next range of blocks
         if (fromBlock + this.pastEventsQueryInterval >= latestBlock) {
@@ -46,12 +64,24 @@ export class SubstrateIndexer {
           toBlock = fromBlock + this.pastEventsQueryInterval
         }
 
-        await this.saveDataToDb(this.domain.id, toBlock.toString())
+        const blockHash = await this.provider.rpc.chain.getBlockHash(toBlock)
+
+        await saveEvents(
+          blockHash,
+          this.provider,
+          toBlock,
+          this.domain,
+          this.executionRepository,
+          this.transferRepository,
+          this.depositRepository,
+          this.domainRepository,
+        )
+
         // move to next range of blocks
         fromBlock += this.pastEventsQueryInterval
         toBlock += this.pastEventsQueryInterval
       } catch (error) {
-        logger.error(`Failed to process past events because of: ${(error as Error).message}`)
+        logger.error(`Failed to process past events because of:`, error)
       }
     } while (fromBlock < latestBlock)
     // move to next block from the last queried range in past events
@@ -63,29 +93,35 @@ export class SubstrateIndexer {
     let latestBlock = await this.indexPastEvents()
     await this.provider.rpc.chain.subscribeNewHeads(async header => {
       // start at last block from past events query and move to new blocks range
-      if (latestBlock + this.currentEventsQueryInterval === Number(header.number)) {
+      if (latestBlock + this.currentEventsQueryInterval < Number(header.number)) {
         // connect executions to deposits
         try {
           // fetch and decode logs
+          const blockHash = await this.provider.rpc.chain.getBlockHash(latestBlock)
 
-          await this.saveDataToDb(this.domain.id, header.number.toString())
+          await saveEvents(
+            blockHash,
+            this.provider,
+            latestBlock,
+            this.domain,
+            this.executionRepository,
+            this.transferRepository,
+            this.depositRepository,
+            this.domainRepository,
+          )
+
           // move to next range of blocks
           latestBlock += this.currentEventsQueryInterval
         } catch (error) {
-          logger.error(`Failed to process current events because of: ${(error as Error).message}`)
+          logger.error(`Failed to process current events because of: ${error}`)
         }
       }
     })
   }
 
-  async saveDataToDb(domainID: number, latestBlock: string): Promise<void> {
-    logger.info(`save block on substrate ${this.domain.name}: ${latestBlock}`)
-    await this.domainRepository.updateBlock(latestBlock, domainID)
-  }
-
   async getLastIndexedBlock(domainID: string): Promise<number> {
     const domainRes = await this.domainRepository.getLastIndexedBlock(domainID)
 
-    return domainRes ? Number(domainRes.lastIndexedBlock) : 0
+    return domainRes ? Number(domainRes.lastIndexedBlock) : this.domain.startBlock
   }
 }

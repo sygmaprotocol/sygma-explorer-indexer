@@ -22,7 +22,7 @@ model Transfer {
   sender       String?
   destination  String?
   amount       String?
-  timestamp    Int?
+  timestamp    DateTime?
   status       TransferStatus
   deposit      Deposit?
   execution    Execution?

@@ -54,59 +54,111 @@ class TransferRepository {
           id: decodedLog.toDomainId,
         },
       },
-      timestamp: decodedLog.timestamp,
+      timestamp: new Date(decodedLog.timestamp * 1000), // this is only being used by evm service
     }
     return await this.transfer.create({ data: transferData })
   }
 
-  public async insertExecutionTransfer(decodedLog: DecodedProposalExecutionLog): Promise<Transfer> {
+  public async insertSubstrateDepositTransfer(
+    substrateDepositData: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">,
+  ): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
-      depositNonce: decodedLog.depositNonce,
-      fromDomainId: decodedLog.fromDomainId,
-      timestamp: decodedLog.timestamp,
+      depositNonce: substrateDepositData.depositNonce,
+      sender: substrateDepositData.sender,
+      amount: substrateDepositData.amount,
+      status: TransferStatus.pending,
+      resource: {
+        connect: {
+          id: substrateDepositData.resourceID,
+        },
+      },
+      fromDomain: {
+        connect: {
+          id: substrateDepositData.fromDomainId,
+        },
+      },
+      toDomain: {
+        connect: {
+          id: substrateDepositData.toDomainId,
+        },
+      },
+      timestamp: new Date(substrateDepositData.timestamp),
+    }
+
+    return await this.transfer.create({ data: transferData })
+  }
+
+  public async insertExecutionTransfer({
+    depositNonce,
+    fromDomainId,
+    timestamp,
+    resourceID,
+  }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp" | "resourceID">): Promise<Transfer> {
+    const transferData = {
+      id: new ObjectId().toString(),
+      depositNonce: depositNonce,
       status: TransferStatus.executed,
-      resourceID: decodedLog.resourceID,
-      toDomainId: null,
       sender: null,
       destination: null,
       amount: null,
-    }
+      resource: resourceID !== null ? resourceID : undefined,
+      toDomainId: undefined,
+      fromDomain: {
+        connect: {
+          id: fromDomainId,
+        },
+      },
+      timestamp: new Date(timestamp),
+    } as unknown as Transfer
+
     return await this.transfer.create({ data: transferData })
   }
 
-  public async insertFailedTransfer(decodedLog: DecodedFailedHandlerExecution): Promise<Transfer> {
+  public async insertFailedTransfer({ depositNonce, domainId }: Pick<DecodedFailedHandlerExecution, "depositNonce" | "domainId">): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
-      depositNonce: decodedLog.depositNonce,
-      fromDomainId: decodedLog.domainId,
+      depositNonce: depositNonce,
+      fromDomainId: domainId,
       status: TransferStatus.failed,
     }
     return await this.transfer.create({ data: transferData })
   }
 
-  public async updateTransfer(decodedLog: DecodedDepositLog, id: string): Promise<Transfer> {
+  public async updateTransfer(
+    {
+      depositNonce,
+      sender,
+      amount,
+      destination,
+      resourceID,
+      fromDomainId,
+      toDomainId,
+      timestamp,
+    }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp">,
+    id: string,
+  ): Promise<Transfer> {
     const transferData = {
-      depositNonce: decodedLog.depositNonce,
-      sender: decodedLog.sender,
-      amount: decodedLog.amount,
-      destination: decodedLog.destination,
+      depositNonce: depositNonce,
+      sender: sender,
+      amount: amount,
+      destination: destination,
       resource: {
         connect: {
-          id: decodedLog.resourceID,
+          id: resourceID,
         },
       },
       fromDomain: {
         connect: {
-          id: decodedLog.fromDomainId,
+          id: fromDomainId,
         },
       },
       toDomain: {
         connect: {
-          id: decodedLog.toDomainId,
+          id: toDomainId,
         },
       },
-      timestamp: decodedLog.timestamp,
+      timestamp: new Date(timestamp),
     }
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }

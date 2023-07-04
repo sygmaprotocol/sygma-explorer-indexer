@@ -184,7 +184,7 @@ describe("TransferController", () => {
 
       const res = await app.inject({
         method: "GET",
-        url: `/api/sender/${sender}/transfers`,
+        url: `/api/sender/${sender!}/transfers`,
         query: {
           page: "1",
           limit: "10",
