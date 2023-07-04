@@ -3,12 +3,11 @@ FROM node:18-alpine AS builder
 # update packages
 RUN apk update
 
+# install git
+RUN apk add --no-cache git
+
 # create root application folder
 WORKDIR /app
-
-RUN corepack enable
-RUN corepack prepare yarn@stable --activate
-RUN yarn set version stable
 
 # copy configs to /app folder
 COPY .yarnrc.yml ./
