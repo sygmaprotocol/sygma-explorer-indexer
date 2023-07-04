@@ -8,6 +8,7 @@ import TransferRepository from "./repository/transfer"
 import ExecutionRepository from "./repository/execution"
 import FeeRepository from "./repository/fee"
 import ResourceRepository from "./repository/resource"
+import { healthcheckRoute } from "./healthcheck"
 
 async function main(): Promise<void> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
@@ -19,6 +20,7 @@ async function main(): Promise<void> {
   const feeRepository = new FeeRepository()
   const resourceRepository = new ResourceRepository()
 
+  healthcheckRoute()
   await insertDomains(sharedConfig.domains, resourceRepository, domainRepository)
 
   const rpcUrlConfig = getSsmDomainConfig()
