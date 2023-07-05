@@ -45,6 +45,7 @@ jobs:
          variables: |
            awsAccountId=${{ env.AWS_MAINNET }}
            awsRegion=${{ env.AWS_REGION }}
+           awsEnv=${{ env.ENVIRONMENT }}
            DB_USERNAME=${{ secrets.MAIN_USERNAME }}
            DB_PASSWORD=${{ secrets.MAIN_PASSWORD }}
 
