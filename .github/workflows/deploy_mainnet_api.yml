@@ -46,7 +46,7 @@ jobs:
            awsAccountId=${{ env.AWS_MAINNET }}
            awsRegion=${{ env.AWS_REGION }}
            DB_USERNAME=${{ secrets.MAIN_USERNAME }}
-           DB_PASSWROD=${{ secrets.MAIN_PASSWORD }}
+           DB_PASSWORD=${{ secrets.MAIN_PASSWORD }}
 
      - name: Configure AWS Credentials
        uses: aws-actions/configure-aws-credentials@v1
