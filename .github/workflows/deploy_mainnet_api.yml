@@ -48,6 +48,7 @@ jobs:
            awsEnv=${{ env.ENVIRONMENT }}
            DB_USERNAME=${{ secrets.MAIN_USERNAME }}
            DB_PASSWORD=${{ secrets.MAIN_PASSWORD }}
+           imageTag=${{ inputs.release_tag }}
 
      - name: Configure AWS Credentials
        uses: aws-actions/configure-aws-credentials@v1
