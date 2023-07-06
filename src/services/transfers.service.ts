@@ -55,7 +55,7 @@ class TransfersService {
       skip,
       orderBy: [
         {
-          timestamp: "asc",
+          timestamp: "desc",
         },
       ],
       include: {
@@ -78,7 +78,7 @@ class TransfersService {
       skip,
       orderBy: [
         {
-          timestamp: "asc",
+          timestamp: "desc",
         },
       ],
       include: {
