@@ -114,8 +114,7 @@ export async function saveDeposit(
   } = substrateDepositData
 
   const decodedAmount = getDecodedAmount(depositData)
-  let transfer: Transfer | null
-  transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), `${originDomainId}`)
+  let transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), `${originDomainId}`)
   if (transfer) {
     const dataTransferToUpdate = {
       depositNonce: Number(depositNonce),
