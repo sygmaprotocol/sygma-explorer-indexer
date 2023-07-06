@@ -51,5 +51,12 @@ export type IncludedQueryParams = {
         handlerResponse: boolean
       }
     }
+    execution: {
+      select: {
+        txHash: boolean
+        type: boolean
+        blockNumber: boolean
+      }
+    }
   }
 }
