@@ -197,7 +197,7 @@ export async function saveDepositLogs(
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
 ): Promise<void> {
-  let transfer = await transferRepository.findByNonceToDomainId(decodedLog.depositNonce, decodedLog.toDomainId)
+  let transfer = await transferRepository.findByNonceFromDomainId(decodedLog.depositNonce, decodedLog.fromDomainId)
   if (!transfer) {
     transfer = await transferRepository.insertDepositTransfer(decodedLog)
   } else {
