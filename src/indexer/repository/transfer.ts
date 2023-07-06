@@ -172,15 +172,6 @@ class TransferRepository {
     })
   }
 
-  public async findByNonceToDomainId(nonce: number, toDomainId: string): Promise<Transfer | null> {
-    return await this.transfer.findFirst({
-      where: {
-        depositNonce: nonce,
-        toDomainId: toDomainId,
-      },
-    })
-  }
-
   public async updateStatus(status: TransferStatus, id: string): Promise<Transfer> {
     return await this.transfer.update({
       where: {
