@@ -22,7 +22,7 @@ describe("TransferService", () => {
         take: 20,
         orderBy: [
           {
-            timestamp: "asc",
+            timestamp: "desc",
           },
         ],
         include: {
@@ -71,7 +71,7 @@ describe("TransferService", () => {
         take: 30,
         orderBy: [
           {
-            timestamp: "asc",
+            timestamp: "desc",
           },
         ],
         include: {
@@ -117,7 +117,7 @@ describe("TransferService", () => {
         take: 80,
         orderBy: [
           {
-            timestamp: "asc",
+            timestamp: "desc",
           },
         ],
         include: {
@@ -153,7 +153,7 @@ describe("TransferService", () => {
         take: 20,
         orderBy: [
           {
-            timestamp: "asc",
+            timestamp: "desc",
           },
         ],
         include: {
@@ -171,7 +171,7 @@ describe("TransferService", () => {
         take: 20,
         orderBy: [
           {
-            timestamp: "asc",
+            timestamp: "desc",
           },
         ],
         include: {

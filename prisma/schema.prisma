@@ -12,7 +12,7 @@ generator client {
 
 model Transfer {
   id           String         @id @default(auto()) @map("_id") @db.ObjectId
-  depositNonce Int            @unique
+  depositNonce Int            
   resource     Resource?      @relation(fields: [resourceID], references: [id])
   resourceID   String?
   fromDomain   Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])

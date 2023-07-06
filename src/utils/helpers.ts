@@ -66,6 +66,13 @@ export const getTransferQueryParams = (): IncludedQueryParams => {
           handlerResponse: true,
         },
       },
+      execution: {
+        select: {
+          txHash: true,
+          blockNumber: true,
+          type: true,
+        },
+      },
     },
   }
 }
