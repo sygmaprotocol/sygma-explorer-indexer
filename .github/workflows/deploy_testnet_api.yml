@@ -1,4 +1,4 @@
-name: Deploy Explorer API
+name: Testnet Explorer API
 
 on:
   release:
