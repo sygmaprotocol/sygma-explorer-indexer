@@ -1,4 +1,4 @@
-name: Deploy Explorer Indexer
+name: Mainnet Explorer Indexer
 
 on:
   workflow_dispatch:
