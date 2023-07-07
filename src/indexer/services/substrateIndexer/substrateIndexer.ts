@@ -7,6 +7,8 @@ import DepositRepository from "../../../indexer/repository/deposit"
 import TransferRepository from "../../../indexer/repository/transfer"
 import { saveEvents, sleep } from "../../../indexer/utils/substrate"
 
+const BLOCK_TIME = 12000
+
 export class SubstrateIndexer {
   private domainRepository: DomainRepository
   private executionRepository: ExecutionRepository
@@ -15,6 +17,7 @@ export class SubstrateIndexer {
   private eventsQueryInterval = 1
   private provider!: ApiPromise
   private domain: Domain
+  private stopped = false
 
   constructor(
     domainRepository: DomainRepository,
@@ -29,11 +32,16 @@ export class SubstrateIndexer {
     this.depositRepository = depositRepository
     this.transferRepository = transferRepository
   }
-  async init(rpcUrl: string): Promise<void> {
+
+  public async init(rpcUrl: string): Promise<void> {
     const wsProvider = new WsProvider(rpcUrl)
     this.provider = await ApiPromise.create({
       provider: wsProvider,
     })
+  }
+
+  public stop(): void {
+    this.stopped = true
   }
 
   public async listenToEvents(): Promise<void> {
@@ -45,13 +53,12 @@ export class SubstrateIndexer {
 
     logger.info(`Starting querying on ${this.domain.name} from ${currentBlock}`)
 
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
+    while (!this.stopped) {
       try {
         const latestBlock = await this.provider.rpc.chain.getBlock()
         const currentBlockHash = await this.provider.rpc.chain.getBlockHash(currentBlock)
         if (currentBlock >= Number(latestBlock.block.header.number)) {
-          await sleep(10000)
+          await sleep(BLOCK_TIME)
           continue
         }
 
@@ -71,12 +78,12 @@ export class SubstrateIndexer {
         currentBlock += this.eventsQueryInterval
       } catch (error) {
         logger.error(`Failed to process events for block ${currentBlock} for domain ${this.domain.id}:`, error)
-        await sleep(10000)
+        await sleep(BLOCK_TIME)
       }
     }
   }
 
-  async getLastIndexedBlock(domainID: string): Promise<number> {
+  private async getLastIndexedBlock(domainID: string): Promise<number> {
     const domainRes = await this.domainRepository.getLastIndexedBlock(domainID)
     return domainRes ? Number(domainRes.lastIndexedBlock) : this.domain.startBlock
   }
