@@ -89,9 +89,11 @@ export class EvmIndexer {
 
   async saveEvents(startBlock: number, endBlock: number): Promise<void> {
     const logs = await getLogs(this.provider, this.domain, startBlock, endBlock)
-    if (logs.length > 0) {
-      logger.info(`Found past events on ${this.domain.name} in block range [${startBlock}-${endBlock}]`)
+    if (logs.length == 0) {
+      return
     }
+
+    logger.info(`Found past events on ${this.domain.name} in block range [${startBlock}-${endBlock}]`)
     const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap)
 
     const transferMap = new Map<string, string>()
