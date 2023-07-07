@@ -1,3 +1,4 @@
+import nodeCleanup from "node-cleanup"
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
@@ -10,7 +11,32 @@ import FeeRepository from "./repository/fee"
 import ResourceRepository from "./repository/resource"
 import { healthcheckRoute } from "./healthcheck"
 
-async function main(): Promise<void> {
+interface DomainIndexer {
+  listenToEvents(): Promise<void>
+  stop(): void
+}
+
+init()
+  .then(domainIndexers => {
+    nodeCleanup(function () {
+      for (const indexer of domainIndexers) {
+        indexer.stop()
+        nodeCleanup.uninstall()
+        return false
+      }
+    })
+
+    for (const domainIndexer of domainIndexers) {
+      domainIndexer.listenToEvents().catch(reason => {
+        logger.error("Failed listening to events because of: ", reason)
+      })
+    }
+  })
+  .catch(reason => {
+    logger.error("Failed to initialize app because of: ", reason)
+  })
+
+async function init(): Promise<Array<DomainIndexer>> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
 
   const domainRepository = new DomainRepository()
@@ -26,7 +52,7 @@ async function main(): Promise<void> {
   const rpcUrlConfig = getSsmDomainConfig()
 
   const domainsToIndex = getDomainsToIndex(sharedConfig.domains)
-  const domainIndexers: Array<Promise<void>> = []
+  const domainIndexers: Array<DomainIndexer> = []
   for (const domain of domainsToIndex) {
     const rpcURL = rpcUrlConfig.get(domain.id)
     if (!rpcURL) {
@@ -38,7 +64,7 @@ async function main(): Promise<void> {
       try {
         const substrateIndexer = new SubstrateIndexer(domainRepository, domain, executionRepository, depositRepository, transferRepository)
         await substrateIndexer.init(rpcURL)
-        domainIndexers.push(substrateIndexer.listenToEvents())
+        domainIndexers.push(substrateIndexer)
       } catch (err) {
         logger.error(`error on domain: ${domain.id}... skipping`)
         continue
@@ -46,7 +72,7 @@ async function main(): Promise<void> {
     } else if (domain.type == DomainTypes.EVM) {
       try {
         const evmIndexer = new EvmIndexer(domain, rpcURL, domainRepository, depositRepository, transferRepository, executionRepository, feeRepository)
-        domainIndexers.push(evmIndexer.listenToEvents())
+        domainIndexers.push(evmIndexer)
       } catch (err) {
         logger.error(`error on domain: ${domain.id}... skipping`)
         continue
@@ -56,12 +82,8 @@ async function main(): Promise<void> {
     }
   }
 
-  await Promise.all(domainIndexers)
+  return domainIndexers
 }
-
-main().catch(e => {
-  logger.error(e)
-})
 
 async function insertDomains(domains: Array<Domain>, resourceRepository: ResourceRepository, domainRepository: DomainRepository): Promise<void> {
   for (const domain of domains) {
