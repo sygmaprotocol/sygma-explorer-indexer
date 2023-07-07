@@ -12,6 +12,8 @@ import { logger } from "../../../utils/logger"
 import { getLogs } from "./evmfilter"
 import { decodeLogs } from "./evmEventParser"
 
+const BLOCK_TIME = 15000
+
 export class EvmIndexer {
   private pastEventsQueryInterval = 1000
   private eventsQueryInterval = 1
@@ -24,6 +26,7 @@ export class EvmIndexer {
   private feeRepository: FeeRepository
   private domain: Domain
   private resourceMap: Map<string, Resource>
+  private stopped = false
 
   constructor(
     domain: Domain,
@@ -46,6 +49,10 @@ export class EvmIndexer {
     domain.resources.map((resource: Resource) => this.resourceMap.set(resource.resourceId, resource))
   }
 
+  public stop(): void {
+    this.stopped = true
+  }
+
   async listenToEvents(): Promise<void> {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id.toString())
     let currentBlock = this.domain.startBlock
@@ -55,23 +62,27 @@ export class EvmIndexer {
 
     logger.info(`Starting querying blocks for events on ${this.domain.name}, domainID: ${this.domain.id} from ${currentBlock}`)
 
-    while (true) {
+    while (!this.stopped) {
       try {
         const latestBlock = await this.provider.getBlockNumber()
         if (currentBlock >= latestBlock) {
-          await sleep(10000)
+          await sleep(BLOCK_TIME)
           continue
         }
 
-        await this.saveEvents(currentBlock, currentBlock + this.pastEventsQueryInterval)
+        let queryInterval = this.pastEventsQueryInterval
+        if (currentBlock + this.pastEventsQueryInterval > latestBlock) {
+          queryInterval = this.eventsQueryInterval
+        }
+        await this.saveEvents(currentBlock, currentBlock + queryInterval)
 
-        logger.info(`indexed block on ${this.domain.name}: ${latestBlock}, domainID: ${this.domain.id}`)
+        logger.info(`indexed block on ${this.domain.name}: ${currentBlock}, domainID: ${this.domain.id}`)
         await this.domainRepository.updateBlock(currentBlock.toString(), this.domain.id)
 
-        currentBlock += this.pastEventsQueryInterval
+        currentBlock += queryInterval
       } catch (error) {
         logger.error(`Failed to process events for block ${currentBlock} for domain ${this.domain.id}:`, error)
-        await sleep(10000)
+        await sleep(BLOCK_TIME)
       }
     }
   }
