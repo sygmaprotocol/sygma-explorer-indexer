@@ -23,7 +23,6 @@ import {
 import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes"
 import { Domain } from "../../../indexer/config"
 import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser"
-import DomainRepository from "../../../indexer/repository/domain"
 
 export async function saveProposalExecution(
   proposalExecutionData: ProposalExecutionDataToSave,
@@ -35,36 +34,24 @@ export async function saveProposalExecution(
   let transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
   // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
-    try {
-      transfer = await transferRepository.insertExecutionTransfer({
-        depositNonce: Number(depositNonce),
-        fromDomainId: originDomainId,
-        timestamp,
-        resourceID: null,
-      })
-    } catch (e) {
-      logger.error("Error inserting substrate proposal execution transfer:", e)
-    }
+    transfer = await transferRepository.insertExecutionTransfer({
+      depositNonce: Number(depositNonce),
+      fromDomainId: originDomainId,
+      timestamp,
+      resourceID: null,
+    })
   } else {
-    try {
-      await transferRepository.updateStatus(TransferStatus.executed, transfer.id)
-    } catch (e) {
-      logger.error(`Error updating substrate proposal execution transfer: ${e}`)
-    }
+    await transferRepository.updateStatus(TransferStatus.executed, transfer.id)
   }
 
   const execution = {
     id: new ObjectId().toString(),
-    transferId: transfer!.id,
+    transferId: transfer.id,
     type: SubstrateTypeTransfer.Fungible,
     txHash: txIdentifier,
     blockNumber: blockNumber,
   }
-  try {
-    await executionRepository.insertExecution(execution)
-  } catch (e) {
-    logger.error("Error inserting substrate proposal execution:", e)
-  }
+  await executionRepository.insertExecution(execution)
 }
 
 export async function saveFailedHandlerExecution(
@@ -168,7 +155,6 @@ export async function saveEvents(
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
-  domainRepository: DomainRepository,
 ): Promise<void> {
   const signedBlock = await provider.rpc.chain.getBlock(blockHash)
   const at = await provider.at(blockHash)
@@ -244,8 +230,6 @@ export async function saveEvents(
       transferRepository,
     )
   })
-  await domainRepository.updateBlock(block.toString(), domain.id)
-  logger.info(`save block on ${domain.name}: ${block.toString()}, domainID: ${domain.id}`)
 }
 
 export async function saveProposalExecutionToDb(
@@ -294,4 +278,8 @@ export async function saveFailedHandlerExecutionToDb(
   } catch (error) {
     logger.error("Error saving failed handler execution: ", error)
   }
+}
+
+export async function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }

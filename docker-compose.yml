@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   mongo1:
-    image: mongo:4
+    image: mongo:6
     container_name: mongo1
     command: ["--replSet", "my-replica-set", "--bind_ip_all", "--port", "30001"]
     volumes:
@@ -12,7 +12,7 @@ services:
       driver: none
 
   mongo2:
-    image: mongo:4
+    image: mongo:6
     container_name: mongo2
     command: ["--replSet", "my-replica-set", "--bind_ip_all", "--port", "30002"]
     volumes:
@@ -23,7 +23,7 @@ services:
       driver: none
 
   mongo3:
-    image: mongo:4
+    image: mongo:6
     container_name: mongo3
     command: ["--replSet", "my-replica-set", "--bind_ip_all", "--port", "30003"]
     volumes:
@@ -32,7 +32,6 @@ services:
       - 30003:30003
     logging:
       driver: none
-
 
   indexer:
     build: 
@@ -46,6 +45,6 @@ services:
       context: .
       dockerfile: ./Dockerfile.api
     environment:
-      DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer?replicaSet=my-replica-set&authSource=admin&retryWrites=true&w=majority
+      DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer
     ports:
       - "8000:8000"
