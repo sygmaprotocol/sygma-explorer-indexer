@@ -23,7 +23,6 @@ import {
 import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes"
 import { Domain } from "../../../indexer/config"
 import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser"
-import DomainRepository from "../../../indexer/repository/domain"
 
 export async function saveProposalExecution(
   proposalExecutionData: ProposalExecutionDataToSave,
