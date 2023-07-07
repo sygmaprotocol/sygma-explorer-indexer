@@ -8,6 +8,8 @@ services:
       - ./data/mongo-1:/data/db
     ports:
       - 30001:30001
+    logging:
+      driver: none
 
   mongo2:
     image: mongo:6
@@ -36,7 +38,7 @@ services:
       context: .
       dockerfile: ./Dockerfile 
     environment:
-      DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer?retryWrites=true&replicaSet=my-replica-set&w=majority
+      DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer?replicaSet=my-replica-set&authSource=admin&retryWrites=true&w=majority
 
   api:
     build: 

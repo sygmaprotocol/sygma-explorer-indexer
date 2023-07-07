@@ -1,4 +1,4 @@
-name: Deploy Explorer Indexer
+name: Testnet Explorer Indexer
 
 on:
   release:

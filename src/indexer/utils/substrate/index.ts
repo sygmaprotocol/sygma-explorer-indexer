@@ -242,7 +242,11 @@ export async function saveProposalExecutionToDb(
 ): Promise<void> {
   logger.info(`Saving proposal execution. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
-  await saveProposalExecution(proposalExecutionData, executionRepository, transferRepository)
+  try {
+    await saveProposalExecution(proposalExecutionData, executionRepository, transferRepository)
+  } catch (error) {
+    logger.error("Error saving proposal execution:", error)
+  }
 }
 
 export async function saveDepositToDb(
@@ -254,7 +258,11 @@ export async function saveDepositToDb(
 ): Promise<void> {
   logger.info(`Saving deposit. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
-  await saveDeposit(domain.id, depositData, transferRepository, depositRepository)
+  try {
+    await saveDeposit(domain.id, depositData, transferRepository, depositRepository)
+  } catch (error) {
+    logger.error("Error saving substrate deposit:", error)
+  }
 }
 
 export async function saveFailedHandlerExecutionToDb(
@@ -266,7 +274,11 @@ export async function saveFailedHandlerExecutionToDb(
 ): Promise<void> {
   logger.info(`Saving failed proposal execution. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
-  await saveFailedHandlerExecution(failedHandlerExecutionData, executionRepository, transferRepository)
+  try {
+    await saveFailedHandlerExecution(failedHandlerExecutionData, executionRepository, transferRepository)
+  } catch (error) {
+    logger.error("Error saving failed handler execution: ", error)
+  }
 }
 
 export async function sleep(ms: number): Promise<void> {

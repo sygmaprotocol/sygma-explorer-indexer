@@ -1,4 +1,4 @@
-name: Deploy Explorer API
+name: Mainnet Explorer API
 
 on:
   workflow_dispatch:
