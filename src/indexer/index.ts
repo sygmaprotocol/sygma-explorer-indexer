@@ -26,7 +26,7 @@ async function main(): Promise<void> {
   const rpcUrlConfig = getSsmDomainConfig()
 
   const domainsToIndex = getDomainsToIndex(sharedConfig.domains)
-
+  const domainIndexers: Array<Promise<void>> = []
   for (const domain of domainsToIndex) {
     const rpcURL = rpcUrlConfig.get(domain.id)
     if (!rpcURL) {
@@ -38,7 +38,7 @@ async function main(): Promise<void> {
       try {
         const substrateIndexer = new SubstrateIndexer(domainRepository, domain, executionRepository, depositRepository, transferRepository)
         await substrateIndexer.init(rpcURL)
-        await substrateIndexer.listenToEvents()
+        domainIndexers.push(substrateIndexer.listenToEvents())
       } catch (err) {
         logger.error(`error on domain: ${domain.id}... skipping`)
         continue
@@ -46,7 +46,7 @@ async function main(): Promise<void> {
     } else if (domain.type == DomainTypes.EVM) {
       try {
         const evmIndexer = new EvmIndexer(domain, rpcURL, domainRepository, depositRepository, transferRepository, executionRepository, feeRepository)
-        await evmIndexer.listenToEvents()
+        domainIndexers.push(evmIndexer.listenToEvents())
       } catch (err) {
         logger.error(`error on domain: ${domain.id}... skipping`)
         continue
@@ -55,6 +55,8 @@ async function main(): Promise<void> {
       logger.error(`unsuported type: ${JSON.stringify(domain)}`)
     }
   }
+
+  await Promise.all(domainIndexers)
 }
 
 main().catch(e => {

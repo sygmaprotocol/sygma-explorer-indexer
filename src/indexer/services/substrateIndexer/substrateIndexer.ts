@@ -5,7 +5,7 @@ import { logger } from "../../../utils/logger"
 import ExecutionRepository from "../../../indexer/repository/execution"
 import DepositRepository from "../../../indexer/repository/deposit"
 import TransferRepository from "../../../indexer/repository/transfer"
-import { saveEvents } from "../../../indexer/utils/substrate"
+import { saveEvents, sleep } from "../../../indexer/utils/substrate"
 
 export class SubstrateIndexer {
   private domainRepository: DomainRepository
@@ -51,7 +51,7 @@ export class SubstrateIndexer {
         const latestBlock = await this.provider.rpc.chain.getBlock()
         const currentBlockHash = await this.provider.rpc.chain.getBlockHash(currentBlock)
         if (currentBlock >= Number(latestBlock.block.header.number)) {
-          await new Promise(resolve => setTimeout(resolve, 10000))
+          await sleep(10000)
           continue
         }
 
@@ -63,11 +63,15 @@ export class SubstrateIndexer {
           this.executionRepository,
           this.transferRepository,
           this.depositRepository,
-          this.domainRepository,
         )
+
+        await this.domainRepository.updateBlock(currentBlock.toString(), this.domain.id)
+        logger.info(`indexed block on ${this.domain.name}: ${currentBlock}, domainID: ${this.domain.id}`)
+
         currentBlock += this.eventsQueryInterval
       } catch (error) {
         logger.error(`Failed to process events for block ${currentBlock} for domain ${this.domain.id}:`, error)
+        await sleep(10000)
       }
     }
   }

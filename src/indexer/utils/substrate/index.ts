@@ -156,7 +156,6 @@ export async function saveEvents(
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
-  domainRepository: DomainRepository,
 ): Promise<void> {
   const signedBlock = await provider.rpc.chain.getBlock(blockHash)
   const at = await provider.at(blockHash)
@@ -232,8 +231,6 @@ export async function saveEvents(
       transferRepository,
     )
   })
-  await domainRepository.updateBlock(block.toString(), domain.id)
-  logger.info(`save block on ${domain.name}: ${block.toString()}, domainID: ${domain.id}`)
 }
 
 export async function saveProposalExecutionToDb(
@@ -270,4 +267,8 @@ export async function saveFailedHandlerExecutionToDb(
   logger.info(`Saving failed proposal execution. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
   await saveFailedHandlerExecution(failedHandlerExecutionData, executionRepository, transferRepository)
+}
+
+export async function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
