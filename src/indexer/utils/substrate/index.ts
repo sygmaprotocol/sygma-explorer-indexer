@@ -35,36 +35,24 @@ export async function saveProposalExecution(
   let transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
   // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
-    try {
-      transfer = await transferRepository.insertExecutionTransfer({
-        depositNonce: Number(depositNonce),
-        fromDomainId: originDomainId,
-        timestamp,
-        resourceID: null,
-      })
-    } catch (e) {
-      logger.error("Error inserting substrate proposal execution transfer:", e)
-    }
+    transfer = await transferRepository.insertExecutionTransfer({
+      depositNonce: Number(depositNonce),
+      fromDomainId: originDomainId,
+      timestamp,
+      resourceID: null,
+    })
   } else {
-    try {
-      await transferRepository.updateStatus(TransferStatus.executed, transfer.id)
-    } catch (e) {
-      logger.error(`Error updating substrate proposal execution transfer: ${e}`)
-    }
+    await transferRepository.updateStatus(TransferStatus.executed, transfer.id)
   }
 
   const execution = {
     id: new ObjectId().toString(),
-    transferId: transfer!.id,
+    transferId: transfer.id,
     type: SubstrateTypeTransfer.Fungible,
     txHash: txIdentifier,
     blockNumber: blockNumber,
   }
-  try {
-    await executionRepository.insertExecution(execution)
-  } catch (e) {
-    logger.error("Error inserting substrate proposal execution:", e)
-  }
+  await executionRepository.insertExecution(execution)
 }
 
 export async function saveFailedHandlerExecution(
@@ -257,11 +245,7 @@ export async function saveProposalExecutionToDb(
 ): Promise<void> {
   logger.info(`Saving proposal execution. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
-  try {
-    await saveProposalExecution(proposalExecutionData, executionRepository, transferRepository)
-  } catch (error) {
-    logger.error("Error saving proposal execution:", error)
-  }
+  await saveProposalExecution(proposalExecutionData, executionRepository, transferRepository)
 }
 
 export async function saveDepositToDb(
@@ -273,11 +257,7 @@ export async function saveDepositToDb(
 ): Promise<void> {
   logger.info(`Saving deposit. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
-  try {
-    await saveDeposit(domain.id, depositData, transferRepository, depositRepository)
-  } catch (error) {
-    logger.error("Error saving substrate deposit:", error)
-  }
+  await saveDeposit(domain.id, depositData, transferRepository, depositRepository)
 }
 
 export async function saveFailedHandlerExecutionToDb(
@@ -289,9 +269,5 @@ export async function saveFailedHandlerExecutionToDb(
 ): Promise<void> {
   logger.info(`Saving failed proposal execution. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
-  try {
-    await saveFailedHandlerExecution(failedHandlerExecutionData, executionRepository, transferRepository)
-  } catch (error) {
-    logger.error("Error saving failed handler execution: ", error)
-  }
+  await saveFailedHandlerExecution(failedHandlerExecutionData, executionRepository, transferRepository)
 }

@@ -12,10 +12,10 @@ export class SubstrateIndexer {
   private executionRepository: ExecutionRepository
   private depositRepository: DepositRepository
   private transferRepository: TransferRepository
-  private pastEventsQueryInterval = 1
-  private currentEventsQueryInterval = 1
+  private eventsQueryInterval = 1
   private provider!: ApiPromise
   private domain: Domain
+
   constructor(
     domainRepository: DomainRepository,
     domain: Domain,
@@ -36,92 +36,44 @@ export class SubstrateIndexer {
     })
   }
 
-  async indexPastEvents(): Promise<number> {
+  public async listenToEvents(): Promise<void> {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id.toString())
-    let toBlock = this.domain.startBlock + this.pastEventsQueryInterval
-
-    const currentBlock = await this.provider.rpc.chain.getBlock()
-
-    let latestBlock = Number(currentBlock.block.header.number)
-
-    let fromBlock = this.domain.startBlock
-
+    let currentBlock = this.domain.startBlock
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
-      // move 1 block from last processed db block
-      fromBlock = lastIndexedBlock + 1
+      currentBlock = lastIndexedBlock + 1
     }
 
-    logger.info(`Starting querying past blocks on ${this.domain.name}`)
-    do {
-      try {
-        latestBlock = Number(currentBlock.block.header.number)
+    logger.info(`Starting querying on ${this.domain.name} from ${currentBlock}`)
 
-        // check block range for getting logs query exceeds latestBlock on network
-        // if true -> get logs until that block, else query next range of blocks
-        if (fromBlock + this.pastEventsQueryInterval >= latestBlock) {
-          toBlock = latestBlock
-        } else {
-          toBlock = fromBlock + this.pastEventsQueryInterval
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      try {
+        const latestBlock = await this.provider.rpc.chain.getBlock()
+        const currentBlockHash = await this.provider.rpc.chain.getBlockHash(currentBlock)
+        if (currentBlock >= Number(latestBlock.block.header.number)) {
+          await new Promise(resolve => setTimeout(resolve, 10000))
+          continue
         }
 
-        const blockHash = await this.provider.rpc.chain.getBlockHash(toBlock)
-
         await saveEvents(
-          blockHash,
+          currentBlockHash,
           this.provider,
-          toBlock,
+          currentBlock,
           this.domain,
           this.executionRepository,
           this.transferRepository,
           this.depositRepository,
           this.domainRepository,
         )
-
-        // move to next range of blocks
-        fromBlock += this.pastEventsQueryInterval
-        toBlock += this.pastEventsQueryInterval
+        currentBlock += this.eventsQueryInterval
       } catch (error) {
-        logger.error(`Failed to process past events because of:`, error)
+        logger.error(`Failed to process events for block ${currentBlock} for domain ${this.domain.id}:`, error)
       }
-    } while (fromBlock < latestBlock)
-    // move to next block from the last queried range in past events
-    return latestBlock + 1
-  }
-
-  async listenToEvents(): Promise<void> {
-    logger.info(`Starting querying current blocks for events on ${this.domain.name}`)
-    let latestBlock = await this.indexPastEvents()
-    await this.provider.rpc.chain.subscribeNewHeads(async header => {
-      // start at last block from past events query and move to new blocks range
-      if (latestBlock + this.currentEventsQueryInterval < Number(header.number)) {
-        // connect executions to deposits
-        try {
-          // fetch and decode logs
-          const blockHash = await this.provider.rpc.chain.getBlockHash(latestBlock)
-
-          await saveEvents(
-            blockHash,
-            this.provider,
-            latestBlock,
-            this.domain,
-            this.executionRepository,
-            this.transferRepository,
-            this.depositRepository,
-            this.domainRepository,
-          )
-
-          // move to next range of blocks
-          latestBlock += this.currentEventsQueryInterval
-        } catch (error) {
-          logger.error(`Failed to process current events because of: ${error}`)
-        }
-      }
-    })
+    }
   }
 
   async getLastIndexedBlock(domainID: string): Promise<number> {
     const domainRes = await this.domainRepository.getLastIndexedBlock(domainID)
-
     return domainRes ? Number(domainRes.lastIndexedBlock) : this.domain.startBlock
   }
 }
