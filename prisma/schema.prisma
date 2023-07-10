@@ -16,9 +16,9 @@ model Transfer {
   resource     Resource?      @relation(fields: [resourceID], references: [id])
   resourceID   String?
   fromDomain   Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
-  fromDomainId String
+  fromDomainId Int 
   toDomain     Domain?        @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
-  toDomainId   String?
+  toDomainId   Int?
   sender       String?
   destination  String?
   amount       String?
@@ -28,7 +28,7 @@ model Transfer {
   execution    Execution?
   fee          Fee?
 
-  @@unique(fields: [depositNonce, fromDomainId], name: "nonceDomain")
+  @@unique(fields: [depositNonce, fromDomainId, toDomainId], name: "transferId")
 }
 
 enum TransferStatus {
@@ -44,7 +44,7 @@ model Resource {
 }
 
 model Domain {
-  id   String @id @map("_id")
+  id   Int @id @map("_id")
   name String
 
   lastIndexedBlock String

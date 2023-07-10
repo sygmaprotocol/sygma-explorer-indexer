@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb"
 import { AbiCoder, formatEther } from "ethers"
 import { BlockHash } from "@polkadot/types/interfaces"
 import { ApiPromise } from "@polkadot/api"
-import { Transfer, TransferStatus } from "@prisma/client"
+import { TransferStatus } from "@prisma/client"
 import { BigNumber } from "@ethersproject/bignumber"
 import ExecutionRepository from "../../repository/execution"
 import TransferRepository from "../../repository/transfer"
@@ -26,20 +26,23 @@ import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/s
 
 export async function saveProposalExecution(
   proposalExecutionData: ProposalExecutionDataToSave,
+  toDomainId: number,
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
 ): Promise<void> {
   const { originDomainId, depositNonce, txIdentifier, blockNumber, timestamp } = proposalExecutionData
 
-  let transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
-  // there is no transfer yet, but a proposal execution exists
+  let transfer = await transferRepository.findTransfer(Number(depositNonce), Number(originDomainId), toDomainId)
   if (!transfer) {
-    transfer = await transferRepository.insertExecutionTransfer({
-      depositNonce: Number(depositNonce),
-      fromDomainId: originDomainId,
-      timestamp,
-      resourceID: null,
-    })
+    transfer = await transferRepository.insertExecutionTransfer(
+      {
+        depositNonce: Number(depositNonce),
+        fromDomainId: originDomainId,
+        timestamp,
+        resourceID: null,
+      },
+      toDomainId,
+    )
   } else {
     await transferRepository.updateStatus(TransferStatus.executed, transfer.id)
   }
@@ -56,25 +59,29 @@ export async function saveProposalExecution(
 
 export async function saveFailedHandlerExecution(
   failedHandlerExecutionData: FailedHandlerExecutionToSave,
+  toDomainId: number,
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
 ): Promise<void> {
   const { originDomainId, depositNonce, txIdentifier, blockNumber } = failedHandlerExecutionData
 
-  const transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), originDomainId)
+  let transfer = await transferRepository.findTransfer(Number(depositNonce), Number(originDomainId), toDomainId)
   // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
-    await transferRepository.insertFailedTransfer({
-      depositNonce: Number(depositNonce),
-      domainId: originDomainId,
-    })
+    transfer = await transferRepository.insertFailedTransfer(
+      {
+        depositNonce: Number(depositNonce),
+        domainId: originDomainId,
+      },
+      toDomainId,
+    )
   } else {
     await transferRepository.updateStatus(TransferStatus.failed, transfer.id)
   }
 
   const execution = {
     id: new ObjectId().toString(),
-    transferId: transfer!.id,
+    transferId: transfer.id,
     type: SubstrateTypeTransfer.Fungible,
     txHash: txIdentifier,
     blockNumber: blockNumber,
@@ -101,15 +108,15 @@ export async function saveDeposit(
   } = substrateDepositData
 
   const decodedAmount = getDecodedAmount(depositData)
-  let transfer = await transferRepository.findByNonceFromDomainId(Number(depositNonce), `${originDomainId}`)
+  let transfer = await transferRepository.findTransfer(Number(depositNonce), originDomainId, Number(destinationDomainId))
   if (transfer) {
     const dataTransferToUpdate = {
       depositNonce: Number(depositNonce),
       sender,
       amount: decodedAmount,
       resourceID: resourceId,
-      fromDomainId: `${originDomainId}`,
-      toDomainId: `${destinationDomainId}`,
+      fromDomainId: originDomainId.toString(),
+      toDomainId: destinationDomainId,
       timestamp: timestamp,
       destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
     }
@@ -242,7 +249,7 @@ export async function saveProposalExecutionToDb(
   logger.info(`Saving proposal execution. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
   try {
-    await saveProposalExecution(proposalExecutionData, executionRepository, transferRepository)
+    await saveProposalExecution(proposalExecutionData, domain.id, executionRepository, transferRepository)
   } catch (error) {
     logger.error("Error saving proposal execution:", error)
   }
@@ -274,7 +281,7 @@ export async function saveFailedHandlerExecutionToDb(
   logger.info(`Saving failed proposal execution. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
   try {
-    await saveFailedHandlerExecution(failedHandlerExecutionData, executionRepository, transferRepository)
+    await saveFailedHandlerExecution(failedHandlerExecutionData, domain.id, executionRepository, transferRepository)
   } catch (error) {
     logger.error("Error saving failed handler execution: ", error)
   }
