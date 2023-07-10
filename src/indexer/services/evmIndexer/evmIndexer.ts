@@ -54,7 +54,7 @@ export class EvmIndexer {
   }
 
   async listenToEvents(): Promise<void> {
-    const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id.toString())
+    const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id)
     let currentBlock = this.domain.startBlock
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
       currentBlock = lastIndexedBlock + 1
@@ -104,13 +104,17 @@ export class EvmIndexer {
     await Promise.all(decodedLogs.feeCollected.map(async fee => saveFeeLogs(fee, transferMap, this.feeRepository)))
 
     await Promise.all(
-      decodedLogs.proposalExecution.map(async decodedLog => saveProposalExecutionLogs(decodedLog, this.transferRepository, this.executionRepository)),
+      decodedLogs.proposalExecution.map(async decodedLog =>
+        saveProposalExecutionLogs(decodedLog, this.domain.id, this.transferRepository, this.executionRepository),
+      ),
     )
 
-    await Promise.all(decodedLogs.errors.map(async error => saveFailedHandlerExecutionLogs(error, this.transferRepository, this.executionRepository)))
+    await Promise.all(
+      decodedLogs.errors.map(async error => saveFailedHandlerExecutionLogs(error, this.domain.id, this.transferRepository, this.executionRepository)),
+    )
   }
 
-  async getLastIndexedBlock(domainID: string): Promise<number> {
+  async getLastIndexedBlock(domainID: number): Promise<number> {
     const domainRes = await this.domainRepository.getLastIndexedBlock(domainID)
 
     return domainRes ? Number(domainRes.lastIndexedBlock) : 0

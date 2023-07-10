@@ -46,12 +46,12 @@ class TransferRepository {
       },
       fromDomain: {
         connect: {
-          id: decodedLog.fromDomainId,
+          id: Number(decodedLog.fromDomainId),
         },
       },
       toDomain: {
         connect: {
-          id: decodedLog.toDomainId,
+          id: Number(decodedLog.toDomainId),
         },
       },
       timestamp: new Date(decodedLog.timestamp * 1000), // this is only being used by evm service
@@ -75,12 +75,12 @@ class TransferRepository {
       },
       fromDomain: {
         connect: {
-          id: substrateDepositData.fromDomainId,
+          id: Number(substrateDepositData.fromDomainId),
         },
       },
       toDomain: {
         connect: {
-          id: substrateDepositData.toDomainId,
+          id: Number(substrateDepositData.toDomainId),
         },
       },
       timestamp: new Date(substrateDepositData.timestamp),
@@ -89,12 +89,15 @@ class TransferRepository {
     return await this.transfer.create({ data: transferData })
   }
 
-  public async insertExecutionTransfer({
-    depositNonce,
-    fromDomainId,
-    timestamp,
-    resourceID,
-  }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp" | "resourceID">): Promise<Transfer> {
+  public async insertExecutionTransfer(
+    {
+      depositNonce,
+      fromDomainId,
+      timestamp,
+      resourceID,
+    }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp" | "resourceID">,
+    toDomainId: number,
+  ): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: depositNonce,
@@ -109,17 +112,34 @@ class TransferRepository {
           id: fromDomainId,
         },
       },
+      toDomain: {
+        connect: {
+          id: toDomainId,
+        },
+      },
       timestamp: new Date(timestamp),
     } as unknown as Transfer
 
     return await this.transfer.create({ data: transferData })
   }
 
-  public async insertFailedTransfer({ depositNonce, domainId }: Pick<DecodedFailedHandlerExecution, "depositNonce" | "domainId">): Promise<Transfer> {
+  public async insertFailedTransfer(
+    { depositNonce, domainId }: Pick<DecodedFailedHandlerExecution, "depositNonce" | "domainId">,
+    toDomainId: number,
+  ): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: depositNonce,
-      fromDomainId: domainId,
+      fromDomain: {
+        connect: {
+          id: Number(domainId),
+        },
+      },
+      toDomain: {
+        connect: {
+          id: toDomainId,
+        },
+      },
       status: TransferStatus.failed,
     }
     return await this.transfer.create({ data: transferData })
@@ -150,12 +170,12 @@ class TransferRepository {
       },
       fromDomain: {
         connect: {
-          id: fromDomainId,
+          id: Number(fromDomainId),
         },
       },
       toDomain: {
         connect: {
-          id: toDomainId,
+          id: Number(toDomainId),
         },
       },
       timestamp: new Date(timestamp),
@@ -163,11 +183,12 @@ class TransferRepository {
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 
-  public async findByNonceFromDomainId(nonce: number, fromDomainId: string): Promise<Transfer | null> {
+  public async findTransfer(nonce: number, fromDomainId: number, toDomainId: number): Promise<Transfer | null> {
     return await this.transfer.findFirst({
       where: {
         depositNonce: nonce,
         fromDomainId: fromDomainId,
+        toDomainId: toDomainId,
       },
     })
   }

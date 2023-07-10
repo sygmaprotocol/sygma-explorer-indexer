@@ -45,7 +45,7 @@ export class SubstrateIndexer {
   }
 
   public async listenToEvents(): Promise<void> {
-    const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id.toString())
+    const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id)
     let currentBlock = this.domain.startBlock
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
       currentBlock = lastIndexedBlock + 1
@@ -83,7 +83,7 @@ export class SubstrateIndexer {
     }
   }
 
-  private async getLastIndexedBlock(domainID: string): Promise<number> {
+  private async getLastIndexedBlock(domainID: number): Promise<number> {
     const domainRes = await this.domainRepository.getLastIndexedBlock(domainID)
     return domainRes ? Number(domainRes.lastIndexedBlock) : this.domain.startBlock
   }

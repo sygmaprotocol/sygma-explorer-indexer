@@ -197,7 +197,7 @@ export async function saveDepositLogs(
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
 ): Promise<void> {
-  let transfer = await transferRepository.findByNonceFromDomainId(decodedLog.depositNonce, decodedLog.fromDomainId)
+  let transfer = await transferRepository.findTransfer(decodedLog.depositNonce, Number(decodedLog.fromDomainId), Number(decodedLog.toDomainId))
   if (!transfer) {
     transfer = await transferRepository.insertDepositTransfer(decodedLog)
   } else {
@@ -235,16 +235,17 @@ export async function saveFeeLogs(fee: DecodedFeeCollectedLog, transferMap: Map<
 
 export async function saveProposalExecutionLogs(
   decodedLog: DecodedProposalExecutionLog,
+  toDomainId: number,
   transferRepository: TransferRepository,
   executionRepository: ExecutionRepository,
 ): Promise<void> {
-  let transfer = await transferRepository.findByNonceFromDomainId(decodedLog.depositNonce, decodedLog.fromDomainId || "")
+  let transfer = await transferRepository.findTransfer(decodedLog.depositNonce, Number(decodedLog.fromDomainId), toDomainId)
   if (!transfer) {
     const dataToInsert = {
       ...decodedLog,
       timestamp: decodedLog.timestamp * 1000,
     }
-    transfer = await transferRepository.insertExecutionTransfer(dataToInsert)
+    transfer = await transferRepository.insertExecutionTransfer(dataToInsert, toDomainId)
   } else {
     await transferRepository.updateStatus(TransferStatus.executed, transfer.id)
   }
@@ -261,12 +262,13 @@ export async function saveProposalExecutionLogs(
 
 export async function saveFailedHandlerExecutionLogs(
   error: DecodedFailedHandlerExecution,
+  toDomainId: number,
   transferRepository: TransferRepository,
   executionRepository: ExecutionRepository,
 ): Promise<void> {
-  let transfer = await transferRepository.findByNonceFromDomainId(error.depositNonce, error.domainId.toString())
+  let transfer = await transferRepository.findTransfer(error.depositNonce, Number(error.domainId), toDomainId)
   if (!transfer) {
-    transfer = await transferRepository.insertFailedTransfer(error)
+    transfer = await transferRepository.insertFailedTransfer(error, toDomainId)
   } else {
     await transferRepository.updateStatus(TransferStatus.failed, transfer.id)
   }

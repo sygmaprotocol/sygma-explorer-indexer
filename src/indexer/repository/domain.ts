@@ -5,11 +5,11 @@ class DomainRepository {
   public domain = new PrismaClient().domain
 
   public async insertDomain(domainID: number, latestBlock: string, domainName: string): Promise<void> {
-    const domain = await this.getLastIndexedBlock(domainID.toString())
+    const domain = await this.getLastIndexedBlock(domainID)
     if (!domain) {
       await this.domain.create({
         data: {
-          id: domainID.toString(),
+          id: domainID,
           name: domainName,
           lastIndexedBlock: latestBlock,
         },
@@ -20,7 +20,7 @@ class DomainRepository {
     try {
       await this.domain.update({
         where: {
-          id: domainID.toString(),
+          id: domainID,
         },
         data: {
           lastIndexedBlock: blockNumber,
@@ -31,7 +31,7 @@ class DomainRepository {
     }
   }
 
-  public async getLastIndexedBlock(domainID: string): Promise<Domain | null> {
+  public async getLastIndexedBlock(domainID: number): Promise<Domain | null> {
     return await this.domain.findFirst({
       where: {
         id: domainID,
