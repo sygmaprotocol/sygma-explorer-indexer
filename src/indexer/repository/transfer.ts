@@ -109,7 +109,7 @@ class TransferRepository {
       toDomainId: undefined,
       fromDomain: {
         connect: {
-          id: fromDomainId,
+          id: Number(fromDomainId),
         },
       },
       toDomain: {
