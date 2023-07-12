@@ -1,6 +1,6 @@
 import { PrismaClient, Transfer } from "@prisma/client"
-import { getTransferQueryParams } from "../utils/helpers"
-import TransfersService from "./transfers.service"
+import { getTransferQueryParams } from "../../../../utils/helpers"
+import TransfersService from "../../../../services/transfers.service"
 
 describe("TransferService", () => {
   let prismaClient: PrismaClient

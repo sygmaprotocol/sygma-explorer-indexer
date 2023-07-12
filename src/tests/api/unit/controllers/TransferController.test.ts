@@ -1,7 +1,7 @@
 import { PrismaClient, Transfer, Prisma } from "@prisma/client"
-import { logger } from "../utils/logger"
-import { app } from "../app"
-import { getTransferQueryParams } from "../utils/helpers"
+import { logger } from "../../../../utils/logger"
+import { app } from "../../../../app"
+import { getTransferQueryParams } from "../../../../utils/helpers"
 
 const loogerSpy = jest.spyOn(logger, "error")
 
