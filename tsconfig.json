@@ -3,7 +3,6 @@
     "target": "es6",
     "module": "commonjs",
     "sourceMap": true,
-    "rootDir": "./src",
     "outDir": "./build",
     /* Strict Type-Checking Options */
     "strict": true,
@@ -18,6 +17,6 @@
     "forceConsistentCasingInFileNames": true
   },
   "lib": ["es2015"],
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules"]
 }
