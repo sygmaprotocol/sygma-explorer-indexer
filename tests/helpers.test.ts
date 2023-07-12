@@ -1,4 +1,4 @@
-import { decodeDataHash } from "../utils/helpers"
+import { decodeDataHash } from "../src/utils/helpers"
 
 describe("helpers", () => {
   it("decoded datahash", () => {
