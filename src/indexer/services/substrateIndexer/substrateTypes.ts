@@ -27,9 +27,21 @@ export type FailedHandlerExecutionToSave = Omit<RawProposalExecutionData, "dataH
 
 export type DepositDataToSave = RawDepositData & { txIdentifier: string; blockNumber: string; timestamp: number }
 
-export type ProposalExecutionEvent = { event: { toHuman: () => { data: RawProposalExecutionData } } }
+export type ProposalExecutionEvent = {
+  phase: {
+    asApplyExtrinsic: number
+  }
+  event: {
+    toHuman: () => {
+      data: RawProposalExecutionData
+    }
+  }
+}
 
 export type DepositEvent = {
+  phase: {
+    asApplyExtrinsic: number
+  }
   event: {
     toHuman: () => {
       data: RawDepositData
@@ -38,6 +50,9 @@ export type DepositEvent = {
 }
 
 export type FailedHandlerExecutionEvent = {
+  phase: {
+    asApplyExtrinsic: number
+  }
   event: {
     toHuman: () => {
       data: RawFailedHandlerExecutionData
