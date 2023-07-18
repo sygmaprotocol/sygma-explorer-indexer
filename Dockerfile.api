@@ -15,7 +15,6 @@ COPY package*.json ./
 COPY tsconfig.json ./
 COPY yarn.lock ./
 COPY prisma ./prisma/
-COPY public ./public
 
 RUN yarn install --frozen-lockfile
 

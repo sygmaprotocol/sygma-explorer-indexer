@@ -1,5 +1,33 @@
 version: '3.7'
 services:
+  evm1:
+    image: ghcr.io/sygmaprotocol/indexer-evm1:latest
+    container_name: evm1
+    command: ganache-cli --chainId 1337 -d --db data/ --blockTime 2 > /dev/null
+    logging:
+      driver: none
+    ports:
+      - "8545:8545"
+
+  evm2:
+    image: ghcr.io/sygmaprotocol/indexer-evm2:latest
+    command: ganache-cli --chainId 1338 -d --db data/ --blockTime 2 > /dev/null
+    container_name: evm2
+    logging:
+      driver: none
+    ports:
+      - "8547:8545"
+
+  substrate-pallet:
+    container_name: substrate-pallet
+    command: ["--pruning=25000"]
+    image: ghcr.io/sygmaprotocol/indexer-substrate:latest
+    ports:
+      - "9944:9944"
+      - "9933:9933"
+    logging:
+      driver: none
+
   mongo1:
     image: mongo:6
     container_name: mongo1
@@ -33,12 +61,28 @@ services:
     logging:
       driver: none
 
+  mongo-rs-init:
+    image: mongo:6
+    container_name: mongo-rs-init
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    entrypoint: ["replica_set_init.sh"]
+    restart: on-failure
+    volumes:
+      - ./scripts/replica_set_init.sh:/usr/local/bin/replica_set_init.sh:ro
+
+
   indexer:
     build: 
       context: .
       dockerfile: ./Dockerfile 
+    restart: always
     environment:
       DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer?replicaSet=my-replica-set&authSource=admin&retryWrites=true&w=majority
+      SHARED_CONFIG_URL: https://pin.ski/3PNOto4
+      RPC_URL_CONFIG: '[{"id": 1, "endpoint": "http://evm1:8545"}, {"id": 2, "endpoint": "http://evm2:8545"}, {"id": 3, "endpoint": "ws://substrate-pallet:9944"}]'
 
   api:
     build: 

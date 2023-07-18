@@ -11,16 +11,6 @@
 
 - NodeJS + [Typescript](https://github.com/microsoft/TypeScript)
 
-## Preparations
-Add The following in your `/etc/hosts` file:
-````
-127.0.0.1       mongo1
-127.0.0.1       mongo2
-127.0.0.1       mongo3
-````
-
-This is required to run the mongo replicas locally and have access to them.
-
 ## Install
 
 ```
@@ -52,13 +42,7 @@ RPC_URL_CONFIG="[ { "id": DOMAIN_ID, "endpoint": DOMAIN_ENDPOINT } ]"
 ### Running locally
 
 ```bash
-docker compose -f ./docker-compose.only-mongo.yml up
-
-npx prisma generate
-
-yarn index:fetch
-
-yarn start:dev
+docker compose up
 ```
 
 ### Build
