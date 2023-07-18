@@ -131,7 +131,8 @@ export async function saveDeposit(
       fromDomainId: `${originDomainId}`,
       toDomainId: `${destinationDomainId}`,
       timestamp: timestamp,
-    } as Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">
+      destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
+    } as Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">
     transfer = await transferRepository.insertSubstrateDepositTransfer(transferData)
   }
 

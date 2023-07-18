@@ -60,13 +60,17 @@ class TransferRepository {
   }
 
   public async insertSubstrateDepositTransfer(
-    substrateDepositData: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">,
+    substrateDepositData: Pick<
+      DecodedDepositLog,
+      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp"
+    >,
   ): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: substrateDepositData.depositNonce,
       sender: substrateDepositData.sender,
       amount: substrateDepositData.amount,
+      destination: substrateDepositData.destination,
       status: TransferStatus.pending,
       resource: {
         connect: {
