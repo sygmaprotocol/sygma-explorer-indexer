@@ -1,5 +1,6 @@
 import { ApiPromise, WsProvider } from "@polkadot/api"
-import { Domain } from "../../config"
+import FeeRepository from "indexer/repository/fee"
+import { Domain, Resource } from "../../config"
 import DomainRepository from "../../repository/domain"
 import { logger } from "../../../utils/logger"
 import ExecutionRepository from "../../../indexer/repository/execution"
@@ -14,6 +15,8 @@ export class SubstrateIndexer {
   private executionRepository: ExecutionRepository
   private depositRepository: DepositRepository
   private transferRepository: TransferRepository
+  private feeRepository: FeeRepository
+  private resourceMap: Map<string, Resource>
   private eventsQueryInterval = 1
   private provider!: ApiPromise
   private domain: Domain
@@ -25,12 +28,16 @@ export class SubstrateIndexer {
     executionRepository: ExecutionRepository,
     depositRepository: DepositRepository,
     transferRepository: TransferRepository,
+    feeRepository: FeeRepository,
+    resourceMap: Map<string, Resource>,
   ) {
     this.domainRepository = domainRepository
     this.domain = domain
     this.executionRepository = executionRepository
     this.depositRepository = depositRepository
     this.transferRepository = transferRepository
+    this.feeRepository = feeRepository
+    this.resourceMap = resourceMap
   }
 
   public async init(rpcUrl: string): Promise<void> {
@@ -70,6 +77,8 @@ export class SubstrateIndexer {
           this.executionRepository,
           this.transferRepository,
           this.depositRepository,
+          this.feeRepository,
+          this.resourceMap,
         )
 
         await this.domainRepository.updateBlock(currentBlock.toString(), this.domain.id)

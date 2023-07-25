@@ -53,6 +53,7 @@ export type Resource = {
   address: string
   symbol: string
   decimals: number
+  assetName?: string
 }
 
 export type RpcUrlConfig = Array<{

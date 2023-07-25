@@ -5,6 +5,7 @@ import { BlockHash } from "@polkadot/types/interfaces"
 import { ApiPromise } from "@polkadot/api"
 import { TransferStatus } from "@prisma/client"
 import { BigNumber } from "@ethersproject/bignumber"
+import FeeRepository from "indexer/repository/fee"
 import ExecutionRepository from "../../repository/execution"
 import TransferRepository from "../../repository/transfer"
 import { logger } from "../../../utils/logger"
@@ -14,6 +15,8 @@ import {
   DepositEvent,
   FailedHandlerExecutionEvent,
   FailedHandlerExecutionToSave,
+  FeeCollectedDataToSave,
+  FeeCollectedEvent,
   ProposalExecutionDataToSave,
   ProposalExecutionEvent,
   SubstrateEvent,
@@ -21,7 +24,7 @@ import {
   SygmaPalleteEvents,
 } from "../../services/substrateIndexer/substrateTypes"
 import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes"
-import { Domain } from "../../../indexer/config"
+import { Domain, Resource } from "../../../indexer/config"
 import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser"
 
 export async function saveProposalExecution(
@@ -94,6 +97,7 @@ export async function saveDeposit(
   substrateDepositData: DepositDataToSave,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
+  transferMap: Map<string, string>,
 ): Promise<void> {
   const {
     destDomainId: destinationDomainId,
@@ -146,6 +150,23 @@ export async function saveDeposit(
     transferId: transfer.id,
   }
   await depositRepository.insertDeposit(deposit)
+  transferMap.set(txIdentifier, transfer.id)
+}
+
+export async function saveFee(
+  fee: FeeCollectedDataToSave,
+  feeRepository: FeeRepository,
+  transferMap: Map<string, string>,
+  resourceMap: Map<string, Resource>,
+): Promise<void> {
+  const feeData = {
+    id: new ObjectId().toString(),
+    transferId: transferMap.get(fee.txIdentifier) || "",
+    tokenSymbol: resourceMap.get(fee.resourceId)?.symbol || "",
+    tokenAddress: "",
+    amount: fee.feeAmount,
+  }
+  await feeRepository.insertFee(feeData)
 }
 
 function getDecodedAmount(depositData: string): string {
@@ -163,6 +184,8 @@ export async function saveEvents(
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
+  feeRepository: FeeRepository,
+  resourceMap: Map<string, Resource>,
 ): Promise<void> {
   const at = await provider.at(blockHash)
   const timestamp = Number((await at.query.timestamp.now()).toString())
@@ -173,6 +196,7 @@ export async function saveEvents(
   // we get the deposit events - ts-ignore because of allRecords
   const depositEvents = getSubstrateEvents(SygmaPalleteEvents.Deposit, allRecords) as Array<DepositEvent>
   const failedHandlerExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.FailedHandlerExecution, allRecords) as Array<FailedHandlerExecutionEvent>
+  const feeCollectedEvents = getSubstrateEvents(SygmaPalleteEvents.FeeCollected, allRecords) as Array<FeeCollectedEvent>
 
   proposalExecutionEvents.forEach(async (proposalExecutionEvent: ProposalExecutionEvent) => {
     const { data } = proposalExecutionEvent.event.toHuman()
@@ -192,6 +216,7 @@ export async function saveEvents(
       transferRepository,
     )
   })
+  const transferMap = new Map<string, string>()
 
   depositEvents.forEach(async (depositEvent: DepositEvent) => {
     const txIdentifier = `${block}-${depositEvent.phase.asApplyExtrinsic}` //this is like the txHash but for the substrate
@@ -214,6 +239,26 @@ export async function saveEvents(
       },
       transferRepository,
       depositRepository,
+      transferMap,
+    )
+  })
+
+  feeCollectedEvents.forEach(async (feeCollectedEvent: FeeCollectedEvent) => {
+    const txIdentifier = `${block}-${feeCollectedEvent.phase.asApplyExtrinsic}` //this is like the txHash but for the substrate
+    const { data } = feeCollectedEvent.event.toHuman()
+
+    const { destDomainId, resourceId, feeAmount, feePayer } = data
+    await saveFeeToDb(
+      {
+        destDomainId,
+        resourceId,
+        feeAmount,
+        feePayer,
+        txIdentifier,
+      },
+      feeRepository,
+      transferMap,
+      resourceMap,
     )
   })
 
@@ -260,13 +305,27 @@ export async function saveDepositToDb(
   depositData: DepositDataToSave,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
+  transferMap: Map<string, string>,
 ): Promise<void> {
   logger.info(`Saving deposit. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
   try {
-    await saveDeposit(domain.id, depositData, transferRepository, depositRepository)
+    await saveDeposit(domain.id, depositData, transferRepository, depositRepository, transferMap)
   } catch (error) {
     logger.error("Error saving substrate deposit:", error)
+  }
+}
+
+export async function saveFeeToDb(
+  fee: FeeCollectedDataToSave,
+  feeRepository: FeeRepository,
+  transferMap: Map<string, string>,
+  resourceMap: Map<string, Resource>,
+): Promise<void> {
+  try {
+    await saveFee(fee, feeRepository, transferMap, resourceMap)
+  } catch (error) {
+    logger.error("Error saving substrate fee:", error)
   }
 }
 
