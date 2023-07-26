@@ -131,7 +131,8 @@ export async function saveDeposit(
       fromDomainId: `${originDomainId}`,
       toDomainId: `${destinationDomainId}`,
       timestamp: timestamp,
-    } as Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">
+      destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
+    } as Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">
     transfer = await transferRepository.insertSubstrateDepositTransfer(transferData)
   }
 
@@ -163,7 +164,6 @@ export async function saveEvents(
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
 ): Promise<void> {
-  const signedBlock = await provider.rpc.chain.getBlock(blockHash)
   const at = await provider.at(blockHash)
   const timestamp = Number((await at.query.timestamp.now()).toString())
   const allRecords = (await at.query.system.events()) as unknown as Array<SubstrateEvent>
@@ -173,14 +173,11 @@ export async function saveEvents(
   // we get the deposit events - ts-ignore because of allRecords
   const depositEvents = getSubstrateEvents(SygmaPalleteEvents.Deposit, allRecords) as Array<DepositEvent>
   const failedHandlerExecutionEvents = getSubstrateEvents(SygmaPalleteEvents.FailedHandlerExecution, allRecords) as Array<FailedHandlerExecutionEvent>
-  // we get the index of the section in the extrinsic
-  const sectionIndex = signedBlock.block.extrinsics.findIndex(ex => ex.method.section === "sygmaBridge")
-  // this is our identifier for the tx
-  const txIdentifier = `${block}-${sectionIndex}` //this is like the txHash but for the substrate
 
   proposalExecutionEvents.forEach(async (proposalExecutionEvent: ProposalExecutionEvent) => {
     const { data } = proposalExecutionEvent.event.toHuman()
     const { originDomainId, depositNonce } = data
+    const txIdentifier = `${block}-${proposalExecutionEvent.phase.asApplyExtrinsic}` //this is like the txHash but for the substrate
     await saveProposalExecutionToDb(
       domain,
       block.toString(),
@@ -197,6 +194,7 @@ export async function saveEvents(
   })
 
   depositEvents.forEach(async (depositEvent: DepositEvent) => {
+    const txIdentifier = `${block}-${depositEvent.phase.asApplyExtrinsic}` //this is like the txHash but for the substrate
     const { data } = depositEvent.event.toHuman()
     const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
     await saveDepositToDb(
@@ -220,6 +218,7 @@ export async function saveEvents(
   })
 
   failedHandlerExecutionEvents.forEach(async (failedHandlerExecutionEvent: FailedHandlerExecutionEvent) => {
+    const txIdentifier = `${block}-${failedHandlerExecutionEvent.phase.asApplyExtrinsic}` //this is like the txHash but for the substrate
     const { data } = failedHandlerExecutionEvent.event.toHuman()
     const { originDomainId, depositNonce, error } = data
     await saveFailedHandlerExecutionToDb(

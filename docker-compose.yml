@@ -29,6 +29,8 @@ services:
   mongo-setup:
     image: mongo:6
     command: ["mongosh"]
+    logging:
+      driver: none
 
   mongo1:
     image: mongo:6
