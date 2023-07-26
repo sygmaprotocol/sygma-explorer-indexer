@@ -4,7 +4,7 @@ import axios from "axios"
 
 const NUMBER_OF_TRANSFERS = 32; 
 
-describe("Testing transfers", async function() {
+describe("E2E tests", async function() {
     
     it("Test transfer count and required fields", async () => {
 

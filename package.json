@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "tsc --p tsconfig.build.json",
-    "test": "yarn run test:e2e",
+    "test": "yarn run test:unit && yarn run test:e2e",
     "test:unit": "NODE_ENV=test nyc --all --include \"src/**/*.ts\"  mocha -r ts-node/register \"tests/**/*.spec.ts\"",
     "test:unit:ci": "NODE_ENV=test nyc --reporter=lcov --all --include \"src/**/*.ts\"  mocha -r ts-node/register \"tests/*.spec.ts\"",
     "test:e2e": "NODE_ENV=test SERVER_PORT=0 mocha --timeout 30000 -r ts-node/register -r dotenv/config \"tests/**/*.spec.ts\"",
