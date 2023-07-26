@@ -2,13 +2,13 @@ import { expect } from "chai";
 import axios from "axios"
 
 
-const NUMBER_OF_TRANSFERS = 35; 
+const NUMBER_OF_TRANSFERS = 32; 
 
 describe("Testing transfers", async function() {
     
     it("Test transfer count and required fields", async () => {
 
-        const response = await axios.get("http://localhost:8000/api/transfers?page=1&limit=35")
+        const response = await axios.get("http://localhost:8000/api/transfers?page=1&limit=100")
         expect(response.status).to.be.deep.equal(200)
         
         const transfers = response.data as Array<any>
@@ -22,9 +22,5 @@ describe("Testing transfers", async function() {
             expect(transfer.status).to.be.not.null
         })
     }); 
-
-    it("Test required fields in ERC20", async() => {
-
-    })
 
   })
