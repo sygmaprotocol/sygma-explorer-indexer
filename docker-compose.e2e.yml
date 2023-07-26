@@ -80,7 +80,6 @@ services:
     build: 
       context: .
       dockerfile: ./Dockerfile 
-    
     restart: always
     environment:
       DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer?replicaSet=my-replica-set&authSource=admin&retryWrites=true&w=majority
@@ -91,8 +90,6 @@ services:
     build: 
       context: .
       dockerfile: ./Dockerfile.api
-    command: 
-      yarn run test
     environment:
       DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer
     ports:
