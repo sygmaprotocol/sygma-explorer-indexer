@@ -16,3 +16,4 @@ public/
 !.yarn/sdks
 !.yarn/versions
 .idea
+.nyc_output
