@@ -3,27 +3,19 @@ import TransferRepository from "../../src/indexer/repository/transfer";
 import axios from "axios"
 
 
-const NUMBER_OF_TRANSFERS = 32; 
+const NUMBER_OF_TRANSFERS = 35; 
 
 describe("Testing transfers", async function() {
-    //this.timeout(20000)
-    before(async () => {  
-        const transferRepository = new TransferRepository() 
-        let transferCount = 0; 
-        //while (transferCount < NUMBER_OF_TRANSFERS){
-            console.log("here")
-            //transferCount = await transferRepository.transfer.count(); 
-            console.log(transferCount)
-        //}
-    }); 
     
-    it("Test erc20", async () => {
+    it("Test number of transactions", async () => {
 
         const response = await axios.get("http://localhost:8000/api/transfers?page=1&limit=35")
-        
-        console.log(response.status)
+        const data = response.data as Array<any>
+
         expect(response.status).to.be.deep.equal(200)
-    
+        expect(data.length).to.be.deep.equal(NUMBER_OF_TRANSFERS)        
 
     }); 
+
+    it("Test")
   })
