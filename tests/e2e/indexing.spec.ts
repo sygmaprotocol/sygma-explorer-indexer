@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import TransferRepository from "../../src/indexer/repository/transfer";
 import axios from "axios"
 
 
@@ -23,5 +22,9 @@ describe("Testing transfers", async function() {
             expect(transfer.status).to.be.not.null
         })
     }); 
-    
+
+    it("Test required fields in ERC20", async() => {
+
+    })
+
   })

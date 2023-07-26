@@ -17,3 +17,9 @@ public/
 !.yarn/versions
 .idea
 .nyc_output
+/dist-cjs
+/types
+.nyc_output
+.vscode
+tsconfig.cjs.json
+tsconfig.types.json
