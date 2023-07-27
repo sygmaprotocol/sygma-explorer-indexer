@@ -46,31 +46,52 @@ describe("E2E tests - Substrate", async function() {
 
     it("Expect transferred amount matches", () => {
 
+        //ERC20TST amount
         expect(substrateTransfers.filter((transfer) => 
             transfer.fromDomain.name == "Substrate" && transfer.toDomain.name == "Ethereum 1"
+            && transfer.resourceID == "0x0000000000000000000000000000000000000000000000000000000000000000"
         ).reduce((sumAmount, transfer) => 
             sumAmount + parseFloat(transfer.amount),0)
         ).to.be.deep.equal(1.0200000000000001e-10);  //number should be checked
 
         expect(substrateTransfers.filter((transfer) => 
             transfer.fromDomain.name == "Ethereum 1" && transfer.toDomain.name == "Substrate"
+            && transfer.resourceID == "0x0000000000000000000000000000000000000000000000000000000000000000"
+        ).reduce((sumAmount, transfer) => 
+            sumAmount + parseFloat(transfer.amount),0)
+        ).to.be.deep.equal(0.0002);  //number should be checked
+
+        //ERC20LRTest amount
+        expect(substrateTransfers.filter((transfer) => 
+            transfer.fromDomain.name == "Substrate" && transfer.toDomain.name == "Ethereum 1"
+            && transfer.resourceID == "0x0000000000000000000000000000000000000000000000000000000000000300"
+        ).reduce((sumAmount, transfer) => 
+            sumAmount + parseFloat(transfer.amount),0)
+        ).to.be.deep.equal(1.0200000000000001e-10);  //number should be checked
+
+        expect(substrateTransfers.filter((transfer) => 
+            transfer.fromDomain.name == "Ethereum 1" && transfer.toDomain.name == "Substrate"
+            && transfer.resourceID == "0x0000000000000000000000000000000000000000000000000000000000000300"
+        ).reduce((sumAmount, transfer) => 
+            sumAmount + parseFloat(transfer.amount),0)
+        ).to.be.deep.equal(0.0002);  //number should be checked
+
+        //ERC721TST amount
+        expect(substrateTransfers.filter((transfer) => 
+            transfer.fromDomain.name == "Substrate" && transfer.toDomain.name == "Ethereum 1"
+            && transfer.resourceID == "0x0000000000000000000000000000000000000000000000000000000000000200"
+        ).reduce((sumAmount, transfer) => 
+            sumAmount + parseFloat(transfer.amount),0)
+    )   .to.be.deep.equal(1.0200000000000001e-10);  //number should be checked
+
+        expect(substrateTransfers.filter((transfer) => 
+            transfer.fromDomain.name == "Ethereum 1" && transfer.toDomain.name == "Substrate"
+            && transfer.resourceID == "0x0000000000000000000000000000000000000000000000000000000000000200"
         ).reduce((sumAmount, transfer) => 
             sumAmount + parseFloat(transfer.amount),0)
         ).to.be.deep.equal(0.0002);  //number should be checked
         
-        /* --- There are currently no substrate <=> evm2 transfers ---
-        expect(substrateTransfers.filter((transfer) => 
-            transfer.fromDomain.name == "Substrate" && transfer.toDomain.name == "evm2"
-        ).reduce((sumAmount, transfer) => 
-            sumAmount + transfer.amount,0)
-        ).to.be.deep.equal(0);  //number should be checked
-
-        expect(substrateTransfers.filter((transfer) => 
-            transfer.fromDomain.name == "evm2" && transfer.toDomain.name == "Substrate"
-        ).reduce((sumAmount, transfer) => 
-            sumAmount + transfer.amount,0)
-        ).to.be.deep.equal(0);  //number should be checked
-        */
+        // --- There are currently no substrate <=> evm2 transfers ---
     })
 
     it("Expect collected fee matches", () => {
