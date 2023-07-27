@@ -13,7 +13,7 @@ describe("E2E tests - EVM", async function() {
         expect(response.status).to.be.deep.equal(200)
 
         const transfers = response.data as Array<any>
-        //expect(transfers.length).to.be.deep.equal(NUMBER_OF_TRANSFERS)
+        expect(transfers.length).to.be.deep.equal(NUMBER_OF_TRANSFERS)
 
         evmTransfers = transfers.filter((transfer) => 
             transfer.fromDomain.name == "Ethereum 1" && transfer.toDomain.name == "evm2"
