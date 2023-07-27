@@ -15,8 +15,7 @@ describe("E2E tests - Substrate", async function() {
 
         substrateTransfers = transfers.filter((transfer) => 
             transfer.fromDomain.name == "Substrate" || transfer.toDomain.name == "Substrate") 
-
-        substrateTransfers.map((transfer) => console.log(transfer))
+    
     })
 
     it("Expect transaction count matches", () => {
@@ -90,5 +89,4 @@ describe("E2E tests - Substrate", async function() {
         ).to.be.deep.equal(0) //number should be checked
         */
     })
-
   })
