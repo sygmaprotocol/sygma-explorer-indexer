@@ -1,3 +1,4 @@
+import { XcmAssetId } from "@polkadot/types/interfaces"
 import { logger } from "../../utils/logger"
 
 export type LocalDomainConfig = {
@@ -54,6 +55,7 @@ export type Resource = {
   symbol: string
   decimals: number
   assetName?: string
+  xcmMultiAssetId?: XcmAssetId
 }
 
 export type RpcUrlConfig = Array<{

@@ -163,7 +163,7 @@ export async function saveFee(
     id: new ObjectId().toString(),
     transferId: transferMap.get(fee.txIdentifier) || "",
     tokenSymbol: resourceMap.get(fee.resourceId)?.symbol || "",
-    tokenAddress: "",
+    tokenAddress: JSON.stringify(resourceMap.get(fee.resourceId)?.xcmMultiAssetId),
     amount: fee.feeAmount,
   }
   await feeRepository.insertFee(feeData)
@@ -218,7 +218,7 @@ export async function saveEvents(
   })
   const transferMap = new Map<string, string>()
 
-  depositEvents.forEach(async (depositEvent: DepositEvent) => {
+  for (const depositEvent of depositEvents) {
     const txIdentifier = `${block}-${depositEvent.phase.asApplyExtrinsic}` //this is like the txHash but for the substrate
     const { data } = depositEvent.event.toHuman()
     const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
@@ -241,9 +241,9 @@ export async function saveEvents(
       depositRepository,
       transferMap,
     )
-  })
+  }
 
-  feeCollectedEvents.forEach(async (feeCollectedEvent: FeeCollectedEvent) => {
+  for (const feeCollectedEvent of feeCollectedEvents) {
     const txIdentifier = `${block}-${feeCollectedEvent.phase.asApplyExtrinsic}` //this is like the txHash but for the substrate
     const { data } = feeCollectedEvent.event.toHuman()
 
@@ -260,7 +260,7 @@ export async function saveEvents(
       transferMap,
       resourceMap,
     )
-  })
+  }
 
   failedHandlerExecutionEvents.forEach(async (failedHandlerExecutionEvent: FailedHandlerExecutionEvent) => {
     const txIdentifier = `${block}-${failedHandlerExecutionEvent.phase.asApplyExtrinsic}` //this is like the txHash but for the substrate
