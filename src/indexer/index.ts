@@ -2,7 +2,7 @@ import nodeCleanup from "node-cleanup"
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
-import { getSharedConfig, DomainTypes, Domain, getSsmDomainConfig, getDomainsToIndex } from "./config"
+import { getSharedConfig, DomainTypes, Domain, getSsmDomainConfig, getDomainsToIndex, SubstrateResource } from "./config"
 import DomainRepository from "./repository/domain"
 import DepositRepository from "./repository/deposit"
 import TransferRepository from "./repository/transfer"
@@ -47,7 +47,7 @@ async function init(): Promise<Array<DomainIndexer>> {
   const resourceRepository = new ResourceRepository()
 
   healthcheckRoute()
-  await insertDomains(sharedConfig.domains, resourceRepository, domainRepository)
+  const resourceMap = await insertDomains(sharedConfig.domains, resourceRepository, domainRepository)
 
   const rpcUrlConfig = getSsmDomainConfig()
 
@@ -62,7 +62,15 @@ async function init(): Promise<Array<DomainIndexer>> {
 
     if (domain.type == DomainTypes.SUBSTRATE) {
       try {
-        const substrateIndexer = new SubstrateIndexer(domainRepository, domain, executionRepository, depositRepository, transferRepository)
+        const substrateIndexer = new SubstrateIndexer(
+          domainRepository,
+          domain,
+          executionRepository,
+          depositRepository,
+          transferRepository,
+          feeRepository,
+          resourceMap,
+        )
         await substrateIndexer.init(rpcURL)
         domainIndexers.push(substrateIndexer)
       } catch (err) {
@@ -85,11 +93,20 @@ async function init(): Promise<Array<DomainIndexer>> {
   return domainIndexers
 }
 
-async function insertDomains(domains: Array<Domain>, resourceRepository: ResourceRepository, domainRepository: DomainRepository): Promise<void> {
+async function insertDomains(
+  domains: Array<Domain>,
+  resourceRepository: ResourceRepository,
+  domainRepository: DomainRepository,
+): Promise<Map<string, SubstrateResource>> {
+  const resourceMap = new Map<string, SubstrateResource>()
   for (const domain of domains) {
     await domainRepository.insertDomain(domain.id, domain.startBlock.toString(), domain.name)
     for (const resource of domain.resources) {
+      if (domain.type == DomainTypes.SUBSTRATE) {
+        resourceMap.set(resource.resourceId, resource as SubstrateResource)
+      }
       await resourceRepository.insertResource({ id: resource.resourceId, type: resource.type })
     }
   }
+  return resourceMap
 }

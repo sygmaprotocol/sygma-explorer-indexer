@@ -20,7 +20,7 @@ import { TransferStatus } from "@prisma/client"
 import TransferRepository from "../../repository/transfer"
 import DepositRepository from "../../repository/deposit"
 import { logger } from "../../../utils/logger"
-import { Domain, Resource } from "../../config"
+import { Domain, EvmResource } from "../../config"
 import {
   DecodedDepositLog,
   DecodedFailedHandlerExecution,
@@ -40,7 +40,7 @@ export async function getDecodedLogs(
   log: Log,
   provider: Provider,
   domain: Domain,
-  resourceMap: Map<string, Resource>,
+  resourceMap: Map<string, EvmResource>,
   decodedLogs: DecodedLogs,
 ): Promise<void> {
   const blockUnixTimestamp = (await provider.getBlock(log.blockNumber))?.timestamp || 0
@@ -103,7 +103,7 @@ export function parseDeposit(
   decodedLog: LogDescription,
   txReceipt: TransactionReceipt,
   blockUnixTimestamp: number,
-  resourceMap: Map<string, Resource>,
+  resourceMap: Map<string, EvmResource>,
 ): DecodedDepositLog {
   const resourceType = resourceMap.get(decodedLog.args.resourceID as string)?.type || ""
   const resourceDecimals = resourceMap.get(decodedLog.args.resourceID as string)?.decimals || 18
@@ -134,7 +134,7 @@ export function parseProposalExecution(
   decodedLog: LogDescription,
   txReceipt: TransactionReceipt,
   blockUnixTimestamp: number,
-  resourceMap: Map<string, Resource>,
+  resourceMap: Map<string, EvmResource>,
 ): DecodedProposalExecutionLog {
   const resourceType = resourceMap.get(decodedLog.args.resourceID as string)?.type || ""
   const originDomainID = decodedLog.args.originDomainID as number
