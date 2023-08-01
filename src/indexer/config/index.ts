@@ -6,10 +6,6 @@ export type LocalDomainConfig = {
   startBlock: number
 }
 
-export enum Environment {
-  TESTNET = "testnet",
-  STAGE = "devnet",
-}
 export const enum ResourceTypes {
   FUNGIBLE = "fungible",
   NON_FUNGIBLE = "nonFungible",
@@ -36,7 +32,7 @@ export type Domain = {
   nativeTokenSymbol: string
   nativeTokenDecimals: number
   startBlock: number
-  resources: Array<Resource>
+  resources: Array<EvmResource | SubstrateResource>
 }
 type Handler = {
   type: ResourceTypes
@@ -48,14 +44,22 @@ type FeeHandlerType = {
   address: string
 }
 
-export type Resource = {
+export type EvmResource = {
   resourceId: string
   type: ResourceTypes
   address: string
   symbol: string
   decimals: number
-  assetName?: string
-  xcmMultiAssetId?: XcmAssetId
+}
+
+export type SubstrateResource = {
+  resourceId: string
+  type: ResourceTypes
+  address: string
+  symbol: string
+  decimals: number
+  assetName: string
+  xcmMultiAssetId: XcmAssetId
 }
 
 export type RpcUrlConfig = Array<{

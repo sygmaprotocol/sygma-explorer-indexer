@@ -1,6 +1,6 @@
 import { ApiPromise, WsProvider } from "@polkadot/api"
 import FeeRepository from "indexer/repository/fee"
-import { Domain, Resource } from "../../config"
+import { Domain, SubstrateResource } from "../../config"
 import DomainRepository from "../../repository/domain"
 import { logger } from "../../../utils/logger"
 import ExecutionRepository from "../../../indexer/repository/execution"
@@ -16,7 +16,7 @@ export class SubstrateIndexer {
   private depositRepository: DepositRepository
   private transferRepository: TransferRepository
   private feeRepository: FeeRepository
-  private resourceMap: Map<string, Resource>
+  private resourceMap: Map<string, SubstrateResource>
   private eventsQueryInterval = 1
   private provider!: ApiPromise
   private domain: Domain
@@ -29,7 +29,7 @@ export class SubstrateIndexer {
     depositRepository: DepositRepository,
     transferRepository: TransferRepository,
     feeRepository: FeeRepository,
-    resourceMap: Map<string, Resource>,
+    resourceMap: Map<string, SubstrateResource>,
   ) {
     this.domainRepository = domainRepository
     this.domain = domain

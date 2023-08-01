@@ -24,7 +24,7 @@ import {
   SygmaPalleteEvents,
 } from "../../services/substrateIndexer/substrateTypes"
 import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes"
-import { Domain, Resource } from "../../../indexer/config"
+import { Domain, SubstrateResource } from "../../../indexer/config"
 import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser"
 
 export async function saveProposalExecution(
@@ -157,7 +157,7 @@ export async function saveFee(
   fee: FeeCollectedDataToSave,
   feeRepository: FeeRepository,
   transferMap: Map<string, string>,
-  resourceMap: Map<string, Resource>,
+  resourceMap: Map<string, SubstrateResource>,
 ): Promise<void> {
   const feeData = {
     id: new ObjectId().toString(),
@@ -185,7 +185,7 @@ export async function saveEvents(
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   feeRepository: FeeRepository,
-  resourceMap: Map<string, Resource>,
+  resourceMap: Map<string, SubstrateResource>,
 ): Promise<void> {
   const at = await provider.at(blockHash)
   const timestamp = Number((await at.query.timestamp.now()).toString())
@@ -320,7 +320,7 @@ export async function saveFeeToDb(
   fee: FeeCollectedDataToSave,
   feeRepository: FeeRepository,
   transferMap: Map<string, string>,
-  resourceMap: Map<string, Resource>,
+  resourceMap: Map<string, SubstrateResource>,
 ): Promise<void> {
   try {
     await saveFee(fee, feeRepository, transferMap, resourceMap)

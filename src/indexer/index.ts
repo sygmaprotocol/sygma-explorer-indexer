@@ -2,7 +2,7 @@ import nodeCleanup from "node-cleanup"
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
-import { getSharedConfig, DomainTypes, Domain, getSsmDomainConfig, getDomainsToIndex, Resource } from "./config"
+import { getSharedConfig, DomainTypes, Domain, getSsmDomainConfig, getDomainsToIndex, SubstrateResource } from "./config"
 import DomainRepository from "./repository/domain"
 import DepositRepository from "./repository/deposit"
 import TransferRepository from "./repository/transfer"
@@ -97,13 +97,13 @@ async function insertDomains(
   domains: Array<Domain>,
   resourceRepository: ResourceRepository,
   domainRepository: DomainRepository,
-): Promise<Map<string, Resource>> {
-  const resourceMap = new Map<string, Resource>()
+): Promise<Map<string, SubstrateResource>> {
+  const resourceMap = new Map<string, SubstrateResource>()
   for (const domain of domains) {
     await domainRepository.insertDomain(domain.id, domain.startBlock.toString(), domain.name)
     for (const resource of domain.resources) {
       if (domain.type == DomainTypes.SUBSTRATE) {
-        resourceMap.set(resource.resourceId, resource)
+        resourceMap.set(resource.resourceId, resource as SubstrateResource)
       }
       await resourceRepository.insertResource({ id: resource.resourceId, type: resource.type })
     }

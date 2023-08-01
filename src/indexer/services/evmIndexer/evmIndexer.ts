@@ -1,4 +1,4 @@
-import { Domain, Resource } from "indexer/config"
+import { Domain, EvmResource } from "indexer/config"
 import { ethers } from "ethers"
 
 import { sleep } from "../../utils/substrate"
@@ -25,7 +25,7 @@ export class EvmIndexer {
   private executionRepository: ExecutionRepository
   private feeRepository: FeeRepository
   private domain: Domain
-  private resourceMap: Map<string, Resource>
+  private resourceMap: Map<string, EvmResource>
   private stopped = false
 
   constructor(
@@ -45,8 +45,8 @@ export class EvmIndexer {
     this.executionRepository = executionRepository
     this.feeRepository = feeRepository
 
-    this.resourceMap = new Map<string, Resource>()
-    domain.resources.map((resource: Resource) => this.resourceMap.set(resource.resourceId, resource))
+    this.resourceMap = new Map<string, EvmResource>()
+    domain.resources.map((resource: EvmResource) => this.resourceMap.set(resource.resourceId, resource))
   }
 
   public stop(): void {
