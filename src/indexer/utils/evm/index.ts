@@ -17,10 +17,12 @@ import Bridge from "@buildwithsygma/sygma-contracts/build/contracts/Bridge.json"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ObjectId } from "mongodb"
 import { TransferStatus } from "@prisma/client"
+import { MultiLocation } from "@polkadot/types/interfaces"
+import { ApiPromise, WsProvider } from "@polkadot/api"
 import TransferRepository from "../../repository/transfer"
 import DepositRepository from "../../repository/deposit"
 import { logger } from "../../../utils/logger"
-import { Domain, Resource } from "../../config"
+import { Domain, DomainTypes, Resource, getSsmDomainConfig } from "../../config"
 import {
   DecodedDepositLog,
   DecodedFailedHandlerExecution,
@@ -36,15 +38,22 @@ import ExecutionRepository from "../../repository/execution"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
 
+type X = {
+  accountId32?: {
+    id: string
+  }
+}
+
 export async function getDecodedLogs(
   log: Log,
   provider: Provider,
-  domain: Domain,
+  fromDomain: Domain,
   resourceMap: Map<string, Resource>,
   decodedLogs: DecodedLogs,
+  domains: Domain[],
 ): Promise<void> {
   const blockUnixTimestamp = (await provider.getBlock(log.blockNumber))?.timestamp || 0
-  const contractData = domain.feeHandlers.filter(handler => handler.address == log.address)
+  const contractData = fromDomain.feeHandlers.filter(handler => handler.address == log.address)
 
   let decodedLog: LogDescription | null = null
   if (contractData[0]?.type == FeeHandlerType.BASIC) {
@@ -55,14 +64,14 @@ export async function getDecodedLogs(
     const contract = new Contract(contractData[0].address, DynamicERC20FeeHandlerEVM.abi, provider)
 
     decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
-  } else if (domain.bridge.toLowerCase() == log.address.toLowerCase()) {
-    const contract = new Contract(domain.bridge, Bridge.abi, provider)
+  } else if (fromDomain.bridge.toLowerCase() == log.address.toLowerCase()) {
+    const contract = new Contract(fromDomain.bridge, Bridge.abi, provider)
 
     decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
   }
 
   if (!decodedLog) {
-    throw new Error(`No decoded log for ${domain.id}} and ${log.address}`)
+    throw new Error(`No decoded log for ${fromDomain.id}} and ${log.address}`)
   }
 
   const txReceipt = await provider.getTransactionReceipt(log.transactionHash)
@@ -72,7 +81,8 @@ export async function getDecodedLogs(
   }
   switch (decodedLog.name) {
     case EventType.DEPOSIT: {
-      const deposit = parseDeposit(domain, log, decodedLog, txReceipt, blockUnixTimestamp, resourceMap)
+      const toDomain = domains.filter(domain => domain.id == decodedLog?.args.destinationDomainID)
+      const deposit = await parseDeposit(fromDomain, toDomain[0], log, decodedLog, txReceipt, blockUnixTimestamp, resourceMap)
       decodedLogs.deposit.push(deposit)
       break
     }
@@ -90,35 +100,40 @@ export async function getDecodedLogs(
     }
 
     case EventType.FEE_COLLECTED: {
-      const feeCollected = await parseFeeCollected(decodedLog, provider, domain.nativeTokenSymbol, log)
+      const feeCollected = await parseFeeCollected(decodedLog, provider, fromDomain.nativeTokenSymbol, log)
       decodedLogs.feeCollected.push(feeCollected)
       break
     }
   }
 }
 
-export function parseDeposit(
-  domain: Domain,
+export async function parseDeposit(
+  fromDomain: Domain,
+  toDomain: Domain,
   log: Log,
   decodedLog: LogDescription,
   txReceipt: TransactionReceipt,
   blockUnixTimestamp: number,
   resourceMap: Map<string, Resource>,
-): DecodedDepositLog {
+): Promise<DecodedDepositLog> {
   const resourceType = resourceMap.get(decodedLog.args.resourceID as string)?.type || ""
   const resourceDecimals = resourceMap.get(decodedLog.args.resourceID as string)?.decimals || 18
-
   const arrayifyData = getBytes(decodedLog.args.data as BytesLike)
-  const filtered = arrayifyData.filter((_, idx) => idx + 1 > 65)
-  const hexAddress = hexlify(filtered)
+  
+  let destination = ""
+  if (toDomain.type == DomainTypes.EVM) {
+    destination = parseEvmDestination(arrayifyData)
+  } else if (toDomain.type == DomainTypes.SUBSTRATE) {
+    destination = await ParseSubstrateDestination(arrayifyData, toDomain)
+  }
   const destDomainID = decodedLog.args.destinationDomainID as number
   return {
     blockNumber: log.blockNumber,
     depositNonce: Number(decodedLog.args.depositNonce),
     toDomainId: destDomainID.toString(),
     sender: txReceipt.from,
-    destination: hexAddress,
-    fromDomainId: domain.id.toString(),
+    destination: destination,
+    fromDomainId: fromDomain.id.toString(),
     resourceID: decodedLog.args.resourceID as string,
     txHash: log.transactionHash,
     timestamp: blockUnixTimestamp,
@@ -127,6 +142,35 @@ export function parseDeposit(
     transferType: resourceType,
     amount: decodeAmountsOrTokenId(decodedLog.args.data as string, resourceDecimals, resourceType) as string,
   }
+}
+
+function parseEvmDestination(bytes: Uint8Array): string {
+  const filtered = bytes.filter((_, idx) => idx + 1 > 65)
+  return hexlify(filtered)
+}
+
+async function ParseSubstrateDestination(bytes: Uint8Array, domain: Domain): Promise<string> {
+  const rpcUrlConfig = getSsmDomainConfig()
+  const wsProvider = new WsProvider(rpcUrlConfig.get(domain.id))
+  const api = await ApiPromise.create({
+    provider: wsProvider,
+  })
+
+  const recipientlen = Number("0x" + Buffer.from(bytes.slice(32, 64)).toString("hex"))
+
+  const recipient = "0x" + Buffer.from(bytes.slice(64, 64 + recipientlen)).toString("hex")
+
+  const decodedData = api.createType("MultiLocation", recipient)
+  const multiAddress = decodedData.toJSON() as unknown as MultiLocation
+
+  for (const [, xArray] of Object.entries(multiAddress.interior)) {
+    for (const x of xArray as X[]) {
+      if (x.accountId32?.id) {
+        return x.accountId32.id
+      }
+    }
+  }
+  return ""
 }
 
 export function parseProposalExecution(
