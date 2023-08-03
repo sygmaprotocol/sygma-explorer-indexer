@@ -119,7 +119,7 @@ export async function parseDeposit(
   const resourceType = resourceMap.get(decodedLog.args.resourceID as string)?.type || ""
   const resourceDecimals = resourceMap.get(decodedLog.args.resourceID as string)?.decimals || 18
   const arrayifyData = getBytes(decodedLog.args.data as BytesLike)
-  
+
   let destination = ""
   if (toDomain.type == DomainTypes.EVM) {
     destination = parseEvmDestination(arrayifyData)
