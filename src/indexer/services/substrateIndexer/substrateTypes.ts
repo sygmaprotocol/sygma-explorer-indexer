@@ -1,4 +1,4 @@
-import { MultiAsset } from "@polkadot/types/interfaces"
+import { XcmAssetId } from "@polkadot/types/interfaces"
 
 export type RawProposalExecutionData = { originDomainId: string; depositNonce: string; dataHash: string }
 
@@ -17,7 +17,7 @@ export type RawFeeCollectedData = {
   resourceId: string
   feeAmount: string
   destDomainId: string
-  feeAssetId: MultiAsset
+  feeAssetId: XcmAssetId
 }
 
 export type RawFailedHandlerExecutionData = Omit<RawProposalExecutionData, "dataHash"> & { error: string }
