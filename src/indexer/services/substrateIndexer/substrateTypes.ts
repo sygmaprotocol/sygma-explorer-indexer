@@ -10,12 +10,23 @@ export type RawDepositData = {
   handlerResponse: string
 }
 
+export type RawFeeCollectedData = {
+  feePayer: string
+  resourceId: string
+  feeAmount: string
+  destDomainId: string
+}
+
 export type RawFailedHandlerExecutionData = Omit<RawProposalExecutionData, "dataHash"> & { error: string }
 
 export type ProposalExecutionDataToSave = Omit<RawProposalExecutionData, "dataHash"> & {
   txIdentifier: string
   blockNumber: string
   timestamp: number
+}
+
+export type FeeCollectedDataToSave = RawFeeCollectedData & {
+  txIdentifier: string
 }
 
 export type FailedHandlerExecutionToSave = Omit<RawProposalExecutionData, "dataHash"> & {
@@ -60,6 +71,17 @@ export type FailedHandlerExecutionEvent = {
   }
 }
 
+export type FeeCollectedEvent = {
+  phase: {
+    asApplyExtrinsic: number
+  }
+  event: {
+    toHuman: () => {
+      data: RawFeeCollectedData
+    }
+  }
+}
+
 export type SubstrateEvent = {
   event: {
     method: string
@@ -71,6 +93,7 @@ export enum SygmaPalleteEvents {
   ProposalExecution = "ProposalExecution",
   Deposit = "Deposit",
   FailedHandlerExecution = "FailedHandlerExecution",
+  FeeCollected = "FeeCollected",
 }
 
 export enum SubstrateTypeTransfer {

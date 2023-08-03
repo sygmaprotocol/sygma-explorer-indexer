@@ -22,7 +22,7 @@ import { ApiPromise, WsProvider } from "@polkadot/api"
 import TransferRepository from "../../repository/transfer"
 import DepositRepository from "../../repository/deposit"
 import { logger } from "../../../utils/logger"
-import { Domain, DomainTypes, Resource, getSsmDomainConfig } from "../../config"
+import { Domain, DomainTypes, EvmResource, getSsmDomainConfig } from "../../config"
 import {
   DecodedDepositLog,
   DecodedFailedHandlerExecution,
@@ -48,7 +48,7 @@ export async function getDecodedLogs(
   log: Log,
   provider: Provider,
   fromDomain: Domain,
-  resourceMap: Map<string, Resource>,
+  resourceMap: Map<string, EvmResource>,
   decodedLogs: DecodedLogs,
   domains: Domain[],
 ): Promise<void> {
@@ -114,7 +114,7 @@ export async function parseDeposit(
   decodedLog: LogDescription,
   txReceipt: TransactionReceipt,
   blockUnixTimestamp: number,
-  resourceMap: Map<string, Resource>,
+  resourceMap: Map<string, EvmResource>,
 ): Promise<DecodedDepositLog> {
   const resourceType = resourceMap.get(decodedLog.args.resourceID as string)?.type || ""
   const resourceDecimals = resourceMap.get(decodedLog.args.resourceID as string)?.decimals || 18
@@ -178,7 +178,7 @@ export function parseProposalExecution(
   decodedLog: LogDescription,
   txReceipt: TransactionReceipt,
   blockUnixTimestamp: number,
-  resourceMap: Map<string, Resource>,
+  resourceMap: Map<string, EvmResource>,
 ): DecodedProposalExecutionLog {
   const resourceType = resourceMap.get(decodedLog.args.resourceID as string)?.type || ""
   const originDomainID = decodedLog.args.originDomainID as number

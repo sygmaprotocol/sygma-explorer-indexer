@@ -1,5 +1,5 @@
 import { Provider, Log } from "ethers"
-import { Domain, Resource } from "../../config"
+import { Domain, EvmResource } from "../../config"
 import { getDecodedLogs } from "../../utils/evm"
 import { logger } from "../../../utils/logger"
 import { DecodedLogs } from "./evmTypes"
@@ -10,7 +10,7 @@ export async function decodeLogs(
   provider: Provider,
   domain: Domain,
   logs: Log[],
-  resourceMap: Map<string, Resource>,
+  resourceMap: Map<string, EvmResource>,
   domains: Domain[],
 ): Promise<DecodedLogs> {
   const decodedLogs: DecodedLogs = {
