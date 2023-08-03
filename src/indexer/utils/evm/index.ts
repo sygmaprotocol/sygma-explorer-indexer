@@ -38,7 +38,7 @@ import ExecutionRepository from "../../repository/execution"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
 
-type X = {
+type Junction = {
   accountId32?: {
     id: string
   }
@@ -163,10 +163,10 @@ async function ParseSubstrateDestination(bytes: Uint8Array, domain: Domain): Pro
   const decodedData = api.createType("MultiLocation", recipient)
   const multiAddress = decodedData.toJSON() as unknown as MultiLocation
 
-  for (const [, xArray] of Object.entries(multiAddress.interior)) {
-    for (const x of xArray as X[]) {
-      if (x.accountId32?.id) {
-        return x.accountId32.id
+  for (const [, junctions] of Object.entries(multiAddress.interior)) {
+    for (const junction of junctions as Junction[]) {
+      if (junction.accountId32?.id) {
+        return junction.accountId32.id
       }
     }
   }
