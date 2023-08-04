@@ -10,6 +10,7 @@ import ExecutionRepository from "./repository/execution"
 import FeeRepository from "./repository/fee"
 import ResourceRepository from "./repository/resource"
 import { healthcheckRoute } from "./healthcheck"
+import { OfacComplianceService } from "./services/evmIndexer/ofac"
 
 interface DomainIndexer {
   listenToEvents(): Promise<void>
@@ -38,6 +39,7 @@ init()
 
 async function init(): Promise<Array<DomainIndexer>> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
+  const ofacComplianceService = new OfacComplianceService(process.env.CHAIN_ANALYSIS_URL!, process.env.CHAIN_ANALYSIS_API_KEY!)
 
   const domainRepository = new DomainRepository()
   const depositRepository = new DepositRepository()
@@ -79,7 +81,7 @@ async function init(): Promise<Array<DomainIndexer>> {
       }
     } else if (domain.type == DomainTypes.EVM) {
       try {
-        const evmIndexer = new EvmIndexer(domain, rpcURL, domainRepository, depositRepository, transferRepository, executionRepository, feeRepository)
+        const evmIndexer = new EvmIndexer(domain, rpcURL, domainRepository, depositRepository, transferRepository, executionRepository, feeRepository, ofacComplianceService)
         domainIndexers.push(evmIndexer)
       } catch (err) {
         logger.error(`error on domain: ${domain.id}... skipping`)

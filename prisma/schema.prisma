@@ -12,14 +12,13 @@ generator client {
 
 model Transfer {
   id           String         @id @default(auto()) @map("_id") @db.ObjectId
-  depositNonce Int            
+  depositNonce Int
   resource     Resource?      @relation(fields: [resourceID], references: [id])
   resourceID   String?
   fromDomain   Domain         @relation(name: "fromDomainRelation", fields: [fromDomainId], references: [id])
-  fromDomainId Int 
+  fromDomainId Int
   toDomain     Domain?        @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
   toDomainId   Int?
-  sender       String?
   destination  String?
   amount       String?
   timestamp    DateTime?
@@ -27,6 +26,8 @@ model Transfer {
   deposit      Deposit?
   execution    Execution?
   fee          Fee?
+  account      Account?       @relation(fields: [accountId], references: [id])
+  accountId    String?
 
   @@unique(fields: [depositNonce, fromDomainId, toDomainId], name: "transferId")
 }
@@ -37,6 +38,13 @@ enum TransferStatus {
   failed
 }
 
+model Account {
+  id            String     @id @map("_id")
+  address       String?
+  addressStatus String
+  Transfer      Transfer[]
+}
+
 model Resource {
   id        String     @id @map("_id")
   type      String
@@ -44,7 +52,7 @@ model Resource {
 }
 
 model Domain {
-  id   Int @id @map("_id")
+  id   Int    @id @map("_id")
   name String
 
   lastIndexedBlock String
