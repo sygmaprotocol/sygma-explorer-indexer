@@ -19,6 +19,7 @@ export type DecodedDepositLog = {
   handlerResponse: string
   transferType: string
   amount: string
+  senderStatus?: string
 }
 
 export type DecodedProposalExecutionLog = {

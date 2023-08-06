@@ -203,10 +203,10 @@ export async function saveDepositLogs(
 
   const { sender } = decodedLog
 
-  const addressStatus = await ofacComplianceService.checkSanctionedAddress(sender) as string
+  const senderStatus = await ofacComplianceService.checkSanctionedAddress(sender)
 
   if (!transfer) {
-    transfer = await transferRepository.insertDepositTransfer(decodedLog, addressStatus)
+    transfer = await transferRepository.insertDepositTransfer(decodedLog, senderStatus)
   } else {
     const dataToSave = {
       ...decodedLog,

@@ -31,7 +31,7 @@ export type TransferMetadataeta = {
 class TransferRepository {
   public transfer = new PrismaClient().transfer
 
-  public async insertDepositTransfer(decodedLog: DecodedDepositLog, addressStatus: string): Promise<Transfer> {
+  public async insertDepositTransfer(decodedLog: DecodedDepositLog, senderStatus: string): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: decodedLog.depositNonce,
@@ -54,13 +54,8 @@ class TransferRepository {
         },
       },
       timestamp: new Date(decodedLog.timestamp * 1000), // this is only being used by evm service
-      account: {
-        create: {
-          id: new ObjectId().toString(),
-          address: decodedLog.sender,
-          addressStatus,
-        }
-      }
+      sender: decodedLog.sender,
+      senderStatus,
     }
     return await this.transfer.create({ data: transferData })
   }
@@ -164,8 +159,10 @@ class TransferRepository {
       fromDomainId,
       toDomainId,
       timestamp,
-      accountId
-    }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp" | "accountId">,
+    }: Pick<
+      DecodedDepositLog,
+      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp" | "senderStatus"
+    >,
     id: string,
   ): Promise<Transfer> {
     const transferData = {
@@ -189,11 +186,6 @@ class TransferRepository {
         },
       },
       timestamp: new Date(timestamp),
-      account: {
-        connect: {
-          id: accountId
-        }
-      }
     }
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
