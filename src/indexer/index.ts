@@ -81,7 +81,16 @@ async function init(): Promise<Array<DomainIndexer>> {
       }
     } else if (domain.type == DomainTypes.EVM) {
       try {
-        const evmIndexer = new EvmIndexer(domain, rpcURL, domainRepository, depositRepository, transferRepository, executionRepository, feeRepository, ofacComplianceService)
+        const evmIndexer = new EvmIndexer(
+          domain,
+          rpcURL,
+          domainRepository,
+          depositRepository,
+          transferRepository,
+          executionRepository,
+          feeRepository,
+          ofacComplianceService,
+        )
         domainIndexers.push(evmIndexer)
       } catch (err) {
         logger.error(`error on domain: ${domain.id}... skipping`)
