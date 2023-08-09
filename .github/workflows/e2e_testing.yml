@@ -23,6 +23,6 @@ jobs:
       - name: Run docker
         run: docker-compose up -d
       - name: Wait
-        run: sleep 40s
+        run: sleep 50s
       - name: Run tests
         run: yarn run test:e2e
