@@ -2,16 +2,15 @@ import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
 import { ObjectId } from "mongodb"
 import { DecodedDepositLog, DecodedFailedHandlerExecution, DecodedProposalExecutionLog } from "../services/evmIndexer/evmTypes"
 
-export type TransferMetadataeta = {
+export type TransferMetadata = {
   id: string
   depositNonce: number
-  sender: string
   amount: string
   destination: string
   fromDomainId: string
   toDomainId: string
   resourceID: string
-
+  timestamp: Date
   resource: {
     connect: {
       id: string
@@ -19,10 +18,15 @@ export type TransferMetadataeta = {
   }
   fromDomain: {
     connect: {
-      id: string
+      id: number
     }
   }
   toDomain: {
+    connect: {
+      id: number
+    }
+  }
+  account?: {
     connect: {
       id: string
     }
@@ -54,8 +58,13 @@ class TransferRepository {
         },
       },
       timestamp: new Date(decodedLog.timestamp * 1000), // this is only being used by evm service
-      sender: decodedLog.sender,
-      senderStatus,
+      account: {
+        create: {
+          id: new ObjectId().toString(),
+          address: decodedLog.sender,
+          addressStatus: senderStatus,
+        },
+      },
     }
     return await this.transfer.create({ data: transferData })
   }
@@ -152,7 +161,6 @@ class TransferRepository {
   public async updateTransfer(
     {
       depositNonce,
-      sender,
       amount,
       destination,
       resourceID,
@@ -161,13 +169,13 @@ class TransferRepository {
       timestamp,
     }: Pick<
       DecodedDepositLog,
-      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp" | "senderStatus"
+      "depositNonce" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp" | "senderStatus"
     >,
     id: string,
+    accountId?: string,
   ): Promise<Transfer> {
-    const transferData = {
+    let transferData = {
       depositNonce: depositNonce,
-      sender: sender,
       amount: amount,
       destination: destination,
       resource: {
@@ -186,7 +194,19 @@ class TransferRepository {
         },
       },
       timestamp: new Date(timestamp),
+    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "timestamp" | "account">
+
+    if (accountId) {
+      transferData = {
+        ...transferData,
+        account: {
+          connect: {
+            id: accountId,
+          },
+        },
+      }
     }
+
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 

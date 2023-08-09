@@ -26,8 +26,8 @@ model Transfer {
   deposit      Deposit?
   execution    Execution?
   fee          Fee?
-  sender       String?
-  senderStatus String?
+  account      Account?       @relation(fields: [accountId], references: [id])
+  accountId    String?
 
   @@unique(fields: [depositNonce, fromDomainId, toDomainId], name: "transferId")
 }
@@ -36,6 +36,13 @@ enum TransferStatus {
   pending
   executed
   failed
+}
+
+model Account {
+  id            String     @id @map("_id")
+  address       String?
+  addressStatus String
+  Transfer      Transfer[]
 }
 
 model Resource {

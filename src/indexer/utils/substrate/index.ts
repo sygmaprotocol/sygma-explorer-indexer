@@ -116,7 +116,6 @@ export async function saveDeposit(
   if (transfer) {
     const dataTransferToUpdate = {
       depositNonce: Number(depositNonce),
-      sender,
       amount: decodedAmount,
       resourceID: resourceId,
       fromDomainId: originDomainId.toString(),
