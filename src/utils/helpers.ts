@@ -73,6 +73,12 @@ export const getTransferQueryParams = (): IncludedQueryParams => {
           type: true,
         },
       },
+      account: {
+        select: {
+          address: true,
+          addressStatus: true,
+        },
+      },
     },
   }
 }

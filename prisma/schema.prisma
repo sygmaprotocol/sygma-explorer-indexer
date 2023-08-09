@@ -26,7 +26,7 @@ model Transfer {
   deposit      Deposit?
   execution    Execution?
   fee          Fee?
-  account      Account?       @relation(fields: [accountId], references: [id])
+  account      Account?       @relation(name: "accountRelation", fields: [accountId], references: [id])
   accountId    String?
 
   @@unique(fields: [depositNonce, fromDomainId, toDomainId], name: "transferId")
@@ -42,7 +42,7 @@ model Account {
   id            String     @id @map("_id")
   address       String?
   addressStatus String
-  Transfer      Transfer[]
+  Transfer      Transfer[] @relation(name: "accountRelation")
 }
 
 model Resource {
