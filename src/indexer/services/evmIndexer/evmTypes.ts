@@ -55,5 +55,12 @@ export enum EventType {
 
 export enum FeeHandlerType {
   BASIC = "basic",
-  ORACLE = "oracle",
+  DYNAMIC = "dynamic",
+}
+
+export enum DepositType {
+  FUNGIBLE = "fungible",
+  NONFUNGIBLE = "nonfungible",
+  PERMISSIONLESS_GENERIC = "permissionlessGeneric",
+  PERMISSIONED_GENERIC = "permissionedGeneric",
 }
