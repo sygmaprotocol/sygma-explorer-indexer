@@ -17,12 +17,15 @@ describe("Indexer e2e tests", async function() {
     let permissionlessDeposits = 0
     let permissionedDeposits = 0
     let nftDeposits = 0
+
     before(async () => {
         let transfers = 0
         let isProcessing = false
         while(transfers !== 35 || isProcessing) {
             const res = await axios.get("http://localhost:8000/api/transfers?page=1&limit=100")
             transfers = res.data.length
+            
+            isProcessing = false
             for (let transfer of res.data) {
                 if(!transfer.deposit || !transfer.execution) {
                     isProcessing = true
@@ -30,6 +33,7 @@ describe("Indexer e2e tests", async function() {
             }
         }
     })
+
     it("Should succesfully fetch all transfers", async () => {
         const res = await axios.get("http://localhost:8000/api/transfers?page=1&limit=100")
         const transfers = res.data as Array<any>
