@@ -1,3 +1,5 @@
+import { XcmAssetId } from "@polkadot/types/interfaces"
+
 export type RawProposalExecutionData = { originDomainId: string; depositNonce: string; dataHash: string }
 
 export type RawDepositData = {
@@ -15,6 +17,7 @@ export type RawFeeCollectedData = {
   resourceId: string
   feeAmount: string
   destDomainId: string
+  feeAssetId: XcmAssetId
 }
 
 export type RawFailedHandlerExecutionData = Omit<RawProposalExecutionData, "dataHash"> & { error: string }

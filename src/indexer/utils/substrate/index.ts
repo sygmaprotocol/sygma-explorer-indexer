@@ -163,7 +163,7 @@ export async function saveFee(
     id: new ObjectId().toString(),
     transferId: transferMap.get(fee.txIdentifier) || "",
     tokenSymbol: resourceMap.get(fee.resourceId)?.symbol || "",
-    tokenAddress: JSON.stringify(resourceMap.get(fee.resourceId)?.xcmMultiAssetId),
+    tokenAddress: JSON.stringify(fee.feeAssetId),
     amount: fee.feeAmount,
   }
   await feeRepository.insertFee(feeData)
@@ -247,7 +247,7 @@ export async function saveEvents(
     const txIdentifier = `${block}-${feeCollectedEvent.phase.asApplyExtrinsic}` //this is like the txHash but for the substrate
     const { data } = feeCollectedEvent.event.toHuman()
 
-    const { destDomainId, resourceId, feeAmount, feePayer } = data
+    const { destDomainId, resourceId, feeAmount, feePayer, feeAssetId } = data
     await saveFeeToDb(
       {
         destDomainId,
@@ -255,6 +255,7 @@ export async function saveEvents(
         feeAmount,
         feePayer,
         txIdentifier,
+        feeAssetId,
       },
       feeRepository,
       transferMap,
