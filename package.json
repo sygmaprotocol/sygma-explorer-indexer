@@ -55,6 +55,7 @@
     "@types/morgan": "^1.9.3",
     "@types/node": "^16.7.10",
     "@types/node-cleanup": "^2.1.2",
+    "@types/sinon": "^10.0.16",
     "@types/supertest": "^2.0.11",
     "axios": "^1.4.0",
     "chai": "^4.3.7",
@@ -69,6 +70,7 @@
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "prisma": "^4.1.0",
+    "sinon": "^15.2.0",
     "supertest": "^6.1.6",
     "ts-node": "^10.2.1",
     "typescript": "^4.7.4"

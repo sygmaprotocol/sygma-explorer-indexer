@@ -38,13 +38,11 @@ import FeeRepository from "../../repository/fee"
 import ExecutionRepository from "../../repository/execution"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
-
 type Junction = {
   accountId32?: {
     id: string
   }
 }
-
 export async function getDecodedLogs(
   log: Log,
   provider: Provider,
@@ -84,6 +82,7 @@ export async function getDecodedLogs(
     case EventType.DEPOSIT: {
       const toDomain = domains.filter(domain => domain.id == decodedLog?.args.destinationDomainID)
       const deposit = await parseDeposit(fromDomain, toDomain[0], log, decodedLog, txReceipt, blockUnixTimestamp, resourceMap)
+      console.log("ddddddddddddddasadsadsada\n\n\nnn\nn")
       decodedLogs.deposit.push(deposit)
       break
     }
@@ -119,21 +118,13 @@ export async function parseDeposit(
 ): Promise<DecodedDepositLog> {
   const resourceType = resourceMap.get(decodedLog.args.resourceID as string)?.type || ""
   const resourceDecimals = resourceMap.get(decodedLog.args.resourceID as string)?.decimals || 18
-  const arrayifyData = getBytes(decodedLog.args.data as BytesLike)
 
-  let destination = ""
-  if (toDomain.type == DomainTypes.EVM) {
-    destination = parseEvmDestination(arrayifyData)
-  } else if (toDomain.type == DomainTypes.SUBSTRATE) {
-    destination = await ParseSubstrateDestination(arrayifyData, toDomain)
-  }
-  const destDomainID = decodedLog.args.destinationDomainID as number
   return {
     blockNumber: log.blockNumber,
     depositNonce: Number(decodedLog.args.depositNonce),
-    toDomainId: destDomainID.toString(),
+    toDomainId: decodedLog.args.destinationDomainID as string,
     sender: txReceipt.from,
-    destination: destination,
+    destination: await parseDestination(decodedLog.args.data as BytesLike, toDomain),
     fromDomainId: fromDomain.id.toString(),
     resourceID: decodedLog.args.resourceID as string,
     txHash: log.transactionHash,
@@ -145,30 +136,39 @@ export async function parseDeposit(
   }
 }
 
+export async function parseDestination(hexData: BytesLike, domain: Domain): Promise<string> {
+  const arrayifyData = getBytes(hexData)
+
+  let destination = ""
+  if (domain.type == DomainTypes.EVM) {
+    destination = parseEvmDestination(arrayifyData)
+  } else if (domain.type == DomainTypes.SUBSTRATE) {
+    destination = await parseSubstrateDestination(arrayifyData, domain)
+  }
+  return destination
+}
+
 function parseEvmDestination(bytes: Uint8Array): string {
   const filtered = bytes.filter((_, idx) => idx + 1 > 65)
   return hexlify(filtered)
 }
 
-async function ParseSubstrateDestination(bytes: Uint8Array, domain: Domain): Promise<string> {
+async function parseSubstrateDestination(bytes: Uint8Array, domain: Domain): Promise<string> {
   const rpcUrlConfig = getSsmDomainConfig()
   const wsProvider = new WsProvider(rpcUrlConfig.get(domain.id))
   const api = await ApiPromise.create({
     provider: wsProvider,
   })
-
   const recipientlen = Number("0x" + Buffer.from(bytes.slice(32, 64)).toString("hex"))
 
   const recipient = "0x" + Buffer.from(bytes.slice(64, 64 + recipientlen)).toString("hex")
 
   const decodedData = api.createType("MultiLocation", recipient)
   const multiAddress = decodedData.toJSON() as unknown as MultiLocation
-
   for (const [, junctions] of Object.entries(multiAddress.interior)) {
-    for (const junction of junctions as Junction[]) {
-      if (junction.accountId32?.id) {
-        return junction.accountId32.id
-      }
+    const junston = junctions as Junction
+    if (junston.accountId32?.id) {
+      return junston.accountId32.id
     }
   }
   return ""
@@ -270,10 +270,13 @@ export async function saveDepositLogs(
   }
   await depositRepository.insertDeposit(deposit)
 
+  console.log("settransfermap")
   transferMap.set(decodedLog.txHash, transfer.id)
 }
 
 export async function saveFeeLogs(fee: DecodedFeeCollectedLog, transferMap: Map<string, string>, feeRepository: FeeRepository): Promise<void> {
+  console.log("transfermap")
+  console.log(transferMap)
   const feeData = {
     id: new ObjectId().toString(),
     transferId: transferMap.get(fee.txHash) || "",
