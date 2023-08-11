@@ -82,8 +82,6 @@ export async function getDecodedLogs(
     case EventType.DEPOSIT: {
       const toDomain = domains.filter(domain => domain.id == decodedLog?.args.destinationDomainID)
       const deposit = await parseDeposit(fromDomain, toDomain[0], log, decodedLog, txReceipt, blockUnixTimestamp, resourceMap)
-      console.log("ddddddddddddddasadsadsada\n\n\nnn\nn")
-      decodedLogs.deposit.push(deposit)
       break
     }
 
@@ -269,14 +267,10 @@ export async function saveDepositLogs(
     transferId: transfer.id,
   }
   await depositRepository.insertDeposit(deposit)
-
-  console.log("settransfermap")
   transferMap.set(decodedLog.txHash, transfer.id)
 }
 
 export async function saveFeeLogs(fee: DecodedFeeCollectedLog, transferMap: Map<string, string>, feeRepository: FeeRepository): Promise<void> {
-  console.log("transfermap")
-  console.log(transferMap)
   const feeData = {
     id: new ObjectId().toString(),
     transferId: transferMap.get(fee.txHash) || "",
