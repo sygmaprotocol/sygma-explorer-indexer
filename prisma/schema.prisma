@@ -39,8 +39,7 @@ enum TransferStatus {
 }
 
 model Account {
-  id            String     @id @map("_id")
-  address       String?
+  id       String    @id @map("_id")
   addressStatus String
   Transfer      Transfer[] @relation(name: "accountRelation")
 }

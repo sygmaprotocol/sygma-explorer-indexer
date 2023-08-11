@@ -37,7 +37,6 @@ class TransferRepository {
 
   public async insertDepositTransfer(decodedLog: DecodedDepositLog, senderStatus: string): Promise<Transfer> {
     const transferData = {
-      id: new ObjectId().toString(),
       depositNonce: decodedLog.depositNonce,
       amount: decodedLog.amount,
       destination: decodedLog.destination,
@@ -58,15 +57,40 @@ class TransferRepository {
         },
       },
       timestamp: new Date(decodedLog.timestamp * 1000), // this is only being used by evm service
-      account: {
-        create: {
-          id: new ObjectId().toString(),
-          address: decodedLog.sender,
-          addressStatus: senderStatus,
+    }
+
+    return await this.transfer.upsert({
+      where: {
+        transferId: {
+          depositNonce: decodedLog.depositNonce,
+          fromDomainId: Number(decodedLog.fromDomainId),
+          toDomainId: Number(decodedLog.toDomainId),
         },
       },
-    }
-    return await this.transfer.create({ data: transferData })
+      update: {
+        ...transferData,
+        account: {
+          connect: {
+            id: decodedLog.sender,
+          },
+        },
+      },
+      create: {
+        id: new ObjectId().toString(),
+        ...transferData,
+        account: {
+          connectOrCreate: {
+            where: {
+              id: decodedLog.sender,
+            },
+            create: {
+              id: decodedLog.sender,
+              addressStatus: senderStatus,
+            },
+          },
+        },
+      },
+    })
   }
 
   public async insertSubstrateDepositTransfer(
