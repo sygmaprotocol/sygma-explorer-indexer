@@ -27,6 +27,7 @@ import {
   DecodedFeeCollectedLog,
   DecodedLogs,
   DecodedProposalExecutionLog,
+  DepositType,
   EventType,
   FeeHandlerType,
 } from "../../services/evmIndexer/evmTypes"
@@ -52,7 +53,7 @@ export async function getDecodedLogs(
     const contract = new Contract(contractData[0].address, BasicFeeHandlerContract.abi, provider)
 
     decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
-  } else if (contractData[0]?.type == FeeHandlerType.ORACLE) {
+  } else if (contractData[0]?.type == FeeHandlerType.DYNAMIC) {
     const contract = new Contract(contractData[0].address, DynamicERC20FeeHandlerEVM.abi, provider)
 
     decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
@@ -179,13 +180,19 @@ export function parseFailedHandlerExecution(log: Log, decodedLog: LogDescription
 
 function decodeAmountsOrTokenId(data: string, decimals: number, resourceType: string): string | Error {
   switch (resourceType) {
-    case "fungible": {
+    case DepositType.FUNGIBLE: {
       const amount = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0] as BigNumberish
       return formatUnits(amount, decimals)
     }
-    case "nonfungible": {
+    case DepositType.NONFUNGIBLE: {
       const tokenId = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0] as number
       return tokenId.toString()
+    }
+    case DepositType.PERMISSIONLESS_GENERIC: {
+      return ""
+    }
+    case DepositType.PERMISSIONED_GENERIC: {
+      return ""
     }
     default:
       throw new Error(`Unknown resource type ${resourceType}`)
