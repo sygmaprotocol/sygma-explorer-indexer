@@ -25,12 +25,14 @@ export class EvmIndexer {
   private executionRepository: ExecutionRepository
   private feeRepository: FeeRepository
   private domain: Domain
+  private domains: Domain[]
   private resourceMap: Map<string, EvmResource>
   private stopped = false
 
   constructor(
     domain: Domain,
     rpcURL: string,
+    domains: Domain[],
     domainRepository: DomainRepository,
     depositRepository: DepositRepository,
     transferRepository: TransferRepository,
@@ -44,7 +46,7 @@ export class EvmIndexer {
     this.transferRepository = transferRepository
     this.executionRepository = executionRepository
     this.feeRepository = feeRepository
-
+    this.domains = domains
     this.resourceMap = new Map<string, EvmResource>()
     domain.resources.map((resource: EvmResource) => this.resourceMap.set(resource.resourceId, resource))
   }
@@ -94,7 +96,7 @@ export class EvmIndexer {
     }
 
     logger.info(`Found past events on ${this.domain.name} in block range [${startBlock}-${endBlock}]`)
-    const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap)
+    const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap, this.domains)
 
     const transferMap = new Map<string, string>()
     await Promise.all(
