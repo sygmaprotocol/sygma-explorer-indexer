@@ -10,6 +10,10 @@ export interface ITransferById {
   id: string
 }
 
+export interface ITransferByTxHash {
+  txHash: string
+}
+
 export interface ITransferBySender extends ITransfer {
   senderAddress: string
 }
