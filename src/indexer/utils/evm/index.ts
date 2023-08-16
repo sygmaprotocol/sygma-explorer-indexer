@@ -82,6 +82,7 @@ export async function getDecodedLogs(
     case EventType.DEPOSIT: {
       const toDomain = domains.filter(domain => domain.id == decodedLog?.args.destinationDomainID)
       const deposit = await parseDeposit(fromDomain, toDomain[0], log, decodedLog, txReceipt, blockUnixTimestamp, resourceMap)
+      decodedLogs.deposit.push(deposit)
       break
     }
 

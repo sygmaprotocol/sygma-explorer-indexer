@@ -1,10 +1,8 @@
 import { expect } from "chai"
 import sinon from "sinon"
+import { ApiPromise, WsProvider } from "@polkadot/api"
 import { Domain, DomainTypes } from "../../src/indexer/config"
 import { parseDestination } from "../../src/indexer/utils/evm"
-
-const ApiPromise = require("@polkadot/api").ApiPromise
-const WsProvider = require("@polkadot/api").WsProvider
 
 describe("Events parser", function () {
   const mockToJson = sinon.stub()
@@ -18,7 +16,7 @@ describe("Events parser", function () {
       toJSON: mockToJson,
     })
 
-    sinon.stub(ApiPromise, "create").resolves(mockApiPromise)
+    sinon.stub(ApiPromise, "create").resolves(mockApiPromise as unknown as ApiPromise)
   })
 
   afterEach(() => {

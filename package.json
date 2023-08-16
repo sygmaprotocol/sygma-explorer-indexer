@@ -16,7 +16,7 @@
     "prisma:generate": "prisma generate",
     "lint": "yarn run lint:style && yarn run lint:types",
     "lint:fix": "yarn run lint:style --fix && yarn run lint:types",
-    "lint:style": "eslint --color --ext .ts src/ ",
+    "lint:style": "eslint --color --ext .ts src/ tests/",
     "lint:types": "tsc --noEmit --pretty",
     "start": "docker-compose -f docker-compose.yml up --build",
     "start:stub": "docker-compose -f docker-compose.stub.yml up"
