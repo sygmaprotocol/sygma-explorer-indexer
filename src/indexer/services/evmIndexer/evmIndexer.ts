@@ -9,6 +9,7 @@ import ExecutionRepository from "../../repository/execution"
 import DomainRepository from "../../repository/domain"
 import FeeRepository from "../../repository/fee"
 import { logger } from "../../../utils/logger"
+import AccountRepository from "../../repository/account"
 import { getLogs } from "./evmfilter"
 import { decodeLogs } from "./evmEventParser"
 import { OfacComplianceService } from "./ofac"
@@ -30,6 +31,7 @@ export class EvmIndexer {
   private resourceMap: Map<string, EvmResource>
   private stopped = false
   private ofacComplianceService: OfacComplianceService
+  private accountRepository: AccountRepository
 
   constructor(
     domain: Domain,
@@ -41,6 +43,7 @@ export class EvmIndexer {
     executionRepository: ExecutionRepository,
     feeRepository: FeeRepository,
     ofacComplianceService: OfacComplianceService,
+    accountRepository: AccountRepository,
   ) {
     this.provider = new ethers.JsonRpcProvider(rpcURL)
     this.domainRepository = domainRepository
@@ -53,6 +56,7 @@ export class EvmIndexer {
     this.domains = domains
     this.resourceMap = new Map<string, EvmResource>()
     domain.resources.map((resource: EvmResource) => this.resourceMap.set(resource.resourceId, resource))
+    this.accountRepository = accountRepository
   }
 
   public stop(): void {
@@ -101,11 +105,12 @@ export class EvmIndexer {
 
     logger.info(`Found past events on ${this.domain.name} in block range [${startBlock}-${endBlock}]`)
     const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap, this.domains)
+    console.log("🚀 ~ file: evmIndexer.ts:104 ~ EvmIndexer ~ saveEvents ~ decodedLogs:", decodedLogs)
 
     const transferMap = new Map<string, string>()
     await Promise.all(
       decodedLogs.deposit.map(async decodedLog =>
-        saveDepositLogs(decodedLog, this.transferRepository, this.depositRepository, transferMap, this.ofacComplianceService),
+        saveDepositLogs(decodedLog, this.transferRepository, this.depositRepository, transferMap, this.ofacComplianceService, this.accountRepository),
       ),
     )
 

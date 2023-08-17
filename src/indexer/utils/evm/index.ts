@@ -19,6 +19,7 @@ import { ObjectId } from "mongodb"
 import { TransferStatus } from "@prisma/client"
 import { MultiLocation } from "@polkadot/types/interfaces"
 import { ApiPromise, WsProvider } from "@polkadot/api"
+import AccountRepository from "../../repository/account"
 import TransferRepository from "../../repository/transfer"
 import DepositRepository from "../../repository/deposit"
 import { logger } from "../../../utils/logger"
@@ -248,15 +249,22 @@ export async function saveDepositLogs(
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
   ofacComplianceService: OfacComplianceService,
+  accountRepository: AccountRepository,
 ): Promise<void> {
   let transfer = await transferRepository.findTransfer(decodedLog.depositNonce, Number(decodedLog.fromDomainId), Number(decodedLog.toDomainId))
 
   const { sender } = decodedLog
 
   const senderStatus = await ofacComplianceService.checkSanctionedAddress(sender)
+  console.log("decoded log", decodedLog)
+
+  await accountRepository.insertAccount({
+    id: decodedLog.sender,
+    addressStatus: senderStatus,
+  })
 
   if (!transfer) {
-    transfer = await transferRepository.insertDepositTransfer(decodedLog, senderStatus)
+    transfer = await transferRepository.insertDepositTransfer(decodedLog)
   } else {
     const dataToSave = {
       ...decodedLog,
