@@ -84,6 +84,7 @@ async function init(): Promise<Array<DomainIndexer>> {
         const evmIndexer = new EvmIndexer(
           domain,
           rpcURL,
+          domainsToIndex,
           domainRepository,
           depositRepository,
           transferRepository,

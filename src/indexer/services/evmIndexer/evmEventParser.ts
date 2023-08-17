@@ -6,7 +6,13 @@ import { DecodedLogs } from "./evmTypes"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
 
-export async function decodeLogs(provider: Provider, domain: Domain, logs: Log[], resourceMap: Map<string, EvmResource>): Promise<DecodedLogs> {
+export async function decodeLogs(
+  provider: Provider,
+  domain: Domain,
+  logs: Log[],
+  resourceMap: Map<string, EvmResource>,
+  domains: Domain[],
+): Promise<DecodedLogs> {
   const decodedLogs: DecodedLogs = {
     deposit: [],
     proposalExecution: [],
@@ -16,7 +22,7 @@ export async function decodeLogs(provider: Provider, domain: Domain, logs: Log[]
   await Promise.all(
     logs.map(async log => {
       try {
-        await getDecodedLogs(log, provider, domain, resourceMap, decodedLogs)
+        await getDecodedLogs(log, provider, domain, resourceMap, decodedLogs, domains)
       } catch (e) {
         logger.error(e)
       }
