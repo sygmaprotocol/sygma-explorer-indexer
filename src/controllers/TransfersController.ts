@@ -3,9 +3,15 @@ import { ITransfer, ITransferById, ITransferBySender } from "../Interfaces"
 import { logger } from "../utils/logger"
 
 import TransfersService from "../services/transfers.service"
+import CoinMarketCapService from "../services/coinmarketcap.service"
 import { NotFound } from "../utils/helpers"
 
 const transfersService = new TransfersService()
+const coinMarketCapServiceInstance = new CoinMarketCapService(
+  process.env.COINMARKETCAP_API_KEY as string,
+  process.env.COINMARKETCAP_API_URL as string,
+  JSON.parse(process.env.TOKEN_SYMBOLS!) as Array<{ id: number; symbol: string }>,
+)
 
 export const TransfersController = {
   transfers: async function (request: FastifyRequest<{ Querystring: ITransfer }>, reply: FastifyReply): Promise<void> {
@@ -20,7 +26,9 @@ export const TransfersController = {
         status,
       })
 
-      void reply.status(200).send(transfersResult)
+      const transfersWithValue = await coinMarketCapServiceInstance.appendConvertedAmountValueToTransfers(transfersResult)
+
+      void reply.status(200).send(transfersWithValue)
     } catch (e) {
       logger.error(e)
       void reply.status(500)
