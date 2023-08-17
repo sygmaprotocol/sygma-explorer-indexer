@@ -219,7 +219,7 @@ export async function saveDepositLogs(
       ...decodedLog,
       timestamp: decodedLog.timestamp * 1000,
     }
-    await transferRepository.updateTransfer(dataToSave, transfer.id, transfer.accountId!)
+    await transferRepository.updateTransfer(dataToSave, transfer.id)
   }
 
   const deposit = {

@@ -191,14 +191,14 @@ class TransferRepository {
       fromDomainId,
       toDomainId,
       timestamp,
+      sender,
     }: Pick<
       DecodedDepositLog,
-      "depositNonce" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp" | "senderStatus"
+      "depositNonce" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp" | "senderStatus" | "sender"
     >,
     id: string,
-    accountId?: string,
   ): Promise<Transfer> {
-    let transferData = {
+    const transferData = {
       depositNonce: depositNonce,
       amount: amount,
       destination: destination,
@@ -217,19 +217,13 @@ class TransferRepository {
           id: Number(toDomainId),
         },
       },
-      timestamp: new Date(timestamp),
-    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "timestamp" | "account">
-
-    if (accountId) {
-      transferData = {
-        ...transferData,
-        account: {
-          connect: {
-            id: accountId,
-          },
+      account: {
+        connect: {
+          id: sender,
         },
-      }
-    }
+      },
+      timestamp: new Date(timestamp),
+    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account" | "timestamp">
 
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }

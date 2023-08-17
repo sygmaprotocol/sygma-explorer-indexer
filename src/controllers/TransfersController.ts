@@ -53,7 +53,7 @@ export const TransfersController = {
     } = request
 
     try {
-      const transfer = await transfersService.findTransferByFilterParams({ page, limit, status, sender: senderAddress })
+      const transfer = await transfersService.findTransferByAccountAddress({ page, limit, status, sender: senderAddress })
 
       void reply.status(200).send(transfer)
     } catch (e) {

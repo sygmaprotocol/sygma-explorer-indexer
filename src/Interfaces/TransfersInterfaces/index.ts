@@ -60,7 +60,6 @@ export type IncludedQueryParams = {
     }
     account: {
       select: {
-        address: boolean
         addressStatus: boolean
       }
     }

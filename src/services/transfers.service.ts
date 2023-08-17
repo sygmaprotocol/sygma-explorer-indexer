@@ -69,23 +69,39 @@ class TransfersService {
   }
 
   public async findTransferByFilterParams(args: TransfersByCursorOptions): Promise<Transfer[]> {
-    const { page, limit, status, sender } = args
+    const { page, limit, status } = args
 
     const queryParams = this.prepareQueryParams({ page, limit, status })
     const { skip, take, where } = queryParams
 
-    let whereToUse = { ...where } as { [key: string]: string | { [key: string]: string } | undefined }
-
-    if (sender) {
-      whereToUse = {
-        account: {
-          address: sender,
+    const transfers = await this.transfers.findMany({
+      where,
+      take,
+      skip,
+      orderBy: [
+        {
+          timestamp: "desc",
         },
-      }
-    }
+      ],
+      include: {
+        ...getTransferQueryParams().include,
+      },
+    })
+
+    return transfers
+  }
+
+  public async findTransferByAccountAddress(args: TransfersByCursorOptions): Promise<Transfer[]> {
+    const { page, limit, status, sender } = args
+    const queryParams = this.prepareQueryParams({ page, limit, status })
+    const { skip, take } = queryParams
 
     const transfers = await this.transfers.findMany({
-      where: whereToUse,
+      where: {
+        account: {
+          id: sender,
+        },
+      },
       take,
       skip,
       orderBy: [

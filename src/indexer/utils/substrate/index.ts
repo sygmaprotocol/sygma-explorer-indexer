@@ -122,6 +122,7 @@ export async function saveDeposit(
       toDomainId: destinationDomainId,
       timestamp: timestamp,
       destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
+      sender: transfer.accountId!,
     }
     await transferRepository.updateTransfer(dataTransferToUpdate, transfer.id)
   } else {
