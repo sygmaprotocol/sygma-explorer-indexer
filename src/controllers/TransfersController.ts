@@ -39,7 +39,15 @@ export const TransfersController = {
 
     try {
       const transfer = await transfersService.findTransferById({ id })
-      void reply.status(200).send(transfer)
+
+      const { amount, toDomainId } = transfer
+
+      if (amount !== null && toDomainId !== null) {
+        const convertedValue = await coinMarketCapServiceInstance.appendConvertedAmountValueToTransfer(amount, toDomainId)
+        void reply.status(200).send({ ...transfer, convertedValue })
+      } else {
+        void reply.status(200).send(transfer)
+      }
     } catch (e) {
       if (e instanceof NotFound) {
         void reply.status(404)
@@ -61,9 +69,11 @@ export const TransfersController = {
     } = request
 
     try {
-      const transfer = await transfersService.findTransferByFilterParams({ page, limit, status, sender: senderAddress })
+      const transfers = await transfersService.findTransferByFilterParams({ page, limit, status, sender: senderAddress })
 
-      void reply.status(200).send(transfer)
+      const transfersWithValue = await coinMarketCapServiceInstance.appendConvertedAmountValueToTransfers(transfers)
+
+      void reply.status(200).send(transfersWithValue)
     } catch (e) {
       logger.error(e)
       void reply.status(500)

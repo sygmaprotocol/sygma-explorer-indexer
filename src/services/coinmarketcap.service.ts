@@ -25,8 +25,9 @@ class CoinMarketCapService {
     this.tokenSymbols = TOKEN_SYMBOLS
   }
 
-  private async getValueConvertion(amount: string, symbol: string): Promise<CoinMaketCapResponse> {
-    const url = `${this.coinMarketCapUrl}/v1/tools/price-conversion?amount=${amount}&symbol=${symbol}&convert=USD`
+  private async getValueConvertion(amount: string, toDomainId: number | null): Promise<CoinMaketCapResponse["quote"]> {
+    const symbol = this.tokenSymbols.find(token => token.id === toDomainId)?.symbol
+    const url = `${this.coinMarketCapUrl}/v1/tools/price-conversion?amount=${amount}&symbol=${symbol!}&convert=USD`
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -34,24 +35,27 @@ class CoinMarketCapService {
       },
     })
     const { data } = (await response.json()) as { data: CoinMaketCapResponse }
-    return data
+    return data.quote
   }
 
   public async appendConvertedAmountValueToTransfers(transfers: Transfer[]): Promise<Array<Transfer & { convertedValue: number | null }>> {
-    const transfersWithConvertedValue2: Array<Transfer & { convertedValue: number | null }> = []
+    const transfersWithConvertedValue: Array<Transfer & { convertedValue: number | null }> = []
     for await (const transfer of transfers) {
       const { amount, toDomainId } = transfer
-      if (amount !== null) {
-        const symbol = this.tokenSymbols.find(token => token.id === toDomainId)?.symbol
-        const data = await this.getValueConvertion(amount, symbol!)
-        const convertedValue = data.quote.USD.price
-        transfersWithConvertedValue2.push({ ...transfer, convertedValue: convertedValue })
+      if (amount !== null && toDomainId !== null) {
+        const data = await this.getValueConvertion(amount, toDomainId)
+        transfersWithConvertedValue.push({ ...transfer, convertedValue: data.USD.price })
       } else {
-        transfersWithConvertedValue2.push({ ...transfer, convertedValue: null })
+        transfersWithConvertedValue.push({ ...transfer, convertedValue: null })
       }
     }
 
-    return transfersWithConvertedValue2
+    return transfersWithConvertedValue
+  }
+
+  public async appendConvertedAmountValueToTransfer(amount: string, toDomainId: number | null): Promise<number> {
+    const data = await this.getValueConvertion(amount, toDomainId)
+    return data.USD.price
   }
 }
 
