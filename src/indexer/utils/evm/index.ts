@@ -268,17 +268,10 @@ export async function saveDepositLogs(
     transferId: transfer.id,
   }
   await depositRepository.insertDeposit(deposit)
-<<<<<<< HEAD
-
-  console.log("settransfermap")
-=======
->>>>>>> 3879179031e6eb14b851a56311e3457280d6bd79
   transferMap.set(decodedLog.txHash, transfer.id)
 }
 
 export async function saveFeeLogs(fee: DecodedFeeCollectedLog, transferMap: Map<string, string>, feeRepository: FeeRepository): Promise<void> {
-  console.log("transfermap")
-  console.log(transferMap)
   const feeData = {
     id: new ObjectId().toString(),
     transferId: transferMap.get(fee.txHash) || "",

@@ -15,7 +15,8 @@ const FUNGIBLE_EVM_DEPOSIT_TXHASH = "0x1e33c8969f943ce9e12b56937b97109a3d394b0b0
 const NONFUNGIBLE_EVM_DEPOSIT_TXHASH = "0x7b7c2be6b60c25a1be9f506fdd75e1aab76d3016f0bc708715405f2e6718c6df"
 const PERMISSIONLESS_GENERIC_EVM_DEPOSIT_TXHASH = "0x18fa527a4773789a5ba487dae5bc3d00cc04dc50509b6f67e438efdb60e75c67"
 const PERMISSIONED_GENERIC_EVM_DEPOSIT_TXHASH = "0x44b9ac0bbd9052b8468aae63620ee9babff498ace3092babca2994097344b516"
-const FUNGIBLE_SUBSTRATE_DEPOSIT_TXHASH = "356-1"
+const FUNGIBLE_SUBSTRATE_TO_EVM_DEPOSIT_TXHASH = "356-1"
+const FUNGIBLE_EVM_TO_SUBSTRATE_DEPOSIT = "0xdae4f76d4cb634ca175996bb85d76e82f476cc91f71332bdba967f066d9efc16"
 
 type TransferResponse = Transfer & {
   resource: Resource
@@ -52,7 +53,7 @@ describe("Indexer e2e tests", function () {
   it("Should succesfully fetch all transfers", async () => {
     const res = await axios.get("http://localhost:8000/api/transfers?page=1&limit=100")
     const transfers = res.data as Array<TransferResponse>
-    
+
     for (const transfer of transfers) {
       if (transfer.fromDomain.name.toLowerCase() == DomainTypes.SUBSTRATE) {
         substrateDeposits++
@@ -103,9 +104,9 @@ describe("Indexer e2e tests", function () {
   })
   it("should succesfully fetch evm fungible transfer", async () => {
     const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_EVM_DEPOSIT_TXHASH}?`)
-    const transfers = res.data
-    expect(transfers).to.be.deep.equal({
-      id: "64dc7f1385620c9d64a17a55",
+    const transfer = res.data as TransferResponse
+    expect(transfer).to.be.deep.equal({
+      id: transfer.id,
       depositNonce: 30,
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
       fromDomainId: 1,
@@ -119,8 +120,8 @@ describe("Indexer e2e tests", function () {
         type: "fungible",
         id: "0x0000000000000000000000000000000000000000000000000000000000000300",
       },
-      toDomain: { name: "evm2", lastIndexedBlock: transfers.toDomain.lastIndexedBlock, id: 2 },
-      fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfers.fromDomain.lastIndexedBlock, id: 1 },
+      toDomain: { name: "evm2", lastIndexedBlock: transfer.toDomain.lastIndexedBlock, id: 2 },
+      fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 1 },
       fee: {
         amount: "1000000000000000",
         tokenAddress: "0x0000000000000000000000000000000000000000",
@@ -143,10 +144,9 @@ describe("Indexer e2e tests", function () {
 
   it("should succesfully fetch evm nonfungible transfer", async () => {
     const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${NONFUNGIBLE_EVM_DEPOSIT_TXHASH}?`)
-    const transfers = res.data
-    console.log("1")
-    expect(transfers).to.be.deep.equal({
-      id: "64dc7f1085620c9d64a179ea",
+    const transfer = res.data as TransferResponse
+    expect(transfer).to.be.deep.equal({
+      id: transfer.id,
       depositNonce: 2,
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000200",
       fromDomainId: 1,
@@ -160,8 +160,8 @@ describe("Indexer e2e tests", function () {
         type: "nonfungible",
         id: "0x0000000000000000000000000000000000000000000000000000000000000200",
       },
-      toDomain: { name: "evm2", lastIndexedBlock: transfers.toDomain.lastIndexedBlock, id: 2 },
-      fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfers.fromDomain.lastIndexedBlock, id: 1 },
+      toDomain: { name: "evm2", lastIndexedBlock: transfer.toDomain.lastIndexedBlock, id: 2 },
+      fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 1 },
       fee: {
         amount: "1000000000000000",
         tokenAddress: "0x0000000000000000000000000000000000000000",
@@ -184,10 +184,9 @@ describe("Indexer e2e tests", function () {
 
   it("should succesfully fetch evm permissionless generic transfer", async () => {
     const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${PERMISSIONLESS_GENERIC_EVM_DEPOSIT_TXHASH}?`)
-    const transfers = res.data
-    console.log("2")
-    expect(transfers).to.be.deep.equal({
-      id: "64dc7f1385620c9d64a17a47",
+    const transfer = res.data as TransferResponse
+    expect(transfer).to.be.deep.equal({
+      id: transfer.id,
       depositNonce: 29,
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000500",
       fromDomainId: 1,
@@ -202,8 +201,8 @@ describe("Indexer e2e tests", function () {
         type: "permissionlessGeneric",
         id: "0x0000000000000000000000000000000000000000000000000000000000000500",
       },
-      toDomain: { name: "evm2", lastIndexedBlock: transfers.toDomain.lastIndexedBlock, id: 2 },
-      fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfers.fromDomain.lastIndexedBlock, id: 1 },
+      toDomain: { name: "evm2", lastIndexedBlock: transfer.toDomain.lastIndexedBlock, id: 2 },
+      fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 1 },
       fee: {
         amount: "1000000000000000",
         tokenAddress: "0x0000000000000000000000000000000000000000",
@@ -226,10 +225,9 @@ describe("Indexer e2e tests", function () {
 
   it("should succesfully fetch evm permissioned generic transfer", async () => {
     const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${PERMISSIONED_GENERIC_EVM_DEPOSIT_TXHASH}?`)
-    const transfers = res.data
-    console.log("3")
-    expect(transfers).to.be.deep.equal({
-      id: "64dc7f1185620c9d64a179ed",
+    const transfer = res.data as TransferResponse
+    expect(transfer).to.be.deep.equal({
+      id: transfer.id,
       depositNonce: 3,
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000100",
       fromDomainId: 1,
@@ -243,8 +241,8 @@ describe("Indexer e2e tests", function () {
         type: "permissionedGeneric",
         id: "0x0000000000000000000000000000000000000000000000000000000000000100",
       },
-      toDomain: { name: "evm2", lastIndexedBlock: transfers.toDomain.lastIndexedBlock, id: 2 },
-      fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfers.fromDomain.lastIndexedBlock, id: 1 },
+      toDomain: { name: "evm2", lastIndexedBlock: transfer.toDomain.lastIndexedBlock, id: 2 },
+      fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 1 },
       fee: {
         amount: "1000000000000000",
         tokenAddress: "0x0000000000000000000000000000000000000000",
@@ -265,12 +263,11 @@ describe("Indexer e2e tests", function () {
     })
   })
 
-  it("should succesfully fetch substrate fungible transfer", async () => {
-    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_SUBSTRATE_DEPOSIT_TXHASH}?`)
-    const transfers = res.data
-    console.log("4")
-    expect(transfers).to.be.deep.equal({
-      id: "64dc7f0485620c9d64a179d9",
+  it("should succesfully fetch substrate to evm fungible transfer", async () => {
+    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_SUBSTRATE_TO_EVM_DEPOSIT_TXHASH}?`)
+    const transfer = res.data as TransferResponse
+    expect(transfer).to.be.deep.equal({
+      id: transfer.id,
       depositNonce: 2,
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
       fromDomainId: 3,
@@ -284,8 +281,8 @@ describe("Indexer e2e tests", function () {
         type: "fungible",
         id: "0x0000000000000000000000000000000000000000000000000000000000000300",
       },
-      toDomain: { name: "Ethereum 1", lastIndexedBlock: transfers.toDomain.lastIndexedBlock, id: 1 },
-      fromDomain: { name: "Substrate", lastIndexedBlock: transfers.fromDomain.lastIndexedBlock, id: 3 },
+      toDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.toDomain.lastIndexedBlock, id: 1 },
+      fromDomain: { name: "Substrate", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 3 },
       fee: null,
       deposit: {
         txHash: "356-1",
@@ -299,6 +296,42 @@ describe("Indexer e2e tests", function () {
         blockNumber: "548",
         type: "",
       },
+    })
+  })
+
+  it("should succesfully fetch evm to substrate fungible transfer", async () => {
+    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_EVM_TO_SUBSTRATE_DEPOSIT}?`)
+    const transfer = res.data as TransferResponse
+    expect(transfer).to.be.deep.equal({
+      id: transfer.id,
+      depositNonce: 2,
+      resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
+      fromDomainId: 1,
+      toDomainId: 3,
+      sender: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
+      destination: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+      amount: "0.0001",
+      timestamp: "2023-07-17T08:28:51.000Z",
+      status: "executed",
+      resource: {
+        type: "fungible",
+        id: "0x0000000000000000000000000000000000000000000000000000000000000300",
+      },
+      toDomain: { name: "Substrate", lastIndexedBlock: transfer.toDomain.lastIndexedBlock, id: 3 },
+      fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 1 },
+      fee: {
+        amount: "1000000000000000",
+        tokenAddress: "0x0000000000000000000000000000000000000000",
+        tokenSymbol: "eth",
+      },
+      deposit: {
+        txHash: "0xdae4f76d4cb634ca175996bb85d76e82f476cc91f71332bdba967f066d9efc16",
+        blockNumber: "516",
+        depositData:
+          "0x00000000000000000000000000000000000000000000000000005af3107a4000000000000000000000000000000000000000000000000000000000000000002400010100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
+        handlerResponse: "0x",
+      },
+      execution: { txHash: "355-1", blockNumber: "355", type: "fungible" },
     })
   })
 })

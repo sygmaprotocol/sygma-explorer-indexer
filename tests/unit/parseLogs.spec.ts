@@ -1,18 +1,9 @@
 import { expect } from "chai"
 import sinon from "sinon"
-<<<<<<< HEAD
-import { Domain, DomainTypes } from "../../src/indexer/config"
-import { parseDestination } from "../../src/indexer/utils/evm"
-
-const ApiPromise = require("@polkadot/api").ApiPromise
-const WsProvider = require("@polkadot/api").WsProvider
-
-=======
 import { ApiPromise, WsProvider } from "@polkadot/api"
 import { Domain, DomainTypes } from "../../src/indexer/config"
 import { parseDestination } from "../../src/indexer/utils/evm"
 
->>>>>>> 3879179031e6eb14b851a56311e3457280d6bd79
 describe("Events parser", function () {
   const mockToJson = sinon.stub()
   beforeEach(() => {
@@ -25,11 +16,7 @@ describe("Events parser", function () {
       toJSON: mockToJson,
     })
 
-<<<<<<< HEAD
-    sinon.stub(ApiPromise, "create").resolves(mockApiPromise)
-=======
     sinon.stub(ApiPromise, "create").resolves(mockApiPromise as unknown as ApiPromise)
->>>>>>> 3879179031e6eb14b851a56311e3457280d6bd79
   })
 
   afterEach(() => {
