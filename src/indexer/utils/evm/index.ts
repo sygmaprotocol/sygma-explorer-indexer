@@ -1,16 +1,4 @@
-import {
-  BytesLike,
-  Contract,
-  Log,
-  LogDescription,
-  Provider,
-  TransactionReceipt,
-  getBytes,
-  hexlify,
-  AbiCoder,
-  formatUnits,
-  BigNumberish,
-} from "ethers"
+import { BytesLike, Contract, Log, LogDescription, Provider, TransactionReceipt, getBytes, AbiCoder, formatUnits, BigNumberish } from "ethers"
 import BasicFeeHandlerContract from "@buildwithsygma/sygma-contracts/build/contracts/BasicFeeHandler.json"
 import DynamicERC20FeeHandlerEVM from "@buildwithsygma/sygma-contracts/build/contracts/DynamicERC20FeeHandlerEVM.json"
 import Bridge from "@buildwithsygma/sygma-contracts/build/contracts/Bridge.json"
@@ -137,30 +125,24 @@ export async function parseDeposit(
 
 export async function parseDestination(hexData: BytesLike, domain: Domain): Promise<string> {
   const arrayifyData = getBytes(hexData)
+  const recipientlen = Number("0x" + Buffer.from(arrayifyData.slice(32, 64)).toString("hex"))
+  const recipient = "0x" + Buffer.from(arrayifyData.slice(64, 64 + recipientlen)).toString("hex")
 
   let destination = ""
   if (domain.type == DomainTypes.EVM) {
-    destination = parseEvmDestination(arrayifyData)
+    destination = recipient
   } else if (domain.type == DomainTypes.SUBSTRATE) {
-    destination = await parseSubstrateDestination(arrayifyData, domain)
+    destination = await parseSubstrateDestination(recipient, domain)
   }
   return destination
 }
 
-function parseEvmDestination(bytes: Uint8Array): string {
-  const filtered = bytes.filter((_, idx) => idx + 1 > 65)
-  return hexlify(filtered)
-}
-
-async function parseSubstrateDestination(bytes: Uint8Array, domain: Domain): Promise<string> {
+async function parseSubstrateDestination(recipient: string, domain: Domain): Promise<string> {
   const rpcUrlConfig = getSsmDomainConfig()
   const wsProvider = new WsProvider(rpcUrlConfig.get(domain.id))
   const api = await ApiPromise.create({
     provider: wsProvider,
   })
-  const recipientlen = Number("0x" + Buffer.from(bytes.slice(32, 64)).toString("hex"))
-
-  const recipient = "0x" + Buffer.from(bytes.slice(64, 64 + recipientlen)).toString("hex")
 
   const decodedData = api.createType("MultiLocation", recipient)
   const multiAddress = decodedData.toJSON() as unknown as MultiLocation
