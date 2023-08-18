@@ -26,6 +26,7 @@ import {
 import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes"
 import { Domain, SubstrateResource } from "../../../indexer/config"
 import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser"
+import AccountRepository from "../../repository/account"
 
 export async function saveProposalExecution(
   proposalExecutionData: ProposalExecutionDataToSave,
@@ -98,6 +99,7 @@ export async function saveDeposit(
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
+  accountRepository: AccountRepository,
 ): Promise<void> {
   const {
     destDomainId: destinationDomainId,
@@ -137,6 +139,9 @@ export async function saveDeposit(
       timestamp: timestamp,
       destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
     } as Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp">
+
+    await accountRepository.insertAccount({ id: sender, addressStatus: "" })
+
     transfer = await transferRepository.insertSubstrateDepositTransfer(transferData)
   }
 

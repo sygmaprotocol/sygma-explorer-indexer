@@ -96,7 +96,6 @@ class TransferRepository {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: substrateDepositData.depositNonce,
-      sender: substrateDepositData.sender,
       amount: substrateDepositData.amount,
       destination: substrateDepositData.destination,
       status: TransferStatus.pending,
@@ -116,6 +115,11 @@ class TransferRepository {
         },
       },
       timestamp: new Date(substrateDepositData.timestamp),
+      account: {
+        connect: {
+          id: substrateDepositData.sender,
+        },
+      },
     }
 
     return await this.transfer.create({ data: transferData })
