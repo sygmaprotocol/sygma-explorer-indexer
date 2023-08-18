@@ -74,6 +74,7 @@ async function init(): Promise<Array<DomainIndexer>> {
           transferRepository,
           feeRepository,
           resourceMap,
+          accountRepository,
         )
         await substrateIndexer.init(rpcURL)
         domainIndexers.push(substrateIndexer)

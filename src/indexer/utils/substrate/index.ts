@@ -191,6 +191,7 @@ export async function saveEvents(
   depositRepository: DepositRepository,
   feeRepository: FeeRepository,
   resourceMap: Map<string, SubstrateResource>,
+  accountRepository: AccountRepository,
 ): Promise<void> {
   const at = await provider.at(blockHash)
   const timestamp = Number((await at.query.timestamp.now()).toString())
@@ -245,6 +246,7 @@ export async function saveEvents(
       transferRepository,
       depositRepository,
       transferMap,
+      accountRepository,
     )
   }
 
@@ -312,11 +314,12 @@ export async function saveDepositToDb(
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
+  accountRepository: AccountRepository,
 ): Promise<void> {
   logger.info(`Saving deposit. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
   try {
-    await saveDeposit(domain.id, depositData, transferRepository, depositRepository, transferMap)
+    await saveDeposit(domain.id, depositData, transferRepository, depositRepository, transferMap, accountRepository)
   } catch (error) {
     logger.error("Error saving substrate deposit:", error)
   }
