@@ -11,6 +11,10 @@ type ChainAnalysisResponse = {
   identifications: Array<ChainAnalysisIdentIfication> | []
 }
 
+enum AddressStatus {
+  OFAC = "ofac",
+}
+
 export class OfacComplianceService {
   private chainAnalisysUrl: string
   private chainAnalisysApiKey: string
@@ -29,6 +33,6 @@ export class OfacComplianceService {
       },
     })
     const data = (await response.json()) as ChainAnalysisResponse
-    return data.identifications.length ? "ofac" : ""
+    return data.identifications.length ? AddressStatus.OFAC : ""
   }
 }
