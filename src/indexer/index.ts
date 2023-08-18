@@ -11,6 +11,7 @@ import FeeRepository from "./repository/fee"
 import ResourceRepository from "./repository/resource"
 import { healthcheckRoute } from "./healthcheck"
 import { OfacComplianceService } from "./services/evmIndexer/ofac"
+import AccountRepository from "./repository/account"
 
 interface DomainIndexer {
   listenToEvents(): Promise<void>
@@ -47,6 +48,7 @@ async function init(): Promise<Array<DomainIndexer>> {
   const executionRepository = new ExecutionRepository()
   const feeRepository = new FeeRepository()
   const resourceRepository = new ResourceRepository()
+  const accountRepository = new AccountRepository()
 
   healthcheckRoute()
   const resourceMap = await insertDomains(sharedConfig.domains, resourceRepository, domainRepository)
@@ -91,6 +93,7 @@ async function init(): Promise<Array<DomainIndexer>> {
           executionRepository,
           feeRepository,
           ofacComplianceService,
+          accountRepository,
         )
         domainIndexers.push(evmIndexer)
       } catch (err) {
