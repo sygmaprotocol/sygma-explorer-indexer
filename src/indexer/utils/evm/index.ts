@@ -256,7 +256,6 @@ export async function saveDepositLogs(
   const { sender } = decodedLog
 
   const senderStatus = await ofacComplianceService.checkSanctionedAddress(sender)
-  console.log("decoded log", decodedLog)
 
   await accountRepository.insertAccount({
     id: decodedLog.sender,

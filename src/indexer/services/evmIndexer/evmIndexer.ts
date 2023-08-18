@@ -105,7 +105,6 @@ export class EvmIndexer {
 
     logger.info(`Found past events on ${this.domain.name} in block range [${startBlock}-${endBlock}]`)
     const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap, this.domains)
-    console.log("🚀 ~ file: evmIndexer.ts:104 ~ EvmIndexer ~ saveEvents ~ decodedLogs:", decodedLogs)
 
     const transferMap = new Map<string, string>()
     await Promise.all(
