@@ -27,7 +27,7 @@ model Transfer {
   deposit         Deposit?
   execution       Execution?
   fee             Fee?
-  convertedAmount Float?
+  usdValue Float?
 
   @@unique(fields: [depositNonce, fromDomainId, toDomainId], name: "transferId")
 }

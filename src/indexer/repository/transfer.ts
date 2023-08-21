@@ -31,7 +31,7 @@ export type TransferMetadataeta = {
 class TransferRepository {
   public transfer = new PrismaClient().transfer
 
-  public async insertDepositTransfer(decodedLog: DecodedDepositLog & { convertedAmount: number }): Promise<Transfer> {
+  public async insertDepositTransfer(decodedLog: DecodedDepositLog & { usdValue: number }): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: decodedLog.depositNonce,
@@ -55,7 +55,7 @@ class TransferRepository {
         },
       },
       timestamp: new Date(decodedLog.timestamp * 1000), // this is only being used by evm service
-      convertedAmount: decodedLog.convertedAmount,
+      usdValue: decodedLog.usdValue,
     }
     return await this.transfer.create({ data: transferData })
   }
@@ -64,7 +64,7 @@ class TransferRepository {
     substrateDepositData: Pick<
       DecodedDepositLog,
       "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp"
-    > & { convertedAmount: number },
+    > & { usdValue: number },
   ): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
@@ -89,7 +89,7 @@ class TransferRepository {
         },
       },
       timestamp: new Date(substrateDepositData.timestamp),
-      convertedAmount: substrateDepositData.convertedAmount,
+      usdValue: substrateDepositData.usdValue,
     }
 
     return await this.transfer.create({ data: transferData })

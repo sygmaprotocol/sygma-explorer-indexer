@@ -129,7 +129,7 @@ export async function saveDeposit(
       toDomainId: destinationDomainId,
       timestamp: timestamp,
       destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
-      convertedAmount: amountInUSD,
+      usdValue: amountInUSD,
     }
     await transferRepository.updateTransfer(dataTransferToUpdate, transfer.id)
   } else {
@@ -143,11 +143,11 @@ export async function saveDeposit(
       toDomainId: `${destinationDomainId}`,
       timestamp: timestamp,
       destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
-      convertedAmount: amountInUSD,
+      usdValue: amountInUSD,
     } as Pick<
       DecodedDepositLog,
       "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp"
-    > & { convertedAmount: number }
+    > & { usdValue: number }
     transfer = await transferRepository.insertSubstrateDepositTransfer(transferData)
   }
 

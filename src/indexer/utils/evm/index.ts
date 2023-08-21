@@ -254,7 +254,7 @@ export async function saveDepositLogs(
     const { amount, fromDomainId } = decodedLog
     const amountInUSD = await coinMarketCapService.getPriceInUSD(amount, parseInt(fromDomainId))
 
-    transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, convertedAmount: amountInUSD })
+    transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, usdValue: amountInUSD })
   } else {
     const dataToSave = {
       ...decodedLog,
