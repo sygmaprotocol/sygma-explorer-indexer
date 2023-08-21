@@ -1,4 +1,4 @@
-import { Domain, EvmResource } from "indexer/config"
+import { Domain, EvmResource, SharedConfig } from "indexer/config"
 import { ethers } from "ethers"
 
 import { sleep } from "../../utils/substrate"
@@ -30,6 +30,7 @@ export class EvmIndexer {
   private resourceMap: Map<string, EvmResource>
   private stopped = false
   private coinMarketCapService: CoinMarketCapService
+  private sharedConfig: SharedConfig
 
   constructor(
     domain: Domain,
@@ -41,6 +42,7 @@ export class EvmIndexer {
     executionRepository: ExecutionRepository,
     feeRepository: FeeRepository,
     coinMarketCapServiceInstance: CoinMarketCapService,
+    sharedConfig: SharedConfig,
   ) {
     this.provider = new ethers.JsonRpcProvider(rpcURL)
     this.domainRepository = domainRepository
@@ -53,6 +55,7 @@ export class EvmIndexer {
     this.resourceMap = new Map<string, EvmResource>()
     domain.resources.map((resource: EvmResource) => this.resourceMap.set(resource.resourceId, resource))
     this.coinMarketCapService = coinMarketCapServiceInstance
+    this.sharedConfig = sharedConfig
   }
 
   public stop(): void {
@@ -105,7 +108,7 @@ export class EvmIndexer {
     const transferMap = new Map<string, string>()
     await Promise.all(
       decodedLogs.deposit.map(async decodedLog =>
-        saveDepositLogs(decodedLog, this.transferRepository, this.depositRepository, transferMap, this.coinMarketCapService),
+        saveDepositLogs(decodedLog, this.transferRepository, this.depositRepository, transferMap, this.coinMarketCapService, this.sharedConfig),
       ),
     )
 

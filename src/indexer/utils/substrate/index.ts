@@ -24,7 +24,7 @@ import {
   SygmaPalleteEvents,
 } from "../../services/substrateIndexer/substrateTypes"
 import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes"
-import { Domain, SubstrateResource } from "../../../indexer/config"
+import { Domain, SharedConfig, SubstrateResource } from "../../../indexer/config"
 import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser"
 import CoinMarketCapService from "../../../indexer/services/coinmarketcap/coinmarketcap.service"
 
@@ -100,6 +100,7 @@ export async function saveDeposit(
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
   coinMakerCapService: CoinMarketCapService,
+  sharedConfig: SharedConfig,
 ): Promise<void> {
   const {
     destDomainId: destinationDomainId,
@@ -113,11 +114,15 @@ export async function saveDeposit(
     timestamp,
   } = substrateDepositData
 
+  const currentDomain = sharedConfig.domains.find(domain => domain.id === originDomainId)
+
+  const tokenSymbol = currentDomain?.resources.find(resource => resource.resourceId === resourceId)?.symbol
+
   const decodedAmount = getDecodedAmount(depositData)
 
   let transfer = await transferRepository.findTransfer(Number(depositNonce), originDomainId, Number(destinationDomainId))
 
-  const amountInUSD = await coinMakerCapService.getPriceInUSD(decodedAmount, originDomainId)
+  const amountInUSD = await coinMakerCapService.getValueInUSD(decodedAmount, tokenSymbol!)
 
   if (transfer) {
     const dataTransferToUpdate = {
@@ -198,6 +203,7 @@ export async function saveEvents(
   feeRepository: FeeRepository,
   resourceMap: Map<string, SubstrateResource>,
   coinMakerCapService: CoinMarketCapService,
+  sharedConfig: SharedConfig,
 ): Promise<void> {
   const at = await provider.at(blockHash)
   const timestamp = Number((await at.query.timestamp.now()).toString())
@@ -253,6 +259,7 @@ export async function saveEvents(
       depositRepository,
       transferMap,
       coinMakerCapService,
+      sharedConfig,
     )
   }
 
@@ -321,11 +328,12 @@ export async function saveDepositToDb(
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
   coinmarketcapService: CoinMarketCapService,
+  sharedConfig: SharedConfig,
 ): Promise<void> {
   logger.info(`Saving deposit. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
   try {
-    await saveDeposit(domain.id, depositData, transferRepository, depositRepository, transferMap, coinmarketcapService)
+    await saveDeposit(domain.id, depositData, transferRepository, depositRepository, transferMap, coinmarketcapService, sharedConfig)
   } catch (error) {
     logger.error("Error saving substrate deposit:", error)
   }

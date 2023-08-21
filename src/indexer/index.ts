@@ -43,7 +43,6 @@ async function init(): Promise<Array<DomainIndexer>> {
   const coinMarketCapServiceInstance = new CoinMarketCapService(
     process.env.COINMARKETCAP_API_KEY as string,
     process.env.COINMARKETCAP_API_URL as string,
-    JSON.parse(process.env.TOKEN_SYMBOLS!) as Array<{ id: number; symbol: string }>,
   )
 
   const domainRepository = new DomainRepository()
@@ -78,6 +77,7 @@ async function init(): Promise<Array<DomainIndexer>> {
           feeRepository,
           resourceMap,
           coinMarketCapServiceInstance,
+          sharedConfig,
         )
         await substrateIndexer.init(rpcURL)
         domainIndexers.push(substrateIndexer)
@@ -97,6 +97,7 @@ async function init(): Promise<Array<DomainIndexer>> {
           executionRepository,
           feeRepository,
           coinMarketCapServiceInstance,
+          sharedConfig,
         )
         domainIndexers.push(evmIndexer)
       } catch (err) {

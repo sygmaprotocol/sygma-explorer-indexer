@@ -15,17 +15,14 @@ export type CoinMaketCapResponse = {
 class CoinMarketCapService {
   private coinMarketCapAPIKey: string
   private coinMarketCapUrl: string
-  private tokenSymbols: Array<{ id: number; symbol: string }>
 
-  constructor(coinMakertcapKey: string, coinMarketcapApiURL: string, TOKEN_SYMBOLS: Array<{ id: number; symbol: string }>) {
+  constructor(coinMakertcapKey: string, coinMarketcapApiURL: string) {
     this.coinMarketCapAPIKey = coinMakertcapKey
     this.coinMarketCapUrl = coinMarketcapApiURL
-    this.tokenSymbols = TOKEN_SYMBOLS
   }
 
-  private async getValueConvertion(amount: string, fromDomainId: number | null): Promise<CoinMaketCapResponse["quote"]> {
-    const symbol = this.tokenSymbols.find(token => token.id === fromDomainId)?.symbol
-    const url = `${this.coinMarketCapUrl}/v1/tools/price-conversion?amount=${amount}&symbol=${symbol!}&convert=USD`
+  private async getValueConvertion(amount: string, tokenSymbol: string): Promise<CoinMaketCapResponse["quote"]> {
+    const url = `${this.coinMarketCapUrl}/v1/tools/price-conversion?amount=${amount}&symbol=${tokenSymbol}&convert=USD`
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -36,8 +33,8 @@ class CoinMarketCapService {
     return data.quote
   }
 
-  public async getPriceInUSD(amount: string, fromDomainId: number | null): Promise<number> {
-    const data = await this.getValueConvertion(amount, fromDomainId)
+  public async getValueInUSD(amount: string, tokenSymbol: string): Promise<number> {
+    const data = await this.getValueConvertion(amount, tokenSymbol)
     return data.USD.price
   }
 }

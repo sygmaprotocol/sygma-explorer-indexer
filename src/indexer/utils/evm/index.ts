@@ -22,7 +22,7 @@ import { ApiPromise, WsProvider } from "@polkadot/api"
 import TransferRepository from "../../repository/transfer"
 import DepositRepository from "../../repository/deposit"
 import { logger } from "../../../utils/logger"
-import { Domain, DomainTypes, EvmResource, getSsmDomainConfig } from "../../config"
+import { Domain, DomainTypes, EvmResource, SharedConfig, getSsmDomainConfig } from "../../config"
 import {
   DecodedDepositLog,
   DecodedFailedHandlerExecution,
@@ -248,11 +248,17 @@ export async function saveDepositLogs(
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
   coinMarketCapService: CoinMarketCapService,
+  sharedConfig: SharedConfig,
 ): Promise<void> {
   let transfer = await transferRepository.findTransfer(decodedLog.depositNonce, Number(decodedLog.fromDomainId), Number(decodedLog.toDomainId))
   if (!transfer) {
     const { amount, fromDomainId } = decodedLog
-    const amountInUSD = await coinMarketCapService.getPriceInUSD(amount, parseInt(fromDomainId))
+
+    const currentDomain = sharedConfig.domains.find(domain => domain.id == parseInt(fromDomainId))
+
+    const tokenSymbol = currentDomain?.resources.find(resource => resource.resourceId == decodedLog.resourceID)?.symbol
+
+    const amountInUSD = await coinMarketCapService.getValueInUSD(amount, tokenSymbol!)
 
     transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, usdValue: amountInUSD })
   } else {
