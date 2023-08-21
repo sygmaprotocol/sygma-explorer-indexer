@@ -17,9 +17,9 @@ class CoinMarketCapService {
   private coinMarketCapUrl: string
   private tokenSymbols: Array<{ id: number; symbol: string }>
 
-  constructor(COINMARKETCAP_API_KEY: string, COINMARKETCAP_API_URL: string, TOKEN_SYMBOLS: Array<{ id: number; symbol: string }>) {
-    this.coinMarketCapAPIKey = COINMARKETCAP_API_KEY
-    this.coinMarketCapUrl = COINMARKETCAP_API_URL
+  constructor(coinMakertcapKey: string, coinMarketcapApiURL: string, TOKEN_SYMBOLS: Array<{ id: number; symbol: string }>) {
+    this.coinMarketCapAPIKey = coinMakertcapKey
+    this.coinMarketCapUrl = coinMarketcapApiURL
     this.tokenSymbols = TOKEN_SYMBOLS
   }
 
