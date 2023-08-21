@@ -36,6 +36,7 @@ import {
 import { getERC20Contract } from "../../services/contract"
 import FeeRepository from "../../repository/fee"
 import ExecutionRepository from "../../repository/execution"
+import CoinMarketCapService from "../../services/coinmarketcap/coinmarketcap.service"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
 type Junction = {
@@ -246,10 +247,14 @@ export async function saveDepositLogs(
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
+  coinMarketCapService: CoinMarketCapService,
 ): Promise<void> {
   let transfer = await transferRepository.findTransfer(decodedLog.depositNonce, Number(decodedLog.fromDomainId), Number(decodedLog.toDomainId))
   if (!transfer) {
-    transfer = await transferRepository.insertDepositTransfer(decodedLog)
+    const { amount, fromDomainId } = decodedLog
+    const amountInUSD = await coinMarketCapService.getPriceInUSD(amount, parseInt(fromDomainId))
+
+    transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, convertedAmount: amountInUSD })
   } else {
     const dataToSave = {
       ...decodedLog,

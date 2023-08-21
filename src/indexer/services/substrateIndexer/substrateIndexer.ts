@@ -7,6 +7,7 @@ import ExecutionRepository from "../../../indexer/repository/execution"
 import DepositRepository from "../../../indexer/repository/deposit"
 import TransferRepository from "../../../indexer/repository/transfer"
 import { saveEvents, sleep } from "../../../indexer/utils/substrate"
+import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
 
 const BLOCK_TIME = 12000
 
@@ -21,6 +22,7 @@ export class SubstrateIndexer {
   private provider!: ApiPromise
   private domain: Domain
   private stopped = false
+  private coinMarketCapService: CoinMarketCapService
 
   constructor(
     domainRepository: DomainRepository,
@@ -30,6 +32,7 @@ export class SubstrateIndexer {
     transferRepository: TransferRepository,
     feeRepository: FeeRepository,
     resourceMap: Map<string, SubstrateResource>,
+    coinmarketcapService: CoinMarketCapService,
   ) {
     this.domainRepository = domainRepository
     this.domain = domain
@@ -38,6 +41,7 @@ export class SubstrateIndexer {
     this.transferRepository = transferRepository
     this.feeRepository = feeRepository
     this.resourceMap = resourceMap
+    this.coinMarketCapService = coinmarketcapService
   }
 
   public async init(rpcUrl: string): Promise<void> {
@@ -79,6 +83,7 @@ export class SubstrateIndexer {
           this.depositRepository,
           this.feeRepository,
           this.resourceMap,
+          this.coinMarketCapService,
         )
 
         await this.domainRepository.updateBlock(currentBlock.toString(), this.domain.id)
