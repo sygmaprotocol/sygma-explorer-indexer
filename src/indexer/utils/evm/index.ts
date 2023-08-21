@@ -1,4 +1,4 @@
-import { BytesLike, Contract, Log, LogDescription, Provider, TransactionReceipt, getBytes, AbiCoder, formatUnits, BigNumberish } from "ethers"
+import { BytesLike, Contract, Log, LogDescription, Provider, TransactionReceipt, getBytes, AbiCoder, formatUnits, BigNumberish, ethers } from "ethers"
 import BasicFeeHandlerContract from "@buildwithsygma/sygma-contracts/build/contracts/BasicFeeHandler.json"
 import DynamicERC20FeeHandlerEVM from "@buildwithsygma/sygma-contracts/build/contracts/DynamicERC20FeeHandlerEVM.json"
 import Bridge from "@buildwithsygma/sygma-contracts/build/contracts/Bridge.json"
@@ -194,10 +194,12 @@ export async function parseFeeCollected(
 
 export function parseFailedHandlerExecution(log: Log, decodedLog: LogDescription): DecodedFailedHandlerExecution {
   const originDomainID = decodedLog.args.originDomainID as number
+  const errorData = decodedLog.args.lowLevelData as ArrayBuffer
   return {
     domainId: originDomainID.toString(),
     depositNonce: Number(decodedLog.args.depositNonce as string),
     txHash: log.transactionHash,
+    message: ethers.decodeBytes32String("0x" + Buffer.from(errorData.slice(-64)).toString()),
     blockNumber: log.blockNumber,
   }
 }
@@ -278,7 +280,7 @@ export async function saveProposalExecutionLogs(
     }
     transfer = await transferRepository.insertExecutionTransfer(dataToInsert, toDomainId)
   } else {
-    await transferRepository.updateStatus(TransferStatus.executed, transfer.id)
+    await transferRepository.updateStatus(TransferStatus.executed, transfer.id, "")
   }
 
   const execution = {
@@ -301,7 +303,7 @@ export async function saveFailedHandlerExecutionLogs(
   if (!transfer) {
     transfer = await transferRepository.insertFailedTransfer(error, toDomainId)
   } else {
-    await transferRepository.updateStatus(TransferStatus.failed, transfer.id)
+    await transferRepository.updateStatus(TransferStatus.failed, transfer.id, error.message)
   }
 
   const execution = {

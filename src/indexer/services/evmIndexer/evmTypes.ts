@@ -36,6 +36,7 @@ export type DecodedProposalExecutionLog = {
 export type DecodedFailedHandlerExecution = {
   domainId: string
   depositNonce: number
+  message: string
   txHash: string
   blockNumber: number
 }
