@@ -70,7 +70,6 @@ export const getTransferQueryParams = (): IncludedQueryParams => {
         select: {
           txHash: true,
           blockNumber: true,
-          type: true,
         },
       },
     },
