@@ -75,7 +75,7 @@ export async function getDecodedLogs(
     }
 
     case EventType.PROPOSAL_EXECUTION: {
-      const execution = parseProposalExecution(log, decodedLog, txReceipt, blockUnixTimestamp, resourceMap)
+      const execution = parseProposalExecution(log, decodedLog, txReceipt, blockUnixTimestamp)
       decodedLogs.proposalExecution.push(execution)
       break
     }
@@ -160,9 +160,7 @@ export function parseProposalExecution(
   decodedLog: LogDescription,
   txReceipt: TransactionReceipt,
   blockUnixTimestamp: number,
-  resourceMap: Map<string, EvmResource>,
 ): DecodedProposalExecutionLog {
-  const resourceType = resourceMap.get(decodedLog.args.resourceID as string)?.type || ""
   const originDomainID = decodedLog.args.originDomainID as number
   return {
     blockNumber: log.blockNumber,
@@ -171,8 +169,6 @@ export function parseProposalExecution(
     txHash: log.transactionHash,
     timestamp: blockUnixTimestamp,
     fromDomainId: originDomainID.toString(),
-    transferType: resourceType,
-    resourceID: decodedLog.args.resourceID as string,
   }
 }
 
@@ -286,7 +282,6 @@ export async function saveProposalExecutionLogs(
   const execution = {
     id: new ObjectId().toString(),
     transferId: transfer.id,
-    type: decodedLog.transferType,
     txHash: decodedLog.txHash,
     blockNumber: decodedLog.blockNumber.toString(),
   }
@@ -311,7 +306,6 @@ export async function saveFailedHandlerExecutionLogs(
     transferId: transfer.id,
     txHash: error.txHash,
     blockNumber: error.blockNumber.toString(),
-    type: null,
   }
   await executionRepository.insertExecution(execution)
 }

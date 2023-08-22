@@ -39,6 +39,7 @@ class TransferRepository {
       amount: decodedLog.amount,
       destination: decodedLog.destination,
       status: TransferStatus.pending,
+      message: "",
       resource: {
         connect: {
           id: decodedLog.resourceID,
@@ -72,6 +73,7 @@ class TransferRepository {
       amount: substrateDepositData.amount,
       destination: substrateDepositData.destination,
       status: TransferStatus.pending,
+      message: "",
       resource: {
         connect: {
           id: substrateDepositData.resourceID,
@@ -94,22 +96,17 @@ class TransferRepository {
   }
 
   public async insertExecutionTransfer(
-    {
-      depositNonce,
-      fromDomainId,
-      timestamp,
-      resourceID,
-    }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp" | "resourceID">,
+    { depositNonce, fromDomainId, timestamp }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp">,
     toDomainId: number,
   ): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: depositNonce,
+      message: "",
       status: TransferStatus.executed,
       sender: null,
       destination: null,
       amount: null,
-      resource: resourceID !== null ? resourceID : undefined,
       toDomainId: undefined,
       fromDomain: {
         connect: {
