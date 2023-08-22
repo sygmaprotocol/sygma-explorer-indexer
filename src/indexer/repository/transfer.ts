@@ -39,6 +39,7 @@ class TransferRepository {
       amount: decodedLog.amount,
       destination: decodedLog.destination,
       status: TransferStatus.pending,
+      message: "",
       resource: {
         connect: {
           id: decodedLog.resourceID,
@@ -72,6 +73,7 @@ class TransferRepository {
       amount: substrateDepositData.amount,
       destination: substrateDepositData.destination,
       status: TransferStatus.pending,
+      message: "",
       resource: {
         connect: {
           id: substrateDepositData.resourceID,
@@ -105,6 +107,7 @@ class TransferRepository {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: depositNonce,
+      message: "",
       status: TransferStatus.executed,
       sender: null,
       destination: null,
