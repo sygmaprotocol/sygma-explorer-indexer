@@ -58,7 +58,6 @@ export type IncludedQueryParams = {
     execution: {
       select: {
         txHash: boolean
-        type: boolean
         blockNumber: boolean
       }
     }
