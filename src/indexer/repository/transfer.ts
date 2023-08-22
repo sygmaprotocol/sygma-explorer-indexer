@@ -39,6 +39,7 @@ class TransferRepository {
       amount: decodedLog.amount,
       destination: decodedLog.destination,
       status: TransferStatus.pending,
+      message: "",
       resource: {
         connect: {
           id: decodedLog.resourceID,
@@ -73,6 +74,7 @@ class TransferRepository {
       amount: substrateDepositData.amount,
       destination: substrateDepositData.destination,
       status: TransferStatus.pending,
+      message: "",
       resource: {
         connect: {
           id: substrateDepositData.resourceID,
@@ -102,6 +104,7 @@ class TransferRepository {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: depositNonce,
+      message: "",
       status: TransferStatus.executed,
       sender: null,
       destination: null,
@@ -124,7 +127,7 @@ class TransferRepository {
   }
 
   public async insertFailedTransfer(
-    { depositNonce, domainId }: Pick<DecodedFailedHandlerExecution, "depositNonce" | "domainId">,
+    { depositNonce, domainId, message }: Pick<DecodedFailedHandlerExecution, "depositNonce" | "domainId" | "message">,
     toDomainId: number,
   ): Promise<Transfer> {
     const transferData = {
@@ -141,6 +144,7 @@ class TransferRepository {
         },
       },
       status: TransferStatus.failed,
+      message,
     }
     return await this.transfer.create({ data: transferData })
   }
@@ -193,13 +197,14 @@ class TransferRepository {
     })
   }
 
-  public async updateStatus(status: TransferStatus, id: string): Promise<Transfer> {
+  public async updateStatus(status: TransferStatus, id: string, message: string): Promise<Transfer> {
     return await this.transfer.update({
       where: {
         id: id,
       },
       data: {
         status: status,
+        message,
       },
     })
   }

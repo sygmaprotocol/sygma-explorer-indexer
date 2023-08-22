@@ -107,6 +107,7 @@ describe("Indexer e2e tests", function () {
     const transfer = res.data as TransferResponse
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
+      message: "",
       depositNonce: 30,
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
       fromDomainId: 1,
@@ -147,6 +148,7 @@ describe("Indexer e2e tests", function () {
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       depositNonce: 2,
+      message: "",
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000200",
       fromDomainId: 1,
       toDomainId: 2,
@@ -188,6 +190,7 @@ describe("Indexer e2e tests", function () {
       depositNonce: 29,
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000500",
       fromDomainId: 1,
+      message: "",
       toDomainId: 2,
       sender: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
       destination:
@@ -231,6 +234,7 @@ describe("Indexer e2e tests", function () {
       toDomainId: 2,
       sender: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
       destination: "0x",
+      message: "",
       amount: "",
       timestamp: "2023-07-17T08:31:36.000Z",
       status: "executed",
@@ -267,6 +271,7 @@ describe("Indexer e2e tests", function () {
       depositNonce: 2,
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
       fromDomainId: 3,
+      message: "",
       toDomainId: 1,
       sender: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
       destination: "0x5c1f5961696bad2e73f73417f07ef55c62a2dc5b",
@@ -302,6 +307,7 @@ describe("Indexer e2e tests", function () {
       depositNonce: 2,
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
       fromDomainId: 1,
+      message: "",
       toDomainId: 3,
       sender: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
       destination: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
