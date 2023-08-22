@@ -43,7 +43,6 @@ export async function saveProposalExecution(
         depositNonce: Number(depositNonce),
         fromDomainId: originDomainId,
         timestamp,
-        resourceID: null,
       },
       toDomainId,
     )
@@ -54,7 +53,6 @@ export async function saveProposalExecution(
   const execution = {
     id: new ObjectId().toString(),
     transferId: transfer.id,
-    type: SubstrateTypeTransfer.Fungible,
     txHash: txIdentifier,
     blockNumber: blockNumber,
   }
@@ -86,7 +84,6 @@ export async function saveFailedHandlerExecution(
   const execution = {
     id: new ObjectId().toString(),
     transferId: transfer.id,
-    type: SubstrateTypeTransfer.Fungible,
     txHash: txIdentifier,
     blockNumber: blockNumber,
   }

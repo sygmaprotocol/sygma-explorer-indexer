@@ -17,6 +17,12 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
 
   fastify.route({
     method: "GET",
+    url: "/transfers/txHash/:txHash",
+    handler: TransfersController.transferByTxHash,
+  })
+
+  fastify.route({
+    method: "GET",
     url: "/sender/:senderAddress/transfers",
     handler: TransfersController.transferBySender,
   })
