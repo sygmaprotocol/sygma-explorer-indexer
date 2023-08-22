@@ -94,12 +94,7 @@ class TransferRepository {
   }
 
   public async insertExecutionTransfer(
-    {
-      depositNonce,
-      fromDomainId,
-      timestamp,
-      resourceID,
-    }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp" | "resourceID">,
+    { depositNonce, fromDomainId, timestamp }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp">,
     toDomainId: number,
   ): Promise<Transfer> {
     const transferData = {
@@ -109,7 +104,6 @@ class TransferRepository {
       sender: null,
       destination: null,
       amount: null,
-      resource: resourceID !== null ? resourceID : undefined,
       toDomainId: undefined,
       fromDomain: {
         connect: {

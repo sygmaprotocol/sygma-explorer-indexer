@@ -67,7 +67,6 @@ model Execution {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   transfer    Transfer @relation(fields: [transferId], references: [id])
   transferId  String   @unique @db.ObjectId
-  type        String?
   txHash      String
   blockNumber String
 }

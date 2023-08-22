@@ -10,6 +10,7 @@ export type TransfersByCursorOptions = {
 
 class TransfersService {
   public transfers = new PrismaClient().transfer
+  public deposit = new PrismaClient().deposit
 
   private prepareQueryParams(args: TransfersByCursorOptions): {
     skip: number
@@ -41,6 +42,16 @@ class TransfersService {
     })
     if (!transfer) throw new NotFound("Transfer not found")
     return transfer as Transfer
+  }
+
+  public async findTransferByTxHash({ txHash }: { txHash: string }): Promise<Transfer> {
+    const deposit = await this.deposit.findFirst({
+      where: { txHash },
+      include: { transfer: { include: { ...getTransferQueryParams().include } } },
+    })
+
+    if (!deposit) throw new NotFound("Transfer not found")
+    return deposit.transfer
   }
 
   public async findTransfersByCursor(args: TransfersByCursorOptions): Promise<Transfer[]> {

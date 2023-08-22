@@ -32,7 +32,7 @@ describe("Events parser", function () {
     } as unknown as Domain
 
     const destination = await parseDestination(hexData, domain)
-    expect(destination).to.be.deep.equal("0x1f5961696bad2e73f73417f07ef55c62a2dc5b0102")
+    expect(destination).to.be.deep.equal("0x5c1f5961696bad2e73f73417f07ef55c62a2dc5b")
   })
 
   it("should parse substrate destination for evm deposit log", async () => {
