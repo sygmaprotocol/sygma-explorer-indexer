@@ -24,6 +24,8 @@ class CoinMarketCapService {
   private async getValueConvertion(amount: string, tokenSymbol: string): Promise<CoinMaketCapResponse["quote"]["USD"]["price"]> {
     const url = `${this.coinMarketCapUrl}/v1/tools/price-conversion?amount=${amount}&symbol=${tokenSymbol}&convert=USD`
 
+    if (!this.coinMarketCapAPIKey || !this.coinMarketCapUrl) throw new Error("CoinMarketCap credentials not found")
+
     try {
       const response = await fetch(url, {
         method: "GET",
