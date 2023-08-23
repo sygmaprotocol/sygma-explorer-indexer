@@ -31,7 +31,7 @@ export type TransferMetadataeta = {
 class TransferRepository {
   public transfer = new PrismaClient().transfer
 
-  public async insertDepositTransfer(decodedLog: DecodedDepositLog & { usdValue: number }): Promise<Transfer> {
+  public async insertDepositTransfer(decodedLog: DecodedDepositLog & { usdValue: number | null }): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: decodedLog.depositNonce,
@@ -159,7 +159,10 @@ class TransferRepository {
       fromDomainId,
       toDomainId,
       timestamp,
-    }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp">,
+      usdValue,
+    }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp"> & {
+      usdValue: number | null
+    },
     id: string,
   ): Promise<Transfer> {
     const transferData = {
@@ -183,6 +186,7 @@ class TransferRepository {
         },
       },
       timestamp: new Date(timestamp),
+      usdValue: usdValue,
     }
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }

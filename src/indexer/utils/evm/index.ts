@@ -231,26 +231,31 @@ export async function saveDepositLogs(
   sharedConfig: SharedConfig,
 ): Promise<void> {
   let transfer = await transferRepository.findTransfer(decodedLog.depositNonce, Number(decodedLog.fromDomainId), Number(decodedLog.toDomainId))
+  const { amount, fromDomainId } = decodedLog
+
+  const currentDomain = sharedConfig.domains.find(domain => domain.id == parseInt(fromDomainId))
+
+  const currentResource = currentDomain!.resources.find(resource => resource.resourceId == decodedLog.resourceID)
+
+  const tokenSymbol = currentResource?.symbol
+  const resourceType = currentResource?.type
+
+  let amountInUSD: number | null
+
+  try {
+    amountInUSD = await coinMarketCapService.getValueInUSD(amount, tokenSymbol!)
+  } catch (error) {
+    logger.error((error as Error).message)
+    amountInUSD = resourceType !== "fungible" ? null : 0
+  }
+
   if (!transfer) {
-    const { amount, fromDomainId } = decodedLog
-
-    const currentDomain = sharedConfig.domains.find(domain => domain.id == parseInt(fromDomainId))
-
-    const tokenSymbol = currentDomain?.resources.find(resource => resource.resourceId == decodedLog.resourceID)?.symbol
-
-    let amountInUSD: number
-    try {
-      amountInUSD = await coinMarketCapService.getValueInUSD(amount, tokenSymbol!)
-    } catch (error) {
-      logger.error((error as Error).message)
-      amountInUSD = 0
-    }
-
     transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, usdValue: amountInUSD })
   } else {
     const dataToSave = {
       ...decodedLog,
       timestamp: decodedLog.timestamp * 1000,
+      usdValue: amountInUSD,
     }
     await transferRepository.updateTransfer(dataToSave, transfer.id)
   }
