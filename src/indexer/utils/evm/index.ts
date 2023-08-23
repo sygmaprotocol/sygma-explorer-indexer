@@ -238,7 +238,13 @@ export async function saveDepositLogs(
 
     const tokenSymbol = currentDomain?.resources.find(resource => resource.resourceId == decodedLog.resourceID)?.symbol
 
-    const amountInUSD = await coinMarketCapService.getValueInUSD(amount, tokenSymbol!)
+    let amountInUSD: number
+    try {
+      amountInUSD = await coinMarketCapService.getValueInUSD(amount, tokenSymbol!)
+    } catch (error) {
+      logger.error((error as Error).message)
+      amountInUSD = 0
+    }
 
     transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, usdValue: amountInUSD })
   } else {

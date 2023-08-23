@@ -21,21 +21,26 @@ class CoinMarketCapService {
     this.coinMarketCapUrl = coinMarketcapApiURL
   }
 
-  private async getValueConvertion(amount: string, tokenSymbol: string): Promise<CoinMaketCapResponse["quote"]> {
+  private async getValueConvertion(amount: string, tokenSymbol: string): Promise<CoinMaketCapResponse["quote"]["USD"]["price"]> {
     const url = `${this.coinMarketCapUrl}/v1/tools/price-conversion?amount=${amount}&symbol=${tokenSymbol}&convert=USD`
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "X-CMC_PRO_API_KEY": this.coinMarketCapAPIKey,
-      },
-    })
-    const { data } = (await response.json()) as { data: CoinMaketCapResponse }
-    return data.quote
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "X-CMC_PRO_API_KEY": this.coinMarketCapAPIKey,
+        },
+      })
+      const { data } = (await response.json()) as { data: CoinMaketCapResponse }
+      return data.quote.USD.price
+    } catch {
+      throw new Error("Error getting value from CoinMarketCap")
+    }
   }
 
   public async getValueInUSD(amount: string, tokenSymbol: string): Promise<number> {
-    const data = await this.getValueConvertion(amount, tokenSymbol)
-    return data.USD.price
+    const convertedValue = await this.getValueConvertion(amount, tokenSymbol)
+    return convertedValue
   }
 }
 

@@ -120,7 +120,14 @@ export async function saveDeposit(
 
   let transfer = await transferRepository.findTransfer(Number(depositNonce), originDomainId, Number(destinationDomainId))
 
-  const amountInUSD = await coinMakerCapService.getValueInUSD(decodedAmount, tokenSymbol!)
+  let amountInUSD
+
+  try {
+    amountInUSD = await coinMakerCapService.getValueInUSD(decodedAmount, tokenSymbol!)
+  } catch (error) {
+    logger.error((error as Error).message)
+    amountInUSD = 0
+  }
 
   if (transfer) {
     const dataTransferToUpdate = {
