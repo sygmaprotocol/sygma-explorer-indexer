@@ -88,7 +88,7 @@ describe("Indexer e2e tests", function () {
       expect(transfer.destination).to.be.not.null
       expect(transfer.resource).to.be.not.null
       expect(transfer.resourceID).to.be.not.null
-      expect(transfer.sender).to.be.not.null
+      expect(transfer.accountId).to.be.not.null
       expect(transfer.timestamp).to.be.not.null
       expect(transfer.toDomain).to.be.not.null
       expect(transfer.toDomainId).to.be.not.null
