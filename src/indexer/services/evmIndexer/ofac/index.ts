@@ -28,13 +28,18 @@ export class OfacComplianceService {
     if (!this.chainAnalisysUrl || !this.chainAnalisysApiKey) throw new Error("Chain Analysis credentials not found")
 
     const urlToUse = url.resolve(this.chainAnalisysUrl, address)
-    const response = await fetch(urlToUse, {
-      headers: {
-        "X-API-Key": `${this.chainAnalisysApiKey}`,
-        Accept: "application/json",
-      },
-    })
-    const data = (await response.json()) as ChainAnalysisResponse
-    return data.identifications.length ? AddressStatus.OFAC : ""
+
+    try {
+      const response = await fetch(urlToUse, {
+        headers: {
+          "X-API-Key": `${this.chainAnalisysApiKey}`,
+          Accept: "application/json",
+        },
+      })
+      const data = (await response.json()) as ChainAnalysisResponse
+      return data.identifications.length ? AddressStatus.OFAC : ""
+    } catch {
+      throw new Error("Chain Analysis API error")
+    }
   }
 }
