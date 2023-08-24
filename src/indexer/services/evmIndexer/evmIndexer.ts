@@ -121,10 +121,10 @@ export class EvmIndexer {
           this.transferRepository,
           this.depositRepository,
           transferMap,
-          this.coinMarketCapService,
-          this.sharedConfig,
           this.ofacComplianceService,
           this.accountRepository,
+          this.coinMarketCapService,
+          this.sharedConfig,
         ),
       ),
     )
