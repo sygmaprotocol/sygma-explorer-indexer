@@ -242,11 +242,15 @@ export async function saveDepositLogs(
 
   let amountInUSD: number | null
 
-  try {
-    amountInUSD = await coinMarketCapService.getValueInUSD(amount, tokenSymbol!)
-  } catch (error) {
-    logger.error((error as Error).message)
-    amountInUSD = resourceType !== "fungible" ? null : 0
+  if (resourceType !== "fungible") {
+    amountInUSD = null
+  } else {
+    try {
+      amountInUSD = await coinMarketCapService.getValueInUSD(amount, tokenSymbol!)
+    } catch (error) {
+      logger.error((error as Error).message)
+      amountInUSD = 0
+    }
   }
 
   if (!transfer) {
