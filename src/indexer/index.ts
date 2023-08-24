@@ -14,6 +14,7 @@ import ResourceRepository from "./repository/resource"
 import { healthcheckRoute } from "./healthcheck"
 import { OfacComplianceService } from "./services/evmIndexer/ofac"
 import AccountRepository from "./repository/account"
+import CoinMarketCapService from "./services/coinmarketcap/coinmarketcap.service"
 
 interface DomainIndexer {
   listenToEvents(): Promise<void>
@@ -65,6 +66,11 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
   const ofacComplianceService = new OfacComplianceService(process.env.CHAIN_ANALYSIS_URL, process.env.CHAIN_ANALYSIS_API_KEY)
 
+  const coinMarketCapServiceInstance = new CoinMarketCapService(
+    process.env.COINMARKETCAP_API_KEY as string,
+    process.env.COINMARKETCAP_API_URL as string,
+  )
+
   const domainRepository = new DomainRepository()
   const depositRepository = new DepositRepository()
   const transferRepository = new TransferRepository()
@@ -98,6 +104,8 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
           feeRepository,
           resourceMap,
           accountRepository,
+          coinMarketCapServiceInstance,
+          sharedConfig,
         )
         await substrateIndexer.init(rpcURL)
         domainIndexers.push(substrateIndexer)
@@ -118,6 +126,8 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
           feeRepository,
           ofacComplianceService,
           accountRepository,
+          coinMarketCapServiceInstance,
+          sharedConfig,
         )
         domainIndexers.push(evmIndexer)
       } catch (err) {

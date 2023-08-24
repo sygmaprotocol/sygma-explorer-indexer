@@ -1,6 +1,6 @@
 import { ApiPromise, WsProvider } from "@polkadot/api"
 import FeeRepository from "indexer/repository/fee"
-import { Domain, SubstrateResource } from "../../config"
+import { Domain, SharedConfig, SubstrateResource } from "../../config"
 import DomainRepository from "../../repository/domain"
 import { logger } from "../../../utils/logger"
 import ExecutionRepository from "../../../indexer/repository/execution"
@@ -8,6 +8,7 @@ import DepositRepository from "../../../indexer/repository/deposit"
 import TransferRepository from "../../../indexer/repository/transfer"
 import { saveEvents, sleep } from "../../../indexer/utils/substrate"
 import AccountRepository from "../../../indexer/repository/account"
+import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
 
 const BLOCK_TIME = 12000
 
@@ -23,6 +24,8 @@ export class SubstrateIndexer {
   private domain: Domain
   private stopped = false
   private accountRepository: AccountRepository
+  private coinMarketCapService: CoinMarketCapService
+  private sharedConfig: SharedConfig
 
   constructor(
     domainRepository: DomainRepository,
@@ -33,6 +36,8 @@ export class SubstrateIndexer {
     feeRepository: FeeRepository,
     resourceMap: Map<string, SubstrateResource>,
     accountRepository: AccountRepository,
+    coinmarketcapService: CoinMarketCapService,
+    sharedConfig: SharedConfig,
   ) {
     this.domainRepository = domainRepository
     this.domain = domain
@@ -42,6 +47,8 @@ export class SubstrateIndexer {
     this.feeRepository = feeRepository
     this.resourceMap = resourceMap
     this.accountRepository = accountRepository
+    this.coinMarketCapService = coinmarketcapService
+    this.sharedConfig = sharedConfig
   }
 
   public async init(rpcUrl: string): Promise<void> {
@@ -84,6 +91,8 @@ export class SubstrateIndexer {
           this.feeRepository,
           this.resourceMap,
           this.accountRepository,
+          this.coinMarketCapService,
+          this.sharedConfig,
         )
 
         await this.domainRepository.updateBlock(currentBlock.toString(), this.domain.id)

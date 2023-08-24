@@ -142,6 +142,7 @@ describe("Indexer e2e tests", function () {
       account: {
         addressStatus: "",
       },
+      usdValue: 0,
     })
   })
 
@@ -185,6 +186,7 @@ describe("Indexer e2e tests", function () {
       account: {
         addressStatus: "",
       },
+      usdValue: null,
     })
   })
 
@@ -229,6 +231,7 @@ describe("Indexer e2e tests", function () {
       account: {
         addressStatus: "",
       },
+      usdValue: null,
     })
   })
 
@@ -272,6 +275,7 @@ describe("Indexer e2e tests", function () {
       account: {
         addressStatus: "",
       },
+      usdValue: null,
     })
   })
 
@@ -311,6 +315,7 @@ describe("Indexer e2e tests", function () {
       account: {
         addressStatus: "",
       },
+      usdValue: 0,
     })
   })
 
@@ -351,6 +356,7 @@ describe("Indexer e2e tests", function () {
       account: {
         addressStatus: "",
       },
+      usdValue: 0,
     })
   })
 })

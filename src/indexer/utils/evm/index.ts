@@ -11,7 +11,7 @@ import AccountRepository from "../../repository/account"
 import TransferRepository from "../../repository/transfer"
 import DepositRepository from "../../repository/deposit"
 import { logger } from "../../../utils/logger"
-import { Domain, DomainTypes, EvmResource, getSsmDomainConfig } from "../../config"
+import { Domain, DomainTypes, EvmResource, SharedConfig, getSsmDomainConfig } from "../../config"
 import {
   DecodedDepositLog,
   DecodedFailedHandlerExecution,
@@ -26,6 +26,7 @@ import { getERC20Contract } from "../../services/contract"
 import FeeRepository from "../../repository/fee"
 import ExecutionRepository from "../../repository/execution"
 import { OfacComplianceService } from "../../services/evmIndexer/ofac"
+import CoinMarketCapService from "../../services/coinmarketcap/coinmarketcap.service"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
 type Junction = {
@@ -230,10 +231,32 @@ export async function saveDepositLogs(
   transferMap: Map<string, string>,
   ofacComplianceService: OfacComplianceService,
   accountRepository: AccountRepository,
+  coinMarketCapService: CoinMarketCapService,
+  sharedConfig: SharedConfig,
 ): Promise<void> {
   let transfer = await transferRepository.findTransfer(decodedLog.depositNonce, Number(decodedLog.fromDomainId), Number(decodedLog.toDomainId))
 
-  const { sender } = decodedLog
+  const { sender, amount, fromDomainId } = decodedLog
+
+  const currentDomain = sharedConfig.domains.find(domain => domain.id == parseInt(fromDomainId))
+
+  const currentResource = currentDomain!.resources.find(resource => resource.resourceId == decodedLog.resourceID)
+
+  const tokenSymbol = currentResource?.symbol
+  const resourceType = currentResource?.type
+
+  let amountInUSD: number | null
+
+  if (resourceType !== "fungible") {
+    amountInUSD = null
+  } else {
+    try {
+      amountInUSD = await coinMarketCapService.getValueInUSD(amount, tokenSymbol!)
+    } catch (error) {
+      logger.error((error as Error).message)
+      amountInUSD = 0
+    }
+  }
 
   let senderStatus: string
 
@@ -250,11 +273,12 @@ export async function saveDepositLogs(
   })
 
   if (!transfer) {
-    transfer = await transferRepository.insertDepositTransfer(decodedLog)
+    transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, usdValue: amountInUSD })
   } else {
     const dataToSave = {
       ...decodedLog,
       timestamp: decodedLog.timestamp * 1000,
+      usdValue: amountInUSD,
     }
     await transferRepository.updateTransfer(dataToSave, transfer.id)
   }
