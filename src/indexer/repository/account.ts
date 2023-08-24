@@ -5,7 +5,18 @@ class AccountRepository {
   public account = this.prismaClient.account
 
   public async insertAccount(account: Account): Promise<void> {
-    await this.account.create({ data: account })
+    await this.account.upsert({
+      where: {
+        id: account.id,
+      },
+      update: {
+        addressStatus: account.addressStatus,
+      },
+      create: {
+        id: account.id,
+        addressStatus: account.addressStatus,
+      },
+    })
   }
 }
 

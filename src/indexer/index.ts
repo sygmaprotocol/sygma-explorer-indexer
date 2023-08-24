@@ -40,7 +40,7 @@ init()
 
 async function init(): Promise<Array<DomainIndexer>> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
-  const ofacComplianceService = new OfacComplianceService(process.env.CHAIN_ANALYSIS_URL!, process.env.CHAIN_ANALYSIS_API_KEY!)
+  const ofacComplianceService = new OfacComplianceService(process.env.CHAIN_ANALYSIS_URL, process.env.CHAIN_ANALYSIS_API_KEY)
 
   const domainRepository = new DomainRepository()
   const depositRepository = new DepositRepository()

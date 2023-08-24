@@ -115,8 +115,9 @@ export async function saveDeposit(
 
   const decodedAmount = getDecodedAmount(depositData)
   let transfer = await transferRepository.findTransfer(Number(depositNonce), originDomainId, Number(destinationDomainId))
+
   if (transfer) {
-    const dataTransferToUpdate = {
+    let dataTransferToUpdate = {
       depositNonce: Number(depositNonce),
       amount: decodedAmount,
       resourceID: resourceId,
@@ -124,7 +125,20 @@ export async function saveDeposit(
       toDomainId: destinationDomainId,
       timestamp: timestamp,
       destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
-      sender: transfer.accountId!,
+    } as Pick<DecodedDepositLog, "depositNonce" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp" | "sender">
+
+    if (transfer.accountId !== null) {
+      dataTransferToUpdate = {
+        ...dataTransferToUpdate,
+        sender: transfer.accountId,
+      }
+    } else {
+      await accountRepository.insertAccount({ id: sender, addressStatus: "" })
+
+      dataTransferToUpdate = {
+        ...dataTransferToUpdate,
+        sender,
+      }
     }
     await transferRepository.updateTransfer(dataTransferToUpdate, transfer.id)
   } else {

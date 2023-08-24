@@ -16,15 +16,17 @@ enum AddressStatus {
 }
 
 export class OfacComplianceService {
-  private chainAnalisysUrl: string
-  private chainAnalisysApiKey: string
+  private chainAnalisysUrl: string | undefined
+  private chainAnalisysApiKey: string | undefined
 
-  constructor(chainAnalysisUrl: string, chainAnalisysApiKey: string) {
+  constructor(chainAnalysisUrl?: string, chainAnalisysApiKey?: string) {
     this.chainAnalisysUrl = chainAnalysisUrl
     this.chainAnalisysApiKey = chainAnalisysApiKey
   }
 
   public async checkSanctionedAddress(address: string): Promise<string> {
+    if (!this.chainAnalisysUrl || !this.chainAnalisysApiKey) throw new Error("Chain Analysis credentials not found")
+
     const urlToUse = url.resolve(this.chainAnalisysUrl, address)
     const response = await fetch(urlToUse, {
       headers: {

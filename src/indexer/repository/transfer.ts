@@ -190,10 +190,7 @@ class TransferRepository {
       toDomainId,
       timestamp,
       sender,
-    }: Pick<
-      DecodedDepositLog,
-      "depositNonce" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp" | "senderStatus" | "sender"
-    >,
+    }: Pick<DecodedDepositLog, "depositNonce" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp" | "sender">,
     id: string,
   ): Promise<Transfer> {
     const transferData = {
