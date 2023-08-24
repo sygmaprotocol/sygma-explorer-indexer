@@ -37,6 +37,8 @@ CHAIN_ANALYSIS_API_KEY=""
 CHAIN_ANALYSIS_URL=""
 ENVIRONMENT="" # testnet || devnet
 RPC_URL_CONFIG="[ { "id": DOMAIN_ID, "endpoint": DOMAIN_ENDPOINT } ]"
+COINMARKETCAP_API_KEY=""
+COINMARKETCAP_API_URL=""
  ```
 
 ### Running locally

@@ -1,4 +1,4 @@
-import { Domain, EvmResource } from "indexer/config"
+import { Domain, EvmResource, SharedConfig } from "indexer/config"
 import { ethers } from "ethers"
 
 import { sleep } from "../../utils/substrate"
@@ -9,6 +9,7 @@ import ExecutionRepository from "../../repository/execution"
 import DomainRepository from "../../repository/domain"
 import FeeRepository from "../../repository/fee"
 import { logger } from "../../../utils/logger"
+import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
 import { getLogs } from "./evmfilter"
 import { decodeLogs } from "./evmEventParser"
 
@@ -28,6 +29,8 @@ export class EvmIndexer {
   private domains: Domain[]
   private resourceMap: Map<string, EvmResource>
   private stopped = false
+  private coinMarketCapService: CoinMarketCapService
+  private sharedConfig: SharedConfig
 
   constructor(
     domain: Domain,
@@ -38,6 +41,8 @@ export class EvmIndexer {
     transferRepository: TransferRepository,
     executionRepository: ExecutionRepository,
     feeRepository: FeeRepository,
+    coinMarketCapServiceInstance: CoinMarketCapService,
+    sharedConfig: SharedConfig,
   ) {
     this.provider = new ethers.JsonRpcProvider(rpcURL)
     this.domainRepository = domainRepository
@@ -49,6 +54,8 @@ export class EvmIndexer {
     this.domains = domains
     this.resourceMap = new Map<string, EvmResource>()
     domain.resources.map((resource: EvmResource) => this.resourceMap.set(resource.resourceId, resource))
+    this.coinMarketCapService = coinMarketCapServiceInstance
+    this.sharedConfig = sharedConfig
   }
 
   public stop(): void {
@@ -100,7 +107,9 @@ export class EvmIndexer {
 
     const transferMap = new Map<string, string>()
     await Promise.all(
-      decodedLogs.deposit.map(async decodedLog => saveDepositLogs(decodedLog, this.transferRepository, this.depositRepository, transferMap)),
+      decodedLogs.deposit.map(async decodedLog =>
+        saveDepositLogs(decodedLog, this.transferRepository, this.depositRepository, transferMap, this.coinMarketCapService, this.sharedConfig),
+      ),
     )
 
     await Promise.all(decodedLogs.feeCollected.map(async fee => saveFeeLogs(fee, transferMap, this.feeRepository)))

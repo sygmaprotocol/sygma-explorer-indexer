@@ -139,6 +139,7 @@ describe("Indexer e2e tests", function () {
         txHash: "0xb8de40d5d0f5eb8ac4d2a54858bcd4946c85dfcb4353710df1cb73cc6b030c10",
         blockNumber: "643",
       },
+      usdValue: 0,
     })
   })
 
@@ -179,6 +180,7 @@ describe("Indexer e2e tests", function () {
         txHash: "0x3de2201e548a8332aaa50147a2fb02e2b6669184f042b4dbcf23b4f5d40edcfb",
         blockNumber: "598",
       },
+      usdValue: null,
     })
   })
 
@@ -220,6 +222,7 @@ describe("Indexer e2e tests", function () {
         txHash: "0xcc7c318cfd71745c27111772f21dec553f53277c9dc218fe07b54f897560c0cb",
         blockNumber: "631",
       },
+      usdValue: null,
     })
   })
 
@@ -260,6 +263,7 @@ describe("Indexer e2e tests", function () {
         txHash: "0xf031174a3a2b3ae7064f2ca083fa35b1b48b7723ae45ce1f925c9c09a3ba3077",
         blockNumber: "603",
       },
+      usdValue: null,
     })
   })
 
@@ -296,6 +300,7 @@ describe("Indexer e2e tests", function () {
         txHash: "0xe5648eb14c885ddf52226aea17440ec3126bfff778c70e0a366dc9666301ff35",
         blockNumber: "548",
       },
+      usdValue: 0,
     })
   })
 
@@ -333,6 +338,7 @@ describe("Indexer e2e tests", function () {
         handlerResponse: "0x",
       },
       execution: { txHash: "355-1", blockNumber: "355" },
+      usdValue: 0,
     })
   })
 })

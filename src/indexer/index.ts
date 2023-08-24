@@ -12,6 +12,7 @@ import ExecutionRepository from "./repository/execution"
 import FeeRepository from "./repository/fee"
 import ResourceRepository from "./repository/resource"
 import { healthcheckRoute } from "./healthcheck"
+import CoinMarketCapService from "./services/coinmarketcap/coinmarketcap.service"
 
 interface DomainIndexer {
   listenToEvents(): Promise<void>
@@ -62,6 +63,11 @@ init()
 async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance }> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
 
+  const coinMarketCapServiceInstance = new CoinMarketCapService(
+    process.env.COINMARKETCAP_API_KEY as string,
+    process.env.COINMARKETCAP_API_URL as string,
+  )
+
   const domainRepository = new DomainRepository()
   const depositRepository = new DepositRepository()
   const transferRepository = new TransferRepository()
@@ -93,6 +99,8 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
           transferRepository,
           feeRepository,
           resourceMap,
+          coinMarketCapServiceInstance,
+          sharedConfig,
         )
         await substrateIndexer.init(rpcURL)
         domainIndexers.push(substrateIndexer)
@@ -111,6 +119,8 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
           transferRepository,
           executionRepository,
           feeRepository,
+          coinMarketCapServiceInstance,
+          sharedConfig,
         )
         domainIndexers.push(evmIndexer)
       } catch (err) {

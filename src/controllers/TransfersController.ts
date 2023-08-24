@@ -31,6 +31,7 @@ export const TransfersController = {
 
     try {
       const transfer = await transfersService.findTransferById({ id })
+
       void reply.status(200).send(transfer)
     } catch (e) {
       if (e instanceof NotFound) {
@@ -70,9 +71,9 @@ export const TransfersController = {
     } = request
 
     try {
-      const transfer = await transfersService.findTransferByFilterParams({ page, limit, status, sender: senderAddress })
+      const transfers = await transfersService.findTransferByFilterParams({ page, limit, status, sender: senderAddress })
 
-      void reply.status(200).send(transfer)
+      void reply.status(200).send(transfers)
     } catch (e) {
       logger.error(e)
       void reply.status(500)

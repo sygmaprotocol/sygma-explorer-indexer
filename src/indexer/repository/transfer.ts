@@ -31,7 +31,7 @@ export type TransferMetadataeta = {
 class TransferRepository {
   public transfer = new PrismaClient().transfer
 
-  public async insertDepositTransfer(decodedLog: DecodedDepositLog): Promise<Transfer> {
+  public async insertDepositTransfer(decodedLog: DecodedDepositLog & { usdValue: number | null }): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: decodedLog.depositNonce,
@@ -56,6 +56,7 @@ class TransferRepository {
         },
       },
       timestamp: new Date(decodedLog.timestamp * 1000), // this is only being used by evm service
+      usdValue: decodedLog.usdValue,
     }
     return await this.transfer.create({ data: transferData })
   }
@@ -64,7 +65,7 @@ class TransferRepository {
     substrateDepositData: Pick<
       DecodedDepositLog,
       "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp"
-    >,
+    > & { usdValue: number },
   ): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
@@ -90,6 +91,7 @@ class TransferRepository {
         },
       },
       timestamp: new Date(substrateDepositData.timestamp),
+      usdValue: substrateDepositData.usdValue,
     }
 
     return await this.transfer.create({ data: transferData })
@@ -157,7 +159,10 @@ class TransferRepository {
       fromDomainId,
       toDomainId,
       timestamp,
-    }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp">,
+      usdValue,
+    }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp"> & {
+      usdValue: number | null
+    },
     id: string,
   ): Promise<Transfer> {
     const transferData = {
@@ -181,6 +186,7 @@ class TransferRepository {
         },
       },
       timestamp: new Date(timestamp),
+      usdValue: usdValue,
     }
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
