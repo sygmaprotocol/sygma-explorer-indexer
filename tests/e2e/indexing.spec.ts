@@ -112,7 +112,7 @@ describe("Indexer e2e tests", function () {
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
       fromDomainId: 1,
       toDomainId: 2,
-      sender: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
+      accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
       destination: "0x8e0a907331554af72563bd8d43051c2e64be5d35",
       amount: "0.0000000000000001",
       timestamp: "2023-07-17T08:32:37.000Z",
@@ -139,6 +139,9 @@ describe("Indexer e2e tests", function () {
         txHash: "0xb8de40d5d0f5eb8ac4d2a54858bcd4946c85dfcb4353710df1cb73cc6b030c10",
         blockNumber: "643",
       },
+      account: {
+        addressStatus: "",
+      },
     })
   })
 
@@ -152,7 +155,7 @@ describe("Indexer e2e tests", function () {
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000200",
       fromDomainId: 1,
       toDomainId: 2,
-      sender: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
+      accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
       destination: "0x8e0a907331554af72563bd8d43051c2e64be5d35",
       amount: "2296080355773541392",
       timestamp: "2023-07-17T08:31:22.000Z",
@@ -179,6 +182,9 @@ describe("Indexer e2e tests", function () {
         txHash: "0x3de2201e548a8332aaa50147a2fb02e2b6669184f042b4dbcf23b4f5d40edcfb",
         blockNumber: "598",
       },
+      account: {
+        addressStatus: "",
+      },
     })
   })
 
@@ -192,7 +198,7 @@ describe("Indexer e2e tests", function () {
       fromDomainId: 1,
       message: "",
       toDomainId: 2,
-      sender: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
+      accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
       destination:
         "0x696bad2e73f73417f07ef55c62a2dc5b47ed248f568cc8f9fe4371a1d1fab88a62af595f8efb9aeff6f0e043b7ea33b10000000000000000000000005c1f5961696bad2e73f73417f07ef55c62a2dc5b",
       amount: "",
@@ -220,6 +226,9 @@ describe("Indexer e2e tests", function () {
         txHash: "0xcc7c318cfd71745c27111772f21dec553f53277c9dc218fe07b54f897560c0cb",
         blockNumber: "631",
       },
+      account: {
+        addressStatus: "",
+      },
     })
   })
 
@@ -232,7 +241,7 @@ describe("Indexer e2e tests", function () {
       resourceID: "0x0000000000000000000000000000000000000000000000000000000000000100",
       fromDomainId: 1,
       toDomainId: 2,
-      sender: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
+      accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
       destination: "0x",
       message: "",
       amount: "",
@@ -260,6 +269,9 @@ describe("Indexer e2e tests", function () {
         txHash: "0xf031174a3a2b3ae7064f2ca083fa35b1b48b7723ae45ce1f925c9c09a3ba3077",
         blockNumber: "603",
       },
+      account: {
+        addressStatus: "",
+      },
     })
   })
 
@@ -273,7 +285,7 @@ describe("Indexer e2e tests", function () {
       fromDomainId: 3,
       message: "",
       toDomainId: 1,
-      sender: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+      accountId: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
       destination: "0x5c1f5961696bad2e73f73417f07ef55c62a2dc5b",
       amount: "0.000000000001",
       timestamp: "2023-07-17T08:29:12.000Z",
@@ -296,6 +308,9 @@ describe("Indexer e2e tests", function () {
         txHash: "0xe5648eb14c885ddf52226aea17440ec3126bfff778c70e0a366dc9666301ff35",
         blockNumber: "548",
       },
+      account: {
+        addressStatus: "",
+      },
     })
   })
 
@@ -309,7 +324,7 @@ describe("Indexer e2e tests", function () {
       fromDomainId: 1,
       message: "",
       toDomainId: 3,
-      sender: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
+      accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
       destination: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
       amount: "0.0001",
       timestamp: "2023-07-17T08:28:51.000Z",
@@ -333,6 +348,9 @@ describe("Indexer e2e tests", function () {
         handlerResponse: "0x",
       },
       execution: { txHash: "355-1", blockNumber: "355" },
+      account: {
+        addressStatus: "",
+      },
     })
   })
 })

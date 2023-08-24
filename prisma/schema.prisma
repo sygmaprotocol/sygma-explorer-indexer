@@ -19,7 +19,6 @@ model Transfer {
   fromDomainId Int 
   toDomain     Domain?        @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
   toDomainId   Int?
-  sender       String?
   destination  String?
   amount       String?
   timestamp    DateTime?
