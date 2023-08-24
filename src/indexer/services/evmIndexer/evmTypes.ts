@@ -28,15 +28,13 @@ export type DecodedProposalExecutionLog = {
   depositNonce: number
   txHash: string
   timestamp: number
-  resourceID: string | null
-
-  transferType: string
   fromDomainId: string
 }
 
 export type DecodedFailedHandlerExecution = {
   domainId: string
   depositNonce: number
+  message: string
   txHash: string
   blockNumber: number
 }

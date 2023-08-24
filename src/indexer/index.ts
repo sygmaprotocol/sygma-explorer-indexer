@@ -1,4 +1,6 @@
 import nodeCleanup from "node-cleanup"
+import { FastifyInstance } from "fastify"
+import { PrismaClient } from "@prisma/client"
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
@@ -17,18 +19,39 @@ interface DomainIndexer {
   listenToEvents(): Promise<void>
   stop(): void
 }
+const prisma = new PrismaClient()
 
 init()
-  .then(domainIndexers => {
+  .then(initData => {
     nodeCleanup(function () {
-      for (const indexer of domainIndexers) {
+      for (const indexer of initData.domainIndexers) {
+        // stop the indexer
         indexer.stop()
-        nodeCleanup.uninstall()
-        return false
       }
+
+      // close server connection
+      initData.app
+        .close()
+        .then(() => {
+          logger.debug("Server closed.")
+        })
+        .catch(err => {
+          logger.error("Error occurred during server closing: ", err)
+        })
+
+      // close database connection
+      prisma
+        .$disconnect()
+        .then(() => {
+          logger.debug("Database connection closed.")
+        })
+        .catch(err => logger.error("Error occurred during database closing: ", err))
+
+      nodeCleanup.uninstall()
+      return false
     })
 
-    for (const domainIndexer of domainIndexers) {
+    for (const domainIndexer of initData.domainIndexers) {
       domainIndexer.listenToEvents().catch(reason => {
         logger.error("Failed listening to events because of: ", reason)
       })
@@ -38,7 +61,7 @@ init()
     logger.error("Failed to initialize app because of: ", reason)
   })
 
-async function init(): Promise<Array<DomainIndexer>> {
+async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance }> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
   const ofacComplianceService = new OfacComplianceService(process.env.CHAIN_ANALYSIS_URL, process.env.CHAIN_ANALYSIS_API_KEY)
 
@@ -50,7 +73,7 @@ async function init(): Promise<Array<DomainIndexer>> {
   const resourceRepository = new ResourceRepository()
   const accountRepository = new AccountRepository()
 
-  healthcheckRoute()
+  const app = healthcheckRoute()
   const resourceMap = await insertDomains(sharedConfig.domains, resourceRepository, domainRepository)
 
   const rpcUrlConfig = getSsmDomainConfig()
@@ -106,7 +129,7 @@ async function init(): Promise<Array<DomainIndexer>> {
     }
   }
 
-  return domainIndexers
+  return { domainIndexers, app }
 }
 
 async function insertDomains(

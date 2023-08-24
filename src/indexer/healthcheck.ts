@@ -1,10 +1,10 @@
 import { PrismaClient } from "@prisma/client"
 import fastifyHealthcheck from "fastify-healthcheck"
-import { fastify } from "fastify"
+import { FastifyInstance, fastify } from "fastify"
 
 // Create an instance of the Prisma client
 const prisma = new PrismaClient()
-export const healthcheckRoute = function healthcheckRoute(): void {
+export const healthcheckRoute = function healthcheckRoute(): FastifyInstance {
   const app = fastify()
 
   const PORT: number = Number(process.env.PORT!) || 3000
@@ -32,4 +32,6 @@ export const healthcheckRoute = function healthcheckRoute(): void {
     }
     console.log(`⚡️[server]: Server is running at ${address}`)
   })
+
+  return app
 }

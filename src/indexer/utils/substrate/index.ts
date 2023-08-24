@@ -43,18 +43,16 @@ export async function saveProposalExecution(
         depositNonce: Number(depositNonce),
         fromDomainId: originDomainId,
         timestamp,
-        resourceID: null,
       },
       toDomainId,
     )
   } else {
-    await transferRepository.updateStatus(TransferStatus.executed, transfer.id)
+    await transferRepository.updateStatus(TransferStatus.executed, transfer.id, "")
   }
 
   const execution = {
     id: new ObjectId().toString(),
     transferId: transfer.id,
-    type: SubstrateTypeTransfer.Fungible,
     txHash: txIdentifier,
     blockNumber: blockNumber,
   }
@@ -67,7 +65,7 @@ export async function saveFailedHandlerExecution(
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
 ): Promise<void> {
-  const { originDomainId, depositNonce, txIdentifier, blockNumber } = failedHandlerExecutionData
+  const { originDomainId, depositNonce, txIdentifier, blockNumber, error } = failedHandlerExecutionData
 
   let transfer = await transferRepository.findTransfer(Number(depositNonce), Number(originDomainId), toDomainId)
   // there is no transfer yet, but a proposal execution exists
@@ -76,17 +74,17 @@ export async function saveFailedHandlerExecution(
       {
         depositNonce: Number(depositNonce),
         domainId: originDomainId,
+        message: Buffer.from(error).toString(),
       },
       toDomainId,
     )
   } else {
-    await transferRepository.updateStatus(TransferStatus.failed, transfer.id)
+    await transferRepository.updateStatus(TransferStatus.failed, transfer.id, Buffer.from(error).toString())
   }
 
   const execution = {
     id: new ObjectId().toString(),
     transferId: transfer.id,
-    type: SubstrateTypeTransfer.Fungible,
     txHash: txIdentifier,
     blockNumber: blockNumber,
   }
