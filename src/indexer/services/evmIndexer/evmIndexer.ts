@@ -11,9 +11,9 @@ import FeeRepository from "../../repository/fee"
 import { logger } from "../../../utils/logger"
 import AccountRepository from "../../repository/account"
 import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
+import { OfacComplianceService } from "../ofac"
 import { getLogs } from "./evmfilter"
 import { decodeLogs } from "./evmEventParser"
-import { OfacComplianceService } from "./ofac"
 
 const BLOCK_TIME = 15000
 

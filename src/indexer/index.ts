@@ -12,7 +12,7 @@ import ExecutionRepository from "./repository/execution"
 import FeeRepository from "./repository/fee"
 import ResourceRepository from "./repository/resource"
 import { healthcheckRoute } from "./healthcheck"
-import { OfacComplianceService } from "./services/evmIndexer/ofac"
+import { OfacComplianceService } from "./services/ofac"
 import AccountRepository from "./repository/account"
 import CoinMarketCapService from "./services/coinmarketcap/coinmarketcap.service"
 
@@ -64,12 +64,16 @@ init()
 
 async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance }> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
-  const ofacComplianceService = new OfacComplianceService(process.env.CHAIN_ANALYSIS_URL, process.env.CHAIN_ANALYSIS_API_KEY)
 
-  const coinMarketCapServiceInstance = new CoinMarketCapService(
-    process.env.COINMARKETCAP_API_KEY as string,
-    process.env.COINMARKETCAP_API_URL as string,
-  )
+  const chainAnalysisUrl = process.env.CHAIN_ANALYSIS_URL || ""
+  const chainAnalysisApiKey = process.env.CHAIN_ANALYSIS_API_KEY || ""
+
+  const coinMarketCapAPIKey = process.env.COINMARKETCAP_API_KEY || ""
+  const coinMarketCapUrl = process.env.COINMARKETCAP_API_URL || ""
+
+  const ofacComplianceService = new OfacComplianceService(chainAnalysisUrl, chainAnalysisApiKey)
+
+  const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl)
 
   const domainRepository = new DomainRepository()
   const depositRepository = new DepositRepository()

@@ -25,7 +25,7 @@ import {
 import { getERC20Contract } from "../../services/contract"
 import FeeRepository from "../../repository/fee"
 import ExecutionRepository from "../../repository/execution"
-import { OfacComplianceService } from "../../services/evmIndexer/ofac"
+import { OfacComplianceService } from "../../services/ofac"
 import CoinMarketCapService from "../../services/coinmarketcap/coinmarketcap.service"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
@@ -261,9 +261,9 @@ export async function saveDepositLogs(
   let senderStatus: string
 
   try {
-    senderStatus = await ofacComplianceService.checkSanctionedAddress(sender)
+    senderStatus = (await ofacComplianceService.checkSanctionedAddress(sender)) as string
   } catch (e) {
-    logger.error((e as Error).message)
+    logger.error(`Checking address failed: ${(e as Error).message}`)
     senderStatus = ""
   }
 
