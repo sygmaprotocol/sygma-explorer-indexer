@@ -25,7 +25,6 @@ export class OfacComplianceService {
   }
 
   public async checkSanctionedAddress(address: string): Promise<string | Error> {
-
     const urlToUse = url.resolve(this.chainAnalisysUrl, address)
 
     const response = await fetch(urlToUse, {
