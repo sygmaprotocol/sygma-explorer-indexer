@@ -63,10 +63,10 @@ init()
 async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance }> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
 
-  const coinMarketCapServiceInstance = new CoinMarketCapService(
-    process.env.COINMARKETCAP_API_KEY as string,
-    process.env.COINMARKETCAP_API_URL as string,
-  )
+  const coinMarketCapAPIKey = process.env.COINMARKETCAP_API_KEY || ""
+  const coinMarketCapUrl = process.env.COINMARKETCAP_API_URL || ""
+
+  const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl)
 
   const domainRepository = new DomainRepository()
   const depositRepository = new DepositRepository()
