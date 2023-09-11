@@ -7,6 +7,7 @@ import { ObjectId } from "mongodb"
 import { TransferStatus } from "@prisma/client"
 import { MultiLocation } from "@polkadot/types/interfaces"
 import { ApiPromise, WsProvider } from "@polkadot/api"
+import AccountRepository from "../../repository/account"
 import TransferRepository from "../../repository/transfer"
 import DepositRepository from "../../repository/deposit"
 import { logger } from "../../../utils/logger"
@@ -24,6 +25,7 @@ import {
 import { getERC20Contract } from "../../services/contract"
 import FeeRepository from "../../repository/fee"
 import ExecutionRepository from "../../repository/execution"
+import { OfacComplianceService } from "../../services/ofac"
 import CoinMarketCapService from "../../services/coinmarketcap/coinmarketcap.service"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
@@ -227,11 +229,14 @@ export async function saveDepositLogs(
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
+  ofacComplianceService: OfacComplianceService,
+  accountRepository: AccountRepository,
   coinMarketCapService: CoinMarketCapService,
   sharedConfig: SharedConfig,
 ): Promise<void> {
   let transfer = await transferRepository.findTransfer(decodedLog.depositNonce, Number(decodedLog.fromDomainId), Number(decodedLog.toDomainId))
-  const { amount, fromDomainId } = decodedLog
+
+  const { sender, amount, fromDomainId } = decodedLog
 
   const currentDomain = sharedConfig.domains.find(domain => domain.id == parseInt(fromDomainId))
 
@@ -252,6 +257,20 @@ export async function saveDepositLogs(
       amountInUSD = 0
     }
   }
+
+  let senderStatus: string
+
+  try {
+    senderStatus = (await ofacComplianceService.checkSanctionedAddress(sender)) as string
+  } catch (e) {
+    logger.error(`Checking address failed: ${(e as Error).message}`)
+    senderStatus = ""
+  }
+
+  await accountRepository.insertAccount({
+    id: decodedLog.sender,
+    addressStatus: senderStatus,
+  })
 
   if (!transfer) {
     transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, usdValue: amountInUSD })

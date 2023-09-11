@@ -26,6 +26,7 @@ import {
 import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes"
 import { Domain, SharedConfig, SubstrateResource } from "../../../indexer/config"
 import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser"
+import AccountRepository from "../../repository/account"
 import CoinMarketCapService from "../../../indexer/services/coinmarketcap/coinmarketcap.service"
 
 export async function saveProposalExecution(
@@ -97,6 +98,7 @@ export async function saveDeposit(
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
+  accountRepository: AccountRepository,
   coinMakerCapService: CoinMarketCapService,
   sharedConfig: SharedConfig,
 ): Promise<void> {
@@ -130,16 +132,32 @@ export async function saveDeposit(
   }
 
   if (transfer) {
-    const dataTransferToUpdate = {
+    let dataTransferToUpdate = {
       depositNonce: Number(depositNonce),
-      sender,
       amount: decodedAmount,
       resourceID: resourceId,
       fromDomainId: originDomainId.toString(),
       toDomainId: destinationDomainId,
       timestamp: timestamp,
       destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
-      usdValue: amountInUSD,
+    } as Pick<
+      DecodedDepositLog,
+      "depositNonce" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp" | "sender"
+    > & { usdValue: number }
+
+    if (transfer.accountId !== null) {
+      dataTransferToUpdate = {
+        ...dataTransferToUpdate,
+        sender: transfer.accountId,
+      }
+    } else {
+      await accountRepository.insertAccount({ id: sender, addressStatus: "" })
+
+      dataTransferToUpdate = {
+        ...dataTransferToUpdate,
+        sender,
+        usdValue: amountInUSD,
+      }
     }
     await transferRepository.updateTransfer(dataTransferToUpdate, transfer.id)
   } else {
@@ -158,6 +176,9 @@ export async function saveDeposit(
       DecodedDepositLog,
       "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp"
     > & { usdValue: number }
+
+    await accountRepository.insertAccount({ id: sender, addressStatus: "" })
+
     transfer = await transferRepository.insertSubstrateDepositTransfer(transferData)
   }
 
@@ -207,6 +228,7 @@ export async function saveEvents(
   depositRepository: DepositRepository,
   feeRepository: FeeRepository,
   resourceMap: Map<string, SubstrateResource>,
+  accountRepository: AccountRepository,
   coinMakerCapService: CoinMarketCapService,
   sharedConfig: SharedConfig,
 ): Promise<void> {
@@ -263,6 +285,7 @@ export async function saveEvents(
       transferRepository,
       depositRepository,
       transferMap,
+      accountRepository,
       coinMakerCapService,
       sharedConfig,
     )
@@ -332,13 +355,23 @@ export async function saveDepositToDb(
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   transferMap: Map<string, string>,
+  accountRepository: AccountRepository,
   coinmarketcapService: CoinMarketCapService,
   sharedConfig: SharedConfig,
 ): Promise<void> {
   logger.info(`Saving deposit. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
   try {
-    await saveDeposit(domain.id, depositData, transferRepository, depositRepository, transferMap, coinmarketcapService, sharedConfig)
+    await saveDeposit(
+      domain.id,
+      depositData,
+      transferRepository,
+      depositRepository,
+      transferMap,
+      accountRepository,
+      coinmarketcapService,
+      sharedConfig,
+    )
   } catch (error) {
     logger.error("Error saving substrate deposit:", error)
   }

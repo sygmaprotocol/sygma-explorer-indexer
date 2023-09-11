@@ -2,16 +2,15 @@ import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
 import { ObjectId } from "mongodb"
 import { DecodedDepositLog, DecodedFailedHandlerExecution, DecodedProposalExecutionLog } from "../services/evmIndexer/evmTypes"
 
-export type TransferMetadataeta = {
+export type TransferMetadata = {
   id: string
   depositNonce: number
-  sender: string
   amount: string
   destination: string
   fromDomainId: string
   toDomainId: string
   resourceID: string
-
+  timestamp: Date
   resource: {
     connect: {
       id: string
@@ -19,10 +18,15 @@ export type TransferMetadataeta = {
   }
   fromDomain: {
     connect: {
-      id: string
+      id: number
     }
   }
   toDomain: {
+    connect: {
+      id: number
+    }
+  }
+  account?: {
     connect: {
       id: string
     }
@@ -33,9 +37,7 @@ class TransferRepository {
 
   public async insertDepositTransfer(decodedLog: DecodedDepositLog & { usdValue: number | null }): Promise<Transfer> {
     const transferData = {
-      id: new ObjectId().toString(),
       depositNonce: decodedLog.depositNonce,
-      sender: decodedLog.sender,
       amount: decodedLog.amount,
       destination: decodedLog.destination,
       status: TransferStatus.pending,
@@ -58,7 +60,33 @@ class TransferRepository {
       timestamp: new Date(decodedLog.timestamp * 1000), // this is only being used by evm service
       usdValue: decodedLog.usdValue,
     }
-    return await this.transfer.create({ data: transferData })
+
+    return await this.transfer.upsert({
+      where: {
+        transferId: {
+          depositNonce: decodedLog.depositNonce,
+          fromDomainId: Number(decodedLog.fromDomainId),
+          toDomainId: Number(decodedLog.toDomainId),
+        },
+      },
+      update: {
+        ...transferData,
+        account: {
+          connect: {
+            id: decodedLog.sender,
+          },
+        },
+      },
+      create: {
+        id: new ObjectId().toString(),
+        ...transferData,
+        account: {
+          connect: {
+            id: decodedLog.sender,
+          },
+        },
+      },
+    })
   }
 
   public async insertSubstrateDepositTransfer(
@@ -70,7 +98,6 @@ class TransferRepository {
     const transferData = {
       id: new ObjectId().toString(),
       depositNonce: substrateDepositData.depositNonce,
-      sender: substrateDepositData.sender,
       amount: substrateDepositData.amount,
       destination: substrateDepositData.destination,
       status: TransferStatus.pending,
@@ -91,6 +118,11 @@ class TransferRepository {
         },
       },
       timestamp: new Date(substrateDepositData.timestamp),
+      account: {
+        connect: {
+          id: substrateDepositData.sender,
+        },
+      },
       usdValue: substrateDepositData.usdValue,
     }
 
@@ -106,7 +138,6 @@ class TransferRepository {
       depositNonce: depositNonce,
       message: "",
       status: TransferStatus.executed,
-      sender: null,
       destination: null,
       amount: null,
       toDomainId: undefined,
@@ -152,13 +183,13 @@ class TransferRepository {
   public async updateTransfer(
     {
       depositNonce,
-      sender,
       amount,
       destination,
       resourceID,
       fromDomainId,
       toDomainId,
       timestamp,
+      sender,
       usdValue,
     }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp"> & {
       usdValue: number | null
@@ -167,7 +198,6 @@ class TransferRepository {
   ): Promise<Transfer> {
     const transferData = {
       depositNonce: depositNonce,
-      sender: sender,
       amount: amount,
       destination: destination,
       resource: {
@@ -185,9 +215,14 @@ class TransferRepository {
           id: Number(toDomainId),
         },
       },
+      account: {
+        connect: {
+          id: sender,
+        },
+      },
       timestamp: new Date(timestamp),
       usdValue: usdValue,
-    }
+    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account" | "timestamp">
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 

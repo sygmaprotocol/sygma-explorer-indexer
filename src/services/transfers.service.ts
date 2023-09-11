@@ -8,6 +8,8 @@ export type TransfersByCursorOptions = {
   [key: string]: string | undefined
 }
 
+export type WhereClause = { [key: string]: string | undefined }
+
 class TransfersService {
   public transfers = new PrismaClient().transfer
   public deposit = new PrismaClient().deposit
@@ -15,7 +17,7 @@ class TransfersService {
   private prepareQueryParams(args: TransfersByCursorOptions): {
     skip: number
     take: number
-    where: (TransferStatus & { sender: string }) | {}
+    where: WhereClause
   } {
     const { page, limit, ...rest } = args
 
@@ -24,7 +26,7 @@ class TransfersService {
     const skip = (pageIndex - 1) * pageSize
     const take = pageSize
 
-    const where = rest ? { ...rest } : ({} as (TransferStatus & { sender: string }) | {})
+    const where = rest ? { ...rest } : ({} as TransferStatus | {})
 
     return {
       skip,
@@ -78,12 +80,12 @@ class TransfersService {
   }
 
   public async findTransferByFilterParams(args: TransfersByCursorOptions): Promise<Transfer[]> {
-    const { page, limit, status, sender } = args
+    const { page, limit, status } = args
 
-    const queryParams = this.prepareQueryParams({ page, limit, status, sender })
+    const queryParams = this.prepareQueryParams({ page, limit, status })
     const { skip, take, where } = queryParams
 
-    const transfer = await this.transfers.findMany({
+    const transfers = await this.transfers.findMany({
       where,
       take,
       skip,
@@ -97,7 +99,33 @@ class TransfersService {
       },
     })
 
-    return transfer
+    return transfers
+  }
+
+  public async findTransferByAccountAddress(args: TransfersByCursorOptions): Promise<Transfer[]> {
+    const { page, limit, status, sender } = args
+    const queryParams = this.prepareQueryParams({ page, limit, status })
+    const { skip, take } = queryParams
+
+    const transfers = await this.transfers.findMany({
+      where: {
+        account: {
+          id: sender,
+        },
+      },
+      take,
+      skip,
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+      ],
+      include: {
+        ...getTransferQueryParams().include,
+      },
+    })
+
+    return transfers
   }
 }
 export default TransfersService

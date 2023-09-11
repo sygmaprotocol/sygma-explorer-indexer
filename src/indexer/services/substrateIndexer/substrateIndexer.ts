@@ -7,6 +7,7 @@ import ExecutionRepository from "../../../indexer/repository/execution"
 import DepositRepository from "../../../indexer/repository/deposit"
 import TransferRepository from "../../../indexer/repository/transfer"
 import { saveEvents, sleep } from "../../../indexer/utils/substrate"
+import AccountRepository from "../../../indexer/repository/account"
 import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
 
 const BLOCK_TIME = 12000
@@ -22,6 +23,7 @@ export class SubstrateIndexer {
   private provider!: ApiPromise
   private domain: Domain
   private stopped = false
+  private accountRepository: AccountRepository
   private coinMarketCapService: CoinMarketCapService
   private sharedConfig: SharedConfig
 
@@ -33,6 +35,7 @@ export class SubstrateIndexer {
     transferRepository: TransferRepository,
     feeRepository: FeeRepository,
     resourceMap: Map<string, SubstrateResource>,
+    accountRepository: AccountRepository,
     coinmarketcapService: CoinMarketCapService,
     sharedConfig: SharedConfig,
   ) {
@@ -43,6 +46,7 @@ export class SubstrateIndexer {
     this.transferRepository = transferRepository
     this.feeRepository = feeRepository
     this.resourceMap = resourceMap
+    this.accountRepository = accountRepository
     this.coinMarketCapService = coinmarketcapService
     this.sharedConfig = sharedConfig
   }
@@ -86,6 +90,7 @@ export class SubstrateIndexer {
           this.depositRepository,
           this.feeRepository,
           this.resourceMap,
+          this.accountRepository,
           this.coinMarketCapService,
           this.sharedConfig,
         )

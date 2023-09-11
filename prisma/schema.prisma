@@ -19,7 +19,6 @@ model Transfer {
   fromDomainId Int
   toDomain     Domain?        @relation(name: "toDomainRelation", fields: [toDomainId], references: [id])
   toDomainId   Int?
-  sender       String?
   destination  String?
   amount       String?
   timestamp    DateTime?
@@ -27,6 +26,8 @@ model Transfer {
   deposit      Deposit?
   execution    Execution?
   fee          Fee?
+  account      Account?       @relation(name: "accountRelation", fields: [accountId], references: [id])
+  accountId    String?
   message      String?
   usdValue     Float?
 
@@ -37,6 +38,12 @@ enum TransferStatus {
   pending
   executed
   failed
+}
+
+model Account {
+  id            String     @id @map("_id")
+  addressStatus String
+  Transfer      Transfer[] @relation(name: "accountRelation")
 }
 
 model Resource {

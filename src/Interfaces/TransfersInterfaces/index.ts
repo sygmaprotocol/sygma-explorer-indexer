@@ -61,5 +61,10 @@ export type IncludedQueryParams = {
         blockNumber: boolean
       }
     }
+    account: {
+      select: {
+        addressStatus: boolean
+      }
+    }
   }
 }

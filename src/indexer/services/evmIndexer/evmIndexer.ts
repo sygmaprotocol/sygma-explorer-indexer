@@ -9,7 +9,9 @@ import ExecutionRepository from "../../repository/execution"
 import DomainRepository from "../../repository/domain"
 import FeeRepository from "../../repository/fee"
 import { logger } from "../../../utils/logger"
+import AccountRepository from "../../repository/account"
 import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
+import { OfacComplianceService } from "../ofac"
 import { getLogs } from "./evmfilter"
 import { decodeLogs } from "./evmEventParser"
 
@@ -29,6 +31,8 @@ export class EvmIndexer {
   private domains: Domain[]
   private resourceMap: Map<string, EvmResource>
   private stopped = false
+  private ofacComplianceService: OfacComplianceService
+  private accountRepository: AccountRepository
   private coinMarketCapService: CoinMarketCapService
   private sharedConfig: SharedConfig
 
@@ -41,6 +45,8 @@ export class EvmIndexer {
     transferRepository: TransferRepository,
     executionRepository: ExecutionRepository,
     feeRepository: FeeRepository,
+    ofacComplianceService: OfacComplianceService,
+    accountRepository: AccountRepository,
     coinMarketCapServiceInstance: CoinMarketCapService,
     sharedConfig: SharedConfig,
   ) {
@@ -51,9 +57,11 @@ export class EvmIndexer {
     this.transferRepository = transferRepository
     this.executionRepository = executionRepository
     this.feeRepository = feeRepository
+    this.ofacComplianceService = ofacComplianceService
     this.domains = domains
     this.resourceMap = new Map<string, EvmResource>()
     domain.resources.map((resource: EvmResource) => this.resourceMap.set(resource.resourceId, resource))
+    this.accountRepository = accountRepository
     this.coinMarketCapService = coinMarketCapServiceInstance
     this.sharedConfig = sharedConfig
   }
@@ -108,7 +116,16 @@ export class EvmIndexer {
     const transferMap = new Map<string, string>()
     await Promise.all(
       decodedLogs.deposit.map(async decodedLog =>
-        saveDepositLogs(decodedLog, this.transferRepository, this.depositRepository, transferMap, this.coinMarketCapService, this.sharedConfig),
+        saveDepositLogs(
+          decodedLog,
+          this.transferRepository,
+          this.depositRepository,
+          transferMap,
+          this.ofacComplianceService,
+          this.accountRepository,
+          this.coinMarketCapService,
+          this.sharedConfig,
+        ),
       ),
     )
 

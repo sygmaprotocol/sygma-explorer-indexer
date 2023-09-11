@@ -12,6 +12,8 @@ import ExecutionRepository from "./repository/execution"
 import FeeRepository from "./repository/fee"
 import ResourceRepository from "./repository/resource"
 import { healthcheckRoute } from "./healthcheck"
+import { OfacComplianceService } from "./services/ofac"
+import AccountRepository from "./repository/account"
 import CoinMarketCapService from "./services/coinmarketcap/coinmarketcap.service"
 
 interface DomainIndexer {
@@ -63,8 +65,13 @@ init()
 async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance }> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
 
+  const chainAnalysisUrl = process.env.CHAIN_ANALYSIS_URL || ""
+  const chainAnalysisApiKey = process.env.CHAIN_ANALYSIS_API_KEY || ""
+
   const coinMarketCapAPIKey = process.env.COINMARKETCAP_API_KEY || ""
   const coinMarketCapUrl = process.env.COINMARKETCAP_API_URL || ""
+
+  const ofacComplianceService = new OfacComplianceService(chainAnalysisUrl, chainAnalysisApiKey)
 
   const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl)
 
@@ -74,6 +81,7 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
   const executionRepository = new ExecutionRepository()
   const feeRepository = new FeeRepository()
   const resourceRepository = new ResourceRepository()
+  const accountRepository = new AccountRepository()
 
   const app = healthcheckRoute()
   const resourceMap = await insertDomains(sharedConfig.domains, resourceRepository, domainRepository)
@@ -99,6 +107,7 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
           transferRepository,
           feeRepository,
           resourceMap,
+          accountRepository,
           coinMarketCapServiceInstance,
           sharedConfig,
         )
@@ -119,6 +128,8 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
           transferRepository,
           executionRepository,
           feeRepository,
+          ofacComplianceService,
+          accountRepository,
           coinMarketCapServiceInstance,
           sharedConfig,
         )
