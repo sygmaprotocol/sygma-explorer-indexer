@@ -96,8 +96,12 @@ export const TransfersController = {
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      logger.error(e)
-      void reply.status(500)
+      if (e instanceof NotFound) {
+        void reply.status(404)
+      } else {
+        logger.error(e)
+        void reply.status(500)
+      }
     }
   },
 
@@ -117,8 +121,12 @@ export const TransfersController = {
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      logger.error(e)
-      void reply.status(500)
+      if (e instanceof NotFound) {
+        void reply.status(404)
+      } else {
+        logger.error(e)
+        void reply.status(500)
+      }
     }
   },
 
@@ -138,8 +146,12 @@ export const TransfersController = {
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      logger.error(e)
-      void reply.status(500)
+      if (e instanceof NotFound) {
+        void reply.status(404)
+      } else {
+        logger.error(e)
+        void reply.status(500)
+      }
     }
   },
 
@@ -156,11 +168,14 @@ export const TransfersController = {
 
     try {
       const transfers = await transfersService.findTransferByDomain({ page, limit, status, domain, domainID: domainID})
-
       void reply.status(200).send(transfers)
     } catch (e) {
-      logger.error(e)
-      void reply.status(500)
+      if (e instanceof NotFound) {
+        void reply.status(404)
+      } else {
+        logger.error(e)
+        void reply.status(500)
+      }
     }
   },
 }
