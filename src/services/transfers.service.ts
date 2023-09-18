@@ -127,5 +127,29 @@ class TransfersService {
 
     return transfers
   }
+
+  public async findTransferByResourceID(args: TransfersByCursorOptions): Promise<Transfer[]> {
+    const { page, limit, status, resourceID } = args
+    const queryParams = this.prepareQueryParams({ page, limit, status })
+    const { skip, take } = queryParams
+
+    const transfers = await this.transfers.findMany({
+      where: {
+        resourceID: resourceID
+      },
+      take,
+      skip,
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+      ],
+      include: {
+        ...getTransferQueryParams().include,
+      },
+    })
+
+    return transfers
+  }
 }
 export default TransfersService

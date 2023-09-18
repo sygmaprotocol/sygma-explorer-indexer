@@ -18,6 +18,10 @@ export interface ITransferBySender extends ITransfer {
   senderAddress: string
 }
 
+export interface ITransferByResource extends ITransfer {
+  resourceID: string
+}
+
 export type IncludedQueryParams = {
   include: {
     resource: {
