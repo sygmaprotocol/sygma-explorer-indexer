@@ -31,6 +31,14 @@ export interface ITransferByResourceBetweenDomains extends ITransfer,
     ITransferByResource, ITransferBySourceDomainToDestinationDomain {
 }
 
+export interface ITransferByDomain extends ITransfer {
+  domainID: string, 
+}
+
+export interface ITransferByDomainQuery extends ITransfer {
+  domain?: string,
+}
+
 export type IncludedQueryParams = {
   include: {
     resource: {

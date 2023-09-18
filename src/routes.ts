@@ -44,4 +44,10 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
     url: "/resources/:resourceID/domains/:sourceDomainID/destination/:destinationDomainID/transfers",
     handler: TransfersController.transferByResourceBetweenDomains,
   })
+
+  fastify.route({
+    method: "GET",
+    url: "/domains/:domainID/transfers",
+    handler: TransfersController.transferByDomain,
+  })
 }

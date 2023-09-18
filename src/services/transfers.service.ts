@@ -199,6 +199,30 @@ class TransfersService {
         ...getTransferQueryParams().include,
       },
     })
+
+    return transfers
+  }
+
+  public async findTransferByDomain(args: TransfersByCursorOptions): Promise<Transfer[]> {
+    const { page, limit, status, domain, domainID } = args
+    const queryParams = this.prepareQueryParams({ page, limit, status, domain })
+    const { skip, take } = queryParams
+
+    const transfers = await this.transfers.findMany({
+      where: {
+          fromDomainId: parseInt(domainID!),
+      },
+      take,
+      skip,
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+      ],
+      include: {
+        ...getTransferQueryParams().include,
+      },
+    })
     
     return transfers
   }
