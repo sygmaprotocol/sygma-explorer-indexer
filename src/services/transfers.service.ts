@@ -176,5 +176,31 @@ class TransfersService {
 
     return transfers
   }
+
+  public async findTransferByResourceBetweenDomains(args: TransfersByCursorOptions): Promise<Transfer[]> {
+    const { page, limit, resourceID, sourceDomainID, destinationDomainID } = args
+    const queryParams = this.prepareQueryParams({ page, limit })
+    const { skip, take } = queryParams
+
+    const transfers = await this.transfers.findMany({
+      where: {
+        resourceID: resourceID,
+        fromDomainId: parseInt(sourceDomainID!), 
+        toDomainId: parseInt(destinationDomainID!),     
+      },
+      take,
+      skip,
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+      ],
+      include: {
+        ...getTransferQueryParams().include,
+      },
+    })
+    
+    return transfers
+  }
 }
 export default TransfersService
