@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify"
-import { ITransfer, ITransferById, ITransferByResource, ITransferBySender, ITransferByTxHash } from "../Interfaces"
+import { ITransfer, ITransferById, ITransferByResource, ITransferBySender, ITransferBySourceDomainToDestinationDomain, ITransferByTxHash } from "../Interfaces"
 import { logger } from "../utils/logger"
 
 import TransfersService from "../services/transfers.service"
@@ -93,6 +93,27 @@ export const TransfersController = {
 
     try {
       const transfers = await transfersService.findTransferByResourceID({ page, limit, status, resourceID: resourceID })
+
+      void reply.status(200).send(transfers)
+    } catch (e) {
+      logger.error(e)
+      void reply.status(500)
+    }
+  },
+
+  transferBySourceDomainToDestinationDomain: async function (
+    request: FastifyRequest<{ Params: ITransferBySourceDomainToDestinationDomain; Querystring: ITransfer}>,
+    reply: FastifyReply,
+  ): Promise<void> {
+    const {
+      params: { sourceDomainID, destinationDomainID },
+    } = request
+    const {
+      query: { page, limit },
+    } = request
+
+    try {
+      const transfers = await transfersService.findTransferBySourceDomainToDestinationDomain({ page, limit, sourceDomainId: sourceDomainID, destinationDomainID: destinationDomainID})
 
       void reply.status(200).send(transfers)
     } catch (e) {

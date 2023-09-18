@@ -22,6 +22,11 @@ export interface ITransferByResource extends ITransfer {
   resourceID: string
 }
 
+export interface ITransferBySourceDomainToDestinationDomain extends ITransfer {
+  sourceDomainID: string,
+  destinationDomainID: string,
+}
+
 export type IncludedQueryParams = {
   include: {
     resource: {

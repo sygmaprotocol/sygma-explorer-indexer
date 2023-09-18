@@ -151,5 +151,30 @@ class TransfersService {
 
     return transfers
   }
+
+  public async findTransferBySourceDomainToDestinationDomain(args: TransfersByCursorOptions): Promise<Transfer[]> {
+    const { page, limit, sourceDomainID, destinationDomainID } = args
+    const queryParams = this.prepareQueryParams({ page, limit })
+    const { skip, take } = queryParams
+
+    const transfers = await this.transfers.findMany({
+      where: {
+        fromDomainId: parseInt(sourceDomainID!), 
+        toDomainId: parseInt(destinationDomainID!)      
+      },
+      take,
+      skip,
+      orderBy: [
+        {
+          timestamp: "desc",
+        },
+      ],
+      include: {
+        ...getTransferQueryParams().include,
+      },
+    })
+
+    return transfers
+  }
 }
 export default TransfersService
