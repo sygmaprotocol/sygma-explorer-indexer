@@ -208,9 +208,7 @@ class TransfersService {
     const queryParams = this.prepareQueryParams({ page, limit, status, domain })
     const { skip, take } = queryParams
 
-    if (domain != undefined && domain.toLowerCase() != "source" && domain.toLowerCase() != "destination"){
-      throw new NotFound("Query parameter domain must be 'source' or 'destination'")
-    } else if (domain == undefined || domain?.toLowerCase() == "source"){
+    if (domain == undefined || domain.toLowerCase() == "source"){
         const transfers = await this.transfers.findMany({
           where: {
               fromDomainId: parseInt(domainID!),
@@ -227,7 +225,7 @@ class TransfersService {
           },
         })
         return transfers
-    } else {
+    } else if (domain.toLowerCase() == "destination"){
         const transfers = await this.transfers.findMany({
         where: {
             toDomainId: parseInt(domainID!),
@@ -244,6 +242,8 @@ class TransfersService {
         },
       })
       return transfers
+    } else {
+      throw new NotFound("Query parameter domain must be 'source' or 'destination'")
     }
   }
 }

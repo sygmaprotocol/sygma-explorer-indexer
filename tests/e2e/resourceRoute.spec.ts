@@ -74,7 +74,7 @@ describe("Get all transfers for a specific resource", function () {
         expect(transfers.length).to.be.deep.equal(NUMBER_OF_ERC721TST_TRANSFERS)
 
         expect(transfers[0]).to.be.deep.equal({
-            id: '65098e3fb1ebdfe6863b6231',
+            id: transfers[0].id,
             depositNonce: 2,
             resourceID: '0x0000000000000000000000000000000000000000000000000000000000000200',
             fromDomainId: 1,
@@ -120,7 +120,7 @@ describe("Get all transfers for a specific resource", function () {
         
         expect(transfers[0]).to.be.deep.equal(
             {
-                id: '65098e41b1ebdfe6863b628c',
+                id: transfers[0].id,
                 depositNonce: 29,
                 resourceID: '0x0000000000000000000000000000000000000000000000000000000000000500',
                 fromDomainId: 1,
@@ -166,7 +166,7 @@ describe("Get all transfers for a specific resource", function () {
         expect(transfers.length).to.be.deep.equal(NUMBER_OF_PERMISSIONED_TRANSFERS)
 
         expect(transfers[0]).to.be.deep.equal({
-            id: '65098e3fb1ebdfe6863b6234',
+            id: transfers[0].id,
             depositNonce: 3,
             resourceID: '0x0000000000000000000000000000000000000000000000000000000000000100',
             fromDomainId: 1,
