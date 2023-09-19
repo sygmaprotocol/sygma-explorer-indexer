@@ -39,6 +39,11 @@ describe("Get all transfers from a source domain to a destination domain", funct
         const transfers = res.data as Array<TransferResponse>
         
         expect(transfers.length).to.be.deep.equal(30)
+
+        for (let transfer of transfers){
+          expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_1))
+          expect(transfer.toDomainId).to.be.deep.equal(parseInt(DOMAIN_2))
+        }
     })
 
     it("Should successfully fetch all transfers from domain 1 to domain 3", async () => {
@@ -46,6 +51,11 @@ describe("Get all transfers from a source domain to a destination domain", funct
         const transfers = res.data as Array<TransferResponse> 
 
         expect(transfers.length).to.be.deep.equal(2)
+
+        for (let transfer of transfers){
+          expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_1))
+          expect(transfer.toDomainId).to.be.deep.equal(parseInt(DOMAIN_3))
+        }
     })
 
     it("Should successfully fetch all transfers from domain 3 to domain 1", async () => {
@@ -53,5 +63,10 @@ describe("Get all transfers from a source domain to a destination domain", funct
       const transfers = res.data as Array<TransferResponse> 
 
       expect(transfers.length).to.be.deep.equal(3)
+
+      for (let transfer of transfers){
+        expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_3))
+        expect(transfer.toDomainId).to.be.deep.equal(parseInt(DOMAIN_1))
+      }
   })
 })
