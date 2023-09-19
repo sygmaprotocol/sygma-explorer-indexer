@@ -117,7 +117,7 @@ export const TransfersController = {
     } = request
 
     try {
-      const transfers = await transfersService.findTransferBySourceDomainToDestinationDomain({ page, limit, sourceDomainId: sourceDomainID, destinationDomainID: destinationDomainID})
+      const transfers = await transfersService.findTransferBySourceDomainToDestinationDomain({ page, limit, sourceDomainID: sourceDomainID, destinationDomainID: destinationDomainID})
 
       void reply.status(200).send(transfers)
     } catch (e) {
