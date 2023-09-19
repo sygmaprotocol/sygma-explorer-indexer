@@ -162,8 +162,6 @@ describe("Get all transfers for a specific resource", function () {
         const res = await axios.get(`http://localhost:8000/api/resources/${PERMISSIONED_GENERIC_RESOURCE_ID}/transfers?page=1&limit=100`)
         const transfers = res.data as Array<TransferResponse>
         
-        console.log(transfers[0])
-
         expect(res.status).to.be.deep.equal(200)
         expect(transfers.length).to.be.deep.equal(NUMBER_OF_PERMISSIONED_TRANSFERS)
 
