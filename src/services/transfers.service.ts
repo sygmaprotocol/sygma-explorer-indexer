@@ -160,7 +160,7 @@ class TransfersService {
     const transfers = await this.transfers.findMany({
       where: {
         fromDomainId: parseInt(sourceDomainID!), 
-        toDomainId: parseInt(destinationDomainID!)      
+        toDomainId: parseInt(destinationDomainID!)
       },
       take,
       skip,
@@ -178,8 +178,8 @@ class TransfersService {
   }
 
   public async findTransferByResourceBetweenDomains(args: TransfersByCursorOptions): Promise<Transfer[]> {
-    const { page, limit, resourceID, sourceDomainID, destinationDomainID } = args
-    const queryParams = this.prepareQueryParams({ page, limit })
+    const { page, limit,  resourceID, sourceDomainID, destinationDomainID } = args
+    const queryParams = this.prepareQueryParams({ page, limit})
     const { skip, take } = queryParams
 
     const transfers = await this.transfers.findMany({
@@ -208,23 +208,43 @@ class TransfersService {
     const queryParams = this.prepareQueryParams({ page, limit, status, domain })
     const { skip, take } = queryParams
 
-    const transfers = await this.transfers.findMany({
-      where: {
-          fromDomainId: parseInt(domainID!),
-      },
-      take,
-      skip,
-      orderBy: [
-        {
-          timestamp: "desc",
+    if (domain != undefined && domain.toLowerCase() != "source" && domain.toLowerCase() != "destination"){
+      throw new NotFound("Query parameter domain must be 'source' or 'destination'")
+    } else if (domain == undefined || domain?.toLowerCase() == "source"){
+        const transfers = await this.transfers.findMany({
+          where: {
+              fromDomainId: parseInt(domainID!),
+          },
+          take,
+          skip,
+          orderBy: [
+            {
+              timestamp: "desc",
+            },
+          ],
+          include: {
+            ...getTransferQueryParams().include,
+          },
+        })
+        return transfers
+    } else {
+        const transfers = await this.transfers.findMany({
+        where: {
+            toDomainId: parseInt(domainID!),
         },
-      ],
-      include: {
-        ...getTransferQueryParams().include,
-      },
-    })
-    
-    return transfers
+        take,
+        skip,
+        orderBy: [
+          {
+            timestamp: "desc",
+          },
+        ],
+        include: {
+          ...getTransferQueryParams().include,
+        },
+      })
+      return transfers
+    }
   }
 }
 export default TransfersService
