@@ -16,6 +16,7 @@ const NUMBER_OF_ERC20LRTEST_TRANSFERS = 6
 const NUMBER_OF_ERC721TST_TRANSFERS = 1
 const NUMBER_OF_PERMISSIONLESS_TRANSFERS = 1
 const NUMBER_OF_PERMISSIONED_TRANSFERS = 1
+const DEFAULT_LIMIT = 10
 
 const ERC20TST_RESOURCE_ID = "0x0000000000000000000000000000000000000000000000000000000000000000"
 const ERC20LRTEST_RESOURCE_ID = "0x0000000000000000000000000000000000000000000000000000000000000300"
@@ -47,6 +48,18 @@ describe("Get all transfers for a specific resource", function () {
 
     expect(res.status).to.be.deep.equal(200)
     expect(transfers.length).to.be.deep.equal(NUMBER_OF_ERC20TST_TRANSFERS)
+
+    for (const transfer of transfers) {
+      expect(transfer.resourceID).to.be.deep.equal(ERC20TST_RESOURCE_ID)
+    }
+  })
+
+  it("Should successfully fetch a default limit of ERC20TST transfers", async () => {
+    const res = await axios.get(`http://localhost:8000/api/resources/${ERC20TST_RESOURCE_ID}/transfers`)
+    const transfers = res.data as Array<TransferResponse>
+
+    expect(res.status).to.be.deep.equal(200)
+    expect(transfers.length).to.be.deep.equal(DEFAULT_LIMIT)
 
     for (const transfer of transfers) {
       expect(transfer.resourceID).to.be.deep.equal(ERC20TST_RESOURCE_ID)
