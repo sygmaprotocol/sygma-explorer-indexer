@@ -2,8 +2,8 @@ import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
 import { NotFound, getTransferQueryParams } from "../utils/helpers"
 
 export type TransfersByCursorOptions = {
-  page?: string 
-  limit?: string 
+  page?: string
+  limit?: string
   status?: TransferStatus
   [key: string]: string | undefined
 }

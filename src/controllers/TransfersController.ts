@@ -20,8 +20,11 @@ const transfersService = new TransfersService()
 export const TransfersController = {
   transfers: async function (request: FastifyRequest<{ Querystring: ITransfer }>, reply: FastifyReply): Promise<void> {
     try {
+      const {
+        query: { status },
+      } = request
       let {
-        query: { page, limit, status },
+        query: { page, limit },
       } = request
 
       page = page == undefined ? "1" : page
@@ -79,8 +82,11 @@ export const TransfersController = {
     const {
       params: { senderAddress },
     } = request
+    const {
+      query: { status },
+    } = request
     let {
-      query: { page, limit, status },
+      query: { page, limit },
     } = request
 
     page = page == undefined ? "1" : page
@@ -103,8 +109,11 @@ export const TransfersController = {
     const {
       params: { resourceID },
     } = request
+    const {
+      query: { status },
+    } = request
     let {
-      query: { page, limit, status },
+      query: { page, limit },
     } = request
 
     page = page == undefined ? "1" : page
@@ -198,8 +207,11 @@ export const TransfersController = {
     const {
       params: { domainID },
     } = request
+    const {
+      query: { status, domain },
+    } = request
     let {
-      query: { page, limit, status, domain },
+      query: { page, limit },
     } = request
 
     page = page == undefined ? "1" : page
