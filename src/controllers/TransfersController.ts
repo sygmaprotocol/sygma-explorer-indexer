@@ -20,9 +20,12 @@ const transfersService = new TransfersService()
 export const TransfersController = {
   transfers: async function (request: FastifyRequest<{ Querystring: ITransfer }>, reply: FastifyReply): Promise<void> {
     try {
-      const {
+      let {
         query: { page, limit, status },
       } = request
+
+      page = page == undefined ? "1" : page
+      limit = limit == undefined ? "10" : limit
 
       const transfersResult = await transfersService.findTransfersByCursor({
         page,
@@ -76,9 +79,12 @@ export const TransfersController = {
     const {
       params: { senderAddress },
     } = request
-    const {
+    let {
       query: { page, limit, status },
     } = request
+
+    page = page == undefined ? "1" : page
+    limit = limit == undefined ? "10" : limit
 
     try {
       const transfers = await transfersService.findTransferByFilterParams({ page, limit, status, sender: senderAddress })
@@ -97,9 +103,12 @@ export const TransfersController = {
     const {
       params: { resourceID },
     } = request
-    const {
+    let {
       query: { page, limit, status },
     } = request
+
+    page = page == undefined ? "1" : page
+    limit = limit == undefined ? "10" : limit
 
     try {
       const transfers = await transfersService.findTransferByResourceID({ page, limit, status, resourceID: resourceID })
@@ -122,9 +131,12 @@ export const TransfersController = {
     const {
       params: { sourceDomainID, destinationDomainID },
     } = request
-    const {
+    let {
       query: { page, limit },
     } = request
+
+    page = page == undefined ? "1" : page
+    limit = limit == undefined ? "10" : limit
 
     try {
       const transfers = await transfersService.findTransferBySourceDomainToDestinationDomain({
@@ -152,9 +164,12 @@ export const TransfersController = {
     const {
       params: { resourceID, sourceDomainID, destinationDomainID },
     } = request
-    const {
+    let {
       query: { page, limit },
     } = request
+
+    page = page == undefined ? "1" : page
+    limit = limit == undefined ? "10" : limit
 
     try {
       const transfers = await transfersService.findTransferByResourceBetweenDomains({
@@ -183,9 +198,12 @@ export const TransfersController = {
     const {
       params: { domainID },
     } = request
-    const {
+    let {
       query: { page, limit, status, domain },
     } = request
+
+    page = page == undefined ? "1" : page
+    limit = limit == undefined ? "10" : limit
 
     try {
       const transfers = await transfersService.findTransferByDomain({ page, limit, status, domain: domain, domainID: domainID })

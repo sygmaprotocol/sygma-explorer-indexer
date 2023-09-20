@@ -2,8 +2,8 @@ import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
 import { NotFound, getTransferQueryParams } from "../utils/helpers"
 
 export type TransfersByCursorOptions = {
-  page: string
-  limit: string
+  page?: string 
+  limit?: string 
   status?: TransferStatus
   [key: string]: string | undefined
 }
@@ -21,8 +21,8 @@ class TransfersService {
   } {
     const { page, limit, ...rest } = args
 
-    const pageSize = parseInt(limit, 10)
-    const pageIndex = parseInt(page, 10)
+    const pageSize = parseInt(limit!, 10)
+    const pageIndex = parseInt(page!, 10)
     const skip = (pageIndex - 1) * pageSize
     const take = pageSize
 

@@ -1,8 +1,8 @@
 import { TransferStatus } from "@prisma/client"
 
 export interface ITransfer {
-  page: string
-  limit: string
+  page?: string
+  limit?: string
   status?: TransferStatus
 }
 
