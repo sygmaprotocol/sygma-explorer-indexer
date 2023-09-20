@@ -23,20 +23,18 @@ export interface ITransferByResource extends ITransfer {
 }
 
 export interface ITransferBySourceDomainToDestinationDomain extends ITransfer {
-  sourceDomainID: string,
-  destinationDomainID: string,
+  sourceDomainID: string
+  destinationDomainID: string
 }
 
-export interface ITransferByResourceBetweenDomains extends ITransfer, 
-    ITransferByResource, ITransferBySourceDomainToDestinationDomain {
-}
+export interface ITransferByResourceBetweenDomains extends ITransfer, ITransferByResource, ITransferBySourceDomainToDestinationDomain {}
 
 export interface ITransferByDomain extends ITransfer {
-  domainID: string, 
+  domainID: string
 }
 
 export interface ITransferByDomainQuery extends ITransfer {
-  domain?: string,
+  domain?: string
 }
 
 export type IncludedQueryParams = {

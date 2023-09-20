@@ -135,7 +135,7 @@ class TransfersService {
 
     const transfers = await this.transfers.findMany({
       where: {
-        resourceID: resourceID
+        resourceID: resourceID,
       },
       take,
       skip,
@@ -159,8 +159,8 @@ class TransfersService {
 
     const transfers = await this.transfers.findMany({
       where: {
-        fromDomainId: parseInt(sourceDomainID!), 
-        toDomainId: parseInt(destinationDomainID!)
+        fromDomainId: parseInt(sourceDomainID!),
+        toDomainId: parseInt(destinationDomainID!),
       },
       take,
       skip,
@@ -178,15 +178,15 @@ class TransfersService {
   }
 
   public async findTransferByResourceBetweenDomains(args: TransfersByCursorOptions): Promise<Transfer[]> {
-    const { page, limit,  resourceID, sourceDomainID, destinationDomainID } = args
-    const queryParams = this.prepareQueryParams({ page, limit})
+    const { page, limit, resourceID, sourceDomainID, destinationDomainID } = args
+    const queryParams = this.prepareQueryParams({ page, limit })
     const { skip, take } = queryParams
 
     const transfers = await this.transfers.findMany({
       where: {
         resourceID: resourceID,
-        fromDomainId: parseInt(sourceDomainID!), 
-        toDomainId: parseInt(destinationDomainID!),     
+        fromDomainId: parseInt(sourceDomainID!),
+        toDomainId: parseInt(destinationDomainID!),
       },
       take,
       skip,
@@ -208,28 +208,27 @@ class TransfersService {
     const queryParams = this.prepareQueryParams({ page, limit, status })
     const { skip, take } = queryParams
 
-    console.log("hereeee")
-    if (domain == undefined || domain.toLowerCase() == "source"){
-        const transfers = await this.transfers.findMany({
-          where: {
-              fromDomainId: parseInt(domainID!),
-          },
-          take,
-          skip,
-          orderBy: [
-            {
-              timestamp: "desc",
-            },
-          ],
-          include: {
-            ...getTransferQueryParams().include,
-          },
-        })
-        return transfers
-    } else if (domain.toLowerCase() == "destination"){
-        const transfers = await this.transfers.findMany({
+    if (domain == undefined || domain.toLowerCase() == "source") {
+      const transfers = await this.transfers.findMany({
         where: {
-            toDomainId: parseInt(domainID!),
+          fromDomainId: parseInt(domainID!),
+        },
+        take,
+        skip,
+        orderBy: [
+          {
+            timestamp: "desc",
+          },
+        ],
+        include: {
+          ...getTransferQueryParams().include,
+        },
+      })
+      return transfers
+    } else if (domain.toLowerCase() == "destination") {
+      const transfers = await this.transfers.findMany({
+        where: {
+          toDomainId: parseInt(domainID!),
         },
         take,
         skip,
@@ -244,7 +243,6 @@ class TransfersService {
       })
       return transfers
     } else {
-      console.log("hereeee")
       throw new NotFound("Query parameter domain must be 'source' or 'destination'")
     }
   }
