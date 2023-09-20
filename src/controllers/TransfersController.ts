@@ -159,15 +159,17 @@ export const TransfersController = {
     request: FastifyRequest<{ Params: ITransferByDomain; Querystring: ITransferByDomainQuery}>,
     reply: FastifyReply,
   ): Promise<void> {
+    console.log("here")
     const {
-      params: { domainID},
+      params: { domainID },
     } = request
     const {
       query: { page, limit, status, domain},
     } = request
 
     try {
-      const transfers = await transfersService.findTransferByDomain({ page, limit, status, domain, domainID: domainID})
+      console.log("heree")
+      const transfers = await transfersService.findTransferByDomain({ page, limit, status, domain: domain, domainID: domainID})
       void reply.status(200).send(transfers)
     } catch (e) {
       if (e instanceof NotFound) {

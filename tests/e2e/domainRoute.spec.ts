@@ -1,6 +1,7 @@
 import { expect } from "chai"
 import axios from "axios"
 import { Transfer, Resource, Fee, Deposit, Execution, Domain } from "@prisma/client"
+import { NotFound } from "utils/helpers"
 
 type TransferResponse = Transfer & {
     resource: Resource
@@ -57,6 +58,20 @@ describe("Get all transfers with a specific domain as source or destination", fu
           expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_1))
         }
     })
+
+    it.only("Should fail because the domain query parameter isn't source nor destination", async() => {
+      
+      let res: any 
+      try {
+        res = await axios.get(`http://localhost:8000/api/domains/${DOMAIN_1}
+                          /transfers?page=1&limit=100&domain=abc`)
+        expect(res.status).to.be.deep.equal(200)
+
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
 
     it("Should successfully fetch all transfers to domain 1", async () => {
       const res = await axios.get(`http://localhost:8000/api/domains/${DOMAIN_1}/transfers?page=1&limit=100&domain=destination`)

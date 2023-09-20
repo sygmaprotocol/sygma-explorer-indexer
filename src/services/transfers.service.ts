@@ -205,9 +205,10 @@ class TransfersService {
 
   public async findTransferByDomain(args: TransfersByCursorOptions): Promise<Transfer[]> {
     const { page, limit, status, domain, domainID } = args
-    const queryParams = this.prepareQueryParams({ page, limit, status, domain })
+    const queryParams = this.prepareQueryParams({ page, limit, status })
     const { skip, take } = queryParams
 
+    console.log("hereeee")
     if (domain == undefined || domain.toLowerCase() == "source"){
         const transfers = await this.transfers.findMany({
           where: {
@@ -243,6 +244,7 @@ class TransfersService {
       })
       return transfers
     } else {
+      console.log("hereeee")
       throw new NotFound("Query parameter domain must be 'source' or 'destination'")
     }
   }
