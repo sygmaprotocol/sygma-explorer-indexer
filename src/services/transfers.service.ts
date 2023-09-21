@@ -32,7 +32,6 @@ class TransfersService {
 
   public async findTransfers(where: Partial<Transfer>, paginationParams: Pagination): Promise<Transfer[]> {
     const { skip, take } = this.calculatePaginationParams(paginationParams)
-    console.log(where)
     const transfers = await this.transfers.findMany({
       where,
       take,
