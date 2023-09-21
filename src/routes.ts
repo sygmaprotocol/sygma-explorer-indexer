@@ -1,11 +1,20 @@
 import { FastifyInstance } from "fastify"
 import { TransfersController } from "./controllers/TransfersController"
+import {
+  paginationSchema,
+  domainSchema,
+  resourceBetweenDomainsSchema,
+  sourceAndDestinationDomainSchema,
+  resourceSchema,
+  senderSchema,
+} from "./controllers/schemas"
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function routes(fastify: FastifyInstance): Promise<void> {
   fastify.route({
     method: "GET",
     url: "/transfers",
+    schema: paginationSchema,
     handler: TransfersController.transfers,
   })
 
@@ -24,30 +33,35 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
   fastify.route({
     method: "GET",
     url: "/sender/:senderAddress/transfers",
-    handler: TransfersController.transferBySender,
+    schema: senderSchema,
+    handler: TransfersController.transfersBySender,
   })
 
   fastify.route({
     method: "GET",
     url: "/resources/:resourceID/transfers",
-    handler: TransfersController.transferByResource,
+    schema: resourceSchema,
+    handler: TransfersController.transfersByResource,
   })
 
   fastify.route({
     method: "GET",
     url: "/domains/source/:sourceDomainID/destination/:destinationDomainID/transfers",
-    handler: TransfersController.transferBySourceDomainToDestinationDomain,
+    schema: sourceAndDestinationDomainSchema,
+    handler: TransfersController.transfersBySourceDomainToDestinationDomain,
   })
 
   fastify.route({
     method: "GET",
     url: "/resources/:resourceID/domains/source/:sourceDomainID/destination/:destinationDomainID/transfers",
-    handler: TransfersController.transferByResourceBetweenDomains,
+    schema: resourceBetweenDomainsSchema,
+    handler: TransfersController.transfersByResourceBetweenDomains,
   })
 
   fastify.route({
     method: "GET",
     url: "/domains/:domainID/transfers",
-    handler: TransfersController.transferByDomain,
+    schema: domainSchema,
+    handler: TransfersController.transfersByDomain,
   })
 }

@@ -1,8 +1,8 @@
 import { TransferStatus } from "@prisma/client"
 
 export interface ITransfer {
-  page: string
-  limit: string
+  page: number
+  limit: number
   status?: TransferStatus
 }
 
@@ -23,18 +23,18 @@ export interface ITransferByResource extends ITransfer {
 }
 
 export interface ITransferBySourceDomainToDestinationDomain extends ITransfer {
-  sourceDomainID: string
-  destinationDomainID: string
+  sourceDomainID: number
+  destinationDomainID: number
 }
 
 export interface ITransferByResourceBetweenDomains extends ITransfer, ITransferByResource, ITransferBySourceDomainToDestinationDomain {}
 
 export interface ITransferByDomain extends ITransfer {
-  domainID: string
+  domainID: number
 }
 
 export interface ITransferByDomainQuery extends ITransfer {
-  domain?: string
+  domain: string
 }
 
 export type IncludedQueryParams = {

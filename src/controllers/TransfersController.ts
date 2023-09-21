@@ -24,10 +24,9 @@ export const TransfersController = {
         query: { page, limit, status },
       } = request
 
-      const transfersResult = await transfersService.findTransfersByCursor({
+      const transfersResult = await transfersService.findAllTransfers(status, {
         page,
         limit,
-        status,
       })
 
       void reply.status(200).send(transfersResult)
@@ -37,10 +36,12 @@ export const TransfersController = {
     }
   },
   transferById: async function (request: FastifyRequest<{ Params: ITransferById }>, reply: FastifyReply): Promise<void> {
-    const { id } = request.params
+    const {
+      params: { id },
+    } = request
 
     try {
-      const transfer = await transfersService.findTransferById({ id })
+      const transfer = await transfersService.findTransferById(id)
 
       void reply.status(200).send(transfer)
     } catch (e) {
@@ -57,7 +58,7 @@ export const TransfersController = {
     const { txHash } = request.params
 
     try {
-      const transfer = await transfersService.findTransferByTxHash({ txHash })
+      const transfer = await transfersService.findTransferByTxHash(txHash)
       void reply.status(200).send(transfer)
     } catch (e) {
       if (e instanceof NotFound) {
@@ -69,7 +70,7 @@ export const TransfersController = {
     }
   },
 
-  transferBySender: async function (
+  transfersBySender: async function (
     request: FastifyRequest<{ Params: ITransferBySender; Querystring: ITransfer }>,
     reply: FastifyReply,
   ): Promise<void> {
@@ -81,7 +82,7 @@ export const TransfersController = {
     } = request
 
     try {
-      const transfers = await transfersService.findTransferByFilterParams({ page, limit, status, sender: senderAddress })
+      const transfers = await transfersService.findTransfersByAccountAddress(senderAddress, status, { page, limit })
 
       void reply.status(200).send(transfers)
     } catch (e) {
@@ -90,7 +91,7 @@ export const TransfersController = {
     }
   },
 
-  transferByResource: async function (
+  transfersByResource: async function (
     request: FastifyRequest<{ Params: ITransferByResource; Querystring: ITransfer }>,
     reply: FastifyReply,
   ): Promise<void> {
@@ -102,20 +103,17 @@ export const TransfersController = {
     } = request
 
     try {
-      const transfers = await transfersService.findTransferByResourceID({ page, limit, status, resourceID: resourceID })
+      const transfers = await transfersService.findTransfersByResourceID(resourceID, status, { page, limit })
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      if (e instanceof NotFound) {
-        void reply.status(404)
-      } else {
-        logger.error(e)
-        void reply.status(500)
-      }
+      logger.error(e)
+      logger.error("Error occurred when fetching transfers by resource.")
+      void reply.status(500)
     }
   },
 
-  transferBySourceDomainToDestinationDomain: async function (
+  transfersBySourceDomainToDestinationDomain: async function (
     request: FastifyRequest<{ Params: ITransferBySourceDomainToDestinationDomain; Querystring: ITransfer }>,
     reply: FastifyReply,
   ): Promise<void> {
@@ -127,25 +125,17 @@ export const TransfersController = {
     } = request
 
     try {
-      const transfers = await transfersService.findTransferBySourceDomainToDestinationDomain({
-        page,
-        limit,
-        sourceDomainID: sourceDomainID,
-        destinationDomainID: destinationDomainID,
-      })
+      const transfers = await transfersService.findTransfersBySourceDomainToDestinationDomain(sourceDomainID, destinationDomainID, { page, limit })
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      if (e instanceof NotFound) {
-        void reply.status(404)
-      } else {
-        logger.error(e)
-        void reply.status(500)
-      }
+      logger.error(e)
+      logger.error("Error occurred when fetching transfers by source and destination domain.")
+      void reply.status(500)
     }
   },
 
-  transferByResourceBetweenDomains: async function (
+  transfersByResourceBetweenDomains: async function (
     request: FastifyRequest<{ Params: ITransferByResourceBetweenDomains; Querystring: ITransfer }>,
     reply: FastifyReply,
   ): Promise<void> {
@@ -157,38 +147,30 @@ export const TransfersController = {
     } = request
 
     try {
-      const transfers = await transfersService.findTransferByResourceBetweenDomains({
-        page,
-        limit,
-        resourceID: resourceID,
-        sourceDomainID: sourceDomainID,
-        destinationDomainID: destinationDomainID,
-      })
+      const transfers = await transfersService.findTransfersByResourceBetweenDomains(resourceID, sourceDomainID, destinationDomainID, { page, limit })
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      if (e instanceof NotFound) {
-        void reply.status(404)
-      } else {
-        logger.error(e)
-        void reply.status(500)
-      }
+      logger.error(e)
+      logger.error("Error occurred when fetching transfers by resource, source domain and destination domain.")
+      void reply.status(500)
     }
   },
 
-  transferByDomain: async function (
+  transfersByDomain: async function (
     request: FastifyRequest<{ Params: ITransferByDomain; Querystring: ITransferByDomainQuery }>,
     reply: FastifyReply,
   ): Promise<void> {
     const {
       params: { domainID },
     } = request
+
     const {
       query: { page, limit, status, domain },
     } = request
 
     try {
-      const transfers = await transfersService.findTransferByDomain({ page, limit, status, domain: domain, domainID: domainID })
+      const transfers = await transfersService.findTransfersByDomain(domainID, domain, status, { page, limit })
 
       void reply.status(200).send(transfers)
     } catch (e) {
@@ -196,6 +178,7 @@ export const TransfersController = {
         void reply.status(404)
       } else {
         logger.error(e)
+        logger.error("Error occurred when fetching transfers by domain")
         void reply.status(500)
       }
     }
