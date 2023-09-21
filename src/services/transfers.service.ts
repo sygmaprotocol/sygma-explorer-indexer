@@ -6,6 +6,11 @@ export type Pagination = {
   limit: number
 }
 
+export enum DomainType {
+  Source = "source",
+  Destination = "destination",
+}
+
 class TransfersService {
   public transfers = new PrismaClient().transfer
   public deposit = new PrismaClient().deposit
@@ -133,7 +138,7 @@ class TransfersService {
 
   public async findTransfersByDomain(
     domainID: number,
-    domain: string,
+    domain: DomainType,
     status: TransferStatus | undefined,
     paginationParams: Pagination,
   ): Promise<Transfer[]> {

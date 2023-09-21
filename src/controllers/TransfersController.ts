@@ -31,7 +31,7 @@ export const TransfersController = {
 
       void reply.status(200).send(transfersResult)
     } catch (e) {
-      logger.error(e)
+      logger.error("Error occured when fetching all transfers.", e)
       void reply.status(500)
     }
   },
@@ -48,7 +48,7 @@ export const TransfersController = {
       if (e instanceof NotFound) {
         void reply.status(404)
       } else {
-        logger.error(e)
+        logger.error("Error occured when fetching transfer by ID.", e)
         void reply.status(500)
       }
     }
@@ -64,7 +64,7 @@ export const TransfersController = {
       if (e instanceof NotFound) {
         void reply.status(404)
       } else {
-        logger.error(e)
+        logger.error("Error occured when fetching transfer by transaction hash.", e)
         void reply.status(500)
       }
     }
@@ -86,7 +86,7 @@ export const TransfersController = {
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      logger.error(e)
+      logger.error("Error occured when fetching transfers by sender address.", e)
       void reply.status(500)
     }
   },
@@ -107,8 +107,7 @@ export const TransfersController = {
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      logger.error(e)
-      logger.error("Error occurred when fetching transfers by resource.")
+      logger.error("Error occurred when fetching transfers by resource.", e)
       void reply.status(500)
     }
   },
@@ -129,8 +128,7 @@ export const TransfersController = {
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      logger.error(e)
-      logger.error("Error occurred when fetching transfers by source and destination domain.")
+      logger.error("Error occurred when fetching transfers by source and destination domain.", e)
       void reply.status(500)
     }
   },
@@ -151,8 +149,7 @@ export const TransfersController = {
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      logger.error(e)
-      logger.error("Error occurred when fetching transfers by resource, source domain and destination domain.")
+      logger.error("Error occurred when fetching transfers by resource, source domain and destination domain.", e)
       void reply.status(500)
     }
   },
@@ -174,13 +171,8 @@ export const TransfersController = {
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      if (e instanceof NotFound) {
-        void reply.status(404)
-      } else {
-        logger.error(e)
-        logger.error("Error occurred when fetching transfers by domain")
-        void reply.status(500)
-      }
+      logger.error("Error occurred when fetching transfers by domain.", e)
+      void reply.status(500)
     }
   },
 }

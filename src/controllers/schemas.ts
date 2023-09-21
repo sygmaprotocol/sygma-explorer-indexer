@@ -1,39 +1,37 @@
 export const paginationSchema = {
+  page: {
+    type: "number",
+    default: 1,
+  },
+  limit: {
+    type: "number",
+    default: 100,
+  },
+}
+
+export const transferStatusSchema = {
+  status: {
+    type: "string",
+    enum: ["pending", "executed", "failed"],
+  },
+}
+
+export const transfersSchema = {
   querystring: {
     type: "object",
     properties: {
-      page: {
-        type: "number",
-        default: 1,
-      },
-      limit: {
-        type: "number",
-        default: 100,
-      },
-      status: {
-        type: "string",
-        enum: ["pending", "executed", "failed"],
-      },
+      ...paginationSchema,
+      ...transferStatusSchema,
     },
   },
 }
 
-export const senderSchema = {
+export const transfersBySenderSchema = {
   querystring: {
     type: "object",
     properties: {
-      page: {
-        type: "number",
-        default: 1,
-      },
-      limit: {
-        type: "number",
-        default: 100,
-      },
-      status: {
-        type: "string",
-        enum: ["pending", "executed", "failed"],
-      },
+      ...paginationSchema,
+      ...transferStatusSchema,
     },
   },
   params: {
@@ -44,22 +42,12 @@ export const senderSchema = {
   },
 }
 
-export const resourceSchema = {
+export const transfersByResourceSchema = {
   querystring: {
     type: "object",
     properties: {
-      page: {
-        type: "number",
-        default: 1,
-      },
-      limit: {
-        type: "number",
-        default: 100,
-      },
-      status: {
-        type: "string",
-        enum: ["pending", "executed", "failed"],
-      },
+      ...paginationSchema,
+      ...transferStatusSchema,
     },
   },
   params: {
@@ -70,18 +58,11 @@ export const resourceSchema = {
   },
 }
 
-export const sourceAndDestinationDomainSchema = {
+export const transfersBySourceDomainToDestinationDomainSchema = {
   querystring: {
     type: "object",
     properties: {
-      page: {
-        type: "number",
-        default: 1,
-      },
-      limit: {
-        type: "number",
-        default: 100,
-      },
+      ...paginationSchema,
     },
   },
   params: {
@@ -93,18 +74,11 @@ export const sourceAndDestinationDomainSchema = {
   },
 }
 
-export const resourceBetweenDomainsSchema = {
+export const transfersByResourceBetweenDomainsSchema = {
   querystring: {
     type: "object",
     properties: {
-      page: {
-        type: "number",
-        default: 1,
-      },
-      limit: {
-        type: "number",
-        default: 100,
-      },
+      ...paginationSchema,
     },
   },
   params: {
@@ -117,18 +91,11 @@ export const resourceBetweenDomainsSchema = {
   },
 }
 
-export const domainSchema = {
+export const transfersByDomainSchema = {
   querystring: {
     type: "object",
     properties: {
-      page: {
-        type: "number",
-        default: 1,
-      },
-      limit: {
-        type: "number",
-        default: 100,
-      },
+      ...paginationSchema,
       domain: {
         type: "string",
         default: "source",

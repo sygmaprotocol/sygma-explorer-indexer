@@ -1,4 +1,5 @@
 import { TransferStatus } from "@prisma/client"
+import { DomainType } from "services/transfers.service"
 
 export interface ITransfer {
   page: number
@@ -34,7 +35,7 @@ export interface ITransferByDomain extends ITransfer {
 }
 
 export interface ITransferByDomainQuery extends ITransfer {
-  domain: string
+  domain: DomainType
 }
 
 export type IncludedQueryParams = {
