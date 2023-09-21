@@ -5,7 +5,7 @@ export const paginationSchema = {
   },
   limit: {
     type: "number",
-    default: 100,
+    default: 10,
   },
 }
 
