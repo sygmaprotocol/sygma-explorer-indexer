@@ -144,7 +144,7 @@ class TransfersService {
   ): Promise<Transfer[]> {
     let where: Partial<Transfer>
 
-    domain == "source" ? (where = { fromDomainId: domainID, status: status }) : (where = { toDomainId: domainID, status: status })
+    domain == DomainType.Source ? (where = { fromDomainId: domainID, status: status }) : (where = { toDomainId: domainID, status: status })
 
     const transfers = this.findTransfers(where, paginationParams)
 
