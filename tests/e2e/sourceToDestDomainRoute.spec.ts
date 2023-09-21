@@ -58,7 +58,7 @@ describe("Get all transfers from a source domain to a destination domain", funct
   })
 
   it("Should successfully fetch all transfers from domain 3 to domain 1", async () => {
-    const res = await axios.get(`http://localhost:8000/api/domains/source/${DOMAIN_3}/destination/${DOMAIN_1}/transfers?page=1&limit=100`)
+    const res = await axios.get(`http://localhost:8000/api/domains/source/${DOMAIN_3}/destination/${DOMAIN_1}/transfers`)
     const transfers = res.data as Array<TransferResponse>
 
     expect(transfers.length).to.be.deep.equal(3)

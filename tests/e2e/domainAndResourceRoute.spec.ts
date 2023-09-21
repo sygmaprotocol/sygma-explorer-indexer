@@ -56,7 +56,7 @@ describe("Get all transfers for a specific resource between source and destinati
 
   it("Should successfully fetch all ERC721TST transfers from domain 1 to domain 2", async () => {
     const res = await axios.get(
-      `http://localhost:8000/api/resources/${ERC721TST_RESOURCE_ID}/domains/source/${DOMAIN_1}/destination/${DOMAIN_2}/transfers?page=1&limit=100`,
+      `http://localhost:8000/api/resources/${ERC721TST_RESOURCE_ID}/domains/source/${DOMAIN_1}/destination/${DOMAIN_2}/transfers`,
     )
     const transfers = res.data as Array<TransferResponse>
 

@@ -42,7 +42,7 @@ describe("Get all transfers for a specific resource", function () {
   })
 
   it("Should successfully fetch all ERC20TST transfers", async () => {
-    const res = await axios.get(`http://localhost:8000/api/resources/${ERC20TST_RESOURCE_ID}/transfers?page=1&limit=100`)
+    const res = await axios.get(`http://localhost:8000/api/resources/${ERC20TST_RESOURCE_ID}/transfers?page=1&limit=50`)
     const transfers = res.data as Array<TransferResponse>
 
     expect(res.status).to.be.deep.equal(200)

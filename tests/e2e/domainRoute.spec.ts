@@ -61,7 +61,7 @@ describe("Get all transfers with a specific domain as source or destination", fu
     try {
       const res = await axios.get(`http://localhost:8000/api/domains/${DOMAIN_1}
                           /transfers?page=1&limit=100&domain=abc`)
-      expect(res.status).to.be.deep.equal(404)
+      expect(res.status).to.be.deep.equal(400)
     } catch (e) {
       expect(e).to.be.not.null
     }
