@@ -1,6 +1,7 @@
 import { CronJob } from "cron"
 import { DateTime } from "luxon"
 import { TransferStatus } from "@prisma/client"
+import { convertMillisecondsToMinutes } from "utils/helpers"
 import TransferRepository from "../../repository/transfer"
 import { logger } from "../../../utils/logger"
 import { NotificationSender } from "./notificationSender"
@@ -15,7 +16,7 @@ export async function checkTransferStatus(transferRepository: TransferRepository
 
   for (const transfer of transfers) {
     const duration = Date.now() - transfer.timestamp.getTime()
-    const durationInMins = duration / 1000 / 60
+    const durationInMins = convertMillisecondsToMinutes(duration)
 
     if (durationInMins > INCIDENT_TIME) {
       await notificationSender.sendNotification({ Message: "Incident" })

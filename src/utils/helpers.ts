@@ -23,6 +23,10 @@ export function decodeDataHash(data: string): { amount: string; destinationRecip
   return result
 }
 
+export function convertMillisecondsToMinutes(duration: number): number {
+  return duration / 1000 / 60
+}
+
 export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.JsonRpcProvider): HandlersMap {
   const erc20HandlerContract = Erc20HandlerFactory.connect(bridge.erc20HandlerAddress, provider as unknown as Signer)
   const erc721HandlerContract = Erc721HandlerFactory.connect(bridge.erc721HandlerAddress, provider as unknown as Signer)
