@@ -158,7 +158,7 @@ class TransferRepository {
   }
 
   public async insertFailedTransfer(
-    { depositNonce, domainId, message }: Pick<DecodedFailedHandlerExecution, "depositNonce" | "domainId" | "message">,
+    { depositNonce, domainId, message, timestamp }: Pick<DecodedFailedHandlerExecution, "depositNonce" | "domainId" | "message" | "timestamp">,
     toDomainId: number,
   ): Promise<Transfer> {
     const transferData = {
@@ -175,6 +175,7 @@ class TransferRepository {
         },
       },
       status: TransferStatus.failed,
+      timestamp: new Date(timestamp),
       message,
     }
     return await this.transfer.create({ data: transferData })
@@ -246,11 +247,11 @@ class TransferRepository {
     })
   }
 
-  public async findTransfersByStatus(status: TransferStatus): Promise<Array<Transfer>>{
+  public async findTransfersByStatus(status: TransferStatus): Promise<Array<Transfer>> {
     return await this.transfer.findMany({
       where: {
-        status: status, 
-      }
+        status: status,
+      },
     })
   }
 }
