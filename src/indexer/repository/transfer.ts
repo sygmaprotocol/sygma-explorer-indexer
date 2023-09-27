@@ -245,6 +245,14 @@ class TransferRepository {
       },
     })
   }
+
+  public async findTransfersByStatus(status: TransferStatus): Promise<Array<Transfer>>{
+    return await this.transfer.findMany({
+      where: {
+        status: status, 
+      }
+    })
+  }
 }
 
 export default TransferRepository
