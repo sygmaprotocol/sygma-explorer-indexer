@@ -65,7 +65,12 @@ describe("Monitoring service testing", function () {
     await checkTransferStatus(transferRepositoryStub, notificationSenderStub)
 
     expect(notificationSenderStub.sendNotification.calledOnce).to.be.true
-    expect(notificationSenderStub.sendNotification.calledWith({ Message: "Incident" })).to.be.true
+    expect(
+      notificationSenderStub.sendNotification.calledWith({
+        TopicArn: process.env.TOPIC_ARN,
+        Message: "INCIDENT: Transfer with id 1 is pending for longer than 45 minutes.",
+      }),
+    ).to.be.true
   })
 
   it("Should send warning info", async () => {
@@ -115,7 +120,12 @@ describe("Monitoring service testing", function () {
     await checkTransferStatus(transferRepositoryStub, notificationSenderStub)
 
     expect(notificationSenderStub.sendNotification.calledOnce).to.be.true
-    expect(notificationSenderStub.sendNotification.calledWith({ Message: "Warning" })).to.be.true
+    expect(
+      notificationSenderStub.sendNotification.calledWith({
+        TopicArn: process.env.TOPIC_ARN,
+        Message: "WARNING: Transfer with id 1 is pending for longer than 15 minutes.",
+      }),
+    ).to.be.true
   })
 
   it("Shouldn't send anything as time threshold wasn't reached", async () => {

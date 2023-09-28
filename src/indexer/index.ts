@@ -99,7 +99,7 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
 
   const notificationSender = new NotificationSender(process.env.SNS_REGION!)
 
-  startCronJob("* */20 * * * *", checkTransferStatus, transferRepository, notificationSender)
+  startCronJob("* */10 * * * *", checkTransferStatus, transferRepository, notificationSender)
 
   for (const domain of domainsToIndex) {
     const rpcURL = rpcUrlConfig.get(domain.id)
