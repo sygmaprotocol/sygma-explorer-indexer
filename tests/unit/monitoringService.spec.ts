@@ -28,7 +28,7 @@ describe("Monitoring service testing", function () {
         toDomainId: 2,
         destination: "0x8e0a907331554af72563bd8d43051c2e64be5d35",
         amount: "2296080355773541392",
-        timestamp: new Date(Date.now() - 55 * 60 * 1000),
+        timestamp: new Date(Date.now() - 65 * 60 * 1000),
         status: TransferStatus.pending,
         accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
         message: "",
@@ -68,7 +68,7 @@ describe("Monitoring service testing", function () {
     expect(
       notificationSenderStub.sendNotification.calledWith({
         TopicArn: process.env.TOPIC_ARN,
-        Message: "INCIDENT: Transfer with id 1 is pending for 55 minutes.",
+        Message: "INCIDENT: Transfer with id 1 is pending for 65 minutes.",
       }),
     ).to.be.true
   })
