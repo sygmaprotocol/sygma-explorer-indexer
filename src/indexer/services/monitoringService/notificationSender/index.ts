@@ -11,7 +11,7 @@ export class NotificationSender {
   public async sendNotification(message: PublishCommandInput): Promise<void> {
     try {
       logger.debug(`Sending notification message: ${JSON.stringify(message)}`)
-      const data = await this.snsClient.send(new PublishCommand(message))
+      await this.snsClient.send(new PublishCommand(message))
     } catch (err) {
       logger.error(`Error while sending SNS notification: ${JSON.stringify(err)}`)
     }

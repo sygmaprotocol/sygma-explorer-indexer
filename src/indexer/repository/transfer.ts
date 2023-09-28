@@ -3,8 +3,15 @@ The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
 import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
+import { Deposit, Prisma, PrismaClient, Transfer, TransferStatus } from "@prisma/client"
 import { ObjectId } from "mongodb"
 import { DecodedDepositLog, DecodedFailedHandlerExecution, DecodedProposalExecutionLog } from "../services/evmIndexer/evmTypes"
+
+export type TransferWithDeposit = Prisma.TransferGetPayload<{
+  include: {
+    deposit: true
+  }
+}>
 
 export type TransferMetadata = {
   id: string
@@ -14,6 +21,8 @@ export type TransferMetadata = {
   fromDomainId: string
   toDomainId: string
   resourceID: string
+  timestamp: Date
+  deposit: Deposit
   resource: {
     connect: {
       id: string
@@ -247,10 +256,13 @@ class TransferRepository {
     })
   }
 
-  public async findTransfersByStatus(status: TransferStatus): Promise<Array<Transfer>> {
+  public async findTransfersByStatus(status: TransferStatus): Promise<Array<TransferWithDeposit>> {
     return await this.transfer.findMany({
       where: {
         status: status,
+      },
+      include: {
+        deposit: true,
       },
     })
   }
