@@ -10,10 +10,10 @@ describe("Monitoring service testing", function () {
   let transferRepositoryStub: SinonStubbedInstance<TransferRepository>
 
   before(() => {
-    process.env.INCIDENT_TIME_MINUTES="45"
-    process.env.WARNING_TIME_MINUTES="15"
-    process.env.INCIDENT_TEMPLATE_PATH="incidentTemplate.ejs"
-    process.env.WARNING_TEMPLATE_PATH="warningTemplate.ejs"
+    process.env.INCIDENT_TIME_MINUTES = "45"
+    process.env.WARNING_TIME_MINUTES = "15"
+    process.env.INCIDENT_TEMPLATE_PATH = "incidentTemplate.ejs"
+    process.env.WARNING_TEMPLATE_PATH = "warningTemplate.ejs"
   })
 
   beforeEach(() => {
