@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2023 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { PrismaClient } from "@prisma/client"
 import fastifyHealthcheck from "fastify-healthcheck"
 import { FastifyInstance, fastify } from "fastify"

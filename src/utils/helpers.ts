@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2023 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { Signer, ethers, AbiCoder } from "ethers"
 import { ERC20Handler__factory as Erc20HandlerFactory, ERC721Handler__factory as Erc721HandlerFactory } from "@buildwithsygma/sygma-contracts"
 import { EvmBridgeConfig, HandlersMap, SygmaConfig } from "../sygmaTypes"

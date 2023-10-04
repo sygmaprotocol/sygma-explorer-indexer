@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2023 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 // Note: I have to do this because regardless of the resolveJsonModule flag, the compiler will not resolve the json file
 export default {
   domains: [
