@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2022 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { Contract, Provider } from "ethers"
 import ERC20Contract from "@openzeppelin/contracts/build/contracts/ERC20.json"
 import { ERC20 } from "@buildwithsygma/sygma-contracts"

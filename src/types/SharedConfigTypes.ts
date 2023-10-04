@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2022 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 export type SharedConfigResources = {
   resourceId: string
   type: "erc20" | "erc721" | "permissionedGeneric" | "permissionlessGeneric"

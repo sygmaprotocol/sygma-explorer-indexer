@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2022 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { expect } from "chai"
 import axios from "axios"
 import { Transfer, Resource, Fee, Deposit, Execution, Domain } from "@prisma/client"

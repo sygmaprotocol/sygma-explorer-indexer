@@ -1,3 +1,7 @@
+/*
+The Licensed Work is (c) 2022 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { TransferStatus } from "@prisma/client"
 import { DomainType } from "services/transfers.service"
 
