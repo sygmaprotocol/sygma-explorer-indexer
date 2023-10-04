@@ -75,9 +75,14 @@ class TransfersService {
     return transfer as Transfer
   }
 
-  public async findTransferByTxHash(txHash: string): Promise<Transfer> {
+  public async findTransferByTxHashAndDomain(txHash: string, domainID: number): Promise<Transfer> {
     const deposit = await this.deposit.findFirst({
-      where: { txHash },
+      where: {
+        txHash: txHash,
+        transfer: {
+          fromDomainId: Number(domainID),
+        },
+      },
       include: { transfer: { include: { ...getTransferQueryParams().include } } },
     })
 
