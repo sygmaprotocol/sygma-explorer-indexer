@@ -59,6 +59,7 @@ export async function saveProposalExecution(
     id: new ObjectId().toString(),
     transferId: transfer.id,
     txHash: txIdentifier,
+    timestamp: new Date(timestamp),
     blockNumber: blockNumber,
   }
   await executionRepository.insertExecution(execution)
@@ -70,7 +71,7 @@ export async function saveFailedHandlerExecution(
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
 ): Promise<void> {
-  const { originDomainId, depositNonce, txIdentifier, blockNumber, error } = failedHandlerExecutionData
+  const { originDomainId, depositNonce, txIdentifier, blockNumber, error, timestamp } = failedHandlerExecutionData
 
   let transfer = await transferRepository.findTransfer(Number(depositNonce), Number(originDomainId), toDomainId)
   // there is no transfer yet, but a proposal execution exists
@@ -91,6 +92,7 @@ export async function saveFailedHandlerExecution(
     id: new ObjectId().toString(),
     transferId: transfer.id,
     txHash: txIdentifier,
+    timestamp: new Date(timestamp),
     blockNumber: blockNumber,
   }
   await executionRepository.insertExecution(execution)
@@ -192,6 +194,7 @@ export async function saveDeposit(
     txHash: txIdentifier,
     blockNumber: blockNumber,
     depositData: depositData,
+    timestamp: new Date(timestamp),
     handlerResponse: handlerResponse,
     transferId: transfer.id,
   }
