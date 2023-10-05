@@ -123,3 +123,12 @@ export const transferByTxHashAndDomainSchema = {
     },
   },
 }
+
+export const transferByIdSchema = {
+  params: {
+    type: "object",
+    properties: {
+      id: { type: "string" },
+    },
+  },
+}

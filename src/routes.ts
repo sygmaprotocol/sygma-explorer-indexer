@@ -5,6 +5,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 import { FastifyInstance } from "fastify"
 import { TransfersController } from "./controllers/TransfersController"
 import {
+  transferByIdSchema,
   transferByTxHashAndDomainSchema,
   transfersByDomainSchema,
   transfersByResourceBetweenDomainsSchema,
@@ -26,6 +27,7 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
   fastify.route({
     method: "GET",
     url: "/transfers/:id",
+    schema: transferByIdSchema,
     handler: TransfersController.transferById,
   })
 
