@@ -80,7 +80,7 @@ class TransfersService {
       where: {
         txHash: txHash,
         transfer: {
-          fromDomainId: Number(domainID),
+          fromDomainId: domainID,
         },
       },
       include: { transfer: { include: { ...getTransferQueryParams().include } } },
