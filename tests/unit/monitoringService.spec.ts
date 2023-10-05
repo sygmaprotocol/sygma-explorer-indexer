@@ -8,6 +8,7 @@ import sinon, { SinonStubbedInstance } from "sinon"
 import TransferRepository from "../../src/indexer/repository/transfer"
 import { checkTransferStatus, createMessage } from "../../src/indexer/services/monitoringService"
 import { NotificationSender } from "../../src/indexer/services/monitoringService/notificationSender"
+import { convertMillisecondsToMinutes } from "../../src/utils/helpers"
 
 describe("Monitoring service testing", function () {
   let notificationSenderStub: SinonStubbedInstance<NotificationSender>
@@ -197,5 +198,11 @@ describe("Monitoring service testing", function () {
     await checkTransferStatus(transferRepositoryStub, notificationSenderStub)
 
     expect(notificationSenderStub.sendNotification.calledOnce).to.be.false
+  })
+
+  it("Should successfully convert milliseconds to minutes", () => {
+    expect(convertMillisecondsToMinutes(900000)).to.be.deep.equal(15)
+    expect(convertMillisecondsToMinutes(2700000)).to.be.deep.equal(45)
+    expect(convertMillisecondsToMinutes(3600000)).to.be.deep.equal(60)
   })
 })
