@@ -118,8 +118,8 @@ export const transferByTxHashAndDomainSchema = {
   params: {
     type: "object",
     properties: {
-      txHash: {type: "string"},
-      domainID: {type: "number"}
-    }
-  }
+      txHash: { type: "string" },
+      domainID: { type: "number" },
+    },
+  },
 }
