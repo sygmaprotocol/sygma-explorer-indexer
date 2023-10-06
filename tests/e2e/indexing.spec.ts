@@ -100,15 +100,17 @@ describe("Indexer e2e tests", function () {
       expect(transfer.resource).to.be.not.null
       expect(transfer.resourceID).to.be.not.null
       expect(transfer.accountId).to.be.not.null
-      expect(transfer.timestamp).to.be.not.null
       expect(transfer.toDomain).to.be.not.null
       expect(transfer.toDomainId).to.be.not.null
       expect(transfer.execution).to.be.not.null
+      expect(transfer.deposit.timestamp).to.be.not.null
+      expect(transfer.execution.timestamp).to.be.not.null
     })
   })
   it("should succesfully fetch evm fungible transfer", async () => {
     const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_EVM_DEPOSIT_TXHASH}?`)
     const transfer = res.data as TransferResponse
+
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       message: "",
@@ -119,7 +121,6 @@ describe("Indexer e2e tests", function () {
       accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
       destination: "0x8e0a907331554af72563bd8d43051c2e64be5d35",
       amount: "0.0000000000000001",
-      timestamp: "2023-07-17T08:32:37.000Z",
       status: "executed",
       resource: {
         type: "fungible",
@@ -138,10 +139,12 @@ describe("Indexer e2e tests", function () {
         depositData:
           "0x000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000148e0a907331554af72563bd8d43051c2e64be5d350102",
         handlerResponse: "0x",
+        timestamp: "2023-07-17T08:32:37.000Z",
       },
       execution: {
         txHash: "0xb8de40d5d0f5eb8ac4d2a54858bcd4946c85dfcb4353710df1cb73cc6b030c10",
         blockNumber: "643",
+        timestamp: "2023-07-17T08:33:06.000Z",
       },
       account: {
         addressStatus: "",
@@ -153,6 +156,7 @@ describe("Indexer e2e tests", function () {
   it("should succesfully fetch evm nonfungible transfer", async () => {
     const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${NONFUNGIBLE_EVM_DEPOSIT_TXHASH}?`)
     const transfer = res.data as TransferResponse
+
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       depositNonce: 2,
@@ -163,7 +167,6 @@ describe("Indexer e2e tests", function () {
       accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
       destination: "0x8e0a907331554af72563bd8d43051c2e64be5d35",
       amount: "2296080355773541392",
-      timestamp: "2023-07-17T08:31:22.000Z",
       status: "executed",
       resource: {
         type: "nonfungible",
@@ -182,10 +185,12 @@ describe("Indexer e2e tests", function () {
         depositData:
           "0x0000000000000000000000000000000000000000000000001fdd50eb1da26c1000000000000000000000000000000000000000000000000000000000000000148e0a907331554af72563bd8d43051c2e64be5d35000000000000000000000000000000000000000000000000000000000000000c6d657461646174612e75726c",
         handlerResponse: "0x6d657461646174612e746573746d657461646174612e75726c",
+        timestamp: "2023-07-17T08:31:22.000Z",
       },
       execution: {
         txHash: "0x3de2201e548a8332aaa50147a2fb02e2b6669184f042b4dbcf23b4f5d40edcfb",
         blockNumber: "598",
+        timestamp: "2023-07-17T08:31:35.000Z",
       },
       account: {
         addressStatus: "",
@@ -197,6 +202,7 @@ describe("Indexer e2e tests", function () {
   it("should succesfully fetch evm permissionless generic transfer", async () => {
     const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${PERMISSIONLESS_GENERIC_EVM_DEPOSIT_TXHASH}?`)
     const transfer = res.data as TransferResponse
+
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       depositNonce: 29,
@@ -208,7 +214,6 @@ describe("Indexer e2e tests", function () {
       destination:
         "0x696bad2e73f73417f07ef55c62a2dc5b47ed248f568cc8f9fe4371a1d1fab88a62af595f8efb9aeff6f0e043b7ea33b10000000000000000000000005c1f5961696bad2e73f73417f07ef55c62a2dc5b",
       amount: "",
-      timestamp: "2023-07-17T08:32:27.000Z",
       status: "executed",
       resource: {
         type: "permissionlessGeneric",
@@ -227,10 +232,12 @@ describe("Indexer e2e tests", function () {
         depositData:
           "0x0000000000000000000000000000000000000000000000000000000000030d400004ea287d1514b1387b365ae7294ea13bad9db83436e671dd16ba145c1f5961696bad2e73f73417f07ef55c62a2dc5b47ed248f568cc8f9fe4371a1d1fab88a62af595f8efb9aeff6f0e043b7ea33b10000000000000000000000005c1f5961696bad2e73f73417f07ef55c62a2dc5b",
         handlerResponse: "0x",
+        timestamp: "2023-07-17T08:32:27.000Z",
       },
       execution: {
         txHash: "0xcc7c318cfd71745c27111772f21dec553f53277c9dc218fe07b54f897560c0cb",
         blockNumber: "631",
+        timestamp: "2023-07-17T08:32:42.000Z",
       },
       account: {
         addressStatus: "",
@@ -242,6 +249,7 @@ describe("Indexer e2e tests", function () {
   it("should succesfully fetch evm permissioned generic transfer", async () => {
     const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${PERMISSIONED_GENERIC_EVM_DEPOSIT_TXHASH}?`)
     const transfer = res.data as TransferResponse
+
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       depositNonce: 3,
@@ -252,7 +260,6 @@ describe("Indexer e2e tests", function () {
       destination: "0x",
       message: "",
       amount: "",
-      timestamp: "2023-07-17T08:31:36.000Z",
       status: "executed",
       resource: {
         type: "permissionedGeneric",
@@ -271,10 +278,12 @@ describe("Indexer e2e tests", function () {
         depositData:
           "0x000000000000000000000000000000000000000000000000000000000000002030bb0f28498d8bc6272403413a967b2098aa4d7c7422d4ff2ff2c6c2bdc44af3",
         handlerResponse: "0x",
+        timestamp: "2023-07-17T08:31:36.000Z",
       },
       execution: {
         txHash: "0xf031174a3a2b3ae7064f2ca083fa35b1b48b7723ae45ce1f925c9c09a3ba3077",
         blockNumber: "603",
+        timestamp: "2023-07-17T08:31:45.000Z",
       },
       account: {
         addressStatus: "",
@@ -286,6 +295,7 @@ describe("Indexer e2e tests", function () {
   it("should succesfully fetch substrate to evm fungible transfer", async () => {
     const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_SUBSTRATE_TO_EVM_DEPOSIT_TXHASH}?`)
     const transfer = res.data as TransferResponse
+
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       depositNonce: 2,
@@ -296,7 +306,6 @@ describe("Indexer e2e tests", function () {
       accountId: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
       destination: "0x5c1f5961696bad2e73f73417f07ef55c62a2dc5b",
       amount: "0.000000000001",
-      timestamp: "2023-07-17T08:29:12.000Z",
       status: "executed",
       resource: {
         type: "fungible",
@@ -311,10 +320,12 @@ describe("Indexer e2e tests", function () {
         depositData:
           "0x00000000000000000000000000000000000000000000000000000000000f424000000000000000000000000000000000000000000000000000000000000000145c1f5961696bad2e73f73417f07ef55c62a2dc5b",
         handlerResponse: "",
+        timestamp: "2023-07-17T08:29:12.000Z",
       },
       execution: {
         txHash: "0xe5648eb14c885ddf52226aea17440ec3126bfff778c70e0a366dc9666301ff35",
         blockNumber: "548",
+        timestamp: "2023-07-17T08:29:55.000Z",
       },
       account: {
         addressStatus: "",
@@ -326,6 +337,7 @@ describe("Indexer e2e tests", function () {
   it("should succesfully fetch evm to substrate fungible transfer", async () => {
     const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_EVM_TO_SUBSTRATE_DEPOSIT}?`)
     const transfer = res.data as TransferResponse
+
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       depositNonce: 2,
@@ -336,7 +348,6 @@ describe("Indexer e2e tests", function () {
       accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
       destination: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
       amount: "0.0001",
-      timestamp: "2023-07-17T08:28:51.000Z",
       status: "executed",
       resource: {
         type: "fungible",
@@ -355,8 +366,13 @@ describe("Indexer e2e tests", function () {
         depositData:
           "0x00000000000000000000000000000000000000000000000000005af3107a4000000000000000000000000000000000000000000000000000000000000000002400010100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
         handlerResponse: "0x",
+        timestamp: "2023-07-17T08:28:51.000Z",
       },
-      execution: { txHash: "355-1", blockNumber: "355" },
+      execution: {
+        txHash: "355-1",
+        blockNumber: "355",
+        timestamp: "2023-07-17T08:29:06.001Z",
+      },
       account: {
         addressStatus: "",
       },
