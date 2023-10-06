@@ -1,11 +1,11 @@
 {
     "ignore": [
-      "*.txt",
+      "**/*.txt",
       "./data",
       ".github/",
       ".idea",
-      "*.yml",
-      "*.yaml",
+      "**/*.yml",
+      "**/*.yaml",
       "README.md",
       "prisma/",
       ".dockerignore",
@@ -18,7 +18,7 @@
       "jest.config.js",
       ".eslintrc.**",
       "./scripts/",
-      "*.ejs"
+      "**/*.ejs"
     ],
     "license": "header.txt",
     "licenseFormats": {
