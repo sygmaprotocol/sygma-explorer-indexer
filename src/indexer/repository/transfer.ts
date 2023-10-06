@@ -14,7 +14,6 @@ export type TransferMetadata = {
   fromDomainId: string
   toDomainId: string
   resourceID: string
-  timestamp: Date
   resource: {
     connect: {
       id: string
@@ -61,7 +60,6 @@ class TransferRepository {
           id: Number(decodedLog.toDomainId),
         },
       },
-      timestamp: new Date(decodedLog.timestamp * 1000), // this is only being used by evm service
       usdValue: decodedLog.usdValue,
     }
 
@@ -96,7 +94,7 @@ class TransferRepository {
   public async insertSubstrateDepositTransfer(
     substrateDepositData: Pick<
       DecodedDepositLog,
-      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp"
+      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId"
     > & { usdValue: number },
   ): Promise<Transfer> {
     const transferData = {
@@ -121,7 +119,6 @@ class TransferRepository {
           id: Number(substrateDepositData.toDomainId),
         },
       },
-      timestamp: new Date(substrateDepositData.timestamp),
       account: {
         connect: {
           id: substrateDepositData.sender,
@@ -134,7 +131,7 @@ class TransferRepository {
   }
 
   public async insertExecutionTransfer(
-    { depositNonce, fromDomainId, timestamp }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId" | "timestamp">,
+    { depositNonce, fromDomainId }: Pick<DecodedProposalExecutionLog, "depositNonce" | "fromDomainId">,
     toDomainId: number,
   ): Promise<Transfer> {
     const transferData = {
@@ -155,7 +152,6 @@ class TransferRepository {
           id: toDomainId,
         },
       },
-      timestamp: new Date(timestamp),
     } as unknown as Transfer
 
     return await this.transfer.create({ data: transferData })
@@ -192,10 +188,9 @@ class TransferRepository {
       resourceID,
       fromDomainId,
       toDomainId,
-      timestamp,
       sender,
       usdValue,
-    }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "timestamp"> & {
+    }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId"> & {
       usdValue: number | null
     },
     id: string,
@@ -224,9 +219,8 @@ class TransferRepository {
           id: sender,
         },
       },
-      timestamp: new Date(timestamp),
       usdValue: usdValue,
-    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account" | "timestamp">
+    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account">
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 

@@ -47,7 +47,6 @@ export async function saveProposalExecution(
       {
         depositNonce: Number(depositNonce),
         fromDomainId: originDomainId,
-        timestamp,
       },
       toDomainId,
     )

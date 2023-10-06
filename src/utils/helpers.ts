@@ -68,12 +68,14 @@ export const getTransferQueryParams = (): IncludedQueryParams => {
           blockNumber: true,
           depositData: true,
           handlerResponse: true,
+          timestamp: true,
         },
       },
       execution: {
         select: {
           txHash: true,
           blockNumber: true,
+          timestamp: true,
         },
       },
       account: {

@@ -204,7 +204,7 @@ export function parseFailedHandlerExecution(log: Log, decodedLog: LogDescription
     txHash: log.transactionHash,
     message: ethers.decodeBytes32String("0x" + Buffer.from(errorData.slice(-64)).toString()),
     blockNumber: log.blockNumber,
-    timestamp: blockUnixTimestamp
+    timestamp: blockUnixTimestamp,
   }
 }
 
@@ -282,7 +282,6 @@ export async function saveDepositLogs(
   } else {
     const dataToSave = {
       ...decodedLog,
-      timestamp: decodedLog.timestamp * 1000,
       usdValue: amountInUSD,
     }
     await transferRepository.updateTransfer(dataToSave, transfer.id)
@@ -323,7 +322,6 @@ export async function saveProposalExecutionLogs(
   if (!transfer) {
     const dataToInsert = {
       ...decodedLog,
-      timestamp: decodedLog.timestamp * 1000,
     }
     transfer = await transferRepository.insertExecutionTransfer(dataToInsert, toDomainId)
   } else {
@@ -334,7 +332,7 @@ export async function saveProposalExecutionLogs(
     id: new ObjectId().toString(),
     transferId: transfer.id,
     txHash: decodedLog.txHash,
-    timestamp: new Date(decodedLog.timestamp*1000),
+    timestamp: new Date(decodedLog.timestamp * 1000),
     blockNumber: decodedLog.blockNumber.toString(),
   }
   await executionRepository.insertExecution(execution)
@@ -357,7 +355,7 @@ export async function saveFailedHandlerExecutionLogs(
     id: new ObjectId().toString(),
     transferId: transfer.id,
     txHash: error.txHash,
-    timestamp: new Date(error.timestamp*1000),
+    timestamp: new Date(error.timestamp * 1000),
     blockNumber: error.blockNumber.toString(),
   }
   await executionRepository.insertExecution(execution)
