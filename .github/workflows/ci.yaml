@@ -24,6 +24,8 @@ jobs:
       - run: corepack enable
       - run: yarn
       - run: yarn run lint 
+      - name: Check license
+        run: yarn run license-check
       - run: yarn run build
       - name: Run docker
         run: docker-compose up -d

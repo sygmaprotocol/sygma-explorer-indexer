@@ -17,7 +17,8 @@
       "public/",
       "jest.config.js",
       ".eslintrc.**",
-      "./scripts/"
+      "./scripts/",
+      "*.ejs"
     ],
     "license": "header.txt",
     "licenseFormats": {
