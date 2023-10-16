@@ -1,6 +1,10 @@
+/*
+The Licensed Work is (c) 2023 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { logger } from "../utils/logger"
 import { SharedConfig, getSharedConfig } from "../indexer/config"
-import TransferRepository from "../indexer/repository/transfer"
+//import TransferRepository from "../indexer/repository/transfer"
 import CoinMarketCapService from "../indexer/services/coinmarketcap/coinmarketcap.service"
 import TransfersService from "../services/transfers.service"
 
@@ -19,11 +23,11 @@ function getTokenSymbol(sharedConfig: SharedConfig, fromDomainId: number, resour
   return currentResource.symbol
 }
 
-async function rerunPriceCalculations(
-  transfersService: TransfersService,
-  transferRepository: TransferRepository,
-  coinMarketCapServiceInstance: CoinMarketCapService,
-): Promise<void> {
+async function rerunPriceCalculations(): Promise<void> {
+  const transfersService = new TransfersService()
+  const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl)
+  //const transferRepository = new TransferRepository()
+
   let transfers = []
   const limit = 10
   let page = 1
@@ -45,7 +49,6 @@ async function rerunPriceCalculations(
         if (transfer.amount) {
           newValue = await coinMarketCapServiceInstance.getValueInUSD(transfer.amount!, tokenSymbol)
         }
-        //prebaciti u logger?
         console.log(`Old value: ${transfer.usdValue}\nNew value: ${newValue}\n`)
         /*
         transferRepository.updateTransfer({
@@ -65,11 +68,7 @@ async function rerunPriceCalculations(
   }
 }
 
-const transfersService = new TransfersService()
-const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl)
-const transferRepository = new TransferRepository()
-
-rerunPriceCalculations(transfersService, transferRepository, coinMarketCapServiceInstance)
+rerunPriceCalculations()
   .then(() => {
     logger.info("Reran $ price calculations")
   })
