@@ -19,7 +19,7 @@ function getTokenSymbol(sharedConfig: SharedConfig, fromDomainId: number, resour
   return currentResource.symbol
 }
 
-async function checkUsdValue(
+async function rerunPriceCalculations(
   transfersService: TransfersService,
   transferRepository: TransferRepository,
   coinMarketCapServiceInstance: CoinMarketCapService,
@@ -28,7 +28,7 @@ async function checkUsdValue(
   const limit = 10
   let page = 1
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
-  while (true) {
+  for (;;) {
     transfers = await transfersService.findTransfers({}, { limit, page })
     if (transfers.length == 0) {
       break
@@ -45,9 +45,11 @@ async function checkUsdValue(
         if (transfer.amount) {
           newValue = await coinMarketCapServiceInstance.getValueInUSD(transfer.amount!, tokenSymbol)
         }
+        //prebaciti u logger?
         console.log(`Old value: ${transfer.usdValue}\nNew value: ${newValue}\n`)
-        /*transferRepository.updateTransfer({
-                    amount: transfer.amount, 
+        /*
+        transferRepository.updateTransfer({
+                    amount: transfer.amount!, 
                     depositNonce: transfer.depositNonce, 
                     destination: transfer.destination!, 
                     fromDomainId: String(transfer.fromDomainId!), 
@@ -55,19 +57,20 @@ async function checkUsdValue(
                     sender: transfer.accountId!, 
                     toDomainId: String(transfer.toDomainId!),
                     usdValue: newValue,
-                    timestamp: transfer.timestamp.getTime()
-                }, transfer.id)*/
+                    timestamp: transfer.timestamp!.getTime()
+                }, transfer.id)
+          */
       }
     }
   }
 }
 
-try {
-  const transfersService = new TransfersService()
-  const transferRepository = new TransferRepository()
-  const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl)
+const transfersService = new TransfersService()
+const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl)
+const transferRepository = new TransferRepository()
 
-  checkUsdValue(transfersService, transferRepository, coinMarketCapServiceInstance)
-} catch (err) {
-  logger.error(err)
-}
+rerunPriceCalculations(transfersService, transferRepository, coinMarketCapServiceInstance)
+  .then(() => {
+    logger.info("Reran $ price calculations")
+  })
+  .catch(err => logger.error("Error while rerunning $ price calculations", err))
