@@ -2,6 +2,8 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
+import { MemoryCache, caching } from "cache-manager"
+
 
 import { fetchRetry } from "../../../utils/helpers"
 import { logger } from "../../../utils/logger"
@@ -23,13 +25,26 @@ export type CoinMaketCapResponse = {
 class CoinMarketCapService {
   private coinMarketCapAPIKey: string
   private coinMarketCapUrl: string
+  private memoryCache!: MemoryCache
 
   constructor(coinMakertcapKey: string, coinMarketcapApiURL: string) {
     this.coinMarketCapAPIKey = coinMakertcapKey
     this.coinMarketCapUrl = coinMarketcapApiURL
+    caching("memory", {
+      ttl: 15 * 1000,
+    })
+      .then(memoryCache => (this.memoryCache = memoryCache))
+      .catch(() => {
+        throw new Error("Error while initializing memory cache.")
+      })
   }
 
   private async getValueConvertion(amount: string, tokenSymbol: string): Promise<CoinMaketCapResponse["quote"]["USD"]["price"]> {
+    const tokenValue = await this.memoryCache.get(tokenSymbol)
+    if (tokenValue) {
+      return Number(tokenValue) * Number(amount)
+    }
+
     const url = `${this.coinMarketCapUrl}/v2/tools/price-conversion?amount=${amount}&symbol=${tokenSymbol}&convert=USD`
     logger.debug(`Calling CoinMarketCap service with URL: ${url}`)
     try {
@@ -41,6 +56,9 @@ class CoinMarketCapService {
       })
 
       const { data } = (await response.json()) as { data: CoinMaketCapResponse[] }
+
+      await this.memoryCache.set(tokenSymbol, data[0].quote.USD.price / Number(amount))
+
       return data[0].quote.USD.price
     } catch (err) {
       if (err instanceof Error) {

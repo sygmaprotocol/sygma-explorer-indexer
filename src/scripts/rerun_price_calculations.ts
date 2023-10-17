@@ -4,7 +4,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 */
 import { logger } from "../utils/logger"
 import { SharedConfig, getSharedConfig } from "../indexer/config"
-//import TransferRepository from "../indexer/repository/transfer"
+import TransferRepository from "../indexer/repository/transfer"
 import CoinMarketCapService from "../indexer/services/coinmarketcap/coinmarketcap.service"
 import TransfersService from "../services/transfers.service"
 
@@ -26,10 +26,10 @@ function getTokenSymbol(sharedConfig: SharedConfig, fromDomainId: number, resour
 async function rerunPriceCalculations(): Promise<void> {
   const transfersService = new TransfersService()
   const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl)
-  //const transferRepository = new TransferRepository()
+  const transferRepository = new TransferRepository()
 
   let transfers = []
-  const limit = 10
+  const limit = 50
   let page = 1
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
   for (;;) {
@@ -49,20 +49,22 @@ async function rerunPriceCalculations(): Promise<void> {
         if (transfer.amount) {
           newValue = await coinMarketCapServiceInstance.getValueInUSD(transfer.amount!, tokenSymbol)
         }
-        console.log(`Old value: ${transfer.usdValue}\nNew value: ${newValue}\n`)
-        /*
-        transferRepository.updateTransfer({
-                    amount: transfer.amount!, 
-                    depositNonce: transfer.depositNonce, 
-                    destination: transfer.destination!, 
-                    fromDomainId: String(transfer.fromDomainId!), 
-                    resourceID: transfer.resourceID!, 
-                    sender: transfer.accountId!, 
-                    toDomainId: String(transfer.toDomainId!),
-                    usdValue: newValue,
-                    timestamp: transfer.timestamp!.getTime()
-                }, transfer.id)
-          */
+        logger.info(`Old value: ${transfer.usdValue}\nNew value: ${newValue}\n`)
+
+        await transferRepository.updateTransfer(
+          {
+            amount: transfer.amount!,
+            depositNonce: transfer.depositNonce,
+            destination: transfer.destination!,
+            fromDomainId: String(transfer.fromDomainId!),
+            resourceID: transfer.resourceID!,
+            sender: transfer.accountId!,
+            toDomainId: String(transfer.toDomainId!),
+            usdValue: newValue,
+            timestamp: transfer.timestamp!.getTime(),
+          },
+          transfer.id,
+        )
       }
     }
   }
