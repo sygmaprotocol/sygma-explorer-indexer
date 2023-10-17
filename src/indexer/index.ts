@@ -6,6 +6,7 @@ import nodeCleanup from "node-cleanup"
 import { FastifyInstance } from "fastify"
 import { PrismaClient } from "@prisma/client"
 import { CronJob } from "cron"
+import { caching } from "cache-manager"
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
@@ -81,7 +82,10 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
 
   const ofacComplianceService = new OfacComplianceService(chainAnalysisUrl, chainAnalysisApiKey)
 
-  const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl)
+  const memoryCache = await caching("memory", {
+    ttl: (Number(process.env.CACHE_TTL_IN_MINS) || 5) * 1000,
+  })
+  const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl, memoryCache)
 
   const domainRepository = new DomainRepository()
   const depositRepository = new DepositRepository()

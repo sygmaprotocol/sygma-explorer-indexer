@@ -2,6 +2,7 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
+import { caching } from "cache-manager"
 import { logger } from "../utils/logger"
 import { SharedConfig, getSharedConfig } from "../indexer/config"
 import TransferRepository from "../indexer/repository/transfer"
@@ -25,7 +26,12 @@ function getTokenSymbol(sharedConfig: SharedConfig, fromDomainId: number, resour
 
 async function rerunPriceCalculations(): Promise<void> {
   const transfersService = new TransfersService()
-  const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl)
+
+  const memoryCache = await caching("memory", {
+    ttl: (Number(process.env.CACHE_TTL_IN_MINS) || 5) * 1000,
+  })
+
+  const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl, memoryCache)
   const transferRepository = new TransferRepository()
 
   let transfers = []

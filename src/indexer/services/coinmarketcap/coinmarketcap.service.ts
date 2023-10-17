@@ -2,7 +2,7 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
-import { MemoryCache, caching } from "cache-manager"
+import { MemoryCache } from "cache-manager"
 
 
 import { fetchRetry } from "../../../utils/helpers"
@@ -25,18 +25,12 @@ export type CoinMaketCapResponse = {
 class CoinMarketCapService {
   private coinMarketCapAPIKey: string
   private coinMarketCapUrl: string
-  private memoryCache!: MemoryCache
+  private memoryCache: MemoryCache
 
-  constructor(coinMakertcapKey: string, coinMarketcapApiURL: string) {
+  constructor(coinMakertcapKey: string, coinMarketcapApiURL: string, memoryCache: MemoryCache) {
     this.coinMarketCapAPIKey = coinMakertcapKey
     this.coinMarketCapUrl = coinMarketcapApiURL
-    caching("memory", {
-      ttl: 15 * 1000,
-    })
-      .then(memoryCache => (this.memoryCache = memoryCache))
-      .catch(() => {
-        throw new Error("Error while initializing memory cache.")
-      })
+    this.memoryCache = memoryCache
   }
 
   private async getValueConvertion(amount: string, tokenSymbol: string): Promise<CoinMaketCapResponse["quote"]["USD"]["price"]> {
