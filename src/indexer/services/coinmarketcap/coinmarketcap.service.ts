@@ -2,12 +2,13 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
-import { BigNumber } from "@ethersproject/bignumber"
+
 import { MemoryCache } from "cache-manager"
+import BigNumber from "bignumber.js"
+import { logger } from "../../../utils/logger"
 
 
 import { fetchRetry } from "../../../utils/helpers"
-import { logger } from "../../../utils/logger"
 
 export type CoinMaketCapResponse = {
   id: number
@@ -35,9 +36,9 @@ class CoinMarketCapService {
   }
 
   private async getValueConvertion(amount: string, tokenSymbol: string): Promise<CoinMaketCapResponse["quote"]["USD"]["price"]> {
-    const tokenValue = await this.memoryCache.get(tokenSymbol)
+    const tokenValue: string | undefined = await this.memoryCache.get(tokenSymbol)
     if (tokenValue) {
-      return BigNumber.from(amount).mul(BigNumber.from(tokenValue))
+      return BigNumber(amount).times(BigNumber(tokenValue))
     }
 
     const url = `${this.coinMarketCapUrl}/v2/tools/price-conversion?amount=${amount}&symbol=${tokenSymbol}&convert=USD`
@@ -51,10 +52,8 @@ class CoinMarketCapService {
       })
 
       const { data } = (await response.json()) as { data: CoinMaketCapResponse[] }
-
       await this.memoryCache.set(tokenSymbol, data[0].quote.USD.price)
-
-      return BigNumber.from(amount).mul(data[0].quote.USD.price)
+      return BigNumber(amount).times(BigNumber(data[0].quote.USD.price))
     } catch (err) {
       if (err instanceof Error) {
         logger.error(err.message)

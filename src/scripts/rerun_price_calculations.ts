@@ -47,7 +47,7 @@ async function rerunPriceCalculations(): Promise<void> {
     page++
 
     for (const transfer of transfers) {
-      if (transfer.usdValue == 0) {
+      if (transfer.usdValue == 0 || transfer.usdValue == null) {
         if (!transfer.resourceID) {
           throw new Error("No resource ID on transfer")
         }
@@ -56,8 +56,7 @@ async function rerunPriceCalculations(): Promise<void> {
         if (transfer.amount) {
           newValue = await coinMarketCapServiceInstance.getValueInUSD(transfer.amount!, tokenSymbol)
         }
-        logger.info(`Old value: ${transfer.usdValue}\nNew value: ${newValue}\n`)
-
+        logger.info(`Old value: ${transfer.usdValue!}\nNew value: ${newValue}\n`)
         await transferRepository.updateTransfer(
           {
             amount: transfer.amount!,
