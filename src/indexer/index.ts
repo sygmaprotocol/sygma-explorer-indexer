@@ -82,8 +82,9 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
 
   const ofacComplianceService = new OfacComplianceService(chainAnalysisUrl, chainAnalysisApiKey)
 
+  const ttlInMins = Number(process.env.CACHE_TTL_IN_MINS) || 5
   const memoryCache = await caching("memory", {
-    ttl: (Number(process.env.CACHE_TTL_IN_MINS) || 5) * 1000,
+    ttl: ttlInMins * 1000,
   })
   const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl, memoryCache)
 

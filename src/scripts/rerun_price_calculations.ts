@@ -11,6 +11,7 @@ import TransfersService from "../services/transfers.service"
 
 const coinMarketCapAPIKey = process.env.COINMARKETCAP_API_KEY || ""
 const coinMarketCapUrl = process.env.COINMARKETCAP_API_URL || ""
+const ttlInMins = Number(process.env.CACHE_TTL_IN_MINS) || 5
 
 function getTokenSymbol(sharedConfig: SharedConfig, fromDomainId: number, resourceId: string): string {
   const currentDomain = sharedConfig.domains.find(domain => domain.id == fromDomainId)
@@ -28,7 +29,7 @@ async function rerunPriceCalculations(): Promise<void> {
   const transfersService = new TransfersService()
 
   const memoryCache = await caching("memory", {
-    ttl: (Number(process.env.CACHE_TTL_IN_MINS) || 5) * 1000,
+    ttl: ttlInMins * 1000,
   })
 
   const coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl, memoryCache)

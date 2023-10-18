@@ -2,6 +2,7 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
+import { BigNumber } from "@ethersproject/bignumber"
 import { MemoryCache } from "cache-manager"
 
 
@@ -16,7 +17,7 @@ export type CoinMaketCapResponse = {
   last_updated: string
   quote: {
     USD: {
-      price: number
+      price: BigNumber
       last_updated: string
     }
   }
@@ -36,7 +37,7 @@ class CoinMarketCapService {
   private async getValueConvertion(amount: string, tokenSymbol: string): Promise<CoinMaketCapResponse["quote"]["USD"]["price"]> {
     const tokenValue = await this.memoryCache.get(tokenSymbol)
     if (tokenValue) {
-      return Number(tokenValue) * Number(amount)
+      return BigNumber.from(amount).mul(BigNumber.from(tokenValue))
     }
 
     const url = `${this.coinMarketCapUrl}/v2/tools/price-conversion?amount=${amount}&symbol=${tokenSymbol}&convert=USD`
@@ -51,9 +52,9 @@ class CoinMarketCapService {
 
       const { data } = (await response.json()) as { data: CoinMaketCapResponse[] }
 
-      await this.memoryCache.set(tokenSymbol, data[0].quote.USD.price / Number(amount))
+      await this.memoryCache.set(tokenSymbol, data[0].quote.USD.price)
 
-      return data[0].quote.USD.price
+      return BigNumber.from(amount).mul(data[0].quote.USD.price)
     } catch (err) {
       if (err instanceof Error) {
         logger.error(err.message)
@@ -64,7 +65,7 @@ class CoinMarketCapService {
 
   public async getValueInUSD(amount: string, tokenSymbol: string): Promise<number> {
     const convertedValue = await this.getValueConvertion(amount, tokenSymbol)
-    return convertedValue
+    return convertedValue.toNumber()
   }
 }
 

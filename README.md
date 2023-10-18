@@ -46,6 +46,7 @@ INCIDENT_TIME_MINUTES=45
 WARNING_TIME_MINUTES=15
 INCIDENT_TEMPLATE_PATH="incidentTemplate.ejs"
 WARNING_TEMPLATE_PATH="warningTemplate.ejs"
+CACHE_TTL_IN_MINS=5
  ```
 
 ### Running locally
