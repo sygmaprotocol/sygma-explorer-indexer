@@ -47,30 +47,34 @@ async function rerunPriceCalculations(): Promise<void> {
     page++
 
     for (const transfer of transfers) {
-      if (transfer.usdValue == 0 || transfer.usdValue == null) {
-        if (!transfer.resourceID) {
-          throw new Error("No resource ID on transfer")
+      try {
+        if (transfer.usdValue == 0 || transfer.usdValue == null) {
+          if (!transfer.resourceID) {
+            throw new Error("No resource ID on transfer")
+          }
+          const tokenSymbol = getTokenSymbol(sharedConfig, transfer.fromDomainId, transfer.resourceID!)
+          let newValue = 0
+          if (transfer.amount) {
+            newValue = await coinMarketCapServiceInstance.getValueInUSD(transfer.amount!, tokenSymbol)
+          }
+          logger.info(`Old value: ${transfer.usdValue!}\nNew value: ${newValue}\n`)
+          await transferRepository.updateTransfer(
+            {
+              amount: transfer.amount!,
+              depositNonce: transfer.depositNonce,
+              destination: transfer.destination!,
+              fromDomainId: String(transfer.fromDomainId!),
+              resourceID: transfer.resourceID!,
+              sender: transfer.accountId!,
+              toDomainId: String(transfer.toDomainId!),
+              usdValue: newValue,
+              timestamp: transfer.timestamp!.getTime(),
+            },
+            transfer.id,
+          )
         }
-        const tokenSymbol = getTokenSymbol(sharedConfig, transfer.fromDomainId, transfer.resourceID)
-        let newValue = 0
-        if (transfer.amount) {
-          newValue = await coinMarketCapServiceInstance.getValueInUSD(transfer.amount!, tokenSymbol)
-        }
-        logger.info(`Old value: ${transfer.usdValue!}\nNew value: ${newValue}\n`)
-        await transferRepository.updateTransfer(
-          {
-            amount: transfer.amount!,
-            depositNonce: transfer.depositNonce,
-            destination: transfer.destination!,
-            fromDomainId: String(transfer.fromDomainId!),
-            resourceID: transfer.resourceID!,
-            sender: transfer.accountId!,
-            toDomainId: String(transfer.toDomainId!),
-            usdValue: newValue,
-            timestamp: transfer.timestamp!.getTime(),
-          },
-          transfer.id,
-        )
+      } catch (err) {
+        logger.error(`Error on ${transfer.id}\n`, err)
       }
     }
   }
