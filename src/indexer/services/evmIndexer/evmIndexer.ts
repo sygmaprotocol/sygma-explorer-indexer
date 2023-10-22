@@ -96,7 +96,7 @@ export class EvmIndexer {
           await sleep(BLOCK_TIME)
           continue
         }
-        // index only if more then queryInterval blocks past
+
         let queryInterval = this.pastEventsQueryInterval
         if (currentBlock + this.pastEventsQueryInterval > latestBlock) {
           queryInterval = this.eventsQueryInterval
