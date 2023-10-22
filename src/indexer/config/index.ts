@@ -76,7 +76,7 @@ export const getSharedConfig = async (url: string): Promise<SharedConfig> => {
     const response = await fetch(url)
     return (await response.json()) as SharedConfig
   } catch (e) {
-    logger.error(`Failed to fecth config for ${process.env.STAGE || ""}`, e)
+    logger.error(`Failed to fetch config for ${process.env.STAGE || ""}`, e)
     return Promise.reject(e)
   }
 }
@@ -95,10 +95,8 @@ export const getSsmDomainConfig = (): Map<number, string> => {
 export const getDomainsToIndex = (domains: Domain[]): Domain[] => {
   const parsedResponse = JSON.parse(process.env.RPC_URL_CONFIG!) as RpcUrlConfig
 
-  const domainsToUse = domains.filter(domain => {
+  return domains.filter(domain => {
     const domainToIndex = parsedResponse.find(rpcData => rpcData.id === domain.id)
     return domainToIndex !== undefined
   })
-
-  return domainsToUse
 }

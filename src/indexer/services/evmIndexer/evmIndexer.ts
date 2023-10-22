@@ -5,6 +5,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 import { Domain, EvmResource, SharedConfig } from "indexer/config"
 import { ethers } from "ethers"
 
+import winston from "winston"
 import { sleep } from "../../utils/substrate"
 import { saveDepositLogs, saveFailedHandlerExecutionLogs, saveFeeLogs, saveProposalExecutionLogs } from "../../utils/evm"
 import DepositRepository from "../../repository/deposit"
@@ -12,7 +13,7 @@ import TransferRepository from "../../repository/transfer"
 import ExecutionRepository from "../../repository/execution"
 import DomainRepository from "../../repository/domain"
 import FeeRepository from "../../repository/fee"
-import { logger } from "../../../utils/logger"
+import { logger as rootLogger } from "../../../utils/logger"
 import AccountRepository from "../../repository/account"
 import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
 import { OfacComplianceService } from "../ofac"
@@ -39,6 +40,7 @@ export class EvmIndexer {
   private accountRepository: AccountRepository
   private coinMarketCapService: CoinMarketCapService
   private sharedConfig: SharedConfig
+  private logger: winston.Logger
 
   constructor(
     domain: Domain,
@@ -68,6 +70,10 @@ export class EvmIndexer {
     this.accountRepository = accountRepository
     this.coinMarketCapService = coinMarketCapServiceInstance
     this.sharedConfig = sharedConfig
+    this.logger = rootLogger.child({
+      domain: domain.name,
+      domainID: domain.id,
+    })
   }
 
   public stop(): void {
@@ -81,7 +87,7 @@ export class EvmIndexer {
       currentBlock = lastIndexedBlock + 1
     }
 
-    logger.info(`Starting querying blocks for events on ${this.domain.name}, domainID: ${this.domain.id} from ${currentBlock}`)
+    this.logger.info(`Starting querying for events from block: ${currentBlock}`)
 
     while (!this.stopped) {
       try {
@@ -90,19 +96,18 @@ export class EvmIndexer {
           await sleep(BLOCK_TIME)
           continue
         }
-
+        // index only if more then queryInterval blocks past
         let queryInterval = this.pastEventsQueryInterval
         if (currentBlock + this.pastEventsQueryInterval > latestBlock) {
           queryInterval = this.eventsQueryInterval
         }
+        this.logger.debug(`Indexing block ${currentBlock}`)
         await this.saveEvents(currentBlock, currentBlock + queryInterval)
-
-        logger.info(`indexed block on ${this.domain.name}: ${currentBlock}, domainID: ${this.domain.id}`)
         await this.domainRepository.updateBlock(currentBlock.toString(), this.domain.id)
 
         currentBlock += queryInterval
       } catch (error) {
-        logger.error(`Failed to process events for block ${currentBlock} for domain ${this.domain.id}:`, error)
+        this.logger.error(`Failed to process events for block ${currentBlock}:`, error)
         await sleep(BLOCK_TIME)
       }
     }
@@ -114,7 +119,7 @@ export class EvmIndexer {
       return
     }
 
-    logger.info(`Found past events on ${this.domain.name} in block range [${startBlock}-${endBlock}]`)
+    this.logger.info(`Found past events in block range [${startBlock}-${endBlock}]`)
     const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap, this.domains)
 
     const transferMap = new Map<string, string>()

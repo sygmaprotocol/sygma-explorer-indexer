@@ -35,7 +35,7 @@ export const TransfersController = {
 
       void reply.status(200).send(transfersResult)
     } catch (e) {
-      logger.error("Error occured when fetching all transfers.", e)
+      logger.error("Error occurred when fetching all transfers.", e)
       void reply.status(500)
     }
   },
@@ -52,7 +52,7 @@ export const TransfersController = {
       if (e instanceof NotFound) {
         void reply.status(404)
       } else {
-        logger.error("Error occured when fetching transfer by ID.", e)
+        logger.error("Error occurred when fetching transfer by ID.", e)
         void reply.status(500)
       }
     }
@@ -68,7 +68,7 @@ export const TransfersController = {
       if (e instanceof NotFound) {
         void reply.status(404)
       } else {
-        logger.error("Error occured when fetching transfer by transaction hash.", e)
+        logger.error("Error occurred when fetching transfer by transaction hash.", e)
         void reply.status(500)
       }
     }
@@ -90,7 +90,7 @@ export const TransfersController = {
 
       void reply.status(200).send(transfers)
     } catch (e) {
-      logger.error("Error occured when fetching transfers by sender address.", e)
+      logger.error("Error occurred when fetching transfers by sender address.", e)
       void reply.status(500)
     }
   },

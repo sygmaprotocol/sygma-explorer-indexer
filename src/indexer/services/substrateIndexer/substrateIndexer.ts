@@ -4,9 +4,10 @@ SPDX-License-Identifier: LGPL-3.0-only
 */
 import { ApiPromise, WsProvider } from "@polkadot/api"
 import FeeRepository from "indexer/repository/fee"
+import winston from "winston"
 import { Domain, SharedConfig, SubstrateResource } from "../../config"
 import DomainRepository from "../../repository/domain"
-import { logger } from "../../../utils/logger"
+import { logger as rootLogger } from "../../../utils/logger"
 import ExecutionRepository from "../../../indexer/repository/execution"
 import DepositRepository from "../../../indexer/repository/deposit"
 import TransferRepository from "../../../indexer/repository/transfer"
@@ -30,6 +31,7 @@ export class SubstrateIndexer {
   private accountRepository: AccountRepository
   private coinMarketCapService: CoinMarketCapService
   private sharedConfig: SharedConfig
+  private logger: winston.Logger
 
   constructor(
     domainRepository: DomainRepository,
@@ -53,6 +55,10 @@ export class SubstrateIndexer {
     this.accountRepository = accountRepository
     this.coinMarketCapService = coinmarketcapService
     this.sharedConfig = sharedConfig
+    this.logger = rootLogger.child({
+      domain: domain.name,
+      domainID: domain.id,
+    })
   }
 
   public async init(rpcUrl: string): Promise<void> {
@@ -73,7 +79,7 @@ export class SubstrateIndexer {
       currentBlock = lastIndexedBlock + 1
     }
 
-    logger.info(`Starting querying on ${this.domain.name} from ${currentBlock}`)
+    this.logger.info(`Starting querying for events from block: ${currentBlock}`)
 
     while (!this.stopped) {
       try {
@@ -83,6 +89,7 @@ export class SubstrateIndexer {
           await sleep(BLOCK_TIME)
           continue
         }
+        this.logger.debug(`Indexing block ${currentBlock}`)
 
         await saveEvents(
           currentBlockHash,
@@ -98,13 +105,11 @@ export class SubstrateIndexer {
           this.coinMarketCapService,
           this.sharedConfig,
         )
-
         await this.domainRepository.updateBlock(currentBlock.toString(), this.domain.id)
-        logger.info(`indexed block on ${this.domain.name}: ${currentBlock}, domainID: ${this.domain.id}`)
 
         currentBlock += this.eventsQueryInterval
       } catch (error) {
-        logger.error(`Failed to process events for block ${currentBlock} for domain ${this.domain.id}:`, error)
+        this.logger.error(`Failed to process events for block ${currentBlock}:`, error)
         await sleep(BLOCK_TIME)
       }
     }
