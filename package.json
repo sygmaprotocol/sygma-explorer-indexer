@@ -22,7 +22,8 @@
     "start:stub": "docker-compose -f docker-compose.stub.yml up",
     "license-check": "license-check-and-add check -f license-config.json",
     "license-add": "license-check-and-add add -f license-config.json",
-    "license-remove": "license-check-and-add remove -f license-config.json"
+    "license-remove": "license-check-and-add remove -f license-config.json",
+    "rerun-price-calculations": "ts-node src/scripts/rerunPriceCalculations.ts"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.145.0",

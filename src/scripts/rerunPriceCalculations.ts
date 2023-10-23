@@ -57,7 +57,7 @@ async function rerunPriceCalculations(): Promise<void> {
           if (transfer.amount) {
             newValue = await coinMarketCapServiceInstance.getValueInUSD(transfer.amount!, tokenSymbol)
           }
-          logger.info(`Old value: ${transfer.usdValue!}\nNew value: ${newValue}\n`)
+          logger.info(`Old value: ${transfer.usdValue!} => New value: ${newValue}`)
           await transferRepository.updateTransfer(
             {
               amount: transfer.amount!,
@@ -74,7 +74,7 @@ async function rerunPriceCalculations(): Promise<void> {
           )
         }
       } catch (err) {
-        logger.error(`Error on ${transfer.id}\n`, err)
+        logger.error(`Error on ${transfer.id}`, err)
       }
     }
   }
