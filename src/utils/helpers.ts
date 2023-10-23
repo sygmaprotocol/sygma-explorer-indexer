@@ -4,6 +4,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 */
 import { Signer, ethers, AbiCoder } from "ethers"
 import { ERC20Handler__factory as Erc20HandlerFactory, ERC721Handler__factory as Erc721HandlerFactory } from "@buildwithsygma/sygma-contracts"
+import { sleep } from "indexer/utils/substrate"
 import { EvmBridgeConfig, HandlersMap, SygmaConfig } from "../sygmaTypes"
 import { IncludedQueryParams } from "../Interfaces"
 
@@ -89,4 +90,18 @@ export class NotFound extends Error {
   constructor(message: string) {
     super(message)
   }
+}
+
+export async function fetchRetry(input: RequestInfo | URL, init?: RequestInit | undefined, retryCount = 3, backoff = 500): Promise<Response> {
+  while (retryCount > 0) {
+    try {
+      return await fetch(input, init)
+    } catch (err) {
+      await sleep(backoff)
+      backoff *= 2
+    } finally {
+      retryCount -= 1
+    }
+  }
+  throw new Error(`Error while fetching URL`)
 }
