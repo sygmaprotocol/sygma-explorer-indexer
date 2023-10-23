@@ -76,7 +76,7 @@ yarn test
 For running a script that reruns $ price calculations using the CoinMarketCap service use the command: 
 
 ````
-yarn run rerun-price-calculations
+yarn run fix:price-calculations
 ````
 
 
