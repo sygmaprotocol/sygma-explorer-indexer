@@ -38,7 +38,7 @@ init()
       initData.app
         .close()
         .then(() => {
-          logger.debug("Server closed.")
+          logger.warning("Server closed.")
         })
         .catch(err => {
           logger.error("Error occurred during server closing: ", err)
@@ -48,7 +48,7 @@ init()
       prisma
         .$disconnect()
         .then(() => {
-          logger.debug("Database connection closed.")
+          logger.warning("Database connection closed.")
         })
         .catch(err => logger.error("Error occurred during database closing: ", err))
 
@@ -58,12 +58,12 @@ init()
 
     for (const domainIndexer of initData.domainIndexers) {
       domainIndexer.listenToEvents().catch(reason => {
-        logger.error("Failed listening to events because of: ", reason)
+        logger.error("Error occurred while listening to events: ", reason)
       })
     }
   })
   .catch(reason => {
-    logger.error("Failed to initialize app because of: ", reason)
+    logger.error("Error occurred on app initialization: ", reason)
   })
 
 async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance }> {
@@ -97,7 +97,7 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
   for (const domain of domainsToIndex) {
     const rpcURL = rpcUrlConfig.get(domain.id)
     if (!rpcURL) {
-      logger.error(`local domain is not defined for the domain: ${domain.id}`)
+      logger.error(`Local domain is not defined for the domain: ${domain.id}`)
       continue
     }
 
@@ -118,8 +118,7 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
         await substrateIndexer.init(rpcURL)
         domainIndexers.push(substrateIndexer)
       } catch (err) {
-        logger.error(`error on domain: ${domain.id}... skipping`)
-        continue
+        logger.error(`Error on domain: ${domain.id}... skipping`)
       }
     } else if (domain.type == DomainTypes.EVM) {
       try {
@@ -139,11 +138,10 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
         )
         domainIndexers.push(evmIndexer)
       } catch (err) {
-        logger.error(`error on domain: ${domain.id}... skipping`)
-        continue
+        logger.error(`Error on domain: ${domain.id}... skipping`)
       }
     } else {
-      logger.error(`unsuported type: ${JSON.stringify(domain)}`)
+      logger.error(`Unsupported type: ${JSON.stringify(domain)}`)
     }
   }
 
