@@ -2,6 +2,10 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
+
+import { fetchRetry } from "../../../utils/helpers"
+import { logger } from "../../../utils/logger"
+
 export type CoinMaketCapResponse = {
   id: number
   symbol: string
@@ -26,18 +30,19 @@ class CoinMarketCapService {
   }
 
   private async getValueConvertion(amount: string, tokenSymbol: string): Promise<CoinMaketCapResponse["quote"]["USD"]["price"]> {
-    const url = `${this.coinMarketCapUrl}/v1/tools/price-conversion?amount=${amount}&symbol=${tokenSymbol}&convert=USD`
+    const url = `${this.coinMarketCapUrl}/v2/tools/price-conversion?amount=${amount}&symbol=${tokenSymbol}&convert=USD`
 
     try {
-      const response = await fetch(url, {
+      const response = await fetchRetry(url, {
         method: "GET",
         headers: {
           "X-CMC_PRO_API_KEY": this.coinMarketCapAPIKey,
         },
       })
-      const { data } = (await response.json()) as { data: CoinMaketCapResponse }
-      return data.quote.USD.price
-    } catch {
+      const { data } = (await response.json()) as { data: CoinMaketCapResponse[] }
+      return data[0].quote.USD.price
+    } catch (err) {
+      logger.error(err)
       throw new Error("Error getting value from CoinMarketCap")
     }
   }
