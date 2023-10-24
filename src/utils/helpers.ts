@@ -92,7 +92,12 @@ export class NotFound extends Error {
   }
 }
 
-export async function fetchRetry(input: RequestInfo | URL, init?: RequestInit | undefined, retryCount = 3, backoff = 500): Promise<Response> {
+export async function fetchRetry(
+  input: RequestInfo | URL,
+  init?: RequestInit | undefined,
+  retryCount = parseInt(process.env.RETRY_COUNT || "3"),
+  backoff = parseInt(process.env.BACKOFF || "500"),
+): Promise<Response> {
   while (retryCount > 0) {
     try {
       return await fetch(input, init)
