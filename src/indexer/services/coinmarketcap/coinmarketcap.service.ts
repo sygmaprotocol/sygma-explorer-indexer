@@ -7,7 +7,6 @@ import { MemoryCache } from "cache-manager"
 import BigNumber from "bignumber.js"
 import { logger } from "../../../utils/logger"
 
-
 import { fetchRetry } from "../../../utils/helpers"
 
 export type CoinMaketCapResponse = {
