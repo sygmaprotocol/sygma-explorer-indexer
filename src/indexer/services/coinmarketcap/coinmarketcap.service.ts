@@ -42,7 +42,9 @@ class CoinMarketCapService {
       const { data } = (await response.json()) as { data: CoinMaketCapResponse[] }
       return data[0].quote.USD.price
     } catch (err) {
-      logger.error(err)
+      if (err instanceof Error){
+        console.log(err.message)
+      }
       throw new Error("Error getting value from CoinMarketCap")
     }
   }
