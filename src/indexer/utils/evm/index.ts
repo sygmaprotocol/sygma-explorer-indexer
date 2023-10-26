@@ -137,6 +137,7 @@ export async function parseDestination(hexData: BytesLike, domain: Domain, resou
     const recipientlen = Number("0x" + Buffer.from(arrayifyData.slice(32, 64)).toString("hex"))
     recipient = "0x" + Buffer.from(arrayifyData.slice(64, 64 + recipientlen)).toString("hex")
   } else if (resourceType == ResourceTypes.PERMISSIONLESS_GENERIC) {
+    // 32 + 2 + 1 + 1 + 20 + 20
     const lenExecuteFuncSignature = Number("0x" + Buffer.from(arrayifyData.slice(32, 34)).toString("hex"))
     const lenExecuteContractAddress = Number("0x" + Buffer.from(arrayifyData.slice(34 + lenExecuteFuncSignature, 35 + lenExecuteFuncSignature)).toString("hex"))
     recipient = "0x" + Buffer.from(arrayifyData.slice(35 + lenExecuteFuncSignature, 35 + lenExecuteFuncSignature + lenExecuteContractAddress)).toString("hex")
