@@ -77,12 +77,14 @@ export type IncludedQueryParams = {
         blockNumber: boolean
         depositData: boolean
         handlerResponse: boolean
+        timestamp: boolean
       }
     }
     execution: {
       select: {
         txHash: boolean
         blockNumber: boolean
+        timestamp: boolean
       }
     }
     account: {

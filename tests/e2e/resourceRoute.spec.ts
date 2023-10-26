@@ -85,7 +85,6 @@ describe("Get all transfers for a specific resource", function () {
         toDomainId: 2,
         destination: "0x8e0a907331554af72563bd8d43051c2e64be5d35",
         amount: "2296080355773541392",
-        timestamp: "2023-07-17T08:31:22.000Z",
         status: "executed",
         accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
         message: "",
@@ -107,10 +106,12 @@ describe("Get all transfers for a specific resource", function () {
           depositData:
             "0x0000000000000000000000000000000000000000000000001fdd50eb1da26c1000000000000000000000000000000000000000000000000000000000000000148e0a907331554af72563bd8d43051c2e64be5d35000000000000000000000000000000000000000000000000000000000000000c6d657461646174612e75726c",
           handlerResponse: "0x6d657461646174612e746573746d657461646174612e75726c",
+          timestamp: "2023-07-17T08:31:22.000Z",
         },
         execution: {
           txHash: "0x3de2201e548a8332aaa50147a2fb02e2b6669184f042b4dbcf23b4f5d40edcfb",
           blockNumber: "598",
+          timestamp: "2023-07-17T08:31:35.000Z",
         },
         account: { addressStatus: "" },
       },
@@ -134,7 +135,6 @@ describe("Get all transfers for a specific resource", function () {
         destination:
           "0x696bad2e73f73417f07ef55c62a2dc5b47ed248f568cc8f9fe4371a1d1fab88a62af595f8efb9aeff6f0e043b7ea33b10000000000000000000000005c1f5961696bad2e73f73417f07ef55c62a2dc5b",
         amount: "",
-        timestamp: "2023-07-17T08:32:27.000Z",
         status: "executed",
         accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
         message: "",
@@ -156,10 +156,12 @@ describe("Get all transfers for a specific resource", function () {
           depositData:
             "0x0000000000000000000000000000000000000000000000000000000000030d400004ea287d1514b1387b365ae7294ea13bad9db83436e671dd16ba145c1f5961696bad2e73f73417f07ef55c62a2dc5b47ed248f568cc8f9fe4371a1d1fab88a62af595f8efb9aeff6f0e043b7ea33b10000000000000000000000005c1f5961696bad2e73f73417f07ef55c62a2dc5b",
           handlerResponse: "0x",
+          timestamp: "2023-07-17T08:32:27.000Z",
         },
         execution: {
           txHash: "0xcc7c318cfd71745c27111772f21dec553f53277c9dc218fe07b54f897560c0cb",
           blockNumber: "631",
+          timestamp: "2023-07-17T08:32:42.000Z",
         },
         account: { addressStatus: "" },
       },
@@ -182,7 +184,6 @@ describe("Get all transfers for a specific resource", function () {
         toDomainId: 2,
         destination: "0x",
         amount: "",
-        timestamp: "2023-07-17T08:31:36.000Z",
         status: "executed",
         accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
         message: "",
@@ -204,10 +205,12 @@ describe("Get all transfers for a specific resource", function () {
           depositData:
             "0x000000000000000000000000000000000000000000000000000000000000002030bb0f28498d8bc6272403413a967b2098aa4d7c7422d4ff2ff2c6c2bdc44af3",
           handlerResponse: "0x",
+          timestamp: "2023-07-17T08:31:36.000Z",
         },
         execution: {
           txHash: "0xf031174a3a2b3ae7064f2ca083fa35b1b48b7723ae45ce1f925c9c09a3ba3077",
           blockNumber: "603",
+          timestamp: "2023-07-17T08:31:45.000Z",
         },
         account: { addressStatus: "" },
       },

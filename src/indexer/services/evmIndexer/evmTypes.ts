@@ -41,6 +41,7 @@ export type DecodedFailedHandlerExecution = {
   message: string
   txHash: string
   blockNumber: number
+  timestamp: number
 }
 
 export type DecodedFeeCollectedLog = {
