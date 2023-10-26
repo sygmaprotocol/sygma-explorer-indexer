@@ -40,6 +40,11 @@ class TransfersService {
       where,
       take,
       skip,
+      orderBy: {
+        deposit: {
+          timestamp: "desc",
+        },
+      },
       include: {
         ...getTransferQueryParams().include,
       },
