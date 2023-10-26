@@ -23,7 +23,7 @@
     "license-check": "license-check-and-add check -f license-config.json",
     "license-add": "license-check-and-add add -f license-config.json",
     "license-remove": "license-check-and-add remove -f license-config.json",
-    "fix:price-calculations": "ts-node src/scripts/rerunPriceCalculations.ts"
+    "fix:price-calculations": "ts-node src/scripts/index.ts price-calculations"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.145.0",
