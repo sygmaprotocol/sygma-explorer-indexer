@@ -68,7 +68,6 @@ async function rerunPriceCalculations(): Promise<void> {
               sender: transfer.accountId!,
               toDomainId: String(transfer.toDomainId!),
               usdValue: newValue,
-              timestamp: transfer.timestamp!.getTime(),
             },
             transfer.id,
           )
