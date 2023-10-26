@@ -103,9 +103,9 @@ export class EvmIndexer {
         }
         this.logger.debug(`Indexing block ${currentBlock}`)
         await this.saveEvents(currentBlock, currentBlock + queryInterval)
-        await this.domainRepository.updateBlock(currentBlock.toString(), this.domain.id)
+        await this.domainRepository.updateBlock((currentBlock + queryInterval).toString(), this.domain.id)
 
-        currentBlock += queryInterval
+        currentBlock += queryInterval + 1
       } catch (error) {
         this.logger.error(`Failed to process events for block ${currentBlock}:`, error)
         await sleep(BLOCK_TIME)
