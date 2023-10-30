@@ -16,6 +16,9 @@ describe("Failed requests retry testing", function () {
       await fetchRetry("https://invalid-url", {}, 1, 100)
     } catch (err) {
       expect(err).to.be.not.null
+      if (err instanceof Error) {
+        expect(err.message).to.be.equal("Error while fetching URL: https://invalid-url. Status code: 0")
+      }
     }
   })
 })
