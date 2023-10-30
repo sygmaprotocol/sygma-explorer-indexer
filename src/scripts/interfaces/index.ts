@@ -5,5 +5,5 @@ SPDX-License-Identifier: LGPL-3.0-only
 import { Transfer } from "@prisma/client"
 
 export interface IFixInterface {
-  executeAction: (transfer: Transfer) => void
+  executeTransferAction: (transfer: Transfer) => void
 }

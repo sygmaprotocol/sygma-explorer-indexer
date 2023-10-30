@@ -21,7 +21,7 @@ export async function fixDatabaseEntries(object: IFixInterface): Promise<void> {
 
     for (const transfer of transfers) {
       try {
-        object.executeAction(transfer)
+        object.executeTransferAction(transfer)
       } catch (err) {
         logger.error(`Error on ${transfer.id}`, err)
       }

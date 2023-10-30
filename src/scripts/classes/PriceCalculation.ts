@@ -37,7 +37,7 @@ export class PriceCalculation implements IFixInterface {
     return currentResource.symbol
   }
 
-  public async executeAction(transfer: Transfer): Promise<void> {
+  public async executeTransferAction(transfer: Transfer): Promise<void> {
     if (transfer.usdValue == 0 || transfer.usdValue == null) {
       if (!transfer.resourceID) {
         throw new Error("No resource ID on transfer")
