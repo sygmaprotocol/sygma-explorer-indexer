@@ -1,7 +1,11 @@
+/*
+The Licensed Work is (c) 2023 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { expect } from "chai"
 import { fetchRetry } from "../../src/utils/helpers"
 
-describe("Retrying failed requests testing", function () {
+describe("Failed requests retry testing", function () {
   it("Should successfully fetch", async () => {
     const res = await fetchRetry("https://google.com", {}, 1, 100)
     expect(res.status).to.be.deep.equal(200)

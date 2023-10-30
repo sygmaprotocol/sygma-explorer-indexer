@@ -116,5 +116,5 @@ export async function fetchRetry(
       retryCount -= 1
     }
   }
-  throw new Error(`Error while fetching URL ${input.toString()}. Status code: ${statusCode}`)
+  throw new Error(`Error while fetching URL: ${input.toString()}. Status code: ${statusCode}`)
 }
