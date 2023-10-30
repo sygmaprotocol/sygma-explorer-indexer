@@ -125,8 +125,7 @@ describe("Get all transfers for a specific resource between source and destinati
         resourceID: "0x0000000000000000000000000000000000000000000000000000000000000500",
         fromDomainId: 1,
         toDomainId: 2,
-        destination:
-          "0x696bad2e73f73417f07ef55c62a2dc5b47ed248f568cc8f9fe4371a1d1fab88a62af595f8efb9aeff6f0e043b7ea33b10000000000000000000000005c1f5961696bad2e73f73417f07ef55c62a2dc5b",
+        destination: "0xb1387b365ae7294ea13bad9db83436e671dd16ba",
         amount: "",
         status: "executed",
         accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
