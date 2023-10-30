@@ -12,7 +12,7 @@ import {
   ITransferByResourceBetweenDomains,
   ITransferBySender,
   ITransferBySourceDomainToDestinationDomain,
-  ITransferByTxHashAndDomain,
+  ITransferByTxHash,
 } from "../Interfaces"
 import { logger } from "../utils/logger"
 
@@ -58,10 +58,17 @@ export const TransfersController = {
     }
   },
 
-  transferByTxHashAndDomain: async function (request: FastifyRequest<{ Params: ITransferByTxHashAndDomain }>, reply: FastifyReply): Promise<void> {
-    const { txHash, domainID } = request.params
+  transferByTxHash: async function (
+    request: FastifyRequest<{ Params: ITransferByTxHash; Querystring: ITransferByDomain }>,
+    reply: FastifyReply,
+  ): Promise<void> {
+    const {
+      params: { txHash },
+      query: { domainID },
+    } = request
+
     try {
-      const transfer = await transfersService.findTransferByTxHashAndDomain(txHash, domainID)
+      const transfer = await transfersService.findTransferByTxHash(txHash, domainID)
       void reply.status(200).send(transfer)
     } catch (e) {
       if (e instanceof NotFound) {

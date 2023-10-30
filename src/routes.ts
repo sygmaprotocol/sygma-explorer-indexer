@@ -33,9 +33,9 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
 
   fastify.route({
     method: "GET",
-    url: "/transfers/txHash/:txHash/domains/:domainID",
+    url: "/transfers/txHash/:txHash",
     schema: transferByTxHashAndDomainSchema,
-    handler: TransfersController.transferByTxHashAndDomain,
+    handler: TransfersController.transferByTxHash,
   })
 
   fastify.route({
