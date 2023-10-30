@@ -5,7 +5,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 import { expect } from "chai"
 import sinon from "sinon"
 import { ApiPromise, WsProvider } from "@polkadot/api"
-import { Domain, DomainTypes } from "../../src/indexer/config"
+import { Domain, DomainTypes, ResourceTypes } from "../../src/indexer/config"
 import { parseDestination } from "../../src/indexer/utils/evm"
 
 describe("Events parser", function () {
@@ -27,7 +27,19 @@ describe("Events parser", function () {
     sinon.restore()
   })
 
-  it("should parse evm destination for evm deposit log", async function () {
+  it("should parse evm destination for evm fungible deposit log", async function () {
+    const hexData =
+      "0x000000000000000000000000000000000000000000000000000000000007a1200004a271ced214dee6b4c59e3a0f0088878aeccf849a49031eed30140ae5594f4b6833e488bf6c4c9e94c246d90abfdb0000000000000000000000000000000000000000000000000000018b3d2082f5"
+    const domain = {
+      id: 2,
+      type: DomainTypes.EVM,
+    } as unknown as Domain
+
+    const destination = await parseDestination(hexData, domain, ResourceTypes.PERMISSIONLESS_GENERIC)
+    expect(destination).to.be.deep.equal("0xdee6b4c59e3a0f0088878aeccf849a49031eed30")
+  })
+
+  it("should parse evm destination for GMP evm deposit log", async function () {
     const hexData =
       "0x000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000145c1f5961696bad2e73f73417f07ef55c62a2dc5b0102"
     const domain = {
@@ -35,7 +47,7 @@ describe("Events parser", function () {
       type: DomainTypes.EVM,
     } as unknown as Domain
 
-    const destination = await parseDestination(hexData, domain)
+    const destination = await parseDestination(hexData, domain, ResourceTypes.FUNGIBLE)
     expect(destination).to.be.deep.equal("0x5c1f5961696bad2e73f73417f07ef55c62a2dc5b")
   })
 
@@ -60,7 +72,7 @@ describe("Events parser", function () {
         },
       },
     })
-    const destination = await parseDestination(hexData, domain)
+    const destination = await parseDestination(hexData, domain, ResourceTypes.FUNGIBLE)
     expect(destination).to.equal("5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY")
   })
 
@@ -81,7 +93,7 @@ describe("Events parser", function () {
     })
 
     sinon.stub(WsProvider.prototype, "connect")
-    const result = await parseDestination(hexData, domain)
+    const result = await parseDestination(hexData, domain, ResourceTypes.FUNGIBLE)
     expect(result).to.equal("")
   })
 })
