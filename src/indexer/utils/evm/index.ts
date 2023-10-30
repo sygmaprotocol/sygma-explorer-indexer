@@ -15,7 +15,7 @@ import AccountRepository from "../../repository/account"
 import TransferRepository from "../../repository/transfer"
 import DepositRepository from "../../repository/deposit"
 import { logger } from "../../../utils/logger"
-import { Domain, DomainTypes, EvmResource, SharedConfig, getSsmDomainConfig } from "../../config"
+import { Domain, DomainTypes, EvmResource, ResourceTypes, SharedConfig, getSsmDomainConfig } from "../../config"
 import {
   DecodedDepositLog,
   DecodedFailedHandlerExecution,
@@ -118,7 +118,7 @@ export async function parseDeposit(
     depositNonce: Number(decodedLog.args.depositNonce),
     toDomainId: decodedLog.args.destinationDomainID as string,
     sender: txReceipt.from,
-    destination: await parseDestination(decodedLog.args.data as BytesLike, toDomain),
+    destination: await parseDestination(decodedLog.args.data as BytesLike, toDomain, resourceType),
     fromDomainId: fromDomain.id.toString(),
     resourceID: decodedLog.args.resourceID as string,
     txHash: log.transactionHash,
@@ -130,10 +130,31 @@ export async function parseDeposit(
   }
 }
 
-export async function parseDestination(hexData: BytesLike, domain: Domain): Promise<string> {
+export async function parseDestination(hexData: BytesLike, domain: Domain, resourceType: string): Promise<string> {
   const arrayifyData = getBytes(hexData)
-  const recipientlen = Number("0x" + Buffer.from(arrayifyData.slice(32, 64)).toString("hex"))
-  const recipient = "0x" + Buffer.from(arrayifyData.slice(64, 64 + recipientlen)).toString("hex")
+  let recipient = ""
+  switch (resourceType) {
+    case ResourceTypes.FUNGIBLE:
+    case ResourceTypes.NON_FUNGIBLE: {
+      const recipientlen = Number("0x" + Buffer.from(arrayifyData.slice(32, 64)).toString("hex"))
+      recipient = "0x" + Buffer.from(arrayifyData.slice(64, 64 + recipientlen)).toString("hex")
+      break
+    }
+    case ResourceTypes.PERMISSIONLESS_GENERIC:
+      {
+        // 32 + 2 + 1 + 1 + 20 + 20
+        const lenExecuteFuncSignature = Number("0x" + Buffer.from(arrayifyData.slice(32, 34)).toString("hex"))
+        const lenExecuteContractAddress = Number(
+          "0x" + Buffer.from(arrayifyData.slice(34 + lenExecuteFuncSignature, 35 + lenExecuteFuncSignature)).toString("hex"),
+        )
+        recipient =
+          "0x" +
+          Buffer.from(arrayifyData.slice(35 + lenExecuteFuncSignature, 35 + lenExecuteFuncSignature + lenExecuteContractAddress)).toString("hex")
+      }
+      break
+    default:
+      logger.error(`Unsupported resource type: ${resourceType}`)
+  }
 
   let destination = ""
   if (domain.type == DomainTypes.EVM) {
