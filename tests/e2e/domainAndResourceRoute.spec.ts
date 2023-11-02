@@ -90,6 +90,7 @@ describe("Get all transfers for a specific resource between source and destinati
           amount: "1000000000000000",
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
+          usdValue: 0,
         },
         deposit: {
           txHash: "0x7b7c2be6b60c25a1be9f506fdd75e1aab76d3016f0bc708715405f2e6718c6df",
@@ -141,6 +142,7 @@ describe("Get all transfers for a specific resource between source and destinati
           amount: "1000000000000000",
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
+          usdValue: 0,
         },
         deposit: {
           txHash: "0x18fa527a4773789a5ba487dae5bc3d00cc04dc50509b6f67e438efdb60e75c67",
