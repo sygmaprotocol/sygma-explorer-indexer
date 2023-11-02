@@ -61,6 +61,7 @@ export const getTransferQueryParams = (): IncludedQueryParams => {
           amount: true,
           tokenAddress: true,
           tokenSymbol: true,
+          usdValue: true,
         },
       },
       deposit: {

@@ -206,13 +206,23 @@ export async function saveFee(
   feeRepository: FeeRepository,
   transferMap: Map<string, string>,
   resourceMap: Map<string, SubstrateResource>,
+  coinMakerCapService: CoinMarketCapService,
 ): Promise<void> {
+  let amountInUSD
+
+  try {
+    amountInUSD = await coinMakerCapService.getValueInUSD(fee.feeAmount.replace(/,/g, ""), resourceMap.get(fee.resourceId)?.symbol || "")
+  } catch (error) {
+    logger.error((error as Error).message)
+    amountInUSD = 0
+  }
   const feeData = {
     id: new ObjectId().toString(),
     transferId: transferMap.get(fee.txIdentifier) || "",
     tokenSymbol: resourceMap.get(fee.resourceId)?.symbol || "",
     tokenAddress: JSON.stringify(fee.feeAssetId),
     amount: fee.feeAmount.replace(/,/g, ""),
+    usdValue: amountInUSD,
   }
   await feeRepository.insertFee(feeData)
 }
@@ -314,6 +324,7 @@ export async function saveEvents(
       feeRepository,
       transferMap,
       resourceMap,
+      coinMakerCapService,
     )
   }
 
@@ -388,9 +399,10 @@ export async function saveFeeToDb(
   feeRepository: FeeRepository,
   transferMap: Map<string, string>,
   resourceMap: Map<string, SubstrateResource>,
+  coinmarketcapService: CoinMarketCapService,
 ): Promise<void> {
   try {
-    await saveFee(fee, feeRepository, transferMap, resourceMap)
+    await saveFee(fee, feeRepository, transferMap, resourceMap, coinmarketcapService)
   } catch (error) {
     logger.error("Error saving substrate fee:", error)
   }
