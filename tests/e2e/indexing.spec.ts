@@ -15,6 +15,9 @@ const NUMBER_OF_PERMISSIONLESS_DEPOSITS = 1
 const NUMBER_OF_PERMISSIONED_DEPOSITS = 1
 const NUMBER_OF_NFT_DEPOSITS = 1
 
+const DOMAIN_1 = 1
+const DOMAIN_3 = 3
+
 const FUNGIBLE_EVM_DEPOSIT_TXHASH = "0x1e33c8969f943ce9e12b56937b97109a3d394b0b0eb9cc77cda0127c89b5961b"
 const NONFUNGIBLE_EVM_DEPOSIT_TXHASH = "0x7b7c2be6b60c25a1be9f506fdd75e1aab76d3016f0bc708715405f2e6718c6df"
 const PERMISSIONLESS_GENERIC_EVM_DEPOSIT_TXHASH = "0x18fa527a4773789a5ba487dae5bc3d00cc04dc50509b6f67e438efdb60e75c67"
@@ -108,9 +111,11 @@ describe("Indexer e2e tests", function () {
     })
   })
   it("should succesfully fetch evm fungible transfer", async () => {
-    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_EVM_DEPOSIT_TXHASH}?`)
+    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_EVM_DEPOSIT_TXHASH}?domainID=${DOMAIN_1}`)
+
     const transfer = res.data as TransferResponse
 
+    expect(res.status).to.be.deep.equal(200)
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       message: "",
@@ -154,9 +159,10 @@ describe("Indexer e2e tests", function () {
   })
 
   it("should succesfully fetch evm nonfungible transfer", async () => {
-    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${NONFUNGIBLE_EVM_DEPOSIT_TXHASH}?`)
+    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${NONFUNGIBLE_EVM_DEPOSIT_TXHASH}`)
     const transfer = res.data as TransferResponse
 
+    expect(res.status).to.be.deep.equal(200)
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       depositNonce: 2,
@@ -200,9 +206,10 @@ describe("Indexer e2e tests", function () {
   })
 
   it("should succesfully fetch evm permissionless generic transfer", async () => {
-    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${PERMISSIONLESS_GENERIC_EVM_DEPOSIT_TXHASH}?`)
+    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${PERMISSIONLESS_GENERIC_EVM_DEPOSIT_TXHASH}`)
     const transfer = res.data as TransferResponse
 
+    expect(res.status).to.be.deep.equal(200)
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       depositNonce: 29,
@@ -246,9 +253,10 @@ describe("Indexer e2e tests", function () {
   })
 
   it("should succesfully fetch evm permissioned generic transfer", async () => {
-    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${PERMISSIONED_GENERIC_EVM_DEPOSIT_TXHASH}?`)
+    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${PERMISSIONED_GENERIC_EVM_DEPOSIT_TXHASH}?domainID=${DOMAIN_1}`)
     const transfer = res.data as TransferResponse
 
+    expect(res.status).to.be.deep.equal(200)
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       depositNonce: 3,
@@ -292,9 +300,10 @@ describe("Indexer e2e tests", function () {
   })
 
   it("should succesfully fetch substrate to evm fungible transfer", async () => {
-    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_SUBSTRATE_TO_EVM_DEPOSIT_TXHASH}?`)
+    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_SUBSTRATE_TO_EVM_DEPOSIT_TXHASH}?domainID=${DOMAIN_3}`)
     const transfer = res.data as TransferResponse
 
+    expect(res.status).to.be.deep.equal(200)
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       depositNonce: 2,
@@ -334,9 +343,10 @@ describe("Indexer e2e tests", function () {
   })
 
   it("should succesfully fetch evm to substrate fungible transfer", async () => {
-    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_EVM_TO_SUBSTRATE_DEPOSIT}?`)
+    const res = await axios.get(`http://localhost:8000/api/transfers/txHash/${FUNGIBLE_EVM_TO_SUBSTRATE_DEPOSIT}?domainID=${DOMAIN_1}`)
     const transfer = res.data as TransferResponse
 
+    expect(res.status).to.be.deep.equal(200)
     expect(transfer).to.be.deep.equal({
       id: transfer.id,
       depositNonce: 2,

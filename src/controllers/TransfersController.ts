@@ -58,17 +58,23 @@ export const TransfersController = {
     }
   },
 
-  transferByTxHash: async function (request: FastifyRequest<{ Params: ITransferByTxHash }>, reply: FastifyReply): Promise<void> {
-    const { txHash } = request.params
+  transferByTxHash: async function (
+    request: FastifyRequest<{ Params: ITransferByTxHash; Querystring: ITransferByDomain }>,
+    reply: FastifyReply,
+  ): Promise<void> {
+    const {
+      params: { txHash },
+      query: { domainID },
+    } = request
 
     try {
-      const transfer = await transfersService.findTransferByTxHash(txHash)
+      const transfer = await transfersService.findTransferByTxHash(txHash, domainID)
       void reply.status(200).send(transfer)
     } catch (e) {
       if (e instanceof NotFound) {
         void reply.status(404)
       } else {
-        logger.error("Error occurred when fetching transfer by transaction hash.", e)
+        logger.error("Error occurred when fetching transfer by transaction hash and domainID.", e)
         void reply.status(500)
       }
     }
