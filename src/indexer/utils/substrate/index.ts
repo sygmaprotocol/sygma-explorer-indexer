@@ -80,6 +80,7 @@ export async function saveFailedHandlerExecution(
         depositNonce: Number(depositNonce),
         domainId: originDomainId,
         message: Buffer.from(error).toString(),
+        timestamp: timestamp,
       },
       toDomainId,
     )

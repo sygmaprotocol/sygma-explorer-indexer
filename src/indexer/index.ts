@@ -19,6 +19,8 @@ import { healthcheckRoute } from "./healthcheck"
 import { OfacComplianceService } from "./services/ofac"
 import AccountRepository from "./repository/account"
 import CoinMarketCapService from "./services/coinmarketcap/coinmarketcap.service"
+import { checkTransferStatus, startCronJob } from "./services/monitoringService"
+import { NotificationSender } from "./services/monitoringService/notificationSender"
 
 interface DomainIndexer {
   listenToEvents(): Promise<void>
@@ -94,6 +96,12 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
 
   const domainsToIndex = getDomainsToIndex(sharedConfig.domains)
   const domainIndexers: Array<DomainIndexer> = []
+
+  const notificationSender = new NotificationSender(process.env.SNS_REGION!)
+
+  const cronTime = process.env.CRON_TIME || "* */10 * * * *"
+  startCronJob(cronTime, checkTransferStatus, transferRepository, notificationSender)
+
   for (const domain of domainsToIndex) {
     const rpcURL = rpcUrlConfig.get(domain.id)
     if (!rpcURL) {

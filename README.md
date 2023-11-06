@@ -39,6 +39,13 @@ ENVIRONMENT="" # testnet || devnet
 RPC_URL_CONFIG="[ { "id": DOMAIN_ID, "endpoint": DOMAIN_ENDPOINT } ]"
 COINMARKETCAP_API_KEY=""
 COINMARKETCAP_API_URL=""
+SNS_REGION=
+TOPIC_ARN=
+CRON_TIME="* */10 * * * *"
+INCIDENT_TIME_MINUTES=45
+WARNING_TIME_MINUTES=15
+INCIDENT_TEMPLATE_PATH="incidentTemplate.ejs"
+WARNING_TEMPLATE_PATH="warningTemplate.ejs"
  ```
 
 ### Running locally
