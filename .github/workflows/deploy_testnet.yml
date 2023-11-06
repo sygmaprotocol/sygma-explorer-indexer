@@ -1,9 +1,9 @@
 name: Testnet Explorer Indexer
 
 on:
-  push:
-    branches:
-      - mj52951/monitor-deposit-status
+  release:
+    types:
+      - published
 
 env:
   AWS_REGION: '${{ secrets.AWS_REGION }}'
