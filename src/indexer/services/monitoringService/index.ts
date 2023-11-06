@@ -32,11 +32,7 @@ export async function checkTransferStatus(transferRepository: TransferRepository
   for (const transfer of transfers) {
     const duration = Date.now() - transfer.timestamp.getTime()
     const durationInMins = convertMillisecondsToMinutes(duration)
-    if (durationInMins > Number(process.env.INCIDENT_TIME_MINUTES)) {
-      const msg = await createMessage(process.env.INCIDENT_TEMPLATE_PATH!, transfer, durationInMins)
-      await notificationSender.sendNotification({ Message: msg, TopicArn: process.env.TOPIC_ARN })
-      logger.debug("Incident sent")
-    } else if (durationInMins > Number(process.env.WARNING_TIME_MINUTES)) {
+    if (durationInMins > Number(process.env.WARNING_TIME_MINUTES)) {
       const msg = await createMessage(process.env.WARNING_TEMPLATE_PATH!, transfer, durationInMins)
       await notificationSender.sendNotification({ Message: msg, TopicArn: process.env.TOPIC_ARN })
       logger.debug("Warning sent")
