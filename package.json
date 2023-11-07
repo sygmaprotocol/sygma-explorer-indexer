@@ -7,7 +7,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "tsc --p tsconfig.build.json",
+    "build": "tsc --p tsconfig.build.json && cp  ./src/indexer/services/monitoringService/*.ejs ./build/indexer/services/monitoringService",
     "test": "yarn run test:unit && yarn run test:e2e",
     "test:unit": "NODE_ENV=test nyc --exclude **/data/** --all --include \"src/**/*.ts\"  mocha -r ts-node/register \"tests/unit/**/*.spec.ts\"",
     "test:unit:ci": "NODE_ENV=test nyc --exclude **/data/** --reporter=lcov --all --include \"src/**/*.ts\"  mocha -r ts-node/register \"tests/*.spec.ts\"",
