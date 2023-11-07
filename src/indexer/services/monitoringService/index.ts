@@ -30,12 +30,14 @@ export async function checkTransferStatus(transferRepository: TransferRepository
 
   const transfers = await transferRepository.findTransfersByStatus(TransferStatus.pending)
   for (const transfer of transfers) {
-    const duration = Date.now() - transfer.deposit!.timestamp.getTime()
-    const durationInMins = convertMillisecondsToMinutes(duration)
-    if (durationInMins > Number(process.env.WARNING_TIME_MINUTES)) {
-      const msg = await createMessage(process.env.WARNING_TEMPLATE_PATH!, transfer, durationInMins)
-      await notificationSender.sendNotification({ Message: msg, TopicArn: process.env.TOPIC_ARN })
-      logger.debug("Warning sent")
+    if (transfer.deposit!.timestamp) {
+      const duration = Date.now() - transfer.deposit!.timestamp.getTime()
+      const durationInMins = convertMillisecondsToMinutes(duration)
+      if (durationInMins > Number(process.env.WARNING_TIME_MINUTES)) {
+        const msg = await createMessage(process.env.WARNING_TEMPLATE_PATH!, transfer, durationInMins)
+        await notificationSender.sendNotification({ Message: msg, TopicArn: process.env.TOPIC_ARN })
+        logger.debug("Warning sent")
+      }
     }
   }
 }
