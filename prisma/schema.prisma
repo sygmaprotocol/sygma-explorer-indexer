@@ -68,7 +68,7 @@ model Deposit {
   txHash          String
   blockNumber     String
   depositData     String
-  timestamp       DateTime
+  timestamp       DateTime?
   handlerResponse String
 }
 
@@ -77,7 +77,7 @@ model Execution {
   transfer    Transfer @relation(fields: [transferId], references: [id])
   transferId  String   @unique @db.ObjectId
   txHash      String
-  timestamp   DateTime
+  timestamp   DateTime?
   blockNumber String
 }
 
