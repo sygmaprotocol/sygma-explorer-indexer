@@ -297,6 +297,7 @@ export async function saveEvents(
       sharedConfig,
     )
     if (feeCollectedEvents.length !== depositEvents.length) {
+      resourceMap.set(resourceId, { symbol: "PHA" } as SubstrateResource)
       await saveFeeToDb(
         {
           destDomainId,
