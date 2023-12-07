@@ -8,9 +8,9 @@ on:
         required: false
         default: 'stable' 
         type: string
-      deploy_v2:
-        description: deploy v2
-        type: string
+      # deploy_v2:
+      #   description: deploy v2
+      #   type: string
 
 env:
   AWS_REGION: '${{ secrets.AWS_REGION }}'
@@ -21,7 +21,6 @@ env:
 jobs:
   deploy:
    name: deploy
-   if: github.event.inputs.release_tag == 'stable'
    runs-on: ubuntu-latest
 
    permissions:
@@ -71,7 +70,7 @@ jobs:
 
   # deploy_v2:
   #  name: deploy v2
-  #  if: github.event.inputs.deploy_v2 == 'stable'
+  #
   #  runs-on: ubuntu-latest
 
   #  permissions:
