@@ -42,7 +42,7 @@ export async function checkTransferStatus(transferRepository: TransferRepository
   }
 }
 
-export function startCronJob(cronTime: string | Date | DateTime, fn: Function, ...args: Parameters<any>): CronJob {
+export function getCronJob(cronTime: string | Date | DateTime, fn: Function, ...args: Parameters<any>): CronJob {
   return new CronJob(cronTime, () => {
     try {
       fn(...args)

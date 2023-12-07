@@ -5,6 +5,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 import nodeCleanup from "node-cleanup"
 import { FastifyInstance } from "fastify"
 import { PrismaClient } from "@prisma/client"
+import { CronJob } from "cron"
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
@@ -21,7 +22,6 @@ import AccountRepository from "./repository/account"
 import CoinMarketCapService from "./services/coinmarketcap/coinmarketcap.service"
 import { checkTransferStatus, getCronJob } from "./services/monitoringService"
 import { NotificationSender } from "./services/monitoringService/notificationSender"
-import { CronJob } from "cron"
 
 interface DomainIndexer {
   listenToEvents(): Promise<void>
@@ -70,7 +70,7 @@ init()
     logger.error("Error occurred on app initialization: ", reason)
   })
 
-async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance, cron: CronJob }> {
+async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance; cron: CronJob }> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
 
   const chainAnalysisUrl = process.env.CHAIN_ANALYSIS_URL || ""
