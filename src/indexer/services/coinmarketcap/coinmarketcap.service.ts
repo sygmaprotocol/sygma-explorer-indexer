@@ -50,7 +50,9 @@ class CoinMarketCapService {
         },
       })
 
-      const { data: [res] } = (await response.json()) as { data: CoinMaketCapResponse[] }
+      const {
+        data: [res],
+      } = (await response.json()) as { data: CoinMaketCapResponse[] }
       await this.memoryCache.set(tokenSymbol, res.quote.USD.price)
       return BigNumber(amount).times(BigNumber(res.quote.USD.price))
     } catch (err) {
