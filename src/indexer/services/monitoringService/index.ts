@@ -42,13 +42,12 @@ export async function checkTransferStatus(transferRepository: TransferRepository
   }
 }
 
-export function startCronJob(cronTime: string | Date | DateTime, fn: Function, ...args: Parameters<any>): void {
-  const cronJob = new CronJob(cronTime, () => {
+export function startCronJob(cronTime: string | Date | DateTime, fn: Function, ...args: Parameters<any>): CronJob {
+  return new CronJob(cronTime, () => {
     try {
       fn(...args)
     } catch (err) {
       logger.error("Error while executing cron job function", err)
     }
   })
-  cronJob.start()
 }
