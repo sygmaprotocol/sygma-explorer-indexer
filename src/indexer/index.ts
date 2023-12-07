@@ -5,6 +5,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 import nodeCleanup from "node-cleanup"
 import { FastifyInstance } from "fastify"
 import { PrismaClient } from "@prisma/client"
+import { CronJob } from "cron"
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
@@ -19,7 +20,7 @@ import { healthcheckRoute } from "./healthcheck"
 import { OfacComplianceService } from "./services/ofac"
 import AccountRepository from "./repository/account"
 import CoinMarketCapService from "./services/coinmarketcap/coinmarketcap.service"
-import { checkTransferStatus, startCronJob } from "./services/monitoringService"
+import { checkTransferStatus, getCronJob } from "./services/monitoringService"
 import { NotificationSender } from "./services/monitoringService/notificationSender"
 
 interface DomainIndexer {
@@ -54,6 +55,7 @@ init()
         })
         .catch(err => logger.error("Error occurred during database closing: ", err))
 
+      initData.cron.stop()
       nodeCleanup.uninstall()
       return false
     })
@@ -68,7 +70,7 @@ init()
     logger.error("Error occurred on app initialization: ", reason)
   })
 
-async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance }> {
+async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance; cron: CronJob }> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
 
   const chainAnalysisUrl = process.env.CHAIN_ANALYSIS_URL || ""
@@ -100,8 +102,8 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
   const notificationSender = new NotificationSender(process.env.SNS_REGION!)
 
   const cronTime = process.env.CRON_TIME || "* */10 * * * *"
-  startCronJob(cronTime, checkTransferStatus, transferRepository, notificationSender)
-
+  const cron = getCronJob(cronTime, checkTransferStatus, transferRepository, notificationSender)
+  cron.start()
   for (const domain of domainsToIndex) {
     const rpcURL = rpcUrlConfig.get(domain.id)
     if (!rpcURL) {
@@ -153,7 +155,7 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
     }
   }
 
-  return { domainIndexers, app }
+  return { domainIndexers, app, cron }
 }
 
 async function insertDomains(
