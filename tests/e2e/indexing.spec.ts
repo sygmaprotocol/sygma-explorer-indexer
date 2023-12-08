@@ -324,7 +324,7 @@ describe("Indexer e2e tests", function () {
       fee: {
         amount: "50",
         tokenAddress: "",
-        tokenSymbol: "",
+        tokenSymbol: "PHA",
       },
       deposit: {
         txHash: "356-1",
