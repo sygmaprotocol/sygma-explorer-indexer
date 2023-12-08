@@ -321,7 +321,11 @@ describe("Indexer e2e tests", function () {
       },
       toDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.toDomain.lastIndexedBlock, id: 1 },
       fromDomain: { name: "Substrate", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 3 },
-      fee: null,
+      fee: {
+        amount: "50",
+        tokenAddress: "{}",
+        tokenSymbol: "PHA",
+      },
       deposit: {
         txHash: "356-1",
         blockNumber: "356",
