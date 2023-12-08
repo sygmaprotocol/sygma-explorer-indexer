@@ -323,7 +323,7 @@ describe("Indexer e2e tests", function () {
       fromDomain: { name: "Substrate", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 3 },
       fee: {
         amount: "50",
-        tokenAddress: "",
+        tokenAddress: "{}",
         tokenSymbol: "PHA",
       },
       deposit: {

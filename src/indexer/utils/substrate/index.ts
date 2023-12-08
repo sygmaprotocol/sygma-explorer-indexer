@@ -305,7 +305,7 @@ export async function saveEvents(
           feeAmount: "50",
           feePayer: sender,
           txIdentifier,
-          feeAssetId: "" as unknown as XcmAssetId,
+          feeAssetId: {} as unknown as XcmAssetId,
         },
         feeRepository,
         transferMap,
