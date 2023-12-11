@@ -48,7 +48,7 @@ class TransfersService {
       include: {
         ...getTransferQueryParams().include,
       },
-      distinct: ["id"]
+      distinct: ["id"],
     })
 
     return transfers
