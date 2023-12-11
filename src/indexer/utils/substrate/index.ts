@@ -5,7 +5,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { ObjectId } from "mongodb"
 import { AbiCoder, formatEther } from "ethers"
-import { BlockHash } from "@polkadot/types/interfaces"
+import { BlockHash, XcmAssetId } from "@polkadot/types/interfaces"
 import { ApiPromise } from "@polkadot/api"
 import { TransferStatus } from "@prisma/client"
 import { BigNumber } from "@ethersproject/bignumber"
@@ -296,6 +296,22 @@ export async function saveEvents(
       coinMakerCapService,
       sharedConfig,
     )
+    if (feeCollectedEvents.length !== depositEvents.length) {
+      resourceMap.set(resourceId, { symbol: "PHA" } as SubstrateResource)
+      await saveFeeToDb(
+        {
+          destDomainId,
+          resourceId,
+          feeAmount: "50",
+          feePayer: sender,
+          txIdentifier,
+          feeAssetId: {} as unknown as XcmAssetId,
+        },
+        feeRepository,
+        transferMap,
+        resourceMap,
+      )
+    }
   }
 
   for (const feeCollectedEvent of feeCollectedEvents) {

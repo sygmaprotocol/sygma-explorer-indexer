@@ -86,7 +86,7 @@ jobs:
            awsRegion=${{ env.AWS_REGION }}
            DB_USERNAME=${{ secrets.DB_USERNAME }}
            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-
+           imageTag=${{ github.ref_name }}
 
      - name: Configure AWS Credentials
        uses: aws-actions/configure-aws-credentials@v1
