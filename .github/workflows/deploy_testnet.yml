@@ -1,9 +1,9 @@
 name: Testnet Explorer Indexer
 
 on:
-  release:
-    types:
-      - published
+  push:
+    branches:
+      - tcar/fix-pipeline
 
 env:
   AWS_REGION: '${{ secrets.AWS_REGION }}'
@@ -44,7 +44,8 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ env.TAG }}
-
+      - name: print ref_name
+        run: echo ${{github.ref_name}}  
       - name: build / tag / push docker image into ghcr
         id: build-and-push-ref
         uses: docker/build-push-action@v3
@@ -86,7 +87,7 @@ jobs:
            awsRegion=${{ env.AWS_REGION }}
            DB_USERNAME=${{ secrets.DB_USERNAME }}
            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-           imageTag=${{ github.ref_name }}
+           imageTag=${{ github.event.release.tag_name }}
 
      - name: Configure AWS Credentials
        uses: aws-actions/configure-aws-credentials@v1
