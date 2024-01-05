@@ -18,7 +18,8 @@
       "jest.config.js",
       ".eslintrc.**",
       "./scripts/",
-      "**/*.ejs"
+      "**/*.ejs",
+      "start-prod.sh"
     ],
     "license": "header.txt",
     "licenseFormats": {
