@@ -16,7 +16,6 @@ COPY .yarnrc.yml ./
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY yarn.lock ./
-COPY prisma ./prisma/
 
 RUN yarn install --frozen-lockfile
 
@@ -34,7 +33,10 @@ FROM node:18-alpine
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/build ./build
+COPY --from=builder /app/prisma ./prisma
 LABEL org.opencontainers.image.source https://github.com/sygmaprotocol/sygma-explorer-indexer
 EXPOSE 8000
 
-CMD [ "node", "./build/indexer/index.js"]
+COPY start-prod.sh /start-prod.sh
+
+ENTRYPOINT ["sh","/start-prod.sh"]
