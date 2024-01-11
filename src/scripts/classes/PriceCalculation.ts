@@ -9,6 +9,7 @@ import TransferRepository from "../../indexer/repository/transfer"
 import { SharedConfig } from "../../indexer/config"
 import { logger } from "../../utils/logger"
 import { IFixInterface } from "../interfaces"
+import TransfersService from "../../services/transfers.service"
 
 export class PriceCalculation implements IFixInterface {
   private memoryCache: MemoryCache
@@ -36,8 +37,7 @@ export class PriceCalculation implements IFixInterface {
     }
     return currentResource.symbol
   }
-
-  public async executeTransferAction(transfer: Transfer): Promise<void> {
+  private async updatePrice(transfer: Transfer): Promise<void> {
     if (transfer.usdValue == 0 || transfer.usdValue == null) {
       if (!transfer.resourceID) {
         throw new Error("No resource ID on transfer")
@@ -61,6 +61,29 @@ export class PriceCalculation implements IFixInterface {
         },
         transfer.id,
       )
+    }
+  }
+
+  public async executeAction(): Promise<void> {
+    const transfersService = new TransfersService()
+
+    let transfers = []
+    const limit = 50
+    let page = 1
+    for (;;) {
+      transfers = await transfersService.findTransfers({}, { limit, page })
+      if (transfers.length == 0) {
+        break
+      }
+      page++
+
+      for (const transfer of transfers) {
+        try {
+          await this.updatePrice(transfer)
+        } catch (err) {
+          logger.error(`Error on ${transfer.id}`, err)
+        }
+      }
     }
   }
 }
