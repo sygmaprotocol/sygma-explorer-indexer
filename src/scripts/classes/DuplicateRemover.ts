@@ -90,7 +90,7 @@ export class DuplicateRemover implements IFixInterface {
         filter: { _id: { $oid: deposit.transferId } },
       })) as unknown as Array<{ timestamp: { $date: string } }>
 
-      if (transfer) {
+      if (transfer.length) {
         await this.depositRepository.deposit.update({
           where: {
             id: deposit.id,
@@ -108,7 +108,7 @@ export class DuplicateRemover implements IFixInterface {
         filter: { _id: { $oid: execution.transferId } },
       })) as unknown as Array<{ timestamp: { $date: string } }>
 
-      if (transfer) {
+      if (transfer.length) {
         await this.executionRepository.execution.update({
           where: {
             id: execution.id,
