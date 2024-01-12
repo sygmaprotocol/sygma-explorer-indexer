@@ -69,6 +69,7 @@ export type IncludedQueryParams = {
         amount: boolean
         tokenAddress: boolean
         tokenSymbol: boolean
+        usdValue: boolean
       }
     }
     deposit: {

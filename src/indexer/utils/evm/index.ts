@@ -322,13 +322,28 @@ export async function saveDepositLogs(
   transferMap.set(decodedLog.txHash, transfer.id)
 }
 
-export async function saveFeeLogs(fee: DecodedFeeCollectedLog, transferMap: Map<string, string>, feeRepository: FeeRepository): Promise<void> {
+export async function saveFeeLogs(
+  fee: DecodedFeeCollectedLog,
+  transferMap: Map<string, string>,
+  feeRepository: FeeRepository,
+  coinMarketCapService: CoinMarketCapService,
+): Promise<void> {
+  let amountInUSD: number | null
+
+  try {
+    amountInUSD = await coinMarketCapService.getValueInUSD(fee.amount, fee.tokenSymbol)
+  } catch (error) {
+    logger.error((error as Error).message)
+    amountInUSD = 0
+  }
+
   const feeData = {
     id: new ObjectId().toString(),
     transferId: transferMap.get(fee.txHash) || "",
     tokenSymbol: fee.tokenSymbol,
     tokenAddress: fee.tokenAddress,
     amount: fee.amount,
+    usdValue: amountInUSD,
   }
   await feeRepository.insertFee(feeData)
 }

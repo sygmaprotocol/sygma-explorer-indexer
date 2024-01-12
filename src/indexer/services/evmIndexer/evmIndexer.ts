@@ -138,7 +138,7 @@ export class EvmIndexer {
       ),
     )
 
-    await Promise.all(decodedLogs.feeCollected.map(async fee => saveFeeLogs(fee, transferMap, this.feeRepository)))
+    await Promise.all(decodedLogs.feeCollected.map(async fee => saveFeeLogs(fee, transferMap, this.feeRepository, this.coinMarketCapService)))
 
     await Promise.all(
       decodedLogs.proposalExecution.map(async decodedLog =>
