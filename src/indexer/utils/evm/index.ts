@@ -2,10 +2,7 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
-import { BytesLike, Contract, Log, LogDescription, Provider, TransactionReceipt, getBytes, AbiCoder, formatUnits, BigNumberish, ethers } from "ethers"
-import BasicFeeHandlerContract from "@buildwithsygma/sygma-contracts/build/contracts/BasicFeeHandler.json"
-import DynamicERC20FeeHandlerEVM from "@buildwithsygma/sygma-contracts/build/contracts/DynamicERC20FeeHandlerEVM.json"
-import Bridge from "@buildwithsygma/sygma-contracts/build/contracts/Bridge.json"
+import { BytesLike, Log, LogDescription, Provider, TransactionReceipt, getBytes, AbiCoder, formatUnits, BigNumberish, ethers } from "ethers"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ObjectId } from "mongodb"
 import { TransferStatus } from "@prisma/client"
@@ -26,7 +23,7 @@ import {
   EventType,
   FeeHandlerType,
 } from "../../services/evmIndexer/evmTypes"
-import { getERC20Contract } from "../../services/contract"
+import { getBasicFeeContract, getBridgeContract, getERC20Contract, getPercentageFeeContract } from "../../services/contract"
 import FeeRepository from "../../repository/fee"
 import ExecutionRepository from "../../repository/execution"
 import { OfacComplianceService } from "../../services/ofac"
@@ -51,16 +48,13 @@ export async function getDecodedLogs(
 
   let decodedLog: LogDescription | null = null
   if (contractData[0]?.type == FeeHandlerType.BASIC) {
-    const contract = new Contract(contractData[0].address, BasicFeeHandlerContract.abi, provider)
-
+    const contract = getBasicFeeContract(provider, contractData[0].address)
     decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
-  } else if (contractData[0]?.type == FeeHandlerType.DYNAMIC) {
-    const contract = new Contract(contractData[0].address, DynamicERC20FeeHandlerEVM.abi, provider)
-
+  } else if (contractData[0]?.type == FeeHandlerType.PERCENTAGE) {
+    const contract = getPercentageFeeContract(provider, contractData[0].address)
     decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
   } else if (fromDomain.bridge.toLowerCase() == log.address.toLowerCase()) {
-    const contract = new Contract(fromDomain.bridge, Bridge.abi, provider)
-
+    const contract = getBridgeContract(provider, contractData[0].address)
     decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
   }
 
@@ -210,7 +204,7 @@ export async function parseFeeCollected(
 
   return {
     amount: BigNumber.from(decodedLog.args.fee as number).toString(),
-    tokenSymbol: (decodedLog.args.tokenAddress as string) == nativeTokenAddress ? nativeTokenSymbol : (await ercToken?.symbol()) || "",
+    tokenSymbol: (decodedLog.args.tokenAddress as string) == nativeTokenAddress ? nativeTokenSymbol : ((await ercToken?.symbol()) as string) || "",
     tokenAddress: decodedLog.args.tokenAddress as string,
     txHash: log.transactionHash,
   }

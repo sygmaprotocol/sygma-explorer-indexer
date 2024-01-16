@@ -1010,10 +1010,10 @@
     "@openzeppelin/contracts" "^4.5.0"
     "@truffle/hdwallet-provider" "^2.0.14"
 
-"@buildwithsygma/sygma-contracts@2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@buildwithsygma/sygma-contracts/-/sygma-contracts-2.3.0.tgz#b8d37b4110332bff6e96b182f4cedcb92925fca7"
-  integrity sha512-NeqPjtI3bKHPxqIHR1oIgeouEf5DBkVTsXkgblpfAbWgm63e1oqFzbzRQkpdpkZen87j9cBgkonBFicFQ7KNRw==
+"@buildwithsygma/sygma-contracts@^2.5.0":
+  version "2.5.0"
+  resolved "https://registry.npmjs.org/@buildwithsygma/sygma-contracts/-/sygma-contracts-2.5.0.tgz#ea42d6413524148493017306531876ef56879e5f"
+  integrity sha512-Q2lj4XMcmD373TqTqy8a3vnpTg8841UQgWlRZgGW/voUwFG2Tf+jA9Logvk2AHO8mx13/pzUM+Bdg1YTHN177w==
   dependencies:
     "@openzeppelin/contracts" "^4.5.0"
     "@truffle/hdwallet-provider" "^2.0.14"
@@ -3504,15 +3504,15 @@
   dependencies:
     "@types/node" "*"
 
-"@types/minimatch@*":
-  version "5.1.2"
-  resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-5.1.2.tgz#07508b45797cb81ec3f273011b054cd0755eddca"
-  integrity sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==
-
 "@types/luxon@~3.3.0":
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/@types/luxon/-/luxon-3.3.2.tgz#f6e3524c2486b949a4db445e85d93c8e9886dfe2"
   integrity sha512-l5cpE57br4BIjK+9BSkFBOsWtwv6J9bJpC7gdXIzZyI0vuKvNTk0wZZrkQxMGsUAuGW9+WMNWF2IJMD7br2yeQ==
+
+"@types/minimatch@*":
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-5.1.2.tgz#07508b45797cb81ec3f273011b054cd0755eddca"
+  integrity sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==
 
 "@types/mocha@^10.0.1":
   version "10.0.1"

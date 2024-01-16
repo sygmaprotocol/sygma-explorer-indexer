@@ -59,7 +59,7 @@ export enum EventType {
 
 export enum FeeHandlerType {
   BASIC = "basic",
-  DYNAMIC = "dynamic",
+  PERCENTAGE = "percentage",
 }
 
 export enum DepositType {

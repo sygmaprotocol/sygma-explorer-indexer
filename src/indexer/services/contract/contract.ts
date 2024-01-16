@@ -4,8 +4,22 @@ SPDX-License-Identifier: LGPL-3.0-only
 */
 import { Contract, Provider } from "ethers"
 import ERC20Contract from "@openzeppelin/contracts/build/contracts/ERC20.json"
-import { ERC20 } from "@buildwithsygma/sygma-contracts"
+import BasicFeeHandlerContract from "@buildwithsygma/sygma-contracts/build/contracts/BasicFeeHandler.json"
+import PercentageErc20FeeHandlerEVM from "@buildwithsygma/sygma-contracts/build/contracts/PercentageERC20FeeHandlerEVM.json"
+import Bridge from "@buildwithsygma/sygma-contracts/build/contracts/Bridge.json"
 
-export function getERC20Contract(provider: Provider, contractAddress: string): ERC20 {
-  return new Contract(contractAddress, ERC20Contract.abi, provider) as unknown as ERC20
+export function getERC20Contract(provider: Provider, contractAddress: string): Contract {
+  return new Contract(contractAddress, ERC20Contract.abi, provider)
+}
+
+export function getBridgeContract(provider: Provider, contractAddress: string): Contract {
+  return new Contract(contractAddress, Bridge.abi, provider)
+}
+
+export function getBasicFeeContract(provider: Provider, contractAddress: string): Contract {
+  return new Contract(contractAddress, BasicFeeHandlerContract.abi, provider)
+}
+
+export function getPercentageFeeContract(provider: Provider, contractAddress: string): Contract {
+  return new Contract(contractAddress, PercentageErc20FeeHandlerEVM.abi, provider)
 }
