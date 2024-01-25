@@ -7,7 +7,7 @@ import { ethers } from "ethers"
 
 import winston from "winston"
 import { sleep } from "../../utils/substrate"
-import { saveDepositLogs, saveFailedHandlerExecutionLogs, saveFeeLogs, saveProposalExecutionLogs } from "../../utils/evm"
+import { saveDepositLogs, saveFailedHandlerExecutionLogs, saveProposalExecutionLogs } from "../../utils/evm"
 import DepositRepository from "../../repository/deposit"
 import TransferRepository from "../../repository/transfer"
 import ExecutionRepository from "../../repository/execution"
@@ -122,14 +122,13 @@ export class EvmIndexer {
     this.logger.info(`Found past events in block range [${startBlock}-${endBlock}]`)
     const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap, this.domains)
 
-    const transferMap = new Map<string, string>()
     await Promise.all(
       decodedLogs.deposit.map(async decodedLog =>
         saveDepositLogs(
           decodedLog,
           this.transferRepository,
           this.depositRepository,
-          transferMap,
+          this.feeRepository,
           this.ofacComplianceService,
           this.accountRepository,
           this.coinMarketCapService,
@@ -137,8 +136,6 @@ export class EvmIndexer {
         ),
       ),
     )
-
-    await Promise.all(decodedLogs.feeCollected.map(async fee => saveFeeLogs(fee, transferMap, this.feeRepository)))
 
     await Promise.all(
       decodedLogs.proposalExecution.map(async decodedLog =>
