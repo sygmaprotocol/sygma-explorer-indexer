@@ -79,7 +79,14 @@ For running a script that reruns $ price calculations using the CoinMarketCap se
 yarn run fix:price-calculations
 ````
 
+### Removing duplicates and fix timestamp
 
+This scripts is created for fixing production database entries
+For removing duplicates and move timestamp from transfer cllection to deposit/execution schema, in .env file define DATABASE_URL env variable, and run the script with command:
+
+````
+yarn run fix:remove-duplicates
+````
 
 
 

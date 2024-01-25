@@ -7,10 +7,11 @@ import { getSharedConfig } from "../indexer/config"
 import { logger } from "../utils/logger"
 import { PriceCalculation } from "./classes/PriceCalculation"
 import { IFixInterface } from "./interfaces"
-import { fixDatabaseEntries } from "./fixDatabaseEntries"
+import { DuplicateRemover } from "./classes/DuplicateRemover"
 
-enum FixType {
+export enum FixType {
   PriceCalculations = "price-calculations",
+  RemoveDuplicates = "remove-duplicates",
 }
 
 async function getObject(fixType: FixType): Promise<IFixInterface> {
@@ -24,6 +25,9 @@ async function getObject(fixType: FixType): Promise<IFixInterface> {
 
     const priceCalculationObject = new PriceCalculation(memoryCache, sharedConfig)
     return priceCalculationObject
+  } else if (fixType == FixType.RemoveDuplicates) {
+    const duplicateRemover = new DuplicateRemover()
+    return duplicateRemover
   } else {
     throw new Error("Incorrect argument passed when running script")
   }
@@ -32,7 +36,7 @@ async function getObject(fixType: FixType): Promise<IFixInterface> {
 async function run(): Promise<void> {
   const fixType = process.argv[2] as FixType
   const object = await getObject(fixType)
-  await fixDatabaseEntries(object)
+  await object.executeAction()
 }
 
 run()
