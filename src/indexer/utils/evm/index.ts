@@ -54,7 +54,7 @@ export async function getDecodedLogs(
     const contract = getPercentageFeeContract(provider, contractData[0].address)
     decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
   } else if (fromDomain.bridge.toLowerCase() == log.address.toLowerCase()) {
-    const contract = getBridgeContract(provider, contractData[0].address)
+    const contract = getBridgeContract(provider, fromDomain.bridge)
     decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
   }
 
