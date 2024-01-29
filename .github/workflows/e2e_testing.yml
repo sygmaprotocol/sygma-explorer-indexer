@@ -25,4 +25,4 @@ jobs:
       - name: Wait
         run: sleep 50s
       - name: Run tests
-        run: yarn run test:e2e
+        run: yarn run test
