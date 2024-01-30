@@ -1010,13 +1010,12 @@
     "@openzeppelin/contracts" "^4.5.0"
     "@truffle/hdwallet-provider" "^2.0.14"
 
-"@buildwithsygma/sygma-contracts@^2.5.0":
-  version "2.5.0"
-  resolved "https://registry.npmjs.org/@buildwithsygma/sygma-contracts/-/sygma-contracts-2.5.0.tgz#ea42d6413524148493017306531876ef56879e5f"
-  integrity sha512-Q2lj4XMcmD373TqTqy8a3vnpTg8841UQgWlRZgGW/voUwFG2Tf+jA9Logvk2AHO8mx13/pzUM+Bdg1YTHN177w==
+"@buildwithsygma/sygma-contracts@^2.5.1":
+  version "2.5.1"
+  resolved "https://registry.npmjs.org/@buildwithsygma/sygma-contracts/-/sygma-contracts-2.5.1.tgz#b874853b7c52c12e0ca1de0cf84cc8711a8e58f8"
+  integrity sha512-9jWck7+tX3ot0KCtCl4JqDY+hw70/MVb8qd3qbb2c17/RC28ObQ5qMHLGX+Z+S+KkQyMfRqjsUqXu1+dxXGmkA==
   dependencies:
-    "@openzeppelin/contracts" "^4.5.0"
-    "@truffle/hdwallet-provider" "^2.0.14"
+    "@openzeppelin/contracts" "4.5.0"
 
 "@buildwithsygma/sygma-sdk-core@^2.1.0":
   version "2.2.0"
@@ -1993,6 +1992,11 @@
   dependencies:
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
+
+"@openzeppelin/contracts@4.5.0":
+  version "4.5.0"
+  resolved "https://registry.npmjs.org/@openzeppelin/contracts/-/contracts-4.5.0.tgz#3fd75d57de172b3743cdfc1206883f56430409cc"
+  integrity sha512-fdkzKPYMjrRiPK6K4y64e6GzULR7R7RwxSigHS8DDp7aWDeoReqsQI+cxHV1UuhAqX69L1lAaWDxenfP+xiqzA==
 
 "@openzeppelin/contracts@^4.5.0", "@openzeppelin/contracts@^4.8.3":
   version "4.9.3"
