@@ -46,7 +46,6 @@ export async function getDecodedLogs(
   domains: Domain[],
 ): Promise<void> {
   const blockUnixTimestamp = (await provider.getBlock(log.blockNumber))?.timestamp || 0
-  const contractData = fromDomain.feeHandlers.filter(handler => handler.address == log.address)
 
   let decodedLog: LogDescription | null = null
   if (fromDomain.bridge.toLowerCase() == log.address.toLowerCase()) {
