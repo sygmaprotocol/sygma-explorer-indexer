@@ -20,9 +20,8 @@ import {
   DecodedProposalExecutionLog,
   DepositType,
   EventType,
-  FeeHandlerType,
 } from "../../services/evmIndexer/evmTypes"
-import { getBasicFeeContract, getBridgeContract, getERC20Contract, getPercentageFeeContract, gerFeeRouterContract } from "../../services/contract"
+import { getBridgeContract, getERC20Contract, gerFeeRouterContract } from "../../services/contract"
 import FeeRepository from "../../repository/fee"
 import ExecutionRepository from "../../repository/execution"
 import { OfacComplianceService } from "../../services/ofac"
@@ -50,13 +49,7 @@ export async function getDecodedLogs(
   const contractData = fromDomain.feeHandlers.filter(handler => handler.address == log.address)
 
   let decodedLog: LogDescription | null = null
-  if (contractData[0]?.type == FeeHandlerType.BASIC) {
-    const contract = getBasicFeeContract(provider, contractData[0].address)
-    decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
-  } else if (contractData[0]?.type == FeeHandlerType.PERCENTAGE) {
-    const contract = getPercentageFeeContract(provider, contractData[0].address)
-    decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
-  } else if (fromDomain.bridge.toLowerCase() == log.address.toLowerCase()) {
+  if (fromDomain.bridge.toLowerCase() == log.address.toLowerCase()) {
     const contract = getBridgeContract(provider, fromDomain.bridge)
     decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
   }

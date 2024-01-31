@@ -7,7 +7,7 @@ import ERC20Contract from "@openzeppelin/contracts/build/contracts/ERC20.json"
 import BasicFeeHandlerContract from "@buildwithsygma/sygma-contracts/build/contracts/BasicFeeHandler.json"
 import PercentageErc20FeeHandlerEVM from "@buildwithsygma/sygma-contracts/build/contracts/PercentageERC20FeeHandlerEVM.json"
 import Bridge from "@buildwithsygma/sygma-contracts/build/contracts/Bridge.json"
-import FeeHandlerRouter from "@buildwithsygma/sygma-contracts/build/contracts/FeeHandlerRouter.json"
+import FeeHandlerRouter from "./FeeHandlerRouter.json"
 
 export function getERC20Contract(provider: Provider, contractAddress: string): Contract {
   return new Contract(contractAddress, ERC20Contract.abi, provider)
