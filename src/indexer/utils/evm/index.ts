@@ -187,7 +187,15 @@ export function parseProposalExecution(
 
 export async function getFee(provider: Provider, feeHandlerRouterAddress: string, fromDomain: Domain, decodedLog: LogDescription): Promise<FeeData> {
   try {
-    const fee = await getFeeData(provider, feeHandlerRouterAddress, fromDomain, decodedLog)
+    const feeRouter = gerFeeRouterContract(provider, feeHandlerRouterAddress)
+    const fee = (await feeRouter.calculateFee(
+      decodedLog.args.user as string,
+      fromDomain.id,
+      decodedLog.args.destinationDomainID as string,
+      decodedLog.args.resourceID as string,
+      decodedLog.args.data as string,
+      "0x00",
+    )) as FeeDataResponse
     return {
       tokenAddress: fee.tokenAddress,
       tokenSymbol:
@@ -204,48 +212,6 @@ export async function getFee(provider: Provider, feeHandlerRouterAddress: string
       amount: "",
     }
   }
-}
-
-export async function getFeeData(
-  provider: Provider,
-  feeHandlerRouterAddress: string,
-  fromDomain: Domain,
-  decodedLog: LogDescription,
-): Promise<FeeDataResponse> {
-  const feeRouter = gerFeeRouterContract(provider, feeHandlerRouterAddress)
-  return new Promise((resolve, reject) => {
-    try {
-      const timeoutDuration = 5000 // Set a timeout (e.g., 5 seconds)
-
-      const feePromise = feeRouter.calculateFee(
-        decodedLog.args.user as string,
-        fromDomain.id,
-        decodedLog.args.destinationDomainID as string,
-        decodedLog.args.resourceID as string,
-        decodedLog.args.data as string,
-        "0x00",
-      )
-
-      // Fix for pending feeRouter.calculateFee() in some rare cases - newest ethers version (6.10) doesn't have timeout option for contract.method function
-      Promise.race([feePromise, delay(timeoutDuration)])
-        .then(result => {
-          if (result instanceof Object) {
-            resolve(result as FeeDataResponse) // Fee calculation completed successfully
-          } else {
-            reject(new Error("Fee calculation timed out")) // Timeout occurred
-          }
-        })
-        .catch(error => {
-          reject(error) // Reject if an error occurs during fee calculation
-        })
-    } catch (error) {
-      reject(error) // Reject if an error occurs during fee calculation
-    }
-  })
-}
-
-function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 export function parseFailedHandlerExecution(log: Log, decodedLog: LogDescription, blockUnixTimestamp: number): DecodedFailedHandlerExecution {
