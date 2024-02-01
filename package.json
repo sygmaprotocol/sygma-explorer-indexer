@@ -37,7 +37,7 @@
     "@polkadot/api": "^10.6.1",
     "@prisma/client": "^4.1.0",
     "cors": "^2.8.5",
-    "ethers": "^6.3.0",
+    "ethers": "^6.10.0",
     "fastify": "4.17.0",
     "fastify-healthcheck": "^4.4.0",
     "license-check-and-add": "^4.0.5",
