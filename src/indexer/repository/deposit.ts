@@ -11,5 +11,14 @@ class DepositRepository {
   public async insertDeposit(deposit: Deposit): Promise<void> {
     await this.deposit.create({ data: deposit })
   }
+
+  public async findDeposit(transferID: string): Promise<Deposit | null> {
+    return await this.deposit.findFirst({
+      where: {
+        transferId: transferID,
+      },
+    })
+  }
 }
+
 export default DepositRepository
