@@ -21,7 +21,6 @@ export async function decodeLogs(
     deposit: [],
     proposalExecution: [],
     errors: [],
-    feeCollected: [],
   }
   await Promise.all(
     logs.map(async log => {

@@ -6,7 +6,6 @@ export type DecodedLogs = {
   deposit: Array<DecodedDepositLog>
   proposalExecution: Array<DecodedProposalExecutionLog>
   errors: Array<DecodedFailedHandlerExecution>
-  feeCollected: Array<DecodedFeeCollectedLog>
 }
 
 export type DecodedDepositLog = {
@@ -24,6 +23,7 @@ export type DecodedDepositLog = {
   transferType: string
   amount: string
   senderStatus?: string
+  fee: FeeData
 }
 
 export type DecodedProposalExecutionLog = {
@@ -44,11 +44,10 @@ export type DecodedFailedHandlerExecution = {
   timestamp: number
 }
 
-export type DecodedFeeCollectedLog = {
+export type FeeData = {
   tokenAddress: string
   tokenSymbol: string
   amount: string
-  txHash: string
 }
 export enum EventType {
   DEPOSIT = "Deposit",
