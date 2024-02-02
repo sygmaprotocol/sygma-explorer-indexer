@@ -3,7 +3,6 @@ The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
 import { BytesLike, Log, LogDescription, Provider, TransactionReceipt, getBytes, AbiCoder, formatUnits, BigNumberish, ethers } from "ethers"
-import { BigNumber } from "@ethersproject/bignumber"
 import { ObjectId } from "mongodb"
 import { TransferStatus } from "@prisma/client"
 import { MultiLocation } from "@polkadot/types/interfaces"
@@ -16,14 +15,13 @@ import { Domain, DomainTypes, EvmResource, ResourceTypes, SharedConfig, getSsmDo
 import {
   DecodedDepositLog,
   DecodedFailedHandlerExecution,
-  DecodedFeeCollectedLog,
+  FeeData,
   DecodedLogs,
   DecodedProposalExecutionLog,
   DepositType,
   EventType,
-  FeeHandlerType,
 } from "../../services/evmIndexer/evmTypes"
-import { getBasicFeeContract, getBridgeContract, getERC20Contract, getPercentageFeeContract } from "../../services/contract"
+import { getBridgeContract, getERC20Contract, gerFeeRouterContract } from "../../services/contract"
 import FeeRepository from "../../repository/fee"
 import ExecutionRepository from "../../repository/execution"
 import { OfacComplianceService } from "../../services/ofac"
@@ -35,6 +33,10 @@ type Junction = {
     id: string
   }
 }
+type FeeDataResponse = {
+  fee: string
+  tokenAddress: string
+}
 export async function getDecodedLogs(
   log: Log,
   provider: Provider,
@@ -44,16 +46,9 @@ export async function getDecodedLogs(
   domains: Domain[],
 ): Promise<void> {
   const blockUnixTimestamp = (await provider.getBlock(log.blockNumber))?.timestamp || 0
-  const contractData = fromDomain.feeHandlers.filter(handler => handler.address == log.address)
 
   let decodedLog: LogDescription | null = null
-  if (contractData[0]?.type == FeeHandlerType.BASIC) {
-    const contract = getBasicFeeContract(provider, contractData[0].address)
-    decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
-  } else if (contractData[0]?.type == FeeHandlerType.PERCENTAGE) {
-    const contract = getPercentageFeeContract(provider, contractData[0].address)
-    decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
-  } else if (fromDomain.bridge.toLowerCase() == log.address.toLowerCase()) {
+  if (fromDomain.bridge.toLowerCase() == log.address.toLowerCase()) {
     const contract = getBridgeContract(provider, fromDomain.bridge)
     decodedLog = contract.interface.parseLog(log.toJSON() as { topics: string[]; data: string })
   }
@@ -70,7 +65,7 @@ export async function getDecodedLogs(
   switch (decodedLog.name) {
     case EventType.DEPOSIT: {
       const toDomain = domains.filter(domain => domain.id == decodedLog?.args.destinationDomainID)
-      const deposit = await parseDeposit(fromDomain, toDomain[0], log, decodedLog, txReceipt, blockUnixTimestamp, resourceMap)
+      const deposit = await parseDeposit(provider, fromDomain, toDomain[0], log, decodedLog, txReceipt, blockUnixTimestamp, resourceMap)
       decodedLogs.deposit.push(deposit)
       break
     }
@@ -86,16 +81,11 @@ export async function getDecodedLogs(
       decodedLogs.errors.push(errorData)
       break
     }
-
-    case EventType.FEE_COLLECTED: {
-      const feeCollected = await parseFeeCollected(decodedLog, provider, fromDomain.nativeTokenSymbol, log)
-      decodedLogs.feeCollected.push(feeCollected)
-      break
-    }
   }
 }
 
 export async function parseDeposit(
+  provider: Provider,
   fromDomain: Domain,
   toDomain: Domain,
   log: Log,
@@ -121,6 +111,7 @@ export async function parseDeposit(
     handlerResponse: decodedLog.args.handlerResponse as string,
     transferType: resourceType,
     amount: decodeAmountsOrTokenId(decodedLog.args.data as string, resourceDecimals, resourceType) as string,
+    fee: await getFee(provider, fromDomain.feeRouter, fromDomain, decodedLog),
   }
 }
 
@@ -194,19 +185,32 @@ export function parseProposalExecution(
   }
 }
 
-export async function parseFeeCollected(
-  decodedLog: LogDescription,
-  provider: Provider,
-  nativeTokenSymbol: string,
-  log: Log,
-): Promise<DecodedFeeCollectedLog> {
-  const ercToken = getERC20Contract(provider, decodedLog.args.tokenAddress as string)
-
-  return {
-    amount: BigNumber.from(decodedLog.args.fee as number).toString(),
-    tokenSymbol: (decodedLog.args.tokenAddress as string) == nativeTokenAddress ? nativeTokenSymbol : ((await ercToken?.symbol()) as string) || "",
-    tokenAddress: decodedLog.args.tokenAddress as string,
-    txHash: log.transactionHash,
+export async function getFee(provider: Provider, feeHandlerRouterAddress: string, fromDomain: Domain, decodedLog: LogDescription): Promise<FeeData> {
+  try {
+    const feeRouter = gerFeeRouterContract(provider, feeHandlerRouterAddress)
+    const fee = (await feeRouter.calculateFee(
+      decodedLog.args.user as string,
+      fromDomain.id,
+      decodedLog.args.destinationDomainID as string,
+      decodedLog.args.resourceID as string,
+      decodedLog.args.data as string,
+      "0x00",
+    )) as FeeDataResponse
+    return {
+      tokenAddress: fee.tokenAddress,
+      tokenSymbol:
+        fee.tokenAddress == nativeTokenAddress
+          ? fromDomain.nativeTokenSymbol
+          : ((await getERC20Contract(provider, fee.tokenAddress).symbol()) as string),
+      amount: fee.fee.toString(),
+    }
+  } catch (err) {
+    logger.error(err)
+    return {
+      tokenAddress: "",
+      tokenSymbol: "",
+      amount: "",
+    }
   }
 }
 
@@ -248,7 +252,7 @@ export async function saveDepositLogs(
   decodedLog: DecodedDepositLog,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
-  transferMap: Map<string, string>,
+  feeRepository: FeeRepository,
   ofacComplianceService: OfacComplianceService,
   accountRepository: AccountRepository,
   coinMarketCapService: CoinMarketCapService,
@@ -313,16 +317,14 @@ export async function saveDepositLogs(
     transferId: transfer.id,
   }
   await depositRepository.insertDeposit(deposit)
-  transferMap.set(decodedLog.txHash, transfer.id)
+  await saveFee(decodedLog.fee, transfer.id, feeRepository)
 }
 
-export async function saveFeeLogs(fee: DecodedFeeCollectedLog, transferMap: Map<string, string>, feeRepository: FeeRepository): Promise<void> {
+export async function saveFee(fee: FeeData, transferID: string, feeRepository: FeeRepository): Promise<void> {
   const feeData = {
     id: new ObjectId().toString(),
-    transferId: transferMap.get(fee.txHash) || "",
-    tokenSymbol: fee.tokenSymbol,
-    tokenAddress: fee.tokenAddress,
-    amount: fee.amount,
+    transferId: transferID,
+    ...fee,
   }
   await feeRepository.insertFee(feeData)
 }
