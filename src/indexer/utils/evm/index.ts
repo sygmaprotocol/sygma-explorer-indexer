@@ -316,8 +316,16 @@ export async function saveDepositLogs(
     handlerResponse: decodedLog.handlerResponse,
     transferId: transfer.id,
   }
-  await depositRepository.insertDeposit(deposit)
-  await saveFee(decodedLog.fee, transfer.id, feeRepository)
+  const depositExists = await depositRepository.findDeposit(transfer.id)
+  const feeExists = await feeRepository.findFee(transfer.id)
+
+  if (!depositExists) {
+    await depositRepository.insertDeposit(deposit)
+  }
+
+  if (!feeExists) {
+    await saveFee(decodedLog.fee, transfer.id, feeRepository)
+  }
 }
 
 export async function saveFee(fee: FeeData, transferID: string, feeRepository: FeeRepository): Promise<void> {
