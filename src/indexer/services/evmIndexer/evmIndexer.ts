@@ -20,8 +20,8 @@ import { OfacComplianceService } from "../ofac"
 import { getLogs } from "./evmfilter"
 import { decodeLogs } from "./evmEventParser"
 
-const BLOCK_TIME = 15000
-
+const BLOCK_TIME = Number(process.env.BLOCK_TIME) || 15000
+const REORG_COUNT = Number(process.env.REORG_COUNT) || 10
 export class EvmIndexer {
   private pastEventsQueryInterval = 1000
   private eventsQueryInterval = 1
@@ -92,7 +92,7 @@ export class EvmIndexer {
     while (!this.stopped) {
       try {
         const latestBlock = await this.provider.getBlockNumber()
-        if (currentBlock >= latestBlock) {
+        if (currentBlock + REORG_COUNT >= latestBlock) {
           await sleep(BLOCK_TIME)
           continue
         }
