@@ -87,6 +87,14 @@ describe("Get all transfers for a specific resource between source and destinati
         toDomain: { name: "evm2", lastIndexedBlock: transfers[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfers[0].fromDomain.lastIndexedBlock, id: 1 },
         fee: {
+          id: "65c38b0e7b6fa3b1344975be",
+          transferId: transfers[0].id,
+          resource: {
+            decimals: 18,
+            id: "0x0000000000000000000000000000000000000000000000000000000000000200",
+            type: "nonfungible",
+          },
+          resourceID: "0x0000000000000000000000000000000000000000000000000000000000000200",
           amount: "1000000000000000",
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
@@ -139,8 +147,16 @@ describe("Get all transfers for a specific resource between source and destinati
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfers[0].fromDomain.lastIndexedBlock, id: 1 },
         fee: {
           amount: "1000000000000000",
+          id: "65c38b117b6fa3b1344975f6",
+          resource: {
+            decimals: 0,
+            id: "0x0000000000000000000000000000000000000000000000000000000000000500",
+            type: "permissionlessGeneric",
+          },
+          resourceID: "0x0000000000000000000000000000000000000000000000000000000000000500",
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
+          transferId: "65c38b0d7b6fa3b1344975bb",
         },
         deposit: {
           txHash: "0x18fa527a4773789a5ba487dae5bc3d00cc04dc50509b6f67e438efdb60e75c67",

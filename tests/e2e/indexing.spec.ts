@@ -135,8 +135,16 @@ describe("Indexer e2e tests", function () {
       fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 1 },
       fee: {
         amount: "1000000000000000",
+        id: "65c38b127b6fa3b1344975f8",
+        resource: {
+          decimals: 18,
+          id: "0x0000000000000000000000000000000000000000000000000000000000000300",
+          type: "fungible",
+        },
+        resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
         tokenAddress: "0x0000000000000000000000000000000000000000",
         tokenSymbol: "eth",
+        transferId: "65c38b0e7b6fa3b1344975bf",
       },
       deposit: {
         txHash: "0x1e33c8969f943ce9e12b56937b97109a3d394b0b0eb9cc77cda0127c89b5961b",
@@ -182,8 +190,16 @@ describe("Indexer e2e tests", function () {
       fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 1 },
       fee: {
         amount: "1000000000000000",
+        id: "65c38b0e7b6fa3b1344975be",
+        resource: {
+          decimals: 18,
+          id: "0x0000000000000000000000000000000000000000000000000000000000000200",
+          type: "nonfungible",
+        },
+        resourceID: "0x0000000000000000000000000000000000000000000000000000000000000200",
         tokenAddress: "0x0000000000000000000000000000000000000000",
         tokenSymbol: "eth",
+        transferId: "65c38b0c7b6fa3b134497582",
       },
       deposit: {
         txHash: "0x7b7c2be6b60c25a1be9f506fdd75e1aab76d3016f0bc708715405f2e6718c6df",
@@ -229,8 +245,16 @@ describe("Indexer e2e tests", function () {
       fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 1 },
       fee: {
         amount: "1000000000000000",
+        id: "65c38b117b6fa3b1344975f6",
+        resource: {
+          decimals: 0,
+          id: "0x0000000000000000000000000000000000000000000000000000000000000500",
+          type: "permissionlessGeneric",
+        },
+        resourceID: "0x0000000000000000000000000000000000000000000000000000000000000500",
         tokenAddress: "0x0000000000000000000000000000000000000000",
         tokenSymbol: "eth",
+        transferId: "65c38b0d7b6fa3b1344975bb",
       },
       deposit: {
         txHash: "0x18fa527a4773789a5ba487dae5bc3d00cc04dc50509b6f67e438efdb60e75c67",
@@ -276,8 +300,16 @@ describe("Indexer e2e tests", function () {
       fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 1 },
       fee: {
         amount: "1000000000000000",
+        id: "65c38b0e7b6fa3b1344975c2",
+        resource: {
+          decimals: 0,
+          id: "0x0000000000000000000000000000000000000000000000000000000000000100",
+          type: "permissionedGeneric",
+        },
+        resourceID: "0x0000000000000000000000000000000000000000000000000000000000000100",
         tokenAddress: "0x0000000000000000000000000000000000000000",
         tokenSymbol: "eth",
+        transferId: "65c38b0c7b6fa3b134497585",
       },
       deposit: {
         txHash: "0x44b9ac0bbd9052b8468aae63620ee9babff498ace3092babca2994097344b516",
@@ -323,8 +355,16 @@ describe("Indexer e2e tests", function () {
       fromDomain: { name: "Substrate", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 3 },
       fee: {
         amount: "50",
+        id: "65c38b0a7b6fa3b13449757c",
+        resource: {
+          decimals: 18,
+          id: "0x0000000000000000000000000000000000000000000000000000000000000300",
+          type: "fungible",
+        },
+        resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
         tokenAddress: "{}",
         tokenSymbol: "PHA",
+        transferId: "65c38b0a7b6fa3b13449757a",
       },
       deposit: {
         txHash: "356-1",
@@ -370,8 +410,16 @@ describe("Indexer e2e tests", function () {
       fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer.fromDomain.lastIndexedBlock, id: 1 },
       fee: {
         amount: "1000000000000000",
+        id: "65c38b0b7b6fa3b13449757f",
+        resource: {
+          decimals: 18,
+          id: "0x0000000000000000000000000000000000000000000000000000000000000300",
+          type: "fungible",
+        },
+        resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
         tokenAddress: "0x0000000000000000000000000000000000000000",
         tokenSymbol: "eth",
+        transferId: "65c38b0a7b6fa3b134497577",
       },
       deposit: {
         txHash: "0xdae4f76d4cb634ca175996bb85d76e82f476cc91f71332bdba967f066d9efc16",
