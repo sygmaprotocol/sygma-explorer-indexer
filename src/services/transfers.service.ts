@@ -75,7 +75,7 @@ class TransfersService {
     return transfer as Transfer
   }
 
-  public async findTransferByTxHash(txHash: string, domainID: number): Promise<Transfer> {
+  public async findTransferByTxHash(txHash: string, domainID: number): Promise<Transfer[]> {
     let where: Partial<any>
     domainID == undefined
       ? (where = { txHash: txHash })
@@ -86,13 +86,14 @@ class TransfersService {
           },
         })
 
-    const deposit = await this.deposit.findFirst({
+    const deposit = await this.deposit.findMany({
       where,
       include: { transfer: { include: { ...getTransferQueryParams().include } } },
     })
 
     if (!deposit) throw new NotFound("Transfer not found")
-    return deposit.transfer
+    const transfers = deposit.map((dep => dep.transfer))
+    return transfers
   }
 
   public async findTransfersByAccountAddress(sender: string, status: TransferStatus | undefined, paginationParams: Pagination): Promise<Transfer[]> {
