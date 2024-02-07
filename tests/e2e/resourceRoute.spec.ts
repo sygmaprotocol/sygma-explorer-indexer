@@ -97,7 +97,7 @@ describe("Get all transfers for a specific resource", function () {
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfers[0].fromDomain.lastIndexedBlock, id: 1 },
         fee: {
           amount: "1000000000000000",
-          id: "65c38b0e7b6fa3b1344975be",
+          id: transfers[0].fee.id,
           resource: {
             decimals: 18,
             id: "0x0000000000000000000000000000000000000000000000000000000000000200",
@@ -106,7 +106,7 @@ describe("Get all transfers for a specific resource", function () {
           resourceID: "0x0000000000000000000000000000000000000000000000000000000000000200",
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
-          transferId: "65c38b0c7b6fa3b134497582",
+          transferId: transfers[0].id,
         },
         deposit: {
           txHash: "0x7b7c2be6b60c25a1be9f506fdd75e1aab76d3016f0bc708715405f2e6718c6df",
@@ -154,7 +154,7 @@ describe("Get all transfers for a specific resource", function () {
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfers[0].fromDomain.lastIndexedBlock, id: 1 },
         fee: {
           amount: "1000000000000000",
-          id: "65c38b117b6fa3b1344975f6",
+          id: transfers[0].fee.id,
           resource: {
             decimals: 0,
             id: "0x0000000000000000000000000000000000000000000000000000000000000500",
@@ -163,7 +163,7 @@ describe("Get all transfers for a specific resource", function () {
           resourceID: "0x0000000000000000000000000000000000000000000000000000000000000500",
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
-          transferId: "65c38b0d7b6fa3b1344975bb",
+          transferId: transfers[0].id,
         },
         deposit: {
           txHash: "0x18fa527a4773789a5ba487dae5bc3d00cc04dc50509b6f67e438efdb60e75c67",
@@ -211,7 +211,7 @@ describe("Get all transfers for a specific resource", function () {
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfers[0].fromDomain.lastIndexedBlock, id: 1 },
         fee: {
           amount: "1000000000000000",
-          id: "65c38b0e7b6fa3b1344975c2",
+          id: transfers[0].fee.id,
           resource: {
             decimals: 0,
             id: "0x0000000000000000000000000000000000000000000000000000000000000100",
@@ -220,7 +220,7 @@ describe("Get all transfers for a specific resource", function () {
           resourceID: "0x0000000000000000000000000000000000000000000000000000000000000100",
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
-          transferId: "65c38b0c7b6fa3b134497585",
+          transferId: transfers[0].id,
         },
         deposit: {
           txHash: "0x44b9ac0bbd9052b8468aae63620ee9babff498ace3092babca2994097344b516",
