@@ -203,6 +203,7 @@ export async function getFee(provider: Provider, feeHandlerRouterAddress: string
           ? fromDomain.nativeTokenSymbol
           : ((await getERC20Contract(provider, fee.tokenAddress).symbol()) as string),
       amount: fee.fee.toString(),
+      resourceID: decodedLog.args.resourceID as string,
     }
   } catch (err) {
     logger.error(err)
@@ -210,6 +211,7 @@ export async function getFee(provider: Provider, feeHandlerRouterAddress: string
       tokenAddress: "",
       tokenSymbol: "",
       amount: "",
+      resourceID: "",
     }
   }
 }
