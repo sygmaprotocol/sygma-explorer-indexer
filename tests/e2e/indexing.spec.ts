@@ -173,7 +173,7 @@ describe("Indexer e2e tests", function () {
     const transfer = res.data as TransferResponse[]
 
     expect(res.status).to.be.deep.equal(200)
-    expect(transfer[0]).to.be.deep.equal([
+    expect(transfer).to.be.deep.equal([
       {
         id: transfer[0].id,
         depositNonce: 2,
