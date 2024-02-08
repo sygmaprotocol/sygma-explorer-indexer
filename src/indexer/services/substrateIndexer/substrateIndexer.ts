@@ -15,8 +15,8 @@ import { saveEvents, sleep } from "../../../indexer/utils/substrate"
 import AccountRepository from "../../../indexer/repository/account"
 import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
 
-const BLOCK_TIME = 12000
-
+const BLOCK_TIME = Number(process.env.BLOCK_TIME) || 12000
+const BLOCK_DELAY = Number(process.env.BLOCK_DELAY) || 10
 export class SubstrateIndexer {
   private domainRepository: DomainRepository
   private executionRepository: ExecutionRepository
@@ -85,7 +85,7 @@ export class SubstrateIndexer {
       try {
         const latestBlock = await this.provider.rpc.chain.getBlock()
         const currentBlockHash = await this.provider.rpc.chain.getBlockHash(currentBlock)
-        if (currentBlock >= Number(latestBlock.block.header.number)) {
+        if (currentBlock + BLOCK_DELAY >= Number(latestBlock.block.header.number)) {
           await sleep(BLOCK_TIME)
           continue
         }
