@@ -92,7 +92,7 @@ class TransfersService {
     })
 
     if (!deposit) throw new NotFound("Transfer not found")
-    const transfers = deposit.map((dep => dep.transfer))
+    const transfers = deposit.map(dep => dep.transfer)
     return transfers
   }
 
