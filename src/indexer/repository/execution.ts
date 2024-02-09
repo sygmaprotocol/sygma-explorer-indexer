@@ -8,8 +8,18 @@ class ExecutionRepository {
   public prismaClient = new PrismaClient()
   public execution = this.prismaClient.execution
 
-  public async insertExecution(execution: Execution): Promise<void> {
-    await this.execution.create({ data: execution })
+  public async upsertExecution(execution: Execution): Promise<void> {
+    await this.execution.upsert({
+      where: {
+        transferId: execution.transferId,
+      },
+      update: {
+        txHash: execution.txHash,
+        blockNumber: execution.blockNumber,
+        timestamp: execution.timestamp,
+      },
+      create: execution,
+    })
   }
 }
 export default ExecutionRepository

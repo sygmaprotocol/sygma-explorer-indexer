@@ -61,7 +61,7 @@ export async function saveProposalExecution(
     timestamp: new Date(timestamp),
     blockNumber: blockNumber,
   }
-  await executionRepository.insertExecution(execution)
+  await executionRepository.upsertExecution(execution)
 }
 
 export async function saveFailedHandlerExecution(
@@ -80,7 +80,6 @@ export async function saveFailedHandlerExecution(
         depositNonce: Number(depositNonce),
         domainId: originDomainId,
         message: Buffer.from(error).toString(),
-        timestamp: timestamp,
       },
       toDomainId,
     )
@@ -95,7 +94,7 @@ export async function saveFailedHandlerExecution(
     timestamp: new Date(timestamp),
     blockNumber: blockNumber,
   }
-  await executionRepository.insertExecution(execution)
+  await executionRepository.upsertExecution(execution)
 }
 
 export async function saveDeposit(

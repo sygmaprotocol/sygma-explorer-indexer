@@ -122,30 +122,26 @@ export class EvmIndexer {
     this.logger.info(`Found past events in block range [${startBlock}-${endBlock}]`)
     const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap, this.domains)
 
-    await Promise.all(
-      decodedLogs.deposit.map(async decodedLog =>
-        saveDepositLogs(
-          decodedLog,
-          this.transferRepository,
-          this.depositRepository,
-          this.feeRepository,
-          this.ofacComplianceService,
-          this.accountRepository,
-          this.coinMarketCapService,
-          this.sharedConfig,
-        ),
-      ),
-    )
+    for (const decodedLog of decodedLogs.deposit) {
+      await saveDepositLogs(
+        decodedLog,
+        this.transferRepository,
+        this.depositRepository,
+        this.feeRepository,
+        this.ofacComplianceService,
+        this.accountRepository,
+        this.coinMarketCapService,
+        this.sharedConfig,
+      )
+    }
 
-    await Promise.all(
-      decodedLogs.proposalExecution.map(async decodedLog =>
-        saveProposalExecutionLogs(decodedLog, this.domain.id, this.transferRepository, this.executionRepository),
-      ),
-    )
+    for (const error of decodedLogs.errors) {
+      await saveFailedHandlerExecutionLogs(error, this.domain.id, this.transferRepository, this.executionRepository)
+    }
 
-    await Promise.all(
-      decodedLogs.errors.map(async error => saveFailedHandlerExecutionLogs(error, this.domain.id, this.transferRepository, this.executionRepository)),
-    )
+    for (const decodedLog of decodedLogs.proposalExecution) {
+      await saveProposalExecutionLogs(decodedLog, this.domain.id, this.transferRepository, this.executionRepository)
+    }
   }
 
   async getLastIndexedBlock(domainID: number): Promise<number> {
