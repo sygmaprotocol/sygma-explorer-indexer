@@ -75,7 +75,7 @@ class TransfersService {
     return transfer as Transfer
   }
 
-  public async findTransferByTxHash(txHash: string, domainID: number): Promise<Transfer[]> {
+  public async findTransfersByTxHash(txHash: string, domainID: number): Promise<Transfer[]> {
     let where: Partial<any>
     domainID == undefined
       ? (where = { txHash: txHash })
