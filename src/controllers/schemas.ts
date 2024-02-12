@@ -137,3 +137,20 @@ export const transferByIdSchema = {
     },
   },
 }
+
+export const routesByDomainSchema = {
+  querystring: {
+    type: "object",
+    properties: {
+      resourceType: { type: "string", default: "any", enum: ["fungible", "gmp", "any"] },
+    },
+  },
+  params: {
+    type: "object",
+    properties: {
+      domainID: { type: "number" },
+    },
+  },
+}
+
+export const domainsMetadataSchema = {}
