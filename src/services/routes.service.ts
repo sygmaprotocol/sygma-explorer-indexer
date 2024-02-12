@@ -1,11 +1,12 @@
-import { routesMainnet } from "../routes/routes.main"
-import { routesTestnet } from "../routes/routes.test"
+import { Environment } from "@buildwithsygma/sygma-sdk-core"
+import { routesMainnet } from "../routes/routes.mainnet"
+import { routesTestnet } from "../routes/routes.testnet"
 import { Route } from "../routes/types"
 
 export class RoutesService {
   private readonly routes
-  constructor(env: string) {
-    if (env === "mainnet") {
+  constructor(env: Environment) {
+    if (env === Environment.MAINNET) {
       this.routes = routesMainnet
     } else {
       this.routes = routesTestnet
