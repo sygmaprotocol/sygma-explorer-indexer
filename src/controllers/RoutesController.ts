@@ -8,7 +8,8 @@ import { IRouteByResourceType, IRoutesByDomain } from "../interfaces"
 import { logger } from "../utils/logger"
 import { RoutesService } from "../services/routes.service"
 
-const routeService = new RoutesService((process.env.ENV as Environment) || Environment.MAINNET)
+const env = process.env.ENVIRONMENT || ""
+const routeService = new RoutesService((env.toLowerCase() as Environment) || Environment.MAINNET)
 
 export const RoutesController = {
   routes: function (request: FastifyRequest<{ Params: IRoutesByDomain; Querystring: IRouteByResourceType }>, reply: FastifyReply): void {
