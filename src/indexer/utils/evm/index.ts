@@ -362,7 +362,7 @@ export async function saveProposalExecutionLogs(
     timestamp: new Date(decodedLog.timestamp * 1000),
     blockNumber: decodedLog.blockNumber.toString(),
   }
-  await executionRepository.insertExecution(execution)
+  await executionRepository.upsertExecution(execution)
 }
 
 export async function saveFailedHandlerExecutionLogs(
@@ -385,5 +385,5 @@ export async function saveFailedHandlerExecutionLogs(
     timestamp: new Date(error.timestamp * 1000),
     blockNumber: error.blockNumber.toString(),
   }
-  await executionRepository.insertExecution(execution)
+  await executionRepository.upsertExecution(execution)
 }

@@ -166,7 +166,7 @@ class TransferRepository {
   }
 
   public async insertFailedTransfer(
-    { depositNonce, domainId, message, timestamp }: Pick<DecodedFailedHandlerExecution, "depositNonce" | "domainId" | "message" | "timestamp">,
+    { depositNonce, domainId, message }: Pick<DecodedFailedHandlerExecution, "depositNonce" | "domainId" | "message">,
     toDomainId: number,
   ): Promise<Transfer> {
     const transferData = {
@@ -183,7 +183,6 @@ class TransferRepository {
         },
       },
       status: TransferStatus.failed,
-      timestamp: new Date(timestamp),
       message,
     }
     return await this.transfer.create({ data: transferData })
