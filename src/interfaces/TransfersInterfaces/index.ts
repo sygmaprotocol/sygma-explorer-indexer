@@ -65,10 +65,8 @@ export type IncludedQueryParams = {
       }
     }
     fee: {
-      select: {
-        amount: boolean
-        tokenAddress: boolean
-        tokenSymbol: boolean
+      include: {
+        resource: boolean
       }
     }
     deposit: {

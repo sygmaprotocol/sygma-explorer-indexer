@@ -31,6 +31,7 @@ export type Domain = {
   name: string
   type: DomainTypes
   bridge: string
+  feeRouter: string
   feeHandlers: Array<FeeHandlerType>
   handlers: Array<Handler>
   nativeTokenSymbol: string

@@ -214,6 +214,7 @@ export async function saveFee(
     tokenSymbol: resourceMap.get(fee.resourceId)?.symbol || "",
     tokenAddress: JSON.stringify(fee.feeAssetId),
     amount: fee.feeAmount.replace(/,/g, ""),
+    resourceID: fee.resourceId,
   }
   await feeRepository.insertFee(feeData)
 }

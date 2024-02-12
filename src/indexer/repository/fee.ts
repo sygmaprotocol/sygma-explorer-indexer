@@ -10,5 +10,13 @@ class FeeRepository {
   public async insertFee(fee: Fee): Promise<Fee> {
     return await this.fee.create({ data: fee })
   }
+
+  public async findFee(transferID: string): Promise<Fee | null> {
+    return await this.fee.findFirst({
+      where: {
+        transferId: transferID,
+      },
+    })
+  }
 }
 export default FeeRepository

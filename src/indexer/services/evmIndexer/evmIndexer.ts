@@ -7,7 +7,7 @@ import { ethers } from "ethers"
 
 import winston from "winston"
 import { sleep } from "../../utils/substrate"
-import { saveDepositLogs, saveFailedHandlerExecutionLogs, saveFeeLogs, saveProposalExecutionLogs } from "../../utils/evm"
+import { saveDepositLogs, saveFailedHandlerExecutionLogs, saveProposalExecutionLogs } from "../../utils/evm"
 import DepositRepository from "../../repository/deposit"
 import TransferRepository from "../../repository/transfer"
 import ExecutionRepository from "../../repository/execution"
@@ -20,8 +20,8 @@ import { OfacComplianceService } from "../ofac"
 import { getLogs } from "./evmfilter"
 import { decodeLogs } from "./evmEventParser"
 
-const BLOCK_TIME = 15000
-
+const BLOCK_TIME = Number(process.env.BLOCK_TIME) || 15000
+const BLOCK_DELAY = Number(process.env.BLOCK_DELAY) || 10
 export class EvmIndexer {
   private pastEventsQueryInterval = 1000
   private eventsQueryInterval = 1
@@ -92,7 +92,7 @@ export class EvmIndexer {
     while (!this.stopped) {
       try {
         const latestBlock = await this.provider.getBlockNumber()
-        if (currentBlock >= latestBlock) {
+        if (currentBlock + BLOCK_DELAY >= latestBlock) {
           await sleep(BLOCK_TIME)
           continue
         }
@@ -122,14 +122,13 @@ export class EvmIndexer {
     this.logger.info(`Found past events in block range [${startBlock}-${endBlock}]`)
     const decodedLogs = await decodeLogs(this.provider, this.domain, logs, this.resourceMap, this.domains)
 
-    const transferMap = new Map<string, string>()
     await Promise.all(
       decodedLogs.deposit.map(async decodedLog =>
         saveDepositLogs(
           decodedLog,
           this.transferRepository,
           this.depositRepository,
-          transferMap,
+          this.feeRepository,
           this.ofacComplianceService,
           this.accountRepository,
           this.coinMarketCapService,
@@ -137,8 +136,6 @@ export class EvmIndexer {
         ),
       ),
     )
-
-    await Promise.all(decodedLogs.feeCollected.map(async fee => saveFeeLogs(fee, transferMap, this.feeRepository)))
 
     await Promise.all(
       decodedLogs.proposalExecution.map(async decodedLog =>

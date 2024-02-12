@@ -175,7 +175,7 @@ async function insertDomains(
       if (domain.type == DomainTypes.SUBSTRATE) {
         resourceMap.set(resource.resourceId, resource as SubstrateResource)
       }
-      await resourceRepository.insertResource({ id: resource.resourceId, type: resource.type })
+      await resourceRepository.insertResource({ id: resource.resourceId, type: resource.type, decimals: resource.decimals })
     }
   }
   return resourceMap
