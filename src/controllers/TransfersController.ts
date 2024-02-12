@@ -68,7 +68,7 @@ export const TransfersController = {
     } = request
 
     try {
-      const transfer = await transfersService.findTransferByTxHash(txHash, domainID)
+      const transfer = await transfersService.findTransfersByTxHash(txHash, domainID)
       void reply.status(200).send(transfer)
     } catch (e) {
       if (e instanceof NotFound) {
