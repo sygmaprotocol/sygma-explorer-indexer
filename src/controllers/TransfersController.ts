@@ -13,7 +13,7 @@ import {
   ITransferBySender,
   ITransferBySourceDomainToDestinationDomain,
   ITransferByTxHash,
-} from "../Interfaces"
+} from "../interfaces"
 import { logger } from "../utils/logger"
 
 import TransfersService from "../services/transfers.service"

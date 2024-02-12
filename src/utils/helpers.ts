@@ -6,7 +6,7 @@ import { Signer, ethers, AbiCoder } from "ethers"
 import { ERC20Handler__factory as Erc20HandlerFactory, ERC721Handler__factory as Erc721HandlerFactory } from "@buildwithsygma/sygma-contracts"
 import { sleep } from "../indexer/utils/substrate"
 import { EvmBridgeConfig, HandlersMap, SygmaConfig } from "../sygmaTypes"
-import { IncludedQueryParams } from "../Interfaces"
+import { IncludedQueryParams } from "../interfaces"
 
 export function getNetworkName(domainId: number, sygmaConfig: SygmaConfig): string {
   return sygmaConfig.chains.find(c => c.domainId === domainId)?.name || ""

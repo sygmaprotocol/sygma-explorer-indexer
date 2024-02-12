@@ -5,6 +5,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 import { FastifyInstance } from "fastify"
 import { TransfersController } from "./controllers/TransfersController"
 import {
+  routesByDomainSchema,
   transferByIdSchema,
   transferByTxHashAndDomainSchema,
   transfersByDomainSchema,
@@ -14,6 +15,7 @@ import {
   transfersBySourceDomainToDestinationDomainSchema,
   transfersSchema,
 } from "./controllers/schemas"
+import { RoutesController } from "./controllers/RoutesController"
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function routes(fastify: FastifyInstance): Promise<void> {
@@ -71,5 +73,12 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
     url: "/domains/:domainID/transfers",
     schema: transfersByDomainSchema,
     handler: TransfersController.transfersByDomain,
+  })
+
+  fastify.route({
+    method: "GET",
+    url: "/routes/from/:domainID",
+    schema: routesByDomainSchema,
+    handler: RoutesController.routes,
   })
 }

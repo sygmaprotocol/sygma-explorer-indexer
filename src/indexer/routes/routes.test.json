@@ -1,0 +1,11 @@
+{
+  "domains": {
+    "domainID": 1,
+    "routes": [
+      {
+        "destinationDomainID": 2,
+        "resourceID": 1
+      }
+    ]
+  }
+}
