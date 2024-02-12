@@ -12,10 +12,7 @@ export class RoutesService {
     }
   }
   public getAllRoutes(from: string, resourceType: string): Route[] {
-    console.log("FETCHINT ROUTES: " + from + "  " + resourceType)
-    console.log(this.routes)
     const allRoutes: Route[] = this.routes.get(from) || []
-    console.log(allRoutes)
     if (resourceType === "any") {
       return allRoutes
     } else {
