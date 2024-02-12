@@ -21,7 +21,7 @@ export class RoutesService {
     if (resourceType === "any") {
       return allRoutes
     } else {
-      return allRoutes.filter(r => r.type == resourceType)
+      return allRoutes.filter(route => route.type == resourceType)
     }
   }
 }
