@@ -1,5 +1,5 @@
 export interface IRoutesByDomain {
-  domainID: string
+  domainID: number
 }
 
 export interface IRouteByResourceType {
