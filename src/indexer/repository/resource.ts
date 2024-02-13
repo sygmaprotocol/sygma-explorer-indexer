@@ -11,7 +11,7 @@ class ResourceRepository {
   public async insertResource(resource: { id: string; type: ResourceTypes; decimals: number }): Promise<void> {
     await this.resource.upsert({
       where: { id: resource.id },
-      update: { type: resource.type },
+      update: { type: resource.type, decimals: resource.decimals },
       create: resource,
     })
   }
