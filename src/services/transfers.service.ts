@@ -95,7 +95,7 @@ class TransfersService {
       : (where = {
           txHash: txHash,
           transfer: {
-            fromDomainId: domainID,
+            toDomainId: domainID,
           },
         })
 
