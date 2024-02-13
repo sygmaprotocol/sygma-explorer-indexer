@@ -9,6 +9,7 @@ import {
   routesByDomainSchema,
   transferByIdSchema,
   transferByTxHashAndDomainSchema,
+  transferByTxHashSchema,
   transfersByDomainSchema,
   transfersByResourceBetweenDomainsSchema,
   transfersByResourceSchema,
@@ -38,8 +39,15 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
   fastify.route({
     method: "GET",
     url: "/transfers/txHash/:txHash",
-    schema: transferByTxHashAndDomainSchema,
+    schema: transferByTxHashSchema,
     handler: TransfersController.transferByTxHash,
+  })
+
+  fastify.route({
+    method: "GET",
+    url: "/transfers/txHash/:txHash/:domainID",
+    schema: transferByTxHashAndDomainSchema,
+    handler: TransfersController.transferByTxHashAndDomain,
   })
 
   fastify.route({

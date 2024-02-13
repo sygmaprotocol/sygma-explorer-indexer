@@ -19,6 +19,11 @@ export interface ITransferByTxHash {
   txHash: string
 }
 
+export interface ITransferByTxHashAndDomain {
+  txHash: string
+  domainID: number
+}
+
 export interface ITransferBySender extends ITransfer {
   senderAddress: string
 }

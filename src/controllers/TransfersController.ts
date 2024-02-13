@@ -13,6 +13,7 @@ import {
   ITransferBySender,
   ITransferBySourceDomainToDestinationDomain,
   ITransferByTxHash,
+  ITransferByTxHashAndDomain,
 } from "../interfaces"
 import { logger } from "../utils/logger"
 
@@ -58,17 +59,31 @@ export const TransfersController = {
     }
   },
 
-  transferByTxHash: async function (
-    request: FastifyRequest<{ Params: ITransferByTxHash; Querystring: ITransferByDomain }>,
-    reply: FastifyReply,
-  ): Promise<void> {
+  transferByTxHash: async function (request: FastifyRequest<{ Params: ITransferByTxHash }>, reply: FastifyReply): Promise<void> {
     const {
       params: { txHash },
-      query: { domainID },
     } = request
 
     try {
-      const transfer = await transfersService.findTransfersByTxHash(txHash, domainID)
+      const transfer = await transfersService.findTransfersByTxHash(txHash)
+      void reply.status(200).send(transfer)
+    } catch (e) {
+      if (e instanceof NotFound) {
+        void reply.status(404)
+      } else {
+        logger.error("Error occurred when fetching transfer by transaction hash and domainID.", e)
+        void reply.status(500)
+      }
+    }
+  },
+
+  transferByTxHashAndDomain: async function (request: FastifyRequest<{ Params: ITransferByTxHashAndDomain }>, reply: FastifyReply): Promise<void> {
+    const {
+      params: { txHash, domainID },
+    } = request
+
+    try {
+      const transfer = await transfersService.findTransferByTxHashAndDomain(txHash, domainID)
       void reply.status(200).send(transfer)
     } catch (e) {
       if (e instanceof NotFound) {
