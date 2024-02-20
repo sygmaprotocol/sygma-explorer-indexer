@@ -18,12 +18,7 @@ export const routesTestnet: Map<string, Route[]> = new Map([
       { fromDomainId: "2", toDomainId: "3", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001100", type: "fungible" },
     ],
   ],
-  [
-    "3",
-    [
-      { fromDomainId: "3", toDomainId: "2", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001100", type: "fungible" }
-    ],
-  ],
+  ["3", [{ fromDomainId: "3", toDomainId: "2", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001100", type: "fungible" }]],
   [
     "5",
     [

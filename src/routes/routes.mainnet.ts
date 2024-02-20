@@ -16,18 +16,8 @@ export const routesMainnet: Map<string, Route[]> = new Map([
       { fromDomainId: "1", toDomainId: "2", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000001", type: "fungible" },
     ],
   ],
-  [
-    "2",
-    [
-      { fromDomainId: "2", toDomainId: "1", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000001", type: "fungible" },
-    ],
-  ],
-  [
-    "3",
-    [
-      { fromDomainId: "3", toDomainId: "1", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000001", type: "fungible" },
-    ],
-  ],
+  ["2", [{ fromDomainId: "2", toDomainId: "1", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000001", type: "fungible" }]],
+  ["3", [{ fromDomainId: "3", toDomainId: "1", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000001", type: "fungible" }]],
   [
     "4",
     [
