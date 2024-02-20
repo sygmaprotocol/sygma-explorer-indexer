@@ -21,18 +21,7 @@ export const routesTestnet: Map<string, Route[]> = new Map([
   [
     "3",
     [
-      { fromDomainId: "3", toDomainId: "2", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001000", type: "fungible" },
-      { fromDomainId: "3", toDomainId: "5", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001000", type: "fungible" },
-      { fromDomainId: "3", toDomainId: "6", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001000", type: "fungible" },
-      { fromDomainId: "3", toDomainId: "7", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001000", type: "fungible" },
-      { fromDomainId: "3", toDomainId: "8", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001000", type: "fungible" },
-      { fromDomainId: "3", toDomainId: "9", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001000", type: "fungible" },
-      { fromDomainId: "3", toDomainId: "2", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001100", type: "fungible" },
-      { fromDomainId: "3", toDomainId: "5", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001100", type: "fungible" },
-      { fromDomainId: "3", toDomainId: "6", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001100", type: "fungible" },
-      { fromDomainId: "3", toDomainId: "7", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001100", type: "fungible" },
-      { fromDomainId: "3", toDomainId: "8", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001100", type: "fungible" },
-      { fromDomainId: "3", toDomainId: "9", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001100", type: "fungible" },
+      { fromDomainId: "3", toDomainId: "2", resourceId: "0x0000000000000000000000000000000000000000000000000000000000001100", type: "fungible" }
     ],
   ],
   [
