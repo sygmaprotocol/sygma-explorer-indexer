@@ -23,7 +23,7 @@ export async function createMessage(templatePath: string, transfer: TransferWith
     txHash: transfer.deposit!.txHash,
     fromDomainId: transfer.fromDomainId,
     durationInMins: Math.round(durationInMins),
-    environment: environment.toLowerCase()
+    environment: environment.toLowerCase(),
   })
 }
 
