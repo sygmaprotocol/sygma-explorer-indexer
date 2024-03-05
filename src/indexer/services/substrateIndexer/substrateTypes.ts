@@ -13,7 +13,7 @@ export type RawDepositData = {
   sender: string
   transferType: string
   depositData: string
-  handlerResponse: string
+  securityModel: number
 }
 
 export type RawFeeCollectedData = {

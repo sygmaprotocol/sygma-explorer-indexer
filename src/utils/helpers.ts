@@ -70,7 +70,6 @@ export const getTransferQueryParams = (): IncludedQueryParams => {
           txHash: true,
           blockNumber: true,
           depositData: true,
-          handlerResponse: true,
           timestamp: true,
         },
       },

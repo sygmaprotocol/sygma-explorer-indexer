@@ -69,6 +69,7 @@ class TransferRepository {
         },
       },
       usdValue: decodedLog.usdValue,
+      securityModel: decodedLog.securityModel,
     }
 
     return await this.transfer.upsert({
@@ -102,7 +103,7 @@ class TransferRepository {
   public async insertSubstrateDepositTransfer(
     substrateDepositData: Pick<
       DecodedDepositLog,
-      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId"
+      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "securityModel"
     > & { usdValue: number },
   ): Promise<Transfer> {
     const transferData = {
@@ -133,6 +134,7 @@ class TransferRepository {
         },
       },
       usdValue: substrateDepositData.usdValue,
+      securityModel: substrateDepositData.securityModel || 1,
     }
 
     return await this.transfer.create({ data: transferData })
@@ -184,6 +186,7 @@ class TransferRepository {
       },
       status: TransferStatus.failed,
       message,
+      securityModel: 1, 
     }
     return await this.transfer.create({ data: transferData })
   }

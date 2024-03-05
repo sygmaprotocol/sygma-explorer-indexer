@@ -19,7 +19,7 @@ export type DecodedDepositLog = {
   txHash: string
   timestamp: number
   depositData: string
-  handlerResponse: string
+  securityModel: number
   transferType: string
   amount: string
   senderStatus?: string

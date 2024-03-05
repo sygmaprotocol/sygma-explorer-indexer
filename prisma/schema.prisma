@@ -21,6 +21,7 @@ model Transfer {
   toDomainId   Int?
   destination  String?
   amount       String?
+  securityModel Int?
   status       TransferStatus
   deposit      Deposit?
   execution    Execution?
@@ -71,7 +72,6 @@ model Deposit {
   blockNumber     String
   depositData     String
   timestamp       DateTime?
-  handlerResponse String
 }
 
 model Execution {
