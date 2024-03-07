@@ -134,7 +134,7 @@ describe("Indexer e2e tests", function () {
         },
         toDomain: { name: "evm2", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 1 },
-        securityModel: null,
+        securityModel: 1,
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
@@ -191,7 +191,7 @@ describe("Indexer e2e tests", function () {
         },
         toDomain: { name: "evm2", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 1 },
-        securityModel: null,
+        securityModel: 1,
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
@@ -248,7 +248,7 @@ describe("Indexer e2e tests", function () {
         },
         toDomain: { name: "evm2", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 1 },
-        securityModel: null,
+        securityModel: 1,
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
@@ -305,7 +305,7 @@ describe("Indexer e2e tests", function () {
         },
         toDomain: { name: "evm2", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 1 },
-        securityModel: null,
+        securityModel: 1,
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
@@ -419,7 +419,7 @@ describe("Indexer e2e tests", function () {
         },
         toDomain: { name: "Substrate", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 3 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 1 },
-        securityModel: null,
+        securityModel: 1,
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,

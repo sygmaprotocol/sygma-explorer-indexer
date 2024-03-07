@@ -108,7 +108,7 @@ export async function parseDeposit(
     txHash: log.transactionHash,
     timestamp: blockUnixTimestamp,
     depositData: decodedLog.args.data as string,
-    securityModel: decodedLog.args.securityModel || 1,
+    securityModel: (decodedLog.args.securityModel as number) || 1,
     transferType: resourceType,
     amount: decodeAmountsOrTokenId(decodedLog.args.data as string, resourceDecimals, resourceType) as string,
     fee: await getFee(provider, fromDomain.feeRouter, fromDomain, decodedLog),

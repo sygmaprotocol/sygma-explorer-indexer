@@ -44,7 +44,7 @@ describe("Monitoring service testing", function () {
         accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
         message: "",
         usdValue: null,
-        securityModel: null,
+        securityModel: 1,
         resource: {
           type: "nonfungible",
           id: "0x0000000000000000000000000000000000000000000000000000000000000200",
@@ -103,7 +103,7 @@ describe("Monitoring service testing", function () {
         accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
         message: "",
         usdValue: null,
-        securityModel: null,
+        securityModel: 1,
         resource: {
           type: "nonfungible",
           id: "0x0000000000000000000000000000000000000000000000000000000000000200",
@@ -162,7 +162,7 @@ describe("Monitoring service testing", function () {
         accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
         message: "",
         usdValue: null,
-        securityModel: null,
+        securityModel: 1,
         resource: {
           type: "nonfungible",
           id: "0x0000000000000000000000000000000000000000000000000000000000000200",

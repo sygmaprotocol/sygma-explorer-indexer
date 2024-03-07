@@ -20,6 +20,7 @@ export type TransferMetadata = {
   fromDomainId: string
   toDomainId: string
   resourceID: string
+  securityModel: number
   timestamp: Date
   deposit: Deposit
   resource: {
@@ -186,7 +187,7 @@ class TransferRepository {
       },
       status: TransferStatus.failed,
       message,
-      securityModel: 1, 
+      securityModel: 1,
     }
     return await this.transfer.create({ data: transferData })
   }
@@ -201,7 +202,11 @@ class TransferRepository {
       toDomainId,
       sender,
       usdValue,
-    }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId"> & {
+      securityModel,
+    }: Pick<
+      DecodedDepositLog,
+      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "securityModel"
+    > & {
       usdValue: number | null
     },
     id: string,
@@ -231,7 +236,8 @@ class TransferRepository {
         },
       },
       usdValue: usdValue,
-    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account">
+      securityModel: securityModel,
+    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account" | "securityModel">
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 

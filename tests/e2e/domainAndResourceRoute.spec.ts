@@ -86,7 +86,7 @@ describe("Get all transfers for a specific resource between source and destinati
         },
         toDomain: { name: "evm2", lastIndexedBlock: transfers[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfers[0].fromDomain.lastIndexedBlock, id: 1 },
-        securityModel: null,
+        securityModel: 1,
         fee: {
           id: transfers[0].fee.id,
           transferId: transfers[0].id,
@@ -145,7 +145,7 @@ describe("Get all transfers for a specific resource between source and destinati
         },
         toDomain: { name: "evm2", lastIndexedBlock: transfers[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfers[0].fromDomain.lastIndexedBlock, id: 1 },
-        securityModel: null,
+        securityModel: 1,
         fee: {
           amount: "1000000000000000",
           id: transfers[0].fee.id,
