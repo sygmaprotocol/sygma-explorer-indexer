@@ -101,7 +101,6 @@ paths:
                       txHash: "0x0a457e0c76dc5945466c0f0f2bb6c39f5e5be5f48323fa29ec02295b5df4de4d"
                       blockNumber: "12984723"
                       depositData: "0x0000000000000000000000000000000000000000000000000000000000000001"
-                      handlerResponse: "0x436f6e76657274696e6720726573706f6e73652066726f6d2068616e646c6572"
                     fee:
                       id: 60f7da143ce83aef2d325dd3
                       amount: 500000000000000000
@@ -526,10 +525,6 @@ components:
           example: "12984756"
         depositData:
           type: string
-          example: "0x1234567890abcdef"
-        handlerResponse:
-          type: string
-          nullable: true
           example: "0x1234567890abcdef"
 
     Execution:
