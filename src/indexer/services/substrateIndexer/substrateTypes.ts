@@ -4,7 +4,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 */
 import { XcmAssetId } from "@polkadot/types/interfaces"
 
-export type RawProposalExecutionData = { originDomainId: string; depositNonce: string; dataHash: string }
+export type RawProposalExecutionData = { originDomainId: string; depositNonce: string;}
 
 export type RawDepositData = {
   destDomainId: string
@@ -24,9 +24,9 @@ export type RawFeeCollectedData = {
   feeAssetId: XcmAssetId
 }
 
-export type RawFailedHandlerExecutionData = Omit<RawProposalExecutionData, "dataHash"> & { error: string }
+export type RawFailedHandlerExecutionData = RawProposalExecutionData & { error: string }
 
-export type ProposalExecutionDataToSave = Omit<RawProposalExecutionData, "dataHash"> & {
+export type ProposalExecutionDataToSave = RawProposalExecutionData & {
   txIdentifier: string
   blockNumber: string
   timestamp: number
@@ -36,7 +36,7 @@ export type FeeCollectedDataToSave = RawFeeCollectedData & {
   txIdentifier: string
 }
 
-export type FailedHandlerExecutionToSave = Omit<RawProposalExecutionData, "dataHash"> & {
+export type FailedHandlerExecutionToSave = RawProposalExecutionData & {
   error: string
   txIdentifier: string
   blockNumber: string

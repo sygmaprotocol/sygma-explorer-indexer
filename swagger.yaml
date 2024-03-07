@@ -557,7 +557,3 @@ components:
           type: string
           nullable: true
           example: "0x1234567890abcdef"
-        dataHash:
-          type: string
-          nullable: true
-          example: "0x9876543210abcdef"

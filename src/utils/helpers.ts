@@ -12,17 +12,6 @@ export function getNetworkName(domainId: number, sygmaConfig: SygmaConfig): stri
   return sygmaConfig.chains.find(c => c.domainId === domainId)?.name || ""
 }
 
-export function decodeDataHash(data: string): { amount: string; destinationRecipientAddress: string } {
-  const abiCoder = AbiCoder.defaultAbiCoder()
-  const decodedData = abiCoder.decode(["uint", "uint"], data)
-  const destinationRecipientAddressLen = Number(decodedData.toArray()[1]) * 2 // adjusted for bytes
-  const result = {
-    amount: `${decodedData.toArray()[0] as string}`,
-    destinationRecipientAddress: `0x${data.slice(130, 130 + destinationRecipientAddressLen)}`,
-  }
-  return result
-}
-
 export function convertMillisecondsToMinutes(duration: number): number {
   return duration / 1000 / 60
 }

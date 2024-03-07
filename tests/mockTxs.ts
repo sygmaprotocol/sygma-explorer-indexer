@@ -26,7 +26,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 10,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x24962717f8fA5BA3b931bACaF9ac03924EB475a0",
       },
       failedHandlerExecutionEvent: null,
@@ -53,7 +52,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 9,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x24962717f8fA5BA3b931bACaF9ac03924EB475a0",
       },
       failedHandlerExecutionEvent: null,
@@ -80,7 +78,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 8,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x24962717f8fA5BA3b931bACaF9ac03924EB475a0",
       },
       failedHandlerExecutionEvent: null,
@@ -107,7 +104,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 7,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -134,7 +130,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 6,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x148FfB2074A9e59eD58142822b3eB3fcBffb0cd7",
       },
       failedHandlerExecutionEvent: null,
@@ -161,7 +156,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 5,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x148FfB2074A9e59eD58142822b3eB3fcBffb0cd7",
       },
       failedHandlerExecutionEvent: null,
@@ -188,7 +182,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 4,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x24962717f8fA5BA3b931bACaF9ac03924EB475a0",
       },
       failedHandlerExecutionEvent: null,
@@ -215,7 +208,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 3,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x148FfB2074A9e59eD58142822b3eB3fcBffb0cd7",
       },
       failedHandlerExecutionEvent: null,
@@ -242,7 +234,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 2,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -269,7 +260,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -296,7 +286,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -323,7 +312,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -350,7 +338,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -377,7 +364,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -404,7 +390,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -431,7 +416,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -458,7 +442,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -485,7 +468,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -512,7 +494,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
@@ -539,7 +520,6 @@ const mockTransfers = {
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
-        dataHash: "0x5ef98301782da0d86bea1c3dd38d7008f61ecc067f70329d59b7293286fece9d",
         by: "0x4CEEf6139f00F9F4535Ad19640Ff7A0137708485",
       },
       failedHandlerExecutionEvent: null,
