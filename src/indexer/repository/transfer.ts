@@ -187,7 +187,6 @@ class TransferRepository {
       },
       status: TransferStatus.failed,
       message,
-      securityModel: 1,
     }
     return await this.transfer.create({ data: transferData })
   }
