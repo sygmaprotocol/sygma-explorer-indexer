@@ -147,7 +147,6 @@ paths:
                       txHash: "0x0a457e0c76dc5945466c0f0f2bb6c39f5e5be5f48323fa29ec02295b5df4de4d"
                       blockNumber: "12984723"
                       depositData: "0x0000000000000000000000000000000000000000000000000000000000000001"
-                      handlerResponse: "0x8f7a67e5b31c7a259098b8c760f5a3f1e8102aa615fe5db5d86de18d52c5a5a5"
                     fee:
                       id: 61a4f4c2ab4d8145c6db5f09
                       amount: 1000000000000000000

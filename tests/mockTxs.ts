@@ -22,7 +22,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 10,
@@ -48,7 +47,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 9,
@@ -74,7 +72,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 8,
@@ -100,7 +97,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 7,
@@ -126,7 +122,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 6,
@@ -152,7 +147,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 5,
@@ -178,7 +172,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 4,
@@ -204,7 +197,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 3,
@@ -230,7 +222,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 2,
@@ -256,7 +247,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
@@ -282,7 +272,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
@@ -308,7 +297,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
@@ -334,7 +322,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
@@ -360,7 +347,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
@@ -386,7 +372,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
@@ -412,7 +397,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
@@ -438,7 +422,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
@@ -464,7 +447,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
@@ -490,7 +472,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
@@ -516,7 +497,6 @@ const mockTransfers = {
       status: 1,
       sourceTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
       destinationTokenAddress: "0xda8556c2485048eee3de91085347c3210785323c",
-      handlerResponse: null,
       proposalExecutionEvent: {
         originDomainID: 1,
         depositNonce: 1,
