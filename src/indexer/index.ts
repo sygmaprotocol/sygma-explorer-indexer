@@ -73,6 +73,7 @@ init()
 
 async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance; cron: CronJob }> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
+  const sharedConfigX = await getSharedConfig(process.env.SHARED_CONFIG_URL_X!)
 
   const chainAnalysisUrl = process.env.CHAIN_ANALYSIS_URL || ""
   const chainAnalysisApiKey = process.env.CHAIN_ANALYSIS_API_KEY || ""
@@ -101,7 +102,7 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
 
   const rpcUrlConfig = getSsmDomainConfig()
 
-  const domainsToIndex = getDomainsToIndex(sharedConfig.domains)
+  const domainsToIndex = getDomainsToIndex(sharedConfig.domains).concat(getDomainsToIndex(sharedConfigX.domains))
   const domainIndexers: Array<DomainIndexer> = []
 
   const notificationSender = new NotificationSender(process.env.SNS_REGION!)
