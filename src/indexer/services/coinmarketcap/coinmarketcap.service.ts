@@ -5,10 +5,10 @@ SPDX-License-Identifier: LGPL-3.0-only
 
 import path from "path"
 import { MemoryCache } from "cache-manager"
+import { BigNumber } from "bignumber.js"
 import { logger } from "../../../utils/logger"
 
 import { fetchRetry } from "../../../utils/helpers"
-import { BigNumber } from "bignumber.js"
 
 export type CoinMaketCapResponse = {
   id: number
