@@ -8,6 +8,7 @@ import { MemoryCache } from "cache-manager"
 import { logger } from "../../../utils/logger"
 
 import { fetchRetry } from "../../../utils/helpers"
+import { BigNumber } from "bignumber.js"
 
 export type CoinMaketCapResponse = {
   id: number
@@ -17,7 +18,7 @@ export type CoinMaketCapResponse = {
   last_updated: string
   quote: {
     USD: {
-      price: number
+      price: BigNumber
       last_updated: string
     }
   }
@@ -35,9 +36,9 @@ class CoinMarketCapService {
   }
 
   private async getValueConvertion(amount: string, tokenSymbol: string): Promise<CoinMaketCapResponse["quote"]["USD"]["price"]> {
-    const tokenValue: number | undefined = await this.memoryCache.get(tokenSymbol)
+    const tokenValue: BigNumber | undefined = await this.memoryCache.get(tokenSymbol)
     if (tokenValue) {
-      return Number(amount) * tokenValue
+      return BigNumber(amount).times(tokenValue)
     }
 
     const url = path.join(this.coinMarketCapUrl, `/v2/tools/price-conversion?amount=1&symbol=${tokenSymbol}&convert=USD`)
@@ -54,7 +55,7 @@ class CoinMarketCapService {
         data: [res],
       } = (await response.json()) as { data: CoinMaketCapResponse[] }
       await this.memoryCache.set(tokenSymbol, res.quote.USD.price)
-      return Number(amount) * res.quote.USD.price
+      return BigNumber(amount).times(BigNumber(res.quote.USD.price))
     } catch (err) {
       if (err instanceof Error) {
         logger.error(err.message)
@@ -65,7 +66,7 @@ class CoinMarketCapService {
 
   public async getValueInUSD(amount: string, tokenSymbol: string): Promise<number> {
     const convertedValue = await this.getValueConvertion(amount, tokenSymbol)
-    return convertedValue
+    return convertedValue.toNumber()
   }
 }
 
