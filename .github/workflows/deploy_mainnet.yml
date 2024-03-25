@@ -6,7 +6,6 @@ on:
       release_tag:
         description: 'The Release tag Version'
         required: false
-        default: 'stable' 
         type: string
       deploy_v2:
         description: deploy v2
