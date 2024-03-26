@@ -113,10 +113,10 @@ export async function saveDeposit(
     txIdentifier,
     blockNumber,
     depositData,
-    handlerResponse,
     sender,
     resourceId,
     timestamp,
+    securityModel,
   } = substrateDepositData
 
   const currentDomain = sharedConfig.domains.find(domain => domain.id === originDomainId)
@@ -147,7 +147,7 @@ export async function saveDeposit(
       destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
     } as Pick<
       DecodedDepositLog,
-      "depositNonce" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp" | "sender"
+      "depositNonce" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp" | "sender" | "securityModel"
     > & { usdValue: number }
 
     if (transfer.accountId !== null) {
@@ -177,9 +177,10 @@ export async function saveDeposit(
       timestamp: timestamp,
       destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
       usdValue: amountInUSD,
+      securityModel: securityModel,
     } as Pick<
       DecodedDepositLog,
-      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp"
+      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp" | "securityModel"
     > & { usdValue: number }
 
     await accountRepository.insertAccount({ id: sender, addressStatus: "" })
@@ -194,7 +195,6 @@ export async function saveDeposit(
     blockNumber: blockNumber,
     depositData: depositData,
     timestamp: new Date(timestamp),
-    handlerResponse: handlerResponse,
     transferId: transfer.id,
   }
   await depositRepository.insertDeposit(deposit)
@@ -273,7 +273,7 @@ export async function saveEvents(
   for (const depositEvent of depositEvents) {
     const txIdentifier = `${block}-${depositEvent.phase.asApplyExtrinsic}` //this is like the txHash but for the substrate
     const { data } = depositEvent.event.toHuman()
-    const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
+    const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, securityModel } = data
     await saveDepositToDb(
       domain,
       block.toString(),
@@ -284,10 +284,10 @@ export async function saveEvents(
         sender,
         transferType,
         depositData,
-        handlerResponse,
         txIdentifier,
         blockNumber: `${block}`,
         timestamp,
+        securityModel: securityModel,
       },
       transferRepository,
       depositRepository,

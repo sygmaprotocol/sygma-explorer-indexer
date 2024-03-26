@@ -44,6 +44,7 @@ describe("Monitoring service testing", function () {
         accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
         message: "",
         usdValue: null,
+        securityModel: 1,
         resource: {
           type: "nonfungible",
           id: "0x0000000000000000000000000000000000000000000000000000000000000200",
@@ -64,7 +65,6 @@ describe("Monitoring service testing", function () {
           blockNumber: "591",
           depositData:
             "0x0000000000000000000000000000000000000000000000001fdd50eb1da26c1000000000000000000000000000000000000000000000000000000000000000148e0a907331554af72563bd8d43051c2e64be5d35000000000000000000000000000000000000000000000000000000000000000c6d657461646174612e75726c",
-          handlerResponse: "0x6d657461646174612e746573746d657461646174612e75726c",
         },
         execution: {
           txHash: "0x3de2201e548a8332aaa50147a2fb02e2b6669184f042b4dbcf23b4f5d40edcfb",
@@ -103,6 +103,7 @@ describe("Monitoring service testing", function () {
         accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
         message: "",
         usdValue: null,
+        securityModel: 1,
         resource: {
           type: "nonfungible",
           id: "0x0000000000000000000000000000000000000000000000000000000000000200",
@@ -123,7 +124,6 @@ describe("Monitoring service testing", function () {
           timestamp: new Date(Date.now() - 20 * 60 * 1000),
           depositData:
             "0x0000000000000000000000000000000000000000000000001fdd50eb1da26c1000000000000000000000000000000000000000000000000000000000000000148e0a907331554af72563bd8d43051c2e64be5d35000000000000000000000000000000000000000000000000000000000000000c6d657461646174612e75726c",
-          handlerResponse: "0x6d657461646174612e746573746d657461646174612e75726c",
         },
         execution: {
           txHash: "0x3de2201e548a8332aaa50147a2fb02e2b6669184f042b4dbcf23b4f5d40edcfb",
@@ -162,6 +162,7 @@ describe("Monitoring service testing", function () {
         accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
         message: "",
         usdValue: null,
+        securityModel: 1,
         resource: {
           type: "nonfungible",
           id: "0x0000000000000000000000000000000000000000000000000000000000000200",
@@ -182,7 +183,6 @@ describe("Monitoring service testing", function () {
           timestamp: new Date(Date.now() - 5 * 60 * 1000),
           depositData:
             "0x0000000000000000000000000000000000000000000000001fdd50eb1da26c1000000000000000000000000000000000000000000000000000000000000000148e0a907331554af72563bd8d43051c2e64be5d35000000000000000000000000000000000000000000000000000000000000000c6d657461646174612e75726c",
-          handlerResponse: "0x6d657461646174612e746573746d657461646174612e75726c",
         },
         execution: {
           txHash: "0x3de2201e548a8332aaa50147a2fb02e2b6669184f042b4dbcf23b4f5d40edcfb",

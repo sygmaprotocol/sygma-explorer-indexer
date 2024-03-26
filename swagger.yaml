@@ -101,7 +101,6 @@ paths:
                       txHash: "0x0a457e0c76dc5945466c0f0f2bb6c39f5e5be5f48323fa29ec02295b5df4de4d"
                       blockNumber: "12984723"
                       depositData: "0x0000000000000000000000000000000000000000000000000000000000000001"
-                      handlerResponse: "0x436f6e76657274696e6720726573706f6e73652066726f6d2068616e646c6572"
                     fee:
                       id: 60f7da143ce83aef2d325dd3
                       amount: 500000000000000000
@@ -148,7 +147,6 @@ paths:
                       txHash: "0x0a457e0c76dc5945466c0f0f2bb6c39f5e5be5f48323fa29ec02295b5df4de4d"
                       blockNumber: "12984723"
                       depositData: "0x0000000000000000000000000000000000000000000000000000000000000001"
-                      handlerResponse: "0x8f7a67e5b31c7a259098b8c760f5a3f1e8102aa615fe5db5d86de18d52c5a5a5"
                     fee:
                       id: 61a4f4c2ab4d8145c6db5f09
                       amount: 1000000000000000000
@@ -448,6 +446,9 @@ components:
         destination:
           type: string
           example: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+        securityModel:
+          type: integer
+          example: 1
 
     TransferStatus:
       type: string
@@ -527,10 +528,6 @@ components:
         depositData:
           type: string
           example: "0x1234567890abcdef"
-        handlerResponse:
-          type: string
-          nullable: true
-          example: "0x1234567890abcdef"
 
     Execution:
       type: object
@@ -557,7 +554,3 @@ components:
           type: string
           nullable: true
           example: "0x1234567890abcdef"
-        dataHash:
-          type: string
-          nullable: true
-          example: "0x9876543210abcdef"

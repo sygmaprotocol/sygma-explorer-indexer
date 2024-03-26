@@ -134,6 +134,7 @@ describe("Indexer e2e tests", function () {
         },
         toDomain: { name: "evm2", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 1 },
+        securityModel: 1,
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
@@ -152,7 +153,6 @@ describe("Indexer e2e tests", function () {
           blockNumber: "628",
           depositData:
             "0x000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000148e0a907331554af72563bd8d43051c2e64be5d350102",
-          handlerResponse: "0x",
           timestamp: "2023-07-17T08:32:37.000Z",
         },
         execution: {
@@ -191,6 +191,7 @@ describe("Indexer e2e tests", function () {
         },
         toDomain: { name: "evm2", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 1 },
+        securityModel: 1,
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
@@ -209,7 +210,6 @@ describe("Indexer e2e tests", function () {
           blockNumber: "591",
           depositData:
             "0x0000000000000000000000000000000000000000000000001fdd50eb1da26c1000000000000000000000000000000000000000000000000000000000000000148e0a907331554af72563bd8d43051c2e64be5d35000000000000000000000000000000000000000000000000000000000000000c6d657461646174612e75726c",
-          handlerResponse: "0x6d657461646174612e746573746d657461646174612e75726c",
           timestamp: "2023-07-17T08:31:22.000Z",
         },
         execution: {
@@ -248,6 +248,7 @@ describe("Indexer e2e tests", function () {
         },
         toDomain: { name: "evm2", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 1 },
+        securityModel: 1,
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
@@ -266,7 +267,6 @@ describe("Indexer e2e tests", function () {
           blockNumber: "623",
           depositData:
             "0x0000000000000000000000000000000000000000000000000000000000030d400004ea287d1514b1387b365ae7294ea13bad9db83436e671dd16ba145c1f5961696bad2e73f73417f07ef55c62a2dc5b47ed248f568cc8f9fe4371a1d1fab88a62af595f8efb9aeff6f0e043b7ea33b10000000000000000000000005c1f5961696bad2e73f73417f07ef55c62a2dc5b",
-          handlerResponse: "0x",
           timestamp: "2023-07-17T08:32:27.000Z",
         },
         execution: {
@@ -305,6 +305,7 @@ describe("Indexer e2e tests", function () {
         },
         toDomain: { name: "evm2", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 1 },
+        securityModel: 1,
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
@@ -323,7 +324,6 @@ describe("Indexer e2e tests", function () {
           blockNumber: "598",
           depositData:
             "0x000000000000000000000000000000000000000000000000000000000000002030bb0f28498d8bc6272403413a967b2098aa4d7c7422d4ff2ff2c6c2bdc44af3",
-          handlerResponse: "0x",
           timestamp: "2023-07-17T08:31:36.000Z",
         },
         execution: {
@@ -362,6 +362,7 @@ describe("Indexer e2e tests", function () {
         },
         toDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 1 },
         fromDomain: { name: "Substrate", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 3 },
+        securityModel: 1,
         fee: {
           amount: "50",
           id: transfer[0].fee.id,
@@ -380,7 +381,6 @@ describe("Indexer e2e tests", function () {
           blockNumber: "356",
           depositData:
             "0x00000000000000000000000000000000000000000000000000000000000f424000000000000000000000000000000000000000000000000000000000000000145c1f5961696bad2e73f73417f07ef55c62a2dc5b",
-          handlerResponse: "",
           timestamp: "2023-07-17T08:29:12.000Z",
         },
         execution: {
@@ -419,6 +419,7 @@ describe("Indexer e2e tests", function () {
         },
         toDomain: { name: "Substrate", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 3 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 1 },
+        securityModel: 1,
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
@@ -437,7 +438,6 @@ describe("Indexer e2e tests", function () {
           blockNumber: "516",
           depositData:
             "0x00000000000000000000000000000000000000000000000000005af3107a4000000000000000000000000000000000000000000000000000000000000000002400010100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
-          handlerResponse: "0x",
           timestamp: "2023-07-17T08:28:51.000Z",
         },
         execution: {

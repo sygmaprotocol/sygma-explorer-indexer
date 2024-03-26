@@ -100,7 +100,7 @@ const seeder = async (): Promise<void> => {
   console.log(`Adding ${domainsWithRpcURL.length} domains`)
 
   for (const pl of onlyTokensTransfers) {
-    const { destinationDomainID, resourceID, depositNonce, user, data, handlerResponse } = pl.parsedData.args
+    const { destinationDomainID, resourceID, depositNonce, user, data} = pl.parsedData.args
     const { txHash, blockNumber } = pl
 
     const destinationDomain = domainsWithRpcURL.find(domain => domain.id === destinationDomainID)
@@ -177,7 +177,6 @@ const seeder = async (): Promise<void> => {
           txHash,
           blockNumber,
           depositData: data as string,
-          handlerResponse: handlerResponse as string,
         },
         execution: {
           txHash,
@@ -222,7 +221,6 @@ const seeder = async (): Promise<void> => {
                 txHash: augmentedTransfer.deposit.txHash,
                 blockNumber: `${augmentedTransfer.deposit.blockNumber}`,
                 depositData: augmentedTransfer.deposit.depositData,
-                handlerResponse: augmentedTransfer.deposit.handlerResponse,
               },
             },
             execution: {
