@@ -3,8 +3,9 @@ The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
 
+import path from "path"
 import { MemoryCache } from "cache-manager"
-import BigNumber from "bignumber.js"
+import { BigNumber } from "bignumber.js"
 import { logger } from "../../../utils/logger"
 
 import { fetchRetry } from "../../../utils/helpers"
@@ -35,12 +36,12 @@ class CoinMarketCapService {
   }
 
   private async getValueConvertion(amount: string, tokenSymbol: string): Promise<CoinMaketCapResponse["quote"]["USD"]["price"]> {
-    const tokenValue: string | undefined = await this.memoryCache.get(tokenSymbol)
+    const tokenValue: BigNumber | undefined = await this.memoryCache.get(tokenSymbol)
     if (tokenValue) {
-      return BigNumber(amount).times(BigNumber(tokenValue))
+      return BigNumber(amount).times(tokenValue)
     }
 
-    const url = `${this.coinMarketCapUrl}/v2/tools/price-conversion?amount=${amount}&symbol=${tokenSymbol}&convert=USD`
+    const url = path.join(this.coinMarketCapUrl, `/v2/tools/price-conversion?amount=1&symbol=${tokenSymbol}&convert=USD`)
     logger.debug(`Calling CoinMarketCap service with URL: ${url}`)
     try {
       const response = await fetchRetry(url, {
