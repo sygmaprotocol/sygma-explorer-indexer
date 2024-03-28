@@ -35,12 +35,6 @@ void app.register(fastifySwagger, {
       version: "1.0.0",
       description: "API documentation for Transfers API",
     },
-    servers: [
-      {
-        url: "http://localhost:8000/",
-        description: "Local server",
-      },
-    ],
   },
 })
 
