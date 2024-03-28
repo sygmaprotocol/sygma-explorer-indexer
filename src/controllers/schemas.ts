@@ -3,7 +3,6 @@ The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
 
-
 const resourceSchema = {
   type: "object",
   properties: {
@@ -80,8 +79,8 @@ const transferSchema = {
     status: { ...transferStatusSchema },
     fee: { ...feeSchema },
     timestamp: { type: "integer", nullable: true, example: 1626799380 },
-    destination: { type: "string", example: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" }
-  }
+    destination: { type: "string", example: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" },
+  },
 }
 
 const expandedTransferSchema = {
@@ -99,18 +98,18 @@ const expandedTransferSchema = {
     deposit: { depositSchema },
     execution: { executionSchema },
     timestamp: { type: "integer", nullable: true, example: 1626799380 },
-    destination: { type: "string", example: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" }
-  }
-};
+    destination: { type: "string", example: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" },
+  },
+}
 
 const routeSchema = {
-  type: "object", 
+  type: "object",
   properties: {
     fromDomainId: { type: "string", example: "0" },
     toDomainId: { type: "string", example: "1" },
     resourceId: { type: "string", format: "ObjectId", example: "0x0000000000000000000000000000000000000000000000000000000000000000" },
-    type: {type: "string"}
-  }
+    type: { type: "string" },
+  },
 }
 
 const paginationSchema = {
@@ -123,7 +122,6 @@ const paginationSchema = {
     default: 10,
   },
 }
-
 
 export const transfersSchema = {
   summary: "Get all transfers (ordered by time)",
@@ -291,9 +289,9 @@ export const transfersSchema = {
             transferId: "61a4f4c2ab4d8145c6db5f07",
           },
           timestamp: 1644576000,
-        }
+        },
       ],
-    }
+    },
   },
 }
 
@@ -325,8 +323,8 @@ export const transfersBySenderSchema = {
           },
         },
       },
-    }
-  }
+    },
+  },
 }
 
 export const transfersByResourceSchema = {
@@ -357,8 +355,8 @@ export const transfersByResourceSchema = {
           },
         },
       },
-    }
-  }
+    },
+  },
 }
 
 export const transfersBySourceDomainToDestinationDomainSchema = {
@@ -389,8 +387,8 @@ export const transfersBySourceDomainToDestinationDomainSchema = {
           },
         },
       },
-    }
-  }
+    },
+  },
 }
 
 export const transfersByResourceBetweenDomainsSchema = {
@@ -422,8 +420,8 @@ export const transfersByResourceBetweenDomainsSchema = {
           },
         },
       },
-    }
-  }
+    },
+  },
 }
 
 export const transfersByDomainSchema = {
@@ -458,8 +456,8 @@ export const transfersByDomainSchema = {
           },
         },
       },
-    }
-  }
+    },
+  },
 }
 export const transferByTxHashAndDomainSchema = {
   summary: "Get a specific transfer by transaction hash",
@@ -488,8 +486,8 @@ export const transferByTxHashAndDomainSchema = {
           },
         },
       },
-    }
-  }
+    },
+  },
 }
 
 export const transferByIdSchema = {
@@ -513,8 +511,8 @@ export const transferByIdSchema = {
           },
         },
       },
-    }
-  }
+    },
+  },
 }
 
 export const routesByDomainSchema = {
@@ -544,10 +542,10 @@ export const routesByDomainSchema = {
           },
         },
       },
-    }
-  }
+    },
+  },
 }
 
 export const domainsMetadataSchema = {
-  summary: "Get domains metadata"
+  summary: "Get domains metadata",
 }
