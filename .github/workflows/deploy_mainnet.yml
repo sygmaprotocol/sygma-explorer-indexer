@@ -5,7 +5,7 @@ on:
     inputs:
       release_tag:
         description: 'The Release tag Version'
-        required: false
+        required: true
         type: string
       deploy_v2:
         description: deploy v2
@@ -51,7 +51,7 @@ jobs:
            awsEnv=${{ env.ENVIRONMENT }}
            DB_USERNAME=${{ secrets.MAIN_USERNAME }}
            DB_PASSWORD=${{ secrets.MAIN_PASSWORD }}
-           imageTag=${{ inputs.release_tag }}
+           imageTag=${{ env.VERSION }}
 
      - name: Configure AWS Credentials
        uses: aws-actions/configure-aws-credentials@v1
