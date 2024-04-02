@@ -16,6 +16,7 @@ env:
   ENVIRONMENT: MAINNET
   AWS_MAINNET: '${{ secrets.AWS_MAINNET }}'
   REGISTRY: 'ghcr.io'
+  VERSION: ${{ inputs.release_tag }}
 
 jobs:
   deploy:

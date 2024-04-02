@@ -11,6 +11,7 @@ env:
   AWS_TESTNET: '${{ secrets.AWS_ARN }}'
   REGISTRY: 'ghcr.io'
   TAG: 'stable'
+  VERSION: ${{ github.event.release.tag_name }}
 
 jobs:
   push:
