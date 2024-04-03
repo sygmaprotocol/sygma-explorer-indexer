@@ -89,12 +89,7 @@ describe("Get all transfers for a specific resource between source and destinati
         fee: {
           id: transfers[0].fee.id,
           transferId: transfers[0].id,
-          resource: {
-            decimals: 18,
-            id: "0x0000000000000000000000000000000000000000000000000000000000000200",
-            type: "nonfungible",
-          },
-          resourceID: "0x0000000000000000000000000000000000000000000000000000000000000200",
+          decimals: 18,
           amount: "1000000000000000",
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
@@ -148,12 +143,7 @@ describe("Get all transfers for a specific resource between source and destinati
         fee: {
           amount: "1000000000000000",
           id: transfers[0].fee.id,
-          resource: {
-            decimals: 0,
-            id: "0x0000000000000000000000000000000000000000000000000000000000000500",
-            type: "permissionlessGeneric",
-          },
-          resourceID: "0x0000000000000000000000000000000000000000000000000000000000000500",
+          decimals: 18,
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
           transferId: transfers[0].id,

@@ -48,7 +48,7 @@ export type FeeData = {
   tokenAddress: string
   tokenSymbol: string
   amount: string
-  resourceID: string
+  decimals: number
 }
 export enum EventType {
   DEPOSIT = "Deposit",

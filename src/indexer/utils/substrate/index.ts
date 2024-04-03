@@ -211,9 +211,9 @@ export async function saveFee(
     id: new ObjectId().toString(),
     transferId: transferMap.get(fee.txIdentifier) || "",
     tokenSymbol: resourceMap.get(fee.resourceId)?.symbol || "",
+    decimals: resourceMap.get(fee.resourceId)?.decimals || 0,
     tokenAddress: JSON.stringify(fee.feeAssetId),
     amount: fee.feeAmount.replace(/,/g, ""),
-    resourceID: fee.resourceId,
   }
   await feeRepository.insertFee(feeData)
 }
