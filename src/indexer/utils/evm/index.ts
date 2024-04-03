@@ -199,9 +199,9 @@ export async function getFee(provider: Provider, feeHandlerRouterAddress: string
     let tokenSymbol = fromDomain.nativeTokenSymbol
     let decimals = fromDomain.nativeTokenDecimals
     if (fee.tokenAddress != nativeTokenAddress) {
-      const token = await getERC20Contract(provider, fee.tokenAddress)
-      tokenSymbol = await token.symbol()
-      decimals = await token.decimlas()
+      const token = getERC20Contract(provider, fee.tokenAddress)
+      tokenSymbol = (await token.symbol()) as string
+      decimals = (await token.decimlas()) as number
     }
 
     return {
