@@ -87,7 +87,7 @@ model Fee {
   amount       String
   tokenAddress String
   tokenSymbol  String
-  decimals     Int
+  decimals     Int?
   transfer     Transfer @relation(fields: [transferId], references: [id])
   transferId   String   @unique @db.ObjectId
 }
