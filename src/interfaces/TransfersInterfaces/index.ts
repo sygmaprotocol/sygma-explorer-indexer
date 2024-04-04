@@ -74,7 +74,6 @@ export type IncludedQueryParams = {
         txHash: boolean
         blockNumber: boolean
         depositData: boolean
-        handlerResponse: boolean
         timestamp: boolean
       }
     }

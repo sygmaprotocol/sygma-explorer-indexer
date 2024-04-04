@@ -108,7 +108,7 @@ export async function parseDeposit(
     txHash: log.transactionHash,
     timestamp: blockUnixTimestamp,
     depositData: decodedLog.args.data as string,
-    handlerResponse: decodedLog.args.handlerResponse as string,
+    securityModel: (decodedLog.args.securityModel as number) || 1,
     transferType: resourceType,
     amount: decodeAmountsOrTokenId(decodedLog.args.data as string, resourceDecimals, resourceType) as string,
     fee: await getFee(provider, fromDomain.feeRouter, fromDomain, decodedLog),
@@ -315,7 +315,6 @@ export async function saveDepositLogs(
     blockNumber: decodedLog.blockNumber.toString(),
     depositData: decodedLog.depositData,
     timestamp: new Date(decodedLog.timestamp * 1000),
-    handlerResponse: decodedLog.handlerResponse,
     transferId: transfer.id,
   }
   const depositExists = await depositRepository.findDeposit(transfer.id)

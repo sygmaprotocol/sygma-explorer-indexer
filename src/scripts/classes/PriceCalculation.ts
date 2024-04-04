@@ -58,6 +58,7 @@ export class PriceCalculation implements IFixInterface {
           sender: transfer.accountId!,
           toDomainId: String(transfer.toDomainId!),
           usdValue: newValue,
+          securityModel: transfer.securityModel!,
         },
         transfer.id,
       )

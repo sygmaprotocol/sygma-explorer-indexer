@@ -73,6 +73,8 @@ init()
 
 async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance; cron: CronJob }> {
   const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
+  const sharedConfigX = await getSharedConfig(process.env.SHARED_CONFIG_URL_X!)
+  sharedConfig.domains = sharedConfig.domains.concat(sharedConfigX.domains)
 
   const chainAnalysisUrl = process.env.CHAIN_ANALYSIS_URL || ""
   const chainAnalysisApiKey = process.env.CHAIN_ANALYSIS_API_KEY || ""

@@ -20,6 +20,7 @@ export type TransferMetadata = {
   fromDomainId: string
   toDomainId: string
   resourceID: string
+  securityModel: number
   timestamp: Date
   deposit: Deposit
   resource: {
@@ -69,6 +70,7 @@ class TransferRepository {
         },
       },
       usdValue: decodedLog.usdValue,
+      securityModel: decodedLog.securityModel,
     }
 
     return await this.transfer.upsert({
@@ -102,7 +104,7 @@ class TransferRepository {
   public async insertSubstrateDepositTransfer(
     substrateDepositData: Pick<
       DecodedDepositLog,
-      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId"
+      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "securityModel"
     > & { usdValue: number },
   ): Promise<Transfer> {
     const transferData = {
@@ -133,6 +135,7 @@ class TransferRepository {
         },
       },
       usdValue: substrateDepositData.usdValue,
+      securityModel: substrateDepositData.securityModel || 1,
     }
 
     return await this.transfer.create({ data: transferData })
@@ -198,7 +201,11 @@ class TransferRepository {
       toDomainId,
       sender,
       usdValue,
-    }: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId"> & {
+      securityModel,
+    }: Pick<
+      DecodedDepositLog,
+      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "fromDomainId" | "toDomainId" | "securityModel"
+    > & {
       usdValue: number | null
     },
     id: string,
@@ -228,7 +235,8 @@ class TransferRepository {
         },
       },
       usdValue: usdValue,
-    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account">
+      securityModel: securityModel,
+    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account" | "securityModel">
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 
