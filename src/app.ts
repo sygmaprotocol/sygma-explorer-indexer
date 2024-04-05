@@ -5,6 +5,8 @@ SPDX-License-Identifier: LGPL-3.0-only
 import fastify, { FastifyInstance } from "fastify"
 import cors from "@fastify/cors"
 import fastifyHealthcheck from "fastify-healthcheck"
+import fastifySwagger from "@fastify/swagger"
+import fastifySwaggerUi from "@fastify/swagger-ui"
 import { routes } from "./routes"
 
 export const app: FastifyInstance = fastify({ logger: true })
@@ -22,6 +24,26 @@ void app.register(fastifyHealthcheck, {
       return true
     },
   },
+})
+
+void app.register(fastifySwagger, {
+  mode: "dynamic",
+  openapi: {
+    openapi: "3.0.0",
+    info: {
+      title: "Transfers API",
+      version: "1.0.0",
+      description: "API documentation for Transfers API",
+    },
+  },
+})
+
+void app.register(fastifySwaggerUi, {
+  routePrefix: "/documentation",
+  uiConfig: {
+    docExpansion: "list",
+  },
+  staticCSP: true,
 })
 
 void app.register(routes, { prefix: "/api" })
