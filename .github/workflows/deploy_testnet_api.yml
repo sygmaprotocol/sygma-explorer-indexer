@@ -11,6 +11,7 @@ env:
   AWS_TESTNET: '${{ secrets.AWS_ARN }}'
   REGISTRY: 'ghcr.io'
   TAG: 'stable'
+  VERSION: ${{ github.event.release.tag_name }}
 
 jobs:
   push:
@@ -38,22 +39,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build / tag / push docker image into ghcr
-        id: build-and-push-tag
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: Dockerfile.api
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}-api:${{ env.TAG }}
-
-      - name: build / tag / push docker image into ghcr
         id: build-and-push-ref
         uses: docker/build-push-action@v3
         with:
           context: .
           file: Dockerfile.api
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}-api:${{ github.ref_name }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}-api:${{ env.VERSION }}
 
       - name: slack notify
         uses: 8398a7/action-slack@v3
@@ -98,6 +90,7 @@ jobs:
            awsEnv=${{ env.ENVIRONMENT }}
            DB_USERNAME=${{ secrets.DB_USERNAME }}
            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+           imageTag=${{ env.VERSION }}
 
      - name: Configure AWS Credentials
        uses: aws-actions/configure-aws-credentials@v1
