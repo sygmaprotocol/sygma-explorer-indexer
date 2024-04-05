@@ -30,14 +30,7 @@ const feeSchema = {
     tokenAddress: { type: "string", example: "0x6B175474E89094C44Da98b954EedeAC495271d0F" },
     tokenSymbol: { type: "string", example: "DAI" },
     resourceID: { type: "string", format: "ObjectId", example: "0x0000000000000000000000000000000000000000000000000000000000000001" },
-    resource: {
-      type: "object",
-      nullable: true,
-      properties: {
-        decimals: { type: "integer", nullable: true, example: 18 },
-        ...resourceSchema.properties,
-      },
-    },
+    decimals: { type: "integer", nullable: true, example: 18 },
     transferId: { type: "string", format: "ObjectId", uniqueItems: true, example: "60f7da143ce83aef2d325dcd" },
   },
 }
