@@ -201,7 +201,7 @@ export async function getFee(provider: Provider, feeHandlerRouterAddress: string
     if (fee.tokenAddress != nativeTokenAddress) {
       const token = getERC20Contract(provider, fee.tokenAddress)
       tokenSymbol = (await token.symbol()) as string
-      decimals = (await token.decimlas()) as number
+      decimals = Number(await token.decimals())
     }
 
     return {
@@ -216,7 +216,7 @@ export async function getFee(provider: Provider, feeHandlerRouterAddress: string
       tokenAddress: "",
       tokenSymbol: "",
       decimals: 0,
-      amount: "",
+      amount: "0",
     }
   }
 }
