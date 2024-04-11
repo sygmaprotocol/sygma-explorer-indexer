@@ -65,6 +65,7 @@ export enum FeeHandlerType {
 export enum DepositType {
   FUNGIBLE = "fungible",
   NONFUNGIBLE = "nonfungible",
+  SEMIFUNGIBLE = "semifungible",
   PERMISSIONLESS_GENERIC = "permissionlessGeneric",
   PERMISSIONED_GENERIC = "permissionedGeneric",
 }
