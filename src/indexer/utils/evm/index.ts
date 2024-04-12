@@ -244,6 +244,9 @@ function decodeAmountsOrTokenId(data: string, decimals: number, resourceType: st
       const tokenId = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0] as number
       return tokenId.toString()
     }
+    case DepositType.SEMIFUNGIBLE: {
+      return ""
+    }
     case DepositType.PERMISSIONLESS_GENERIC: {
       return ""
     }
