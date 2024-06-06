@@ -137,12 +137,7 @@ describe("Indexer e2e tests", function () {
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
-          resource: {
-            decimals: 18,
-            id: "0x0000000000000000000000000000000000000000000000000000000000000300",
-            type: "fungible",
-          },
-          resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
+          decimals: 18,
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
           transferId: transfer[0].id,
@@ -194,12 +189,7 @@ describe("Indexer e2e tests", function () {
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
-          resource: {
-            decimals: 18,
-            id: "0x0000000000000000000000000000000000000000000000000000000000000200",
-            type: "nonfungible",
-          },
-          resourceID: "0x0000000000000000000000000000000000000000000000000000000000000200",
+          decimals: 18,
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
           transferId: transfer[0].id,
@@ -251,12 +241,7 @@ describe("Indexer e2e tests", function () {
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
-          resource: {
-            decimals: 0,
-            id: "0x0000000000000000000000000000000000000000000000000000000000000500",
-            type: "permissionlessGeneric",
-          },
-          resourceID: "0x0000000000000000000000000000000000000000000000000000000000000500",
+          decimals: 18,
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
           transferId: transfer[0].id,
@@ -306,14 +291,9 @@ describe("Indexer e2e tests", function () {
         toDomain: { name: "evm2", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 2 },
         fromDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 1 },
         fee: {
-          amount: "1000000000000000",
           id: transfer[0].fee.id,
-          resource: {
-            decimals: 0,
-            id: "0x0000000000000000000000000000000000000000000000000000000000000100",
-            type: "permissionedGeneric",
-          },
-          resourceID: "0x0000000000000000000000000000000000000000000000000000000000000100",
+          amount: "1000000000000000",
+          decimals: 18,
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
           transferId: transfer[0].id,
@@ -363,14 +343,9 @@ describe("Indexer e2e tests", function () {
         toDomain: { name: "Ethereum 1", lastIndexedBlock: transfer[0].toDomain.lastIndexedBlock, id: 1 },
         fromDomain: { name: "Substrate", lastIndexedBlock: transfer[0].fromDomain.lastIndexedBlock, id: 3 },
         fee: {
-          amount: "50",
           id: transfer[0].fee.id,
-          resource: {
-            decimals: 18,
-            id: "0x0000000000000000000000000000000000000000000000000000000000000300",
-            type: "fungible",
-          },
-          resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
+          amount: "50",
+          decimals: 0,
           tokenAddress: "{}",
           tokenSymbol: "PHA",
           transferId: transfer[0].id,
@@ -422,12 +397,7 @@ describe("Indexer e2e tests", function () {
         fee: {
           amount: "1000000000000000",
           id: transfer[0].fee.id,
-          resource: {
-            decimals: 18,
-            id: "0x0000000000000000000000000000000000000000000000000000000000000300",
-            type: "fungible",
-          },
-          resourceID: "0x0000000000000000000000000000000000000000000000000000000000000300",
+          decimals: 18,
           tokenAddress: "0x0000000000000000000000000000000000000000",
           tokenSymbol: "eth",
           transferId: transfer[0].id,

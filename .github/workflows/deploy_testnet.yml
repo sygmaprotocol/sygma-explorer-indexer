@@ -11,6 +11,7 @@ env:
   AWS_TESTNET: '${{ secrets.AWS_ARN }}'
   REGISTRY: 'ghcr.io'
   TAG: 'stable'
+  VERSION: ${{ github.event.release.tag_name }}
 
 jobs:
   push:
@@ -43,7 +44,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ env.TAG }},${{ env.REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ env.VERSION }},${{ env.REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
 
       - name: slack notify
         uses: 8398a7/action-slack@v3
@@ -84,7 +85,7 @@ jobs:
            awsEnv=${{ env.ENVIRONMENT }}
            DB_USERNAME=${{ secrets.DB_USERNAME }}
            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-           imageTag=${{ github.ref_name }}
+           imageTag=${{ env.VERSION }}
 
      - name: Configure AWS Credentials
        uses: aws-actions/configure-aws-credentials@v4

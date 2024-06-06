@@ -48,7 +48,7 @@ export type FeeData = {
   tokenAddress: string
   tokenSymbol: string
   amount: string
-  resourceID: string
+  decimals: number
 }
 export enum EventType {
   DEPOSIT = "Deposit",
@@ -65,6 +65,7 @@ export enum FeeHandlerType {
 export enum DepositType {
   FUNGIBLE = "fungible",
   NONFUNGIBLE = "nonfungible",
+  SEMIFUNGIBLE = "semifungible",
   PERMISSIONLESS_GENERIC = "permissionlessGeneric",
   PERMISSIONED_GENERIC = "permissionedGeneric",
 }

@@ -49,7 +49,6 @@ model Resource {
   id        String     @id @map("_id")
   type      String
   decimals Int?
-  fees Fee[]
   transfers Transfer[]
 }
 
@@ -88,8 +87,7 @@ model Fee {
   amount       String
   tokenAddress String
   tokenSymbol  String
-  resource     Resource?      @relation(fields: [resourceID], references: [id])
-  resourceID   String?
+  decimals     Int?
   transfer     Transfer @relation(fields: [transferId], references: [id])
   transferId   String   @unique @db.ObjectId
 }

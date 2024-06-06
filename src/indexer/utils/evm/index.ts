@@ -196,22 +196,27 @@ export async function getFee(provider: Provider, feeHandlerRouterAddress: string
       decodedLog.args.data as string,
       "0x00",
     )) as FeeDataResponse
+    let tokenSymbol = fromDomain.nativeTokenSymbol
+    let decimals = fromDomain.nativeTokenDecimals
+    if (fee.tokenAddress != nativeTokenAddress) {
+      const token = getERC20Contract(provider, fee.tokenAddress)
+      tokenSymbol = (await token.symbol()) as string
+      decimals = Number(await token.decimals())
+    }
+
     return {
       tokenAddress: fee.tokenAddress,
-      tokenSymbol:
-        fee.tokenAddress == nativeTokenAddress
-          ? fromDomain.nativeTokenSymbol
-          : ((await getERC20Contract(provider, fee.tokenAddress).symbol()) as string),
+      tokenSymbol: tokenSymbol,
+      decimals: decimals,
       amount: fee.fee.toString(),
-      resourceID: decodedLog.args.resourceID as string,
     }
   } catch (err) {
     logger.error(err)
     return {
       tokenAddress: "",
       tokenSymbol: "",
-      amount: "",
-      resourceID: "",
+      decimals: 0,
+      amount: "0",
     }
   }
 }
@@ -238,6 +243,9 @@ function decodeAmountsOrTokenId(data: string, decimals: number, resourceType: st
     case DepositType.NONFUNGIBLE: {
       const tokenId = AbiCoder.defaultAbiCoder().decode(["uint256"], data)[0] as number
       return tokenId.toString()
+    }
+    case DepositType.SEMIFUNGIBLE: {
+      return ""
     }
     case DepositType.PERMISSIONLESS_GENERIC: {
       return ""

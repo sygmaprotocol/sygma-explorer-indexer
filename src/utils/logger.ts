@@ -17,6 +17,7 @@ export const logger = winston.createLogger({
   defaultMeta: {
     labels: {
       module: "explorer-indexer",
+      version: process.env.VERSION,
     },
   },
   transports: transportsConfig,

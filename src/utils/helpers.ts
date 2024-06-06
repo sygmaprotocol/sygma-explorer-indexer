@@ -61,8 +61,13 @@ export const getTransferQueryParams = (): IncludedQueryParams => {
         },
       },
       fee: {
-        include: {
-          resource: true,
+        select: {
+          id: true,
+          amount: true,
+          tokenAddress: true,
+          tokenSymbol: true,
+          decimals: true,
+          transferId: true,
         },
       },
       deposit: {
