@@ -29,11 +29,8 @@ jobs:
      actions: write
 
    steps:
-     - name: checkout the source code
-       uses: actions/checkout@v3
-
      - name: checkout ecs repo
-       uses: actions/checkout@v3
+       uses: actions/checkout@v4
        with:
          repository: sygmaprotocol/devops
          token: ${{ secrets.GHCR_TOKEN }}
@@ -54,7 +51,7 @@ jobs:
            imageTag=${{ env.VERSION }}
 
      - name: Configure AWS Credentials
-       uses: aws-actions/configure-aws-credentials@v1
+       uses: aws-actions/configure-aws-credentials@v4
        with:
          role-to-assume: arn:aws:iam::${{ env.AWS_MAINNET }}:role/github-actions-${{ env.ENVIRONMENT }}-chainbridge
          aws-region: ${{ env.AWS_REGION }}
@@ -88,11 +85,8 @@ jobs:
   #    actions: write
 
   #  steps:
-  #    - name: checkout the source code
-  #      uses: actions/checkout@v3
-
   #    - name: checkout ecs repo
-  #      uses: actions/checkout@v3
+  #      uses: actions/checkout@v4
   #      with:
   #        repository: sygmaprotocol/devops
   #        token: ${{ secrets.GHCR_TOKEN }}
@@ -113,7 +107,7 @@ jobs:
   #          imageTag=${{ inputs.deploy_v2 }}
 
   #    - name: Configure AWS Credentials
-  #      uses: aws-actions/configure-aws-credentials@v1
+  #      uses: aws-actions/configure-aws-credentials@v4
   #      with:
   #        role-to-assume: arn:aws:iam::${{ env.AWS_MAINNET }}:role/github-actions-${{ env.ENVIRONMENT }}-chainbridge
   #        aws-region: ${{ env.AWS_REGION }}
@@ -135,3 +129,4 @@ jobs:
   #      env:
   #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
   #      if: always()
+  
