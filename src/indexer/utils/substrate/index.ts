@@ -274,6 +274,10 @@ export async function saveEvents(
     const txIdentifier = `${block}-${depositEvent.phase.asApplyExtrinsic}` //this is like the txHash but for the substrate
     const { data } = depositEvent.event.toHuman()
     const { destDomainId, resourceId, depositNonce, sender, transferType, depositData, handlerResponse } = data
+    if (process.env.BLACKLISTED_DOMAINS?.split(",").includes(destDomainId)) {
+      logger.debug(`Destination domain ID ${destDomainId} is blacklisted.`)
+      return
+    }
     await saveDepositToDb(
       domain,
       block.toString(),
@@ -296,6 +300,7 @@ export async function saveEvents(
       coinMakerCapService,
       sharedConfig,
     )
+    // legacy code to handle substrate deposits/fees that didn't have feeCollected event
     if (feeCollectedEvents.length !== depositEvents.length) {
       resourceMap.set(resourceId, { symbol: "PHA" } as SubstrateResource)
       await saveFeeToDb(
@@ -319,6 +324,10 @@ export async function saveEvents(
     const { data } = feeCollectedEvent.event.toHuman()
 
     const { destDomainId, resourceId, feeAmount, feePayer, feeAssetId } = data
+    if (process.env.BLACKLISTED_DOMAINS?.split(",").includes(destDomainId)) {
+      logger.debug(`Destination domain ID ${destDomainId} is blacklisted.`)
+      return
+    }
     await saveFeeToDb(
       {
         destDomainId,
