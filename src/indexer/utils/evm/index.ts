@@ -64,8 +64,9 @@ export async function getDecodedLogs(
   }
   switch (decodedLog.name) {
     case EventType.DEPOSIT: {
-      if(process.env.BLACKLISTED_DOMAINS?.split(",").includes(decodedLog.args.destinationDomainID.toString())) {
-        logger.debug(`Destination domain ID ${decodedLog.args.destinationDomainID} is blacklisted`);
+      const destinationDomainID = decodedLog.args.destinationDomainID as string
+      if (process.env.BLACKLISTED_DOMAINS?.split(",").includes(destinationDomainID)) {
+        logger.debug(`Destination domain ID ${destinationDomainID} is blacklisted`)
         return
       }
       const toDomain = domains.filter(domain => domain.id == decodedLog?.args.destinationDomainID)
