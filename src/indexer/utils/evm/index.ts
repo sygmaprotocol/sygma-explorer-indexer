@@ -54,7 +54,7 @@ export async function getDecodedLogs(
   }
 
   if (!decodedLog) {
-    throw new Error(`No decoded log for ${fromDomain.id}} and ${log.address}`)
+    throw new Error(`No decoded log for ${fromDomain.id} and ${log.address}`)
   }
 
   const txReceipt = await provider.getTransactionReceipt(log.transactionHash)
@@ -64,6 +64,10 @@ export async function getDecodedLogs(
   }
   switch (decodedLog.name) {
     case EventType.DEPOSIT: {
+      if(process.env.BLACKLISTED_DOMAINS?.split(",").includes(decodedLog.args.destinationDomainID.toString())) {
+        logger.debug(`Destination domain ID ${decodedLog.args.destinationDomainID} is blacklisted`);
+        return
+      }
       const toDomain = domains.filter(domain => domain.id == decodedLog?.args.destinationDomainID)
       const deposit = await parseDeposit(provider, fromDomain, toDomain[0], log, decodedLog, txReceipt, blockUnixTimestamp, resourceMap)
       decodedLogs.deposit.push(deposit)
