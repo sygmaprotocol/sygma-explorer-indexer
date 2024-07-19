@@ -137,6 +137,7 @@ export const routesTestnet: Map<string, Route[]> = new Map([
     [
       { fromDomainId: "13", toDomainId: "2", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000700", type: "fungible" },
       { fromDomainId: "13", toDomainId: "6", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000700", type: "fungible" },
+      { fromDomainId: "13", toDomainId: "16", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000700", type: "fungible" },
     ],
   ],
   [
@@ -149,6 +150,12 @@ export const routesTestnet: Map<string, Route[]> = new Map([
       { fromDomainId: "10", toDomainId: "9", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600", type: "gmp" },
       { fromDomainId: "10", toDomainId: "10", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600", type: "gmp" },
       { fromDomainId: "10", toDomainId: "11", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600", type: "gmp" },
+    ],
+  ],
+  [
+    "16",
+    [
+      { fromDomainId: "16", toDomainId: "13", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000700", type: "fungible" },
     ],
   ],
 ])
