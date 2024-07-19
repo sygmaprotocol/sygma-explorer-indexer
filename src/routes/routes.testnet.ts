@@ -154,8 +154,6 @@ export const routesTestnet: Map<string, Route[]> = new Map([
   ],
   [
     "16",
-    [
-      { fromDomainId: "16", toDomainId: "13", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000700", type: "fungible" },
-    ],
+    [{ fromDomainId: "16", toDomainId: "13", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000700", type: "fungible" }],
   ],
 ])
