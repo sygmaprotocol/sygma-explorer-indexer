@@ -51,16 +51,7 @@ type FeeHandlerType = {
   address: string
 }
 
-export type BitcoinResource = {
-  resourceId: string
-  type: ResourceTypes
-  address: string
-  symbol: string
-  decimals: number
-  feeAmount: string
-}
-
-export type EvmResource = {
+export type BaseResource = {
   resourceId: string
   type: ResourceTypes
   address: string
@@ -68,14 +59,15 @@ export type EvmResource = {
   decimals: number
 }
 
-export type SubstrateResource = {
-  resourceId: string
-  type: ResourceTypes
-  address: string
-  symbol: string
-  decimals: number
+export type EvmResource = BaseResource
+
+export type SubstrateResource = BaseResource & {
   assetName: string
   xcmMultiAssetId: XcmAssetId
+}
+
+export type BitcoinResource = BaseResource & {
+  feeAmount: string
 }
 
 export type RpcUrlConfig = Array<{
