@@ -312,7 +312,7 @@ export async function saveDepositLogs(
   })
 
   if (!transfer) {
-    transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, usdValue: amountInUSD })
+    transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, usdValue: amountInUSD! })
   } else {
     const dataToSave = {
       ...decodedLog,

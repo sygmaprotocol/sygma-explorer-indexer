@@ -38,7 +38,6 @@
     "@openzeppelin/contracts": "^4.8.3",
     "@polkadot/api": "^10.6.1",
     "@prisma/client": "^4.1.0",
-    "bitcoin-core": "^4.2.0",
     "cors": "^2.8.5",
     "ethers": "^6.10.0",
     "fastify": "4.17.0",
@@ -48,6 +47,7 @@
     "morgan": "^1.10.0",
     "node-cache": "^5.1.2",
     "node-cleanup": "^2.1.2",
+    "rpc-bitcoin": "^2.0.0",
     "winston": "^3.3.3",
     "winston-transport": "^4.5.0"
   },

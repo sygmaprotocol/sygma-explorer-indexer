@@ -184,7 +184,7 @@ export async function saveDeposit(
 
     await accountRepository.insertAccount({ id: sender, addressStatus: "" })
 
-    transfer = await transferRepository.insertSubstrateDepositTransfer(transferData)
+    transfer = await transferRepository.insertDepositTransfer(transferData)
   }
 
   const deposit = {
