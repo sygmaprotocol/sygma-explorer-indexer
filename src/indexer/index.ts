@@ -169,7 +169,7 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
           accountRepository,
           coinMarketCapServiceInstance,
         )
-        await bitcoinIndexer.listenToEvents()
+        domainIndexers.push(bitcoinIndexer)
       } catch (err) {
         logger.error(err)
         logger.error(`Error on domain: ${domain.id}... skipping`)
