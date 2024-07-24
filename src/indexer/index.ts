@@ -109,68 +109,74 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
 
   const cronTime = process.env.CRON_TIME || "* */10 * * * *"
   const cron = getCronJob(cronTime, checkTransferStatus, transferRepository, notificationSender)
-  //cron.start()
+  cron.start()
+
   for (const domain of domainsToIndex) {
     const rpcURL = rpcUrlConfig.get(domain.id)
     if (!rpcURL) {
       logger.error(`Local domain is not defined for the domain: ${domain.id}`)
       continue
     }
+
     if (domain.type == DomainTypes.SUBSTRATE) {
+      try {
+        const substrateIndexer = new SubstrateIndexer(
+          domainRepository,
+          domain,
+          executionRepository,
+          depositRepository,
+          transferRepository,
+          feeRepository,
+          resourceMap,
+          accountRepository,
+          coinMarketCapServiceInstance,
+          sharedConfig,
+        )
+        await substrateIndexer.init(rpcURL)
+        domainIndexers.push(substrateIndexer)
+      } catch (err) {
+        logger.error(`Error on domain: ${domain.id}... skipping`)
+      }
+    } else if (domain.type == DomainTypes.EVM) {
+      try {
+        const evmIndexer = new EvmIndexer(
+          domain,
+          rpcURL,
+          domainsToIndex,
+          domainRepository,
+          depositRepository,
+          transferRepository,
+          executionRepository,
+          feeRepository,
+          ofacComplianceService,
+          accountRepository,
+          coinMarketCapServiceInstance,
+          sharedConfig,
+        )
+        domainIndexers.push(evmIndexer)
+      } catch (err) {
+        logger.error(`Error on domain: ${domain.id}... skipping`)
+      }
+    } else if (domain.type == DomainTypes.BTC) {
       try {
         const bitcoinIndexer = new BitcoinIndexer(
           domainRepository,
           domain,
+          executionRepository,
+          depositRepository,
+          transferRepository,
+          feeRepository,
+          accountRepository,
+          coinMarketCapServiceInstance,
         )
         await bitcoinIndexer.listenToEvents()
-      } catch (err){
+      } catch (err) {
         logger.error(err)
         logger.error(`Error on domain: ${domain.id}... skipping`)
       }
+    } else {
+      logger.error(`Unsupported type: ${JSON.stringify(domain)}`)
     }
-
-    // if (domain.type == DomainTypes.SUBSTRATE) {
-    //   try {
-    //     const substrateIndexer = new SubstrateIndexer(
-    //       domainRepository,
-    //       domain,
-    //       executionRepository,
-    //       depositRepository,
-    //       transferRepository,
-    //       feeRepository,
-    //       resourceMap,
-    //       accountRepository,
-    //       coinMarketCapServiceInstance,
-    //       sharedConfig,
-    //     )
-    //     await substrateIndexer.init(rpcURL)
-    //     domainIndexers.push(substrateIndexer)
-    //   } catch (err) {
-    //     logger.error(`Error on domain: ${domain.id}... skipping`)
-    //   }
-    // } else if (domain.type == DomainTypes.EVM) {
-    //   try {
-    //     const evmIndexer = new EvmIndexer(
-    //       domain,
-    //       rpcURL,
-    //       domainsToIndex,
-    //       domainRepository,
-    //       depositRepository,
-    //       transferRepository,
-    //       executionRepository,
-    //       feeRepository,
-    //       ofacComplianceService,
-    //       accountRepository,
-    //       coinMarketCapServiceInstance,
-    //       sharedConfig,
-    //     )
-    //     domainIndexers.push(evmIndexer)
-    //   } catch (err) {
-    //     logger.error(`Error on domain: ${domain.id}... skipping`)
-    //   }
-    // } else {
-    //   logger.error(`Unsupported type: ${JSON.stringify(domain)}`)
-    // }
   }
 
   return { domainIndexers, app, cron }

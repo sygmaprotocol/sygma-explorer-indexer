@@ -85,6 +85,10 @@ services:
       RPC_URL_CONFIG: '[{"id": 1, "endpoint": "http://evm1:8545"}, {"id": 2, "endpoint": "http://evm2:8545"}, {"id": 3, "endpoint": "ws://substrate-pallet:9944"}]'
       RETRY_COUNT: '1'
       BACKOFF: '100'
+      BTC_URL: ${BTC_URL}
+      BTC_PORT: 443
+      BTC_USER: ${BTC_USER}
+      BTC_PASS: ${BTC_PASS}
 
   api:
     build: 

@@ -24,6 +24,7 @@ export type SharedConfig = {
 export enum DomainTypes {
   EVM = "evm",
   SUBSTRATE = "substrate",
+  BTC = "btc",
 }
 
 export type Domain = {
@@ -31,13 +32,14 @@ export type Domain = {
   name: string
   type: DomainTypes
   bridge: string
+  feeAddress?: string
   feeRouter: string
   feeHandlers: Array<FeeHandlerType>
   handlers: Array<Handler>
   nativeTokenSymbol: string
   nativeTokenDecimals: number
   startBlock: number
-  resources: Array<EvmResource | SubstrateResource>
+  resources: Array<EvmResource | SubstrateResource | BitcoinResource>
 }
 type Handler = {
   type: ResourceTypes
@@ -47,6 +49,15 @@ type Handler = {
 type FeeHandlerType = {
   type: string
   address: string
+}
+
+export type BitcoinResource = {
+  resourceId: string
+  type: ResourceTypes
+  address: string
+  symbol: string
+  decimals: number
+  feeAmount: string
 }
 
 export type EvmResource = {
