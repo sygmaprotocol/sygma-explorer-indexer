@@ -122,10 +122,10 @@ async function saveDeposit(
       {
         amount: decodedDeposit.amount.toString(),
         depositNonce: depositNonce,
-        destination: destinationAddress, // ok?
+        destination: destinationAddress,
         fromDomainId: originDomainId.toString(),
         resourceID: decodedDeposit.resource.resourceId,
-        sender: "0x", // multiple senders ??
+        sender: "0x",
         toDomainId: destinationDomainId.toString(),
         usdValue: amountInUSD,
       },
@@ -135,10 +135,10 @@ async function saveDeposit(
     transfer = await transferRepository.insertDepositTransfer({
       amount: decodedDeposit.amount.toString(),
       depositNonce: depositNonce,
-      destination: destinationAddress, // ok?
+      destination: destinationAddress, 
       fromDomainId: originDomainId.toString(),
       resourceID: decodedDeposit.resource.symbol,
-      sender: "0x", // vise sendera ??
+      sender: "0x",
       toDomainId: destinationDomainId.toString(),
       usdValue: amountInUSD,
     })
