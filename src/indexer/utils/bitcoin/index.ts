@@ -224,13 +224,15 @@ function calculateNonce(blockHeight: number, txHash: string): number {
   const concatString = blockHeight.toString() + "-" + txHash
 
   // Calculate SHA-256 hash of the concatenated string
-  const hashString = sha256(concatString)
+  const hashString = sha256(Buffer.from(concatString))
+  const hashBytes = Buffer.from(hashString)
 
   // XOR fold the hash
-  let result = 0
+  let result = BigInt(0)
   for (let i = 0; i < 4; i++) {
-    const part = BigNumber.from(hashString.slice(i * 8, (i + 1) * 8))
-    result ^= part.toNumber()
+    const part = BigNumber.from(hashBytes.slice(i * 8, (i + 1) * 8))
+    result ^= part.toBigInt()
   }
-  return result
+  
+  return Number(result)
 }
