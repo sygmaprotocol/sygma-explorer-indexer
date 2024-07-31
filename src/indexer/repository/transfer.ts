@@ -40,7 +40,7 @@ export type TransferMetadata = {
   account?: {
     connect: {
       id: string
-    }
+    }[]
   }
 }
 class TransferRepository {
@@ -74,9 +74,7 @@ class TransferRepository {
         },
       },
       account: {
-        connect: {
-          id: depositData.sender,
-        },
+        connect: depositData.sender.map((accountId: string) => ({ id: accountId })),
       },
       usdValue: depositData.usdValue,
     }
@@ -169,9 +167,7 @@ class TransferRepository {
         },
       },
       account: {
-        connect: {
-          id: sender,
-        },
+        connect: sender.map((accountId: string) => ({ id: accountId })),
       },
       usdValue: usdValue,
     } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account">

@@ -3,6 +3,7 @@ import { sha256 } from "ethers"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ObjectId } from "mongodb"
 import { TransferStatus } from "@prisma/client"
+import { RPCClient } from "rpc-bitcoin"
 import { BitcoinTypeTransfer, Block, DecodedDeposit, DecodedExecution, Transaction } from "../../../indexer/services/bitcoinIndexer/bitcoinTypes"
 import { BitcoinResource, Domain } from "../../../indexer/config"
 import AccountRepository from "../../repository/account"
@@ -16,6 +17,7 @@ const WitnessV1Taproot = "witness_v1_taproot"
 const OP_RETURN = "nulldata"
 
 export async function saveEvents(
+  client: RPCClient,
   block: Block,
   domain: Domain,
   executionRepository: ExecutionRepository,
@@ -29,6 +31,7 @@ export async function saveEvents(
     const depositData = decodeDepositEvent(tx, domain)
     if (depositData) {
       const depositNonce = calculateNonce(block.height, tx.hash)
+      const senderAddresses = await getSenders(client, tx)
       await saveDeposit(
         tx.txid,
         block.height,
@@ -36,6 +39,7 @@ export async function saveEvents(
         domain.id,
         depositData,
         depositNonce,
+        senderAddresses,
         transferRepository,
         depositRepository,
         accountRepository,
@@ -96,6 +100,7 @@ async function saveDeposit(
   originDomainId: number,
   decodedDeposit: DecodedDeposit,
   depositNonce: number,
+  senderAddresses: string[],
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   accountRepository: AccountRepository,
@@ -115,6 +120,14 @@ async function saveDeposit(
     amountInUSD = 0
   }
 
+  for (const sender of senderAddresses) {
+    await accountRepository.insertAccount({
+      id: new ObjectId().toString(),
+      address: sender,
+      addressStatus: "",
+      transferIds: [],
+    })
+  }
   let transfer = await transferRepository.findTransfer(Number(depositNonce), originDomainId, destinationDomainId)
 
   if (transfer) {
@@ -125,7 +138,7 @@ async function saveDeposit(
         destination: destinationAddress,
         fromDomainId: originDomainId.toString(),
         resourceID: decodedDeposit.resource.resourceId,
-        sender: "0x",
+        sender: senderAddresses,
         toDomainId: destinationDomainId.toString(),
         usdValue: amountInUSD,
       },
@@ -135,10 +148,10 @@ async function saveDeposit(
     transfer = await transferRepository.insertDepositTransfer({
       amount: decodedDeposit.amount.toString(),
       depositNonce: depositNonce,
-      destination: destinationAddress, 
+      destination: destinationAddress,
       fromDomainId: originDomainId.toString(),
       resourceID: decodedDeposit.resource.symbol,
-      sender: "0x",
+      sender: senderAddresses,
       toDomainId: destinationDomainId.toString(),
       usdValue: amountInUSD,
     })
@@ -233,6 +246,14 @@ function calculateNonce(blockHeight: number, txHash: string): number {
     const part = BigNumber.from(hashBytes.slice(i * 8, (i + 1) * 8))
     result ^= part.toBigInt()
   }
-  
   return Number(result)
+}
+
+async function getSenders(client: RPCClient, tx: Transaction): Promise<string[]> {
+  const senderAddresses: string[] = []
+  for (const vin of tx.vin) {
+    const senderTx = (await client.getrawtransaction({ txid: vin.txid, verbose: true })) as Transaction
+    senderAddresses.push(senderTx.vout[vin.vout].scriptPubKey.address)
+  }
+  return senderAddresses
 }

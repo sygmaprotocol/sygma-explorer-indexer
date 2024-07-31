@@ -10,7 +10,7 @@ export type RawDepositData = {
   destDomainId: string
   resourceId: string
   depositNonce: string
-  sender: string
+  sender: string[]
   transferType: string
   depositData: string
   handlerResponse: string

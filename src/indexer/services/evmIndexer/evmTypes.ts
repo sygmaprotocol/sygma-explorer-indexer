@@ -12,7 +12,7 @@ export type DecodedDepositLog = {
   blockNumber: number
   depositNonce: number
   toDomainId: string
-  sender: string
+  sender: string[]
   destination: string
   fromDomainId: string
   resourceID: string

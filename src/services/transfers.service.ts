@@ -37,7 +37,12 @@ class TransfersService {
   public async findTransfers(where: Partial<Transfer>, paginationParams: Pagination): Promise<Transfer[]> {
     const { skip, take } = this.calculatePaginationParams(paginationParams)
     const transfers = await this.transfers.findMany({
-      where,
+      where: {
+        ...where,
+        accountIds: {
+          hasSome: where.accountIds,
+        },
+      },
       take,
       skip,
       orderBy: {
@@ -98,7 +103,7 @@ class TransfersService {
 
   public async findTransfersByAccountAddress(sender: string, status: TransferStatus | undefined, paginationParams: Pagination): Promise<Transfer[]> {
     const where: Partial<Transfer> = {
-      accountId: sender,
+      accountIds: sender.split(" "),
       status: status,
     }
 

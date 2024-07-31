@@ -41,7 +41,7 @@ describe("Monitoring service testing", function () {
         destination: "0x8e0a907331554af72563bd8d43051c2e64be5d35",
         amount: "2296080355773541392",
         status: TransferStatus.pending,
-        accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
+        accountIds: ["0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b"],
         message: "",
         usdValue: null,
         resource: {
@@ -100,7 +100,7 @@ describe("Monitoring service testing", function () {
         destination: "0x8e0a907331554af72563bd8d43051c2e64be5d35",
         amount: "2296080355773541392",
         status: TransferStatus.pending,
-        accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
+        accountIds: ["0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b"],
         message: "",
         usdValue: null,
         resource: {
@@ -159,7 +159,7 @@ describe("Monitoring service testing", function () {
         destination: "0x8e0a907331554af72563bd8d43051c2e64be5d35",
         amount: "2296080355773541392",
         status: TransferStatus.pending,
-        accountId: "0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b",
+        accountIds: ["0x5C1F5961696BaD2e73f73417f07EF55C62a2dC5b"],
         message: "",
         usdValue: null,
         resource: {

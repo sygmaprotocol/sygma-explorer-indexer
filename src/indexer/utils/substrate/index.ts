@@ -150,13 +150,18 @@ export async function saveDeposit(
       "depositNonce" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp" | "sender"
     > & { usdValue: number }
 
-    if (transfer.accountId !== null) {
+    if (transfer.accountIds !== null) {
       dataTransferToUpdate = {
         ...dataTransferToUpdate,
-        sender: transfer.accountId,
+        sender: transfer.accountIds,
       }
     } else {
-      await accountRepository.insertAccount({ id: sender, addressStatus: "" })
+      await accountRepository.insertAccount({
+        id: new ObjectId().toString(),
+        address: sender[0],
+        addressStatus: "",
+        transferIds: [],
+      })
 
       dataTransferToUpdate = {
         ...dataTransferToUpdate,
@@ -182,7 +187,12 @@ export async function saveDeposit(
       "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp"
     > & { usdValue: number }
 
-    await accountRepository.insertAccount({ id: sender, addressStatus: "" })
+    await accountRepository.insertAccount({
+      id: new ObjectId().toString(),
+      address: sender[0],
+      addressStatus: "",
+      transferIds: [],
+    })
 
     transfer = await transferRepository.insertDepositTransfer(transferData)
   }
@@ -308,7 +318,7 @@ export async function saveEvents(
           destDomainId,
           resourceId,
           feeAmount: "50",
-          feePayer: sender,
+          feePayer: sender[0],
           txIdentifier,
           feeAssetId: {} as unknown as XcmAssetId,
         },

@@ -106,7 +106,7 @@ export async function parseDeposit(
     blockNumber: log.blockNumber,
     depositNonce: Number(decodedLog.args.depositNonce),
     toDomainId: decodedLog.args.destinationDomainID as string,
-    sender: txReceipt.from,
+    sender: txReceipt.from.split(" "),
     destination: await parseDestination(decodedLog.args.data as BytesLike, toDomain, resourceType),
     fromDomainId: fromDomain.id.toString(),
     resourceID: decodedLog.args.resourceID as string,
@@ -300,15 +300,17 @@ export async function saveDepositLogs(
   let senderStatus: string
 
   try {
-    senderStatus = (await ofacComplianceService.checkSanctionedAddress(sender)) as string
+    senderStatus = (await ofacComplianceService.checkSanctionedAddress(sender[0])) as string
   } catch (e) {
     logger.error(`Checking address failed: ${(e as Error).message}`)
     senderStatus = ""
   }
 
   await accountRepository.insertAccount({
-    id: decodedLog.sender,
+    id: new ObjectId().toString(),
+    address: decodedLog.sender[0],
     addressStatus: senderStatus,
+    transferIds: [],
   })
 
   if (!transfer) {

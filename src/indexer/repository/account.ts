@@ -17,7 +17,7 @@ class AccountRepository {
         addressStatus: account.addressStatus,
       },
       create: {
-        id: account.id,
+        address: account.address,
         addressStatus: account.addressStatus,
       },
     })

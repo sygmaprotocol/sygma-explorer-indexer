@@ -25,8 +25,8 @@ model Transfer {
   deposit      Deposit?
   execution    Execution?
   fee          Fee?
-  account      Account?       @relation(name: "accountRelation", fields: [accountId], references: [id])
-  accountId    String?
+  account      Account[]       @relation(fields: [accountIds], references: [id])
+  accountIds    String[]       @db.ObjectId
   message      String?
   usdValue     Float?
 
@@ -40,9 +40,11 @@ enum TransferStatus {
 }
 
 model Account {
-  id            String     @id @map("_id")
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  address       String
   addressStatus String
-  Transfer      Transfer[] @relation(name: "accountRelation")
+  transferIds String[] @db.ObjectId
+  transfers Transfer[] @relation(fields: [transferIds],  references: [id])
 }
 
 model Resource {

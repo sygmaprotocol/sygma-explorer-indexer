@@ -93,6 +93,7 @@ export class BitcoinIndexer {
         const currentBlock = (await this.client.getblock({ blockhash: currentBlockHash, verbosity: 2 })) as Block
 
         await saveEvents(
+          this.client,
           currentBlock,
           this.domain,
           this.executionRepository,
