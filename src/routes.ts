@@ -90,4 +90,11 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
     schema: routesByDomainSchema,
     handler: RoutesController.routes,
   })
+
+  fastify.route({
+    method: "GET",
+    url: "/domains/shared-config",
+    // schema: routesByDomainSchema,
+    handler: DomainsController.sharedConfig,
+  })
 }

@@ -4,6 +4,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 */
 import { FastifyReply, FastifyRequest } from "fastify"
 import { Environment } from "@buildwithsygma/sygma-sdk-core"
+import { getSharedConfig } from "../indexer/config"
 import { logger } from "../utils/logger"
 import { DomainMetadataConfig } from "../utils/domainMetadata"
 
@@ -18,5 +19,9 @@ export const DomainsController = {
       logger.error(`Unable to find metadata for environment ${environment}`)
       void reply.status(500)
     }
+  },
+  sharedConfig: async function (request: FastifyRequest<{}>, reply: FastifyReply): Promise<void> {
+    const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
+    void reply.status(200).send(sharedConfig)
   },
 }
