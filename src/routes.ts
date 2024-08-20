@@ -81,7 +81,7 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
     method: "GET",
     url: "/domains/metadata",
     schema: domainsMetadataSchema,
-    handler: DomainsController.domains,
+    handler: DomainsController.domainsMetadata,
   })
 
   fastify.route({
@@ -93,8 +93,8 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
 
   fastify.route({
     method: "GET",
-    url: "/domains/shared-config",
+    url: "/domains/:domainID/resources",
     // schema: routesByDomainSchema,
-    handler: DomainsController.sharedConfig,
+    handler: DomainsController.resources,
   })
 }
