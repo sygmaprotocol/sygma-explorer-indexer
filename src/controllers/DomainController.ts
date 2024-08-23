@@ -17,7 +17,7 @@ export const DomainsController = {
       void reply.status(200).send(JSON.stringify(metadata))
     } else {
       logger.error(`Unable to find metadata for environment ${environment}`)
-      void reply.status(500)
+      void reply.status(404)
     }
   },
   resources: function (request: FastifyRequest<{ Params: { domainID: string } }>, reply: FastifyReply): void {
@@ -28,7 +28,7 @@ export const DomainsController = {
 
     if (!resources) {
       logger.error(`Unable to find resources metadata for ${environment}`)
-      void reply.status(500)
+      void reply.status(404)
     } else {
       void reply.status(200).send(resources[parseInt(domainID)])
     }
