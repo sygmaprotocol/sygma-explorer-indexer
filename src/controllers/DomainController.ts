@@ -4,6 +4,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 */
 import { FastifyReply, FastifyRequest } from "fastify"
 import { Environment } from "@buildwithsygma/sygma-sdk-core"
+import { ResourcesMetadataConfig } from "../utils/resourcesMetadata"
 import { logger } from "../utils/logger"
 import { DomainMetadataConfig } from "../utils/domainMetadata"
 
@@ -23,14 +24,13 @@ export const DomainsController = {
     const {
       params: { domainID },
     } = request
-    const domains = DomainMetadataConfig[environment]
-    if (!domains) {
-      logger.error(`Unable to find metadata for environment ${environment}`)
+    const resources = ResourcesMetadataConfig[environment]!
+
+    if (!resources) {
+      logger.error(`Unable to find resources metadata for ${environment}`)
       void reply.status(500)
     } else {
-      const domainById = domains[Number(domainID)]
-      const resources = domainById?.resources
-      void reply.status(200).send(resources)
+      void reply.status(200).send(resources[parseInt(domainID)])
     }
   },
 }
