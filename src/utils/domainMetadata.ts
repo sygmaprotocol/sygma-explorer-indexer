@@ -22,6 +22,7 @@ export type DomainMetadata = {
   nativeTokenSymbol: string
   nativeTokenDecimals: number
   nativeTokenFullName: string
+  blockExplorerUrl: string
 }
 
 export type EnvironmentMetadata = {
@@ -42,6 +43,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "eth",
       type: "evm",
+      blockExplorerUrl: "https://sepolia.etherscan.io",
     },
     3: {
       url: "https://scan.buildwithsygma.com/assets/icons/phala-black.svg",
@@ -51,6 +53,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 12,
       nativeTokenFullName: "pha",
       type: "substrate",
+      blockExplorerUrl: "https://sepolia.etherscan.io",
     },
     5: {
       url: "https://scan.buildwithsygma.com/assets/icons/cronos.svg",
@@ -60,6 +63,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "ether",
       type: "evm",
+      blockExplorerUrl: "https://explorer.cronos.org/testnet",
     },
     6: {
       url: "https://scan.buildwithsygma.com/assets/icons/evm.svg",
@@ -69,6 +73,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "ether",
       type: "evm",
+      blockExplorerUrl: "https://holesky.etherscan.io",
     },
     8: {
       url: "https://scan.buildwithsygma.com/assets/icons/arbitrum.svg",
@@ -78,6 +83,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "ether",
       type: "evm",
+      blockExplorerUrl: "https://sepolia.arbiscan.io",
     },
     9: {
       url: "https://scan.buildwithsygma.com/assets/icons/gnosis.svg",
@@ -87,6 +93,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "xdai",
       type: "evm",
+      blockExplorerUrl: "https://gnosis-chiado.blockscout.com",
     },
     10: {
       url: "",
@@ -96,6 +103,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "ether",
       type: "evm",
+      blockExplorerUrl: "https://sepolia.basescan.org",
     },
     11: {
       url: "",
@@ -105,6 +113,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "matic",
       type: "evm",
+      blockExplorerUrl: "https://amoy.polygonscan.com",
     },
     12: {
       url: "",
@@ -114,6 +123,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "tTNT",
       type: "substrate",
+      blockExplorerUrl: "https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Ftestnet-rpc.tangle.tools#/explorer/query",
     },
     13: {
       url: "",
@@ -123,6 +133,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 8,
       nativeTokenFullName: "Bitcoin",
       type: "btc",
+      blockExplorerUrl: "https://sepolia.etherscan.io",
     },
     15: {
       url: "",
@@ -132,6 +143,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "eth",
       type: "evm",
+      blockExplorerUrl: "https://sepolia.explorer.b3.fun",
     },
     16: {
       url: "",
@@ -141,6 +153,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 8,
       nativeTokenFullName: "Bitcoin",
       type: "evm",
+      blockExplorerUrl: "https://sepolia.etherscan.io",
     },
   },
   [Environment.MAINNET]: {
@@ -152,6 +165,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "ether",
       type: "evm",
+      blockExplorerUrl: "https://etherscan.io",
     },
     2: {
       url: "https://scan.buildwithsygma.com/assets/icons/khala.svg",
@@ -161,6 +175,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 12,
       nativeTokenFullName: "pha",
       type: "substrate",
+      blockExplorerUrl: "https://khala.subscan.io",
     },
     3: {
       url: "https://scan.buildwithsygma.com/assets/icons/phala.svg",
@@ -170,6 +185,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 12,
       nativeTokenFullName: "pha",
       type: "substrate",
+      blockExplorerUrl: "https://phala.subscan.io",
     },
     4: {
       url: "https://scan.buildwithsygma.com/assets/icons/cronos.svg",
@@ -179,6 +195,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "Cronos",
       type: "evm",
+      blockExplorerUrl: "https://cronoscan.com",
     },
     5: {
       url: "https://scan.buildwithsygma.com/assets/icons/base.svg",
@@ -188,6 +205,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "ether",
       type: "evm",
+      blockExplorerUrl: "https://basescan.org",
     },
     6: {
       url: "https://scan.buildwithsygma.com/assets/icons/gnosis.svg",
@@ -197,6 +215,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "xDai",
       type: "evm",
+      blockExplorerUrl: "https://gnosisscan.io",
     },
     7: {
       url: "https://scan.buildwithsygma.com/assets/icons/polygon.svg",
@@ -206,6 +225,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenDecimals: 18,
       nativeTokenFullName: "MATIC",
       type: "evm",
+      blockExplorerUrl: "https://polygonscan.com",
     },
   },
 }
