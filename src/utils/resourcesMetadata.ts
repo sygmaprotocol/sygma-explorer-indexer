@@ -62,18 +62,6 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
         decimals: 18,
       },
     ],
-    3: [
-      {
-        caip19: "polkadot:5231",
-        symbol: "PHA",
-        decimals: 12,
-      },
-      {
-        caip19: "polkadot:5231",
-        symbol: "sygUSD",
-        decimals: 6,
-      },
-    ],
     5: [
       {
         caip19: "eip155:338/erc721:0x18A8E0748FA207483D23aeAc3D0508a25dDA3dB1",

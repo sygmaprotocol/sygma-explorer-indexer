@@ -45,16 +45,6 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       type: "evm",
       blockExplorerUrl: "https://sepolia.etherscan.io",
     },
-    3: {
-      url: "https://scan.buildwithsygma.com/assets/icons/phala-black.svg",
-      name: "rococo-phala",
-      caipId: "polkadot:5231",
-      nativeTokenSymbol: "pha",
-      nativeTokenDecimals: 12,
-      nativeTokenFullName: "pha",
-      type: "substrate",
-      blockExplorerUrl: "https://sepolia.etherscan.io",
-    },
     5: {
       url: "https://scan.buildwithsygma.com/assets/icons/cronos.svg",
       name: "cronos",
