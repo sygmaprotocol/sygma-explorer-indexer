@@ -23,6 +23,7 @@ export type DomainMetadata = {
   nativeTokenDecimals: number
   nativeTokenFullName: string
   blockExplorerUrl: string
+  renderName: string
 }
 
 export type EnvironmentMetadata = {
@@ -44,6 +45,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "eth",
       type: "evm",
       blockExplorerUrl: "https://sepolia.etherscan.io",
+      renderName: "Sepolia",
     },
     5: {
       url: "https://scan.buildwithsygma.com/assets/icons/cronos.svg",
@@ -54,6 +56,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "ether",
       type: "evm",
       blockExplorerUrl: "https://explorer.cronos.org/testnet",
+      renderName: "Cronos",
     },
     6: {
       url: "https://scan.buildwithsygma.com/assets/icons/evm.svg",
@@ -64,6 +67,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "ether",
       type: "evm",
       blockExplorerUrl: "https://holesky.etherscan.io",
+      renderName: "Holesky",
     },
     8: {
       url: "https://scan.buildwithsygma.com/assets/icons/arbitrum.svg",
@@ -74,6 +78,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "ether",
       type: "evm",
       blockExplorerUrl: "https://sepolia.arbiscan.io",
+      renderName: "Arbitrum Sepolia",
     },
     9: {
       url: "https://scan.buildwithsygma.com/assets/icons/gnosis.svg",
@@ -84,9 +89,10 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "xdai",
       type: "evm",
       blockExplorerUrl: "https://gnosis-chiado.blockscout.com",
+      renderName: "Gnosis Chiado",
     },
     10: {
-      url: "",
+      url: "https://scan.buildwithsygma.com/assets/icons/base.svg",
       name: "base_sepolia",
       caipId: "eip155:84532",
       nativeTokenSymbol: "eth",
@@ -94,9 +100,10 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "ether",
       type: "evm",
       blockExplorerUrl: "https://sepolia.basescan.org",
+      renderName: "Base Sepolia",
     },
     11: {
-      url: "",
+      url: "https://scan.buildwithsygma.com/assets/icons/polygon.svg",
       name: "amoy",
       caipId: "eip155:80002",
       nativeTokenSymbol: "MATIC",
@@ -104,9 +111,10 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "matic",
       type: "evm",
       blockExplorerUrl: "https://amoy.polygonscan.com",
+      renderName: "Amoy",
     },
     12: {
-      url: "",
+      url: "https://scan.buildwithsygma.com/assets/icons/tangle-logo.svg",
       name: "tangle-standalone-testnet",
       caipId: "polkadot:3799",
       nativeTokenSymbol: "tTNT",
@@ -114,6 +122,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "tTNT",
       type: "substrate",
       blockExplorerUrl: "https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Ftestnet-rpc.tangle.tools#/explorer/query",
+      renderName: "Tangle Standalone Testnet",
     },
     13: {
       url: "",
@@ -124,9 +133,10 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "Bitcoin",
       type: "btc",
       blockExplorerUrl: "https://sepolia.etherscan.io",
+      renderName: "Bitcoin Testnet3",
     },
     15: {
-      url: "",
+      url: "https://scan.buildwithsygma.com/assets/icons/b3-sepolia.svg",
       name: "b3-sepolia",
       caipId: "eip155:1993",
       nativeTokenSymbol: "ETH",
@@ -134,6 +144,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "eth",
       type: "evm",
       blockExplorerUrl: "https://sepolia.explorer.b3.fun",
+      renderName: "B3 Sepolia",
     },
     16: {
       url: "",
@@ -144,6 +155,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "Bitcoin",
       type: "evm",
       blockExplorerUrl: "https://sepolia.etherscan.io",
+      renderName: "Layer Edge",
     },
   },
   [Environment.MAINNET]: {
@@ -156,6 +168,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "ether",
       type: "evm",
       blockExplorerUrl: "https://etherscan.io",
+      renderName: "Ethereum",
     },
     2: {
       url: "https://scan.buildwithsygma.com/assets/icons/khala.svg",
@@ -166,6 +179,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "pha",
       type: "substrate",
       blockExplorerUrl: "https://khala.subscan.io",
+      renderName: "Khala",
     },
     3: {
       url: "https://scan.buildwithsygma.com/assets/icons/phala.svg",
@@ -176,6 +190,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "pha",
       type: "substrate",
       blockExplorerUrl: "https://phala.subscan.io",
+      renderName: "Phala",
     },
     4: {
       url: "https://scan.buildwithsygma.com/assets/icons/cronos.svg",
@@ -186,6 +201,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "Cronos",
       type: "evm",
       blockExplorerUrl: "https://cronoscan.com",
+      renderName: "Cronos",
     },
     5: {
       url: "https://scan.buildwithsygma.com/assets/icons/base.svg",
@@ -196,6 +212,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "ether",
       type: "evm",
       blockExplorerUrl: "https://basescan.org",
+      renderName: "Base",
     },
     6: {
       url: "https://scan.buildwithsygma.com/assets/icons/gnosis.svg",
@@ -206,6 +223,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "xDai",
       type: "evm",
       blockExplorerUrl: "https://gnosisscan.io",
+      renderName: "Gnosis",
     },
     7: {
       url: "https://scan.buildwithsygma.com/assets/icons/polygon.svg",
@@ -216,6 +234,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       nativeTokenFullName: "MATIC",
       type: "evm",
       blockExplorerUrl: "https://polygonscan.com",
+      renderName: "Polygon",
     },
   },
 }
