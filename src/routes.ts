@@ -6,6 +6,7 @@ import { FastifyInstance } from "fastify"
 import { TransfersController } from "./controllers/TransfersController"
 import {
   domainsMetadataSchema,
+  resourcesByDomainSchema,
   routesByDomainSchema,
   transferByIdSchema,
   transferByTxHashAndDomainSchema,
@@ -94,7 +95,7 @@ export async function routes(fastify: FastifyInstance): Promise<void> {
   fastify.route({
     method: "GET",
     url: "/domains/:domainID/resources",
-    // schema: routesByDomainSchema,
+    schema: resourcesByDomainSchema,
     handler: DomainsController.resources,
   })
 }

@@ -414,19 +414,73 @@ export const domainsMetadataSchema = {
               type: "object",
               properties: {
                 url: { type: "string" },
+                name: { type: "string" },
+                caipId: { type: "string" },
+                nativeTokenSymbol: { type: "string" },
+                nativeTokenDecimals: { type: "integer" },
+                nativeTokenFullName: { type: "string" },
+                type: { type: "string" },
+                blockExplorerUrl: { type: "string" },
+                renderName: { type: "string" },
               },
             },
             example: {
               domainId1: {
                 url: "https://scan.buildwithsygma.com",
-              },
-              domainId2: {
-                url: "https://scan.buildwithsygma.com",
-              },
-              domainId3: {
-                url: "https://scan.buildwithsygma.com",
+                name: "Sepolia",
+                caipId: "eip155:11155111",
+                nativeTokenSymbol: "eth",
+                nativeTokenDecimals: 18,
+                nativeTokenFullName: "eth",
+                type: "evm",
+                blockExplorerUrl: "https://sepolia.etherscan.io",
+                renderName: "Sepolia",
               },
             },
+          },
+        },
+      },
+    },
+  },
+}
+
+export const resourcesByDomainSchema = {
+  summary: "Get resources from a specific domain",
+  params: {
+    type: "object",
+    properties: {
+      domainID: { type: "number" },
+    },
+  },
+  response: {
+    200: {
+      description: "Resources",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  caipId: { type: "string" },
+                  symbol: { type: "string" },
+                  decimals: { type: "integer" },
+                  resourceId: { type: "string" },
+                },
+              },
+            },
+          },
+          example: {
+            domainId1: [
+              {
+                caipId: "eip155:11155111/erc721:0x285207Cbed7AF3Bc80E05421D17AE1181d63aBd0",
+                symbol: "ERC721TST",
+                decimals: 0,
+                resourceId: "0x",
+              },
+            ],
           },
         },
       },
