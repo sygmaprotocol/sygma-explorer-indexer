@@ -446,12 +446,6 @@ export const domainsMetadataSchema = {
 
 export const resourcesByDomainSchema = {
   summary: "Get resources from a specific domain",
-  params: {
-    type: "object",
-    properties: {
-      domainID: { type: "number" },
-    },
-  },
   response: {
     200: {
       description: "Resources",
@@ -459,11 +453,11 @@ export const resourcesByDomainSchema = {
         "application/json": {
           schema: {
             type: "object",
-            properties: {
+            additionalProperties: {
               type: "array",
               items: {
                 type: "object",
-                properties: {
+                additionalProperties: {
                   caipId: { type: "string" },
                   symbol: { type: "string" },
                   decimals: { type: "integer" },
