@@ -452,17 +452,14 @@ export const resourcesByDomainSchema = {
       content: {
         "application/json": {
           schema: {
-            type: "object",
-            additionalProperties: {
-              type: "array",
-              items: {
-                type: "object",
-                additionalProperties: {
-                  caipId: { type: "string" },
-                  symbol: { type: "string" },
-                  decimals: { type: "integer" },
-                  resourceId: { type: "string" },
-                },
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                caipId: { type: "string" },
+                symbol: { type: "string" },
+                decimals: { type: "integer" },
+                resourceId: { type: "string" },
               },
             },
           },
