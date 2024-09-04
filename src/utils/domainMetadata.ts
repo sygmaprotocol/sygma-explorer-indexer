@@ -15,7 +15,7 @@ export type EnvironmentResourcesMetadata = {
 }
 
 export type DomainMetadata = {
-  url: string // icon url
+  icon: string // icon
   name: string
   type: string
   caipId: string
@@ -37,7 +37,7 @@ export type EnvironmentMetadataConfigType = {
 export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
   [Environment.TESTNET]: {
     2: {
-      url: "https://scan.buildwithsygma.com/assets/icons/evm.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/evm.svg",
       name: "Sepolia",
       caipId: "eip155:11155111",
       nativeTokenSymbol: "eth",
@@ -48,7 +48,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Sepolia",
     },
     5: {
-      url: "https://scan.buildwithsygma.com/assets/icons/cronos.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/cronos.svg",
       name: "cronos",
       caipId: "eip155:338",
       nativeTokenSymbol: "eth",
@@ -59,7 +59,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Cronos",
     },
     6: {
-      url: "https://scan.buildwithsygma.com/assets/icons/evm.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/evm.svg",
       name: "holesky",
       caipId: "eip155:17000",
       nativeTokenSymbol: "eth",
@@ -70,7 +70,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Holesky",
     },
     8: {
-      url: "https://scan.buildwithsygma.com/assets/icons/arbitrum.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/arbitrum.svg",
       name: "arbitrum_sepolia",
       caipId: "eip155:421614",
       nativeTokenSymbol: "eth",
@@ -81,7 +81,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Arbitrum Sepolia",
     },
     9: {
-      url: "https://scan.buildwithsygma.com/assets/icons/gnosis.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/gnosis.svg",
       name: "gnosis_chiado",
       caipId: "eip155:10200",
       nativeTokenSymbol: "XDAI",
@@ -92,7 +92,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Gnosis Chiado",
     },
     10: {
-      url: "https://scan.buildwithsygma.com/assets/icons/base.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/base.svg",
       name: "base_sepolia",
       caipId: "eip155:84532",
       nativeTokenSymbol: "eth",
@@ -103,7 +103,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Base Sepolia",
     },
     11: {
-      url: "https://scan.buildwithsygma.com/assets/icons/polygon.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/polygon.svg",
       name: "amoy",
       caipId: "eip155:80002",
       nativeTokenSymbol: "MATIC",
@@ -114,7 +114,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Amoy",
     },
     12: {
-      url: "https://scan.buildwithsygma.com/assets/icons/tangle-logo.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/tangle-logo.svg",
       name: "tangle-standalone-testnet",
       caipId: "polkadot:3799",
       nativeTokenSymbol: "tTNT",
@@ -125,7 +125,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Tangle Standalone Testnet",
     },
     13: {
-      url: "",
+      icon: "",
       name: "Bitcoin-Testnet3",
       caipId: "bip122:000000000933ea01ad0ee984209779ba",
       nativeTokenSymbol: "BTC",
@@ -136,7 +136,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Bitcoin Testnet3",
     },
     15: {
-      url: "https://scan.buildwithsygma.com/assets/icons/b3-sepolia.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/b3-sepolia.svg",
       name: "b3-sepolia",
       caipId: "eip155:1993",
       nativeTokenSymbol: "ETH",
@@ -147,7 +147,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "B3 Sepolia",
     },
     16: {
-      url: "",
+      icon: "",
       name: "layer_edge",
       caipId: "eip155:3456",
       nativeTokenSymbol: "BTC",
@@ -160,7 +160,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
   },
   [Environment.MAINNET]: {
     1: {
-      url: "https://scan.buildwithsygma.com/assets/icons/evm.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/evm.svg",
       name: "ethereum",
       caipId: "eip155:1",
       nativeTokenSymbol: "eth",
@@ -171,7 +171,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Ethereum",
     },
     2: {
-      url: "https://scan.buildwithsygma.com/assets/icons/khala.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/khala.svg",
       name: "khala",
       caipId: "polkadot:5232",
       nativeTokenSymbol: "pha",
@@ -182,7 +182,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Khala",
     },
     3: {
-      url: "https://scan.buildwithsygma.com/assets/icons/phala.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/phala.svg",
       name: "phala",
       caipId: "polkadot:5233",
       nativeTokenSymbol: "pha",
@@ -193,7 +193,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Phala",
     },
     4: {
-      url: "https://scan.buildwithsygma.com/assets/icons/cronos.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/cronos.svg",
       name: "cronos",
       caipId: "eip155:25",
       nativeTokenSymbol: "CRO",
@@ -204,7 +204,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Cronos",
     },
     5: {
-      url: "https://scan.buildwithsygma.com/assets/icons/base.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/base.svg",
       name: "base",
       caipId: "eip155:8453",
       nativeTokenSymbol: "eth",
@@ -215,7 +215,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Base",
     },
     6: {
-      url: "https://scan.buildwithsygma.com/assets/icons/gnosis.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/gnosis.svg",
       name: "gnosis",
       caipId: "eip155:100",
       nativeTokenSymbol: "XDAI",
@@ -226,7 +226,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Gnosis",
     },
     7: {
-      url: "https://scan.buildwithsygma.com/assets/icons/polygon.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/polygon.svg",
       name: "polygon",
       caipId: "eip155:137",
       nativeTokenSymbol: "MATIC",
