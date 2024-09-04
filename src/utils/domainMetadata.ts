@@ -125,7 +125,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Tangle Standalone Testnet",
     },
     13: {
-      icon: "",
+      icon: "https://scan.buildwithsygma.com/assets/icons/Bitcoin.svg",
       name: "Bitcoin-Testnet3",
       caipId: "bip122:000000000933ea01ad0ee984209779ba",
       nativeTokenSymbol: "BTC",
@@ -147,7 +147,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "B3 Sepolia",
     },
     16: {
-      icon: "",
+      icon: "https://scan.buildwithsygma.com/assets/icons/layerEdge.svg",
       name: "layer_edge",
       caipId: "eip155:3456",
       nativeTokenSymbol: "BTC",
