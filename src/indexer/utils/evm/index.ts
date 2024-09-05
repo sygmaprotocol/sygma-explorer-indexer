@@ -179,11 +179,17 @@ export function parseProposalExecution(
   txReceipt: TransactionReceipt,
   blockUnixTimestamp: number,
 ): DecodedProposalExecutionLog {
+  
+  let depositNonce = decodedLog.args.depositNonce as string 
+  if (depositNonce.length > 15) {
+    depositNonce = depositNonce.slice(0,10)
+  }
+
   const originDomainID = decodedLog.args.originDomainID as number
   return {
     blockNumber: log.blockNumber,
     from: txReceipt.from,
-    depositNonce: Number(decodedLog.args.depositNonce as string),
+    depositNonce: Number(depositNonce),
     txHash: log.transactionHash,
     timestamp: blockUnixTimestamp,
     fromDomainId: originDomainID.toString(),
