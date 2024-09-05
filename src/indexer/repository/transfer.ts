@@ -73,12 +73,16 @@ class TransferRepository {
           id: Number(depositData.toDomainId),
         },
       },
-      account: {
+      account: {},
+      usdValue: depositData.usdValue,
+    }
+
+    if (depositData.sender) {
+      transferData.account = {
         connect: {
           id: depositData.sender,
         },
-      },
-      usdValue: depositData.usdValue,
+      }
     }
 
     return await this.transfer.create({ data: transferData })

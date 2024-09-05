@@ -120,7 +120,18 @@ async function saveDeposit(
 
   let transfer = await transferRepository.findTransfer(Number(depositNonce), originDomainId, destinationDomainId)
 
-  if (transfer) {
+  if (!transfer) {
+    transfer = await transferRepository.insertDepositTransfer({
+      amount: decodedDeposit.amount.toString(),
+      depositNonce: depositNonce,
+      destination: destinationAddress, 
+      fromDomainId: originDomainId.toString(),
+      resourceID: decodedDeposit.resource.resourceId,
+      sender: "",
+      toDomainId: destinationDomainId.toString(),
+      usdValue: amountInUSD,
+    })
+  } else {
     await transferRepository.updateTransfer(
       {
         amount: decodedDeposit.amount.toString(),
@@ -128,23 +139,12 @@ async function saveDeposit(
         destination: destinationAddress,
         fromDomainId: originDomainId.toString(),
         resourceID: decodedDeposit.resource.resourceId,
-        sender: "0x",
+        sender: "",
         toDomainId: destinationDomainId.toString(),
         usdValue: amountInUSD,
       },
       transfer.id,
     )
-  } else {
-    transfer = await transferRepository.insertDepositTransfer({
-      amount: decodedDeposit.amount.toString(),
-      depositNonce: depositNonce,
-      destination: destinationAddress, 
-      fromDomainId: originDomainId.toString(),
-      resourceID: decodedDeposit.resource.symbol,
-      sender: "0x",
-      toDomainId: destinationDomainId.toString(),
-      usdValue: amountInUSD,
-    })
   }
 
   const deposit = {
@@ -219,7 +219,6 @@ async function saveProposalExecution(
     } else {
       await transferRepository.updateStatus(TransferStatus.executed, transfer.id, "")
     }
-
     const execution = {
       id: new ObjectId().toString(),
       transferId: transfer.id,
