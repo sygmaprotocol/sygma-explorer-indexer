@@ -13,7 +13,6 @@ import { saveEvents } from "../../../indexer/utils/bitcoin"
 import ExecutionRepository from "../../../indexer/repository/execution"
 import DepositRepository from "../../../indexer/repository/deposit"
 import TransferRepository from "../../../indexer/repository/transfer"
-import AccountRepository from "../../../indexer/repository/account"
 import FeeRepository from "../../../indexer/repository/fee"
 import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
 import { Block } from "./bitcoinTypes"
@@ -27,7 +26,6 @@ export class BitcoinIndexer {
   private depositRepository: DepositRepository
   private transferRepository: TransferRepository
   private feeRepository: FeeRepository
-  private accountRepository: AccountRepository
   private domain: Domain
   private logger: winston.Logger
   private stopped = false
@@ -41,7 +39,6 @@ export class BitcoinIndexer {
     depositRepository: DepositRepository,
     transferRepository: TransferRepository,
     feeRepository: FeeRepository,
-    accountRepository: AccountRepository,
     coinMarketCapService: CoinMarketCapService,
   ) {
     this.domainRepository = domainRepository
@@ -49,7 +46,6 @@ export class BitcoinIndexer {
     this.transferRepository = transferRepository
     this.depositRepository = depositRepository
     this.feeRepository = feeRepository
-    this.accountRepository = accountRepository
     this.domain = domain
     this.coinMarketCapService = coinMarketCapService
 
@@ -93,13 +89,13 @@ export class BitcoinIndexer {
         const currentBlock = (await this.client.getblock({ blockhash: currentBlockHash, verbosity: 2 })) as Block
 
         await saveEvents(
+          this.client, 
           currentBlock,
           this.domain,
           this.executionRepository,
           this.transferRepository,
           this.depositRepository,
           this.feeRepository,
-          this.accountRepository,
           this.coinMarketCapService,
         )
 

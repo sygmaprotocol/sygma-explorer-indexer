@@ -11,42 +11,42 @@ import TransferRepository from "../../repository/transfer"
 import { logger } from "../../../utils/logger"
 import DepositRepository from "../../repository/deposit"
 import CoinMarketCapService from "../../../indexer/services/coinmarketcap/coinmarketcap.service"
+import { RPCClient } from "rpc-bitcoin"
 
 const WitnessV1Taproot = "witness_v1_taproot"
 const OP_RETURN = "nulldata"
 
 export async function saveEvents(
+  client: RPCClient, 
   block: Block,
   domain: Domain,
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   feeRepository: FeeRepository,
-  accountRepository: AccountRepository,
   coinMakerCapService: CoinMarketCapService,
 ): Promise<void> {
   for (const tx of block.tx) {
     const depositData = decodeDepositEvent(tx, domain)
     if (depositData) {
-      const depositNonce = calculateNonce(block.height, tx.hash)
+      const depositNonce = calculateNonce(block.height, tx.txid)
       await saveDeposit(
         tx.txid,
         block.height,
-        block.time,
+        block.mediantime,
         domain.id,
         depositData,
         depositNonce,
         transferRepository,
         depositRepository,
-        accountRepository,
         feeRepository,
         coinMakerCapService,
       )
       continue
     }
-    const executionData = decodeExecutionEvent(tx)
+    const executionData = await decodeExecutionEvent(tx, domain.resources as BitcoinResource[], client)
     if (executionData) {
-      await saveProposalExecution(tx.txid, block.height, block.time, domain.id, executionData, transferRepository, executionRepository)
+      await saveProposalExecution(tx.txid, block.height, block.mediantime, domain.id, executionData, transferRepository, executionRepository)
       continue
     }
   }
@@ -64,14 +64,18 @@ function decodeDepositEvent(tx: Transaction, domain: Domain): DecodedDeposit | u
       // Extract OP_RETURN data (excluding OP_RETURN prefix)
       const opReturnData = Buffer.from(vout.scriptPubKey.hex, "hex")
       data = opReturnData.subarray(2).toString()
+      continue
     }
-    resource = domain.resources.find(resource => resource.address === vout.scriptPubKey.address) as BitcoinResource
-    if (resource) {
+    
+    const resourceFound = domain.resources.find(resource => resource.address === vout.scriptPubKey.address) as BitcoinResource
+    if (resourceFound) {
+      resource = resourceFound
       if (vout.scriptPubKey.type == WitnessV1Taproot) {
         amount = amount + BigInt(vout.value * 1e8)
       }
       continue
     }
+    
     if (vout.scriptPubKey.address == domain.feeAddress) {
       feeAmount = feeAmount + BigInt(vout.value * 1e8)
     }
@@ -98,14 +102,13 @@ async function saveDeposit(
   depositNonce: number,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
-  accountRepository: AccountRepository,
   feeRepository: FeeRepository,
   coinMakerCapService: CoinMarketCapService,
 ): Promise<void> {
   // Data is in format destinationAddress_destinationDomainID
   const data = decodedDeposit.data.split("_")
   const destinationAddress = data[0]
-  const destinationDomainId = parseInt(data[1], 10)
+  const destinationDomainId = parseInt(data[1])
 
   let amountInUSD
   try {
@@ -150,7 +153,7 @@ async function saveDeposit(
     txHash: txId,
     blockNumber: blockNumber.toString(),
     depositData: "",
-    timestamp: new Date(blockTime),
+    timestamp: new Date(blockTime * 1000),
     handlerResponse: "",
     transferId: transfer.id,
   }
@@ -167,23 +170,31 @@ async function saveDeposit(
   await feeRepository.insertFee(feeData)
 }
 
-function decodeExecutionEvent(tx: Transaction): DecodedExecution | undefined {
-  let metadata: DecodedExecution | undefined
+async function decodeExecutionEvent(tx: Transaction, resources: BitcoinResource[], client: RPCClient): Promise<DecodedExecution[] | undefined> {
+  let executionData: DecodedExecution[] | undefined
 
   for (const vout of tx.vout) {
     if (vout.scriptPubKey.type == OP_RETURN) {
+      // Extract OP_RETURN data (excluding OP_RETURN prefix)
       const opReturnData = Buffer.from(vout.scriptPubKey.hex, "hex")
       const data = opReturnData.subarray(2).toString()
 
       // Data is in format syg_<hash>
       const dataElems = data.split("_")
-      if (dataElems[0] != "syg") {
-        continue
+      if (dataElems[0] == "syg"){
+        for (const vin of tx.vin){
+          const senderTx = (await client.getrawtransaction({ txid: vin.txid, verbose: true })) as Transaction
+          const resourceFound = resources.find(resource => resource.address === senderTx.vout.at(vin.vout)?.scriptPubKey.address) 
+          if (resourceFound){
+            executionData = await fetchMetadata(dataElems[1])
+            break
+          }
+        }
       }
-      //metadata = fetchMetadata(dataElems[1])
+      break
     }
   }
-  return metadata
+  return executionData
 }
 
 async function saveProposalExecution(
@@ -191,48 +202,54 @@ async function saveProposalExecution(
   blockNumber: number,
   blockTime: number,
   destinationDomainId: number,
-  executionData: DecodedExecution,
+  executionData: DecodedExecution[],
   transferRepository: TransferRepository,
   executionRepository: ExecutionRepository,
 ): Promise<void> {
-  let transfer = await transferRepository.findTransfer(Number(executionData.depositNonce), executionData.originDomainId, destinationDomainId)
+  for (const e of executionData){
+    let transfer = await transferRepository.findTransfer(Number(e.depositNonce), e.sourceDomain, destinationDomainId)
+    if (!transfer) {
+      transfer = await transferRepository.insertExecutionTransfer(
+        {
+          depositNonce: Number(e.depositNonce),
+          fromDomainId: e.sourceDomain.toString(),
+        },
+        destinationDomainId,
+      )
+    } else {
+      await transferRepository.updateStatus(TransferStatus.executed, transfer.id, "")
+    }
 
-  if (!transfer) {
-    transfer = await transferRepository.insertExecutionTransfer(
-      {
-        depositNonce: Number(executionData.depositNonce),
-        fromDomainId: executionData.originDomainId.toString(),
-      },
-      destinationDomainId,
-    )
-  } else {
-    await transferRepository.updateStatus(TransferStatus.executed, transfer.id, "")
+    const execution = {
+      id: new ObjectId().toString(),
+      transferId: transfer.id,
+      txHash: txId,
+      timestamp: new Date(blockTime * 1000),
+      blockNumber: blockNumber.toString(),
+    }
+    await executionRepository.upsertExecution(execution)
   }
-
-  const execution = {
-    id: new ObjectId().toString(),
-    transferId: transfer.id,
-    txHash: txId,
-    timestamp: new Date(blockTime),
-    blockNumber: blockNumber.toString(),
-  }
-  await executionRepository.upsertExecution(execution)
 }
 
-function calculateNonce(blockHeight: number, txHash: string): number {
-  // Concatenate blockHeight string and transactionHash with a separator
-  const concatString = blockHeight.toString() + "-" + txHash
+function calculateNonce(blockHeight: number, txid: string): number {
+  // Concatenate blockHeight and txid with a separator
+  const concatString = blockHeight.toString() + "-" + txid
 
   // Calculate SHA-256 hash of the concatenated string
-  const hashString = sha256(Buffer.from(concatString))
-  const hashBytes = Buffer.from(hashString)
+  const hashString = sha256(Buffer.from(concatString)).slice(2)
+  const hashBytes = Buffer.from(hashString, "hex")
 
   // XOR fold the hash
   let result = BigInt(0)
   for (let i = 0; i < 4; i++) {
-    const part = BigNumber.from(hashBytes.slice(i * 8, (i + 1) * 8))
+    const part = BigNumber.from(hashBytes.subarray(i * 8, (i + 1) * 8))
     result ^= part.toBigInt()
   }
-  
-  return Number(result)
+  return Number(result.toString().slice(0, 10))
+}
+
+async function fetchMetadata(cid: string): Promise<DecodedExecution[]>{
+  const resp = await fetch(`https://ipfs.io/ipfs/${cid}`)
+  const json = await resp.json() as DecodedExecution[]
+  return json
 }

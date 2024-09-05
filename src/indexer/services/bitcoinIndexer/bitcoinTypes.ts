@@ -4,7 +4,7 @@ export type Block = {
   hash: string
   confirmations: number
   height: number
-  time: number
+  mediantime: number
   nonce: number
   nTx: number
   tx: Transaction[]
@@ -42,8 +42,8 @@ export type DecodedDeposit = {
 }
 
 export type DecodedExecution = {
-  originDomainId: number
-  depositNonce: number
+  depositNonce: number,
+  sourceDomain: number,
 }
 
 export enum BitcoinTypeTransfer {
