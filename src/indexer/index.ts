@@ -166,7 +166,6 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
           depositRepository,
           transferRepository,
           feeRepository,
-          accountRepository,
           coinMarketCapServiceInstance,
         )
         domainIndexers.push(bitcoinIndexer)
@@ -178,7 +177,6 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
       logger.error(`Unsupported type: ${JSON.stringify(domain)}`)
     }
   }
-
   return { domainIndexers, app, cron }
 }
 

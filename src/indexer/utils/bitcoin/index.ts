@@ -3,21 +3,20 @@ import { sha256 } from "ethers"
 import { BigNumber } from "@ethersproject/bignumber"
 import { ObjectId } from "mongodb"
 import { TransferStatus } from "@prisma/client"
+import { RPCClient } from "rpc-bitcoin"
 import { BitcoinTypeTransfer, Block, DecodedDeposit, DecodedExecution, Transaction } from "../../../indexer/services/bitcoinIndexer/bitcoinTypes"
 import { BitcoinResource, Domain } from "../../../indexer/config"
-import AccountRepository from "../../repository/account"
 import ExecutionRepository from "../../repository/execution"
 import TransferRepository from "../../repository/transfer"
 import { logger } from "../../../utils/logger"
 import DepositRepository from "../../repository/deposit"
 import CoinMarketCapService from "../../../indexer/services/coinmarketcap/coinmarketcap.service"
-import { RPCClient } from "rpc-bitcoin"
 
 const WitnessV1Taproot = "witness_v1_taproot"
 const OP_RETURN = "nulldata"
 
 export async function saveEvents(
-  client: RPCClient, 
+  client: RPCClient,
   block: Block,
   domain: Domain,
   executionRepository: ExecutionRepository,
@@ -66,7 +65,7 @@ function decodeDepositEvent(tx: Transaction, domain: Domain): DecodedDeposit | u
       data = opReturnData.subarray(2).toString()
       continue
     }
-    
+
     const resourceFound = domain.resources.find(resource => resource.address === vout.scriptPubKey.address) as BitcoinResource
     if (resourceFound) {
       resource = resourceFound
@@ -75,7 +74,7 @@ function decodeDepositEvent(tx: Transaction, domain: Domain): DecodedDeposit | u
       }
       continue
     }
-    
+
     if (vout.scriptPubKey.address == domain.feeAddress) {
       feeAmount = feeAmount + BigInt(vout.value * 1e8)
     }
@@ -124,7 +123,7 @@ async function saveDeposit(
     transfer = await transferRepository.insertDepositTransfer({
       amount: decodedDeposit.amount.toString(),
       depositNonce: depositNonce,
-      destination: destinationAddress, 
+      destination: destinationAddress,
       fromDomainId: originDomainId.toString(),
       resourceID: decodedDeposit.resource.resourceId,
       sender: "",
@@ -181,11 +180,11 @@ async function decodeExecutionEvent(tx: Transaction, resources: BitcoinResource[
 
       // Data is in format syg_<hash>
       const dataElems = data.split("_")
-      if (dataElems[0] == "syg"){
-        for (const vin of tx.vin){
+      if (dataElems[0] == "syg") {
+        for (const vin of tx.vin) {
           const senderTx = (await client.getrawtransaction({ txid: vin.txid, verbose: true })) as Transaction
-          const resourceFound = resources.find(resource => resource.address === senderTx.vout.at(vin.vout)?.scriptPubKey.address) 
-          if (resourceFound){
+          const resourceFound = resources.find(resource => resource.address === senderTx.vout.at(vin.vout)?.scriptPubKey.address)
+          if (resourceFound) {
             executionData = await fetchMetadata(dataElems[1])
             break
           }
@@ -206,7 +205,7 @@ async function saveProposalExecution(
   transferRepository: TransferRepository,
   executionRepository: ExecutionRepository,
 ): Promise<void> {
-  for (const e of executionData){
+  for (const e of executionData) {
     let transfer = await transferRepository.findTransfer(Number(e.depositNonce), e.sourceDomain, destinationDomainId)
     if (!transfer) {
       transfer = await transferRepository.insertExecutionTransfer(
@@ -247,8 +246,8 @@ function calculateNonce(blockHeight: number, txid: string): number {
   return Number(result.toString().slice(0, 10))
 }
 
-async function fetchMetadata(cid: string): Promise<DecodedExecution[]>{
+async function fetchMetadata(cid: string): Promise<DecodedExecution[]> {
   const resp = await fetch(`https://ipfs.io/ipfs/${cid}`)
-  const json = await resp.json() as DecodedExecution[]
+  const json = (await resp.json()) as DecodedExecution[]
   return json
 }

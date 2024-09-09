@@ -84,12 +84,11 @@ export class BitcoinIndexer {
           continue
         }
         this.logger.debug(`Indexing block ${currentBlockHeight.height}`)
-
         const currentBlockHash = (await this.client.getblockhash(currentBlockHeight)) as string
         const currentBlock = (await this.client.getblock({ blockhash: currentBlockHash, verbosity: 2 })) as Block
 
         await saveEvents(
-          this.client, 
+          this.client,
           currentBlock,
           this.domain,
           this.executionRepository,
@@ -98,7 +97,6 @@ export class BitcoinIndexer {
           this.feeRepository,
           this.coinMarketCapService,
         )
-
         await this.domainRepository.updateBlock(currentBlock.height.toString(), this.domain.id)
         currentBlockHeight.height++
       } catch (error) {

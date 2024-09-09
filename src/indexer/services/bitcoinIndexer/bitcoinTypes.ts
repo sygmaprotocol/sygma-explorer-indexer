@@ -42,8 +42,8 @@ export type DecodedDeposit = {
 }
 
 export type DecodedExecution = {
-  depositNonce: number,
-  sourceDomain: number,
+  depositNonce: number
+  sourceDomain: number
 }
 
 export enum BitcoinTypeTransfer {
