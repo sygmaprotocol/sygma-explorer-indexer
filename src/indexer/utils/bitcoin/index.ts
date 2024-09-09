@@ -28,14 +28,12 @@ export async function saveEvents(
   for (const tx of block.tx) {
     const depositData = decodeDepositEvent(tx, domain)
     if (depositData) {
-      const depositNonce = calculateNonce(block.height, tx.txid)
       await saveDeposit(
         tx.txid,
         block.height,
         block.mediantime,
         domain.id,
         depositData,
-        depositNonce,
         transferRepository,
         depositRepository,
         feeRepository,
@@ -46,7 +44,6 @@ export async function saveEvents(
     const executionData = await decodeExecutionEvent(tx, domain.resources as BitcoinResource[], client)
     if (executionData) {
       await saveProposalExecution(tx.txid, block.height, block.mediantime, domain.id, executionData, transferRepository, executionRepository)
-      continue
     }
   }
 }
@@ -94,16 +91,17 @@ function decodeDepositEvent(tx: Transaction, domain: Domain): DecodedDeposit | u
 
 async function saveDeposit(
   txId: string,
-  blockNumber: number,
+  blockHeight: number,
   blockTime: number,
   originDomainId: number,
   decodedDeposit: DecodedDeposit,
-  depositNonce: number,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
   feeRepository: FeeRepository,
   coinMakerCapService: CoinMarketCapService,
 ): Promise<void> {
+  const depositNonce = calculateNonce(blockHeight, txId)
+
   // Data is in format destinationAddress_destinationDomainID
   const data = decodedDeposit.data.split("_")
   const destinationAddress = data[0]
@@ -150,7 +148,7 @@ async function saveDeposit(
     id: new ObjectId().toString(),
     type: BitcoinTypeTransfer.Fungible,
     txHash: txId,
-    blockNumber: blockNumber.toString(),
+    blockNumber: blockHeight.toString(),
     depositData: "",
     timestamp: new Date(blockTime * 1000),
     handlerResponse: "",

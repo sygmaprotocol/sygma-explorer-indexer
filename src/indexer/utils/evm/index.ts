@@ -180,7 +180,7 @@ export function parseProposalExecution(
   blockUnixTimestamp: number,
 ): DecodedProposalExecutionLog {
   let depositNonce = decodedLog.args.depositNonce as string
-  if (depositNonce.length > 15) {
+  if (depositNonce.length > 10) {
     depositNonce = depositNonce.slice(0, 10)
   }
 
