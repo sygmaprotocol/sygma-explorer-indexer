@@ -2,7 +2,7 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
-import { PrismaClient, Transfer, TransferStatus } from "@prisma/client"
+import { Prisma, PrismaClient, Transfer, TransferStatus } from "@prisma/client"
 import { NotFound, getTransferQueryParams } from "../utils/helpers"
 
 export type Pagination = {
@@ -34,7 +34,7 @@ class TransfersService {
     }
   }
 
-  public async findTransfers(where: Partial<Transfer>, paginationParams: Pagination): Promise<Transfer[]> {
+  public async findTransfers(where: Prisma.TransferWhereInput, paginationParams: Pagination): Promise<Transfer[]> {
     const { skip, take } = this.calculatePaginationParams(paginationParams)
     const transfers = await this.transfers.findMany({
       where,
@@ -54,7 +54,7 @@ class TransfersService {
   }
 
   public async findAllTransfers(status: TransferStatus | undefined, paginationParams: Pagination): Promise<Transfer[]> {
-    const where: Partial<Transfer> = {
+    const where: Prisma.TransferWhereInput = {
       status: status,
     }
 
@@ -76,7 +76,7 @@ class TransfersService {
   }
 
   public async findTransfersByTxHash(txHash: string, domainID: number): Promise<Transfer[]> {
-    let where: Partial<any>
+    let where: Prisma.DepositWhereInput
     domainID == undefined
       ? (where = { txHash: txHash })
       : (where = {
@@ -97,7 +97,7 @@ class TransfersService {
   }
 
   public async findTransfersByAccountAddress(sender: string, status: TransferStatus | undefined, paginationParams: Pagination): Promise<Transfer[]> {
-    const where: Partial<Transfer> = {
+    const where: Prisma.TransferWhereInput = {
       accountId: sender,
       status: status,
     }
@@ -108,7 +108,7 @@ class TransfersService {
   }
 
   public async findTransfersByResourceID(resourceID: string, status: TransferStatus | undefined, paginationParams: Pagination): Promise<Transfer[]> {
-    const where: Partial<Transfer> = {
+    const where: Prisma.TransferWhereInput = {
       resourceID: resourceID,
       status: status,
     }
@@ -123,7 +123,7 @@ class TransfersService {
     destinationDomainID: number,
     paginationParams: Pagination,
   ): Promise<Transfer[]> {
-    const where: Partial<Transfer> = {
+    const where: Prisma.TransferWhereInput = {
       fromDomainId: sourceDomainID,
       toDomainId: destinationDomainID,
     }
@@ -139,7 +139,7 @@ class TransfersService {
     destinationDomainID: number,
     paginationParams: Pagination,
   ): Promise<Transfer[]> {
-    const where: Partial<Transfer> = {
+    const where: Prisma.TransferWhereInput = {
       resourceID: resourceID,
       fromDomainId: sourceDomainID,
       toDomainId: destinationDomainID,
@@ -156,10 +156,20 @@ class TransfersService {
     status: TransferStatus | undefined,
     paginationParams: Pagination,
   ): Promise<Transfer[]> {
-    let where: Partial<Transfer>
+    let where: Prisma.TransferWhereInput
 
-    domain == DomainType.Source ? (where = { fromDomainId: domainID, status: status }) : (where = { toDomainId: domainID, status: status })
-
+    if (domain == DomainType.Source) {
+      where = { fromDomainId: domainID, status: status }
+    } else if (domain == DomainType.Destination) {
+      where = { toDomainId: domainID, status: status }
+    } else {
+      where = {
+        OR: [
+          { fromDomainId: domainID, status: status },
+          { toDomainId: domainID, status: status },
+        ],
+      }
+    }
     const transfers = this.findTransfers(where, paginationParams)
 
     return transfers

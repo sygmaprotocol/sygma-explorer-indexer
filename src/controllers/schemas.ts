@@ -280,14 +280,16 @@ export const transfersByResourceBetweenDomainsSchema = {
 }
 
 export const transfersByDomainSchema = {
-  summary: "Get all transfers with a specific domain as source or destination",
+  summary:
+    "Get all transfers with a specific domain as source or destination. Possible to get transfers by domain only as source and only as destination.",
   querystring: {
     type: "object",
     properties: {
       ...paginationSchema,
       domain: {
         type: "string",
-        default: "source",
+        default: undefined,
+        nullable: true,
         enum: ["source", "destination"],
       },
     },
