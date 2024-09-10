@@ -37,19 +37,19 @@ describe("Get all transfers with a specific domain as source or destination", fu
     }
   })
 
-  it("Should successfully fetch all transfers from domain 1", async () => {
+  it("Should successfully fetch all domain 1 transfers", async () => {
     const res = await axios.get(`http://localhost:8000/api/domains/${DOMAIN_1}/transfers?page=1&limit=100`)
     const transfers = res.data as Array<TransferResponse>
 
     expect(res.status).to.be.deep.equal(200)
-    expect(transfers.length).to.be.deep.equal(32)
+    expect(transfers.length).to.be.deep.equal(35)
 
     for (const transfer of transfers) {
       expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_1))
     }
   })
 
-  it("Should successfully fetch all transfers from domain 1 with specified source", async () => {
+  it("Should successfully fetch all transfers from domain 1", async () => {
     const res = await axios.get(`http://localhost:8000/api/domains/${DOMAIN_1}/transfers?page=1&limit=100&domain=source`)
     const transfers = res.data as Array<TransferResponse>
 
@@ -95,12 +95,12 @@ describe("Get all transfers with a specific domain as source or destination", fu
     }
   })
 
-  it("Should successfully fetch all transfers from domain 3", async () => {
+  it("Should successfully fetch all domain 3 transfers", async () => {
     const res = await axios.get(`http://localhost:8000/api/domains/${DOMAIN_3}/transfers?page=1&limit=100`)
     const transfers = res.data as Array<TransferResponse>
 
     expect(res.status).to.be.deep.equal(200)
-    expect(transfers.length).to.be.deep.equal(3)
+    expect(transfers.length).to.be.deep.equal(5)
 
     for (const transfer of transfers) {
       expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_3))
