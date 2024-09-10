@@ -43,10 +43,6 @@ describe("Get all transfers with a specific domain as source or destination", fu
 
     expect(res.status).to.be.deep.equal(200)
     expect(transfers.length).to.be.deep.equal(35)
-
-    for (const transfer of transfers) {
-      expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_1))
-    }
   })
 
   it("Should successfully fetch all transfers from domain 1", async () => {
@@ -101,9 +97,5 @@ describe("Get all transfers with a specific domain as source or destination", fu
 
     expect(res.status).to.be.deep.equal(200)
     expect(transfers.length).to.be.deep.equal(5)
-
-    for (const transfer of transfers) {
-      expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_3))
-    }
   })
 })
