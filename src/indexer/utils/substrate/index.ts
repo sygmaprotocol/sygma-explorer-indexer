@@ -41,11 +41,11 @@ export async function saveProposalExecution(
 ): Promise<void> {
   const { originDomainId, depositNonce, txIdentifier, blockNumber, timestamp } = proposalExecutionData
 
-  let transfer = await transferRepository.findTransfer(Number(depositNonce), Number(originDomainId), toDomainId)
+  let transfer = await transferRepository.findTransfer(Number(depositNonce.replace(/,/g, '')), Number(originDomainId), toDomainId)
   if (!transfer) {
     transfer = await transferRepository.insertExecutionTransfer(
       {
-        depositNonce: Number(depositNonce),
+        depositNonce: Number(depositNonce.replace(/,/g, '')),
         fromDomainId: originDomainId,
       },
       toDomainId,
@@ -72,12 +72,12 @@ export async function saveFailedHandlerExecution(
 ): Promise<void> {
   const { originDomainId, depositNonce, txIdentifier, blockNumber, error, timestamp } = failedHandlerExecutionData
 
-  let transfer = await transferRepository.findTransfer(Number(depositNonce), Number(originDomainId), toDomainId)
+  let transfer = await transferRepository.findTransfer(Number(depositNonce.replace(/,/g, '')), Number(originDomainId), toDomainId)
   // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
     transfer = await transferRepository.insertFailedTransfer(
       {
-        depositNonce: Number(depositNonce),
+        depositNonce: Number(depositNonce.replace(/,/g, '')),
         domainId: originDomainId,
         message: Buffer.from(error).toString(),
       },
@@ -125,7 +125,7 @@ export async function saveDeposit(
 
   const decodedAmount = getDecodedAmount(depositData)
 
-  let transfer = await transferRepository.findTransfer(Number(depositNonce), originDomainId, Number(destinationDomainId))
+  let transfer = await transferRepository.findTransfer(Number(depositNonce.replace(/,/g, '')), originDomainId, Number(destinationDomainId))
 
   let amountInUSD
 
@@ -138,7 +138,7 @@ export async function saveDeposit(
 
   if (transfer) {
     let dataTransferToUpdate = {
-      depositNonce: Number(depositNonce),
+      depositNonce: Number(depositNonce.replace(/,/g, '')),
       amount: decodedAmount,
       resourceID: resourceId,
       fromDomainId: originDomainId.toString(),
@@ -168,7 +168,7 @@ export async function saveDeposit(
   } else {
     const transferData = {
       id: new ObjectId().toString(),
-      depositNonce: Number(depositNonce),
+      depositNonce: Number(depositNonce.replace(/,/g, '')),
       sender,
       amount: decodedAmount,
       resourceID: resourceId,
