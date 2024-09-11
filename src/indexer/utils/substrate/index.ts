@@ -40,7 +40,7 @@ export async function saveProposalExecution(
   transferRepository: TransferRepository,
 ): Promise<void> {
   const { originDomainId, depositNonce, txIdentifier, blockNumber, timestamp } = proposalExecutionData
-  const numDepositNonce = Number(depositNonce.replace(/,/g, ''))
+  const numDepositNonce = Number(depositNonce.replace(/,/g, ""))
   let transfer = await transferRepository.findTransfer(numDepositNonce, Number(originDomainId), toDomainId)
   if (!transfer) {
     transfer = await transferRepository.insertExecutionTransfer(
@@ -71,7 +71,7 @@ export async function saveFailedHandlerExecution(
   transferRepository: TransferRepository,
 ): Promise<void> {
   const { originDomainId, depositNonce, txIdentifier, blockNumber, error, timestamp } = failedHandlerExecutionData
-  const numDepositNonce = Number(depositNonce.replace(/,/g, ''))
+  const numDepositNonce = Number(depositNonce.replace(/,/g, ""))
 
   let transfer = await transferRepository.findTransfer(numDepositNonce, Number(originDomainId), toDomainId)
   // there is no transfer yet, but a proposal execution exists
@@ -123,7 +123,7 @@ export async function saveDeposit(
   const currentDomain = sharedConfig.domains.find(domain => domain.id === originDomainId)
   const tokenSymbol = currentDomain?.resources.find(resource => resource.resourceId === resourceId)?.symbol
   const decodedAmount = getDecodedAmount(depositData)
-  const numDepositNonce = Number(depositNonce.replace(/,/g, ''))
+  const numDepositNonce = Number(depositNonce.replace(/,/g, ""))
 
   let transfer = await transferRepository.findTransfer(numDepositNonce, originDomainId, Number(destinationDomainId))
 
