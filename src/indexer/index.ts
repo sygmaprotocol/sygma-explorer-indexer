@@ -7,6 +7,7 @@ import { FastifyInstance } from "fastify"
 import { PrismaClient } from "@prisma/client"
 import { CronJob } from "cron"
 import { caching } from "cache-manager"
+import { RPCClient } from "rpc-bitcoin"
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
@@ -118,63 +119,78 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
       continue
     }
 
-    if (domain.type == DomainTypes.SUBSTRATE) {
-      try {
-        const substrateIndexer = new SubstrateIndexer(
-          domainRepository,
-          domain,
-          executionRepository,
-          depositRepository,
-          transferRepository,
-          feeRepository,
-          resourceMap,
-          accountRepository,
-          coinMarketCapServiceInstance,
-          sharedConfig,
-        )
-        await substrateIndexer.init(rpcURL)
-        domainIndexers.push(substrateIndexer)
-      } catch (err) {
-        logger.error(`Error on domain: ${domain.id}... skipping`)
+    switch (domain.type) {
+      case DomainTypes.SUBSTRATE: {
+        try {
+          const substrateIndexer = new SubstrateIndexer(
+            domainRepository,
+            domain,
+            executionRepository,
+            depositRepository,
+            transferRepository,
+            feeRepository,
+            resourceMap,
+            accountRepository,
+            coinMarketCapServiceInstance,
+            sharedConfig,
+          )
+          await substrateIndexer.init(rpcURL)
+          domainIndexers.push(substrateIndexer)
+        } catch (err) {
+          logger.error(`Error on domain: ${domain.id}... skipping`, err)
+        }
+        break
       }
-    } else if (domain.type == DomainTypes.EVM) {
-      try {
-        const evmIndexer = new EvmIndexer(
-          domain,
-          rpcURL,
-          domainsToIndex,
-          domainRepository,
-          depositRepository,
-          transferRepository,
-          executionRepository,
-          feeRepository,
-          ofacComplianceService,
-          accountRepository,
-          coinMarketCapServiceInstance,
-          sharedConfig,
-        )
-        domainIndexers.push(evmIndexer)
-      } catch (err) {
-        logger.error(`Error on domain: ${domain.id}... skipping`)
+      case DomainTypes.EVM: {
+        try {
+          const evmIndexer = new EvmIndexer(
+            domain,
+            rpcURL,
+            domainsToIndex,
+            domainRepository,
+            depositRepository,
+            transferRepository,
+            executionRepository,
+            feeRepository,
+            ofacComplianceService,
+            accountRepository,
+            coinMarketCapServiceInstance,
+            sharedConfig,
+          )
+          domainIndexers.push(evmIndexer)
+        } catch (err) {
+          logger.error(`Error on domain: ${domain.id}... skipping`, err)
+        }
+        break
       }
-    } else if (domain.type == DomainTypes.BTC) {
-      try {
-        const bitcoinIndexer = new BitcoinIndexer(
-          domainRepository,
-          domain,
-          executionRepository,
-          depositRepository,
-          transferRepository,
-          feeRepository,
-          coinMarketCapServiceInstance,
-        )
-        domainIndexers.push(bitcoinIndexer)
-      } catch (err) {
-        logger.error(err)
-        logger.error(`Error on domain: ${domain.id}... skipping`)
+      case DomainTypes.BTC: {
+        try {
+          const url = process.env.BTC_URL
+          const port = Number(process.env.BTC_PORT) || 443
+          const user = process.env.BTC_USER
+          const pass = process.env.BTC_PASS!
+
+          const client = new RPCClient({ url, port, user, pass })
+
+          const bitcoinIndexer = new BitcoinIndexer(
+            domainRepository,
+            domain,
+            executionRepository,
+            depositRepository,
+            transferRepository,
+            feeRepository,
+            coinMarketCapServiceInstance,
+            client,
+          )
+          domainIndexers.push(bitcoinIndexer)
+        } catch (err) {
+          logger.error(`Error on domain: ${domain.id}... skipping`, err)
+        }
+        break
       }
-    } else {
-      logger.error(`Unsupported type: ${JSON.stringify(domain)}`)
+      default: {
+        logger.error(`Unsupported type: ${JSON.stringify(domain)}`)
+      }
     }
   }
   return { domainIndexers, app, cron }

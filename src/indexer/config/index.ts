@@ -27,6 +27,8 @@ export enum DomainTypes {
   BTC = "btc",
 }
 
+export type Resource = EvmResource | SubstrateResource | BitcoinResource
+
 export type Domain = {
   id: number
   name: string
@@ -39,7 +41,7 @@ export type Domain = {
   nativeTokenSymbol: string
   nativeTokenDecimals: number
   startBlock: number
-  resources: Array<EvmResource | SubstrateResource | BitcoinResource>
+  resources: Array<Resource>
 }
 type Handler = {
   type: ResourceTypes

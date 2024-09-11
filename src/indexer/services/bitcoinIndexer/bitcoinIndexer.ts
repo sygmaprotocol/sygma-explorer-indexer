@@ -40,6 +40,7 @@ export class BitcoinIndexer {
     transferRepository: TransferRepository,
     feeRepository: FeeRepository,
     coinMarketCapService: CoinMarketCapService,
+    client: RPCClient,
   ) {
     this.domainRepository = domainRepository
     this.executionRepository = executionRepository
@@ -48,13 +49,7 @@ export class BitcoinIndexer {
     this.feeRepository = feeRepository
     this.domain = domain
     this.coinMarketCapService = coinMarketCapService
-
-    const url = process.env.BTC_URL
-    const port = Number(process.env.BTC_PORT) || 443
-    const user = process.env.BTC_USER
-    const pass = process.env.BTC_PASS!
-
-    this.client = new RPCClient({ url, port, user, pass })
+    this.client = client
 
     this.logger = rootLogger.child({
       domain: domain.name,
