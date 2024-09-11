@@ -4,7 +4,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 */
 
 import winston from "winston"
-import { Height, RPCClient } from "rpc-bitcoin"
+import { RPCClient } from "rpc-bitcoin"
 import { logger as rootLogger } from "../../../utils/logger"
 import { sleep } from "../../../indexer/utils/substrate"
 import { Domain } from "../../config"
@@ -63,23 +63,23 @@ export class BitcoinIndexer {
 
   public async listenToEvents(): Promise<void> {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id)
-    const currentBlockHeight: Height = { height: this.domain.startBlock }
+    let currentBlockHeight = this.domain.startBlock
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
-      currentBlockHeight.height = lastIndexedBlock + 1
+      currentBlockHeight = lastIndexedBlock + 1
     }
 
-    this.logger.info(`Starting querying for events from block: ${currentBlockHeight.height}`)
+    this.logger.info(`Starting querying for events from block: ${currentBlockHeight}`)
     while (!this.stopped) {
       try {
         const bestBlockHash = (await this.client.getbestblockhash()) as string
         const bestBlock = (await this.client.getblock({ blockhash: bestBlockHash, verbosity: 1 })) as Block
 
-        if (currentBlockHeight.height + BLOCK_DELAY >= bestBlock.height) {
+        if (currentBlockHeight + BLOCK_DELAY >= bestBlock.height) {
           await sleep(BLOCK_TIME)
           continue
         }
-        this.logger.debug(`Indexing block ${currentBlockHeight.height}`)
-        const currentBlockHash = (await this.client.getblockhash(currentBlockHeight)) as string
+        this.logger.debug(`Indexing block ${currentBlockHeight}`)
+        const currentBlockHash = (await this.client.getblockhash({ height: currentBlockHeight })) as string
         const currentBlock = (await this.client.getblock({ blockhash: currentBlockHash, verbosity: 2 })) as Block
 
         await saveEvents(
@@ -93,9 +93,9 @@ export class BitcoinIndexer {
           this.coinMarketCapService,
         )
         await this.domainRepository.updateBlock(currentBlock.height.toString(), this.domain.id)
-        currentBlockHeight.height++
+        currentBlockHeight++
       } catch (error) {
-        this.logger.error(`Failed to process events for block ${currentBlockHeight.height}:`, error)
+        this.logger.error(`Failed to process events for block ${currentBlockHeight}:`, error)
         await sleep(BLOCK_TIME)
       }
     }
