@@ -415,7 +415,7 @@ describe("Indexer e2e tests", function () {
         deposit: {
           txHash: "c5991dd837694231e134bbb620ac1867142d9fac18ea48e90ca79fdec5c06be7",
           blockNumber: "252",
-          depositData: "",
+          depositData: "0x703265c472F169b20E8E03c842B9B374Cb842Cb8_1",
           handlerResponse: "",
           timestamp: "2024-08-22T02:24:25.000Z",
         },
