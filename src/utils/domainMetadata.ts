@@ -236,5 +236,16 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       blockExplorerUrl: "https://polygonscan.com",
       renderName: "Polygon",
     },
+    8: {
+      icon: "https://framerusercontent.com/images/BapvKsJyYZUbcVcnjY2XmyaA.svg",
+      name: "b3",
+      caipId: "eip155:8333",
+      nativeTokenSymbol: "eth",
+      nativeTokenDecimals: 18,
+      nativeTokenFullName: "ether",
+      type: "evm",
+      blockExplorerUrl: "https://explorer.b3.fun/",
+      renderName: "B3",
+    },
   },
 }
