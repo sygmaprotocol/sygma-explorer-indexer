@@ -40,12 +40,12 @@ export async function saveProposalExecution(
   transferRepository: TransferRepository,
 ): Promise<void> {
   const { originDomainId, depositNonce, txIdentifier, blockNumber, timestamp } = proposalExecutionData
-
-  let transfer = await transferRepository.findTransfer(Number(depositNonce), Number(originDomainId), toDomainId)
+  const numDepositNonce = Number(depositNonce.replace(/,/g, ""))
+  let transfer = await transferRepository.findTransfer(numDepositNonce, Number(originDomainId), toDomainId)
   if (!transfer) {
     transfer = await transferRepository.insertExecutionTransfer(
       {
-        depositNonce: Number(depositNonce),
+        depositNonce: numDepositNonce,
         fromDomainId: originDomainId,
       },
       toDomainId,
@@ -71,13 +71,14 @@ export async function saveFailedHandlerExecution(
   transferRepository: TransferRepository,
 ): Promise<void> {
   const { originDomainId, depositNonce, txIdentifier, blockNumber, error, timestamp } = failedHandlerExecutionData
+  const numDepositNonce = Number(depositNonce.replace(/,/g, ""))
 
-  let transfer = await transferRepository.findTransfer(Number(depositNonce), Number(originDomainId), toDomainId)
+  let transfer = await transferRepository.findTransfer(numDepositNonce, Number(originDomainId), toDomainId)
   // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
     transfer = await transferRepository.insertFailedTransfer(
       {
-        depositNonce: Number(depositNonce),
+        depositNonce: numDepositNonce,
         domainId: originDomainId,
         message: Buffer.from(error).toString(),
       },
@@ -120,12 +121,11 @@ export async function saveDeposit(
   } = substrateDepositData
 
   const currentDomain = sharedConfig.domains.find(domain => domain.id === originDomainId)
-
   const tokenSymbol = currentDomain?.resources.find(resource => resource.resourceId === resourceId)?.symbol
-
   const decodedAmount = getDecodedAmount(depositData)
+  const numDepositNonce = Number(depositNonce.replace(/,/g, ""))
 
-  let transfer = await transferRepository.findTransfer(Number(depositNonce), originDomainId, Number(destinationDomainId))
+  let transfer = await transferRepository.findTransfer(numDepositNonce, originDomainId, Number(destinationDomainId))
 
   let amountInUSD
 
@@ -138,7 +138,7 @@ export async function saveDeposit(
 
   if (transfer) {
     let dataTransferToUpdate = {
-      depositNonce: Number(depositNonce),
+      depositNonce: numDepositNonce,
       amount: decodedAmount,
       resourceID: resourceId,
       fromDomainId: originDomainId.toString(),
@@ -168,7 +168,7 @@ export async function saveDeposit(
   } else {
     const transferData = {
       id: new ObjectId().toString(),
-      depositNonce: Number(depositNonce),
+      depositNonce: numDepositNonce,
       sender,
       amount: decodedAmount,
       resourceID: resourceId,
