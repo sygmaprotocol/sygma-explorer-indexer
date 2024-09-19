@@ -148,27 +148,33 @@ async function saveDeposit(
     )
   }
 
-  const deposit = {
-    id: new ObjectId().toString(),
-    type: BitcoinTypeTransfer.Fungible,
-    txHash: txId,
-    blockNumber: blockHeight.toString(),
-    depositData: "",
-    timestamp: new Date(blockTime * 1000),
-    handlerResponse: "",
-    transferId: transfer.id,
+  const depositExists = await depositRepository.findDeposit(transfer.id)
+  if (!depositExists) {
+    const deposit = {
+      id: new ObjectId().toString(),
+      type: BitcoinTypeTransfer.Fungible,
+      txHash: txId,
+      blockNumber: blockHeight.toString(),
+      depositData: decodedDeposit.data,
+      timestamp: new Date(blockTime * 1000),
+      handlerResponse: "",
+      transferId: transfer.id,
+    }
+    await depositRepository.insertDeposit(deposit)
   }
-  await depositRepository.insertDeposit(deposit)
 
-  const feeData = {
-    id: new ObjectId().toString(),
-    transferId: transfer.id,
-    tokenSymbol: decodedDeposit.resource.symbol,
-    decimals: decodedDeposit.resource.decimals,
-    tokenAddress: decodedDeposit.resource.address,
-    amount: decodedDeposit.feeAmount.toString(),
+  const feeExists = await feeRepository.findFee(transfer.id)
+  if (!feeExists) {
+    const feeData = {
+      id: new ObjectId().toString(),
+      transferId: transfer.id,
+      tokenSymbol: decodedDeposit.resource.symbol,
+      decimals: decodedDeposit.resource.decimals,
+      tokenAddress: decodedDeposit.resource.address,
+      amount: decodedDeposit.feeAmount.toString(),
+    }
+    await feeRepository.insertFee(feeData)
   }
-  await feeRepository.insertFee(feeData)
 }
 
 async function decodeExecutionEvent(tx: Transaction, resources: BitcoinResource[], client: RPCClient): Promise<DecodedExecution[] | undefined> {

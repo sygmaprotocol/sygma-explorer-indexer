@@ -172,13 +172,17 @@ class TransferRepository {
           id: Number(toDomainId),
         },
       },
-      account: {
+      usdValue: usdValue,
+    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account">
+
+    if (sender) {
+      transferData.account = {
         connect: {
           id: sender,
         },
-      },
-      usdValue: usdValue,
-    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account">
+      }
+    }
+
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 

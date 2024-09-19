@@ -165,7 +165,7 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
       }
       case DomainTypes.BTC: {
         try {
-          const url = process.env.BTC_URL
+          const url = rpcURL
           const port = Number(process.env.BTC_PORT) || 443
           const user = process.env.BTC_USER
           const pass = process.env.BTC_PASS!

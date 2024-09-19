@@ -73,11 +73,11 @@ export class BitcoinIndexer {
       try {
         const bestBlockHash = (await this.client.getbestblockhash()) as string
         const bestBlock = (await this.client.getblock({ blockhash: bestBlockHash, verbosity: 1 })) as Block
-
         if (currentBlockHeight + BLOCK_DELAY >= bestBlock.height) {
           await sleep(BLOCK_TIME)
           continue
         }
+
         this.logger.debug(`Indexing block ${currentBlockHeight}`)
         const currentBlockHash = (await this.client.getblockhash({ height: currentBlockHeight })) as string
         const currentBlock = (await this.client.getblock({ blockhash: currentBlockHash, verbosity: 2 })) as Block
