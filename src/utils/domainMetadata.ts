@@ -237,7 +237,7 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       renderName: "Polygon",
     },
     8: {
-      icon: "https://framerusercontent.com/images/BapvKsJyYZUbcVcnjY2XmyaA.svg",
+      icon: "https://scan.buildwithsygma.com/assets/icons/b3-sepolia.svg",
       name: "b3",
       caipId: "eip155:8333",
       nativeTokenSymbol: "eth",
