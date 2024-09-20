@@ -231,10 +231,10 @@ export function parseFailedHandlerExecution(log: Log, decodedLog: LogDescription
   const errorData = decodedLog.args.lowLevelData as ArrayBuffer
   let errMsg
 
-  try{
+  try {
     errMsg = ethers.decodeBytes32String("0x" + Buffer.from(errorData.slice(-64)).toString())
-  }catch(err) {
-    errMsg = "Unknown error type, raw data:" + errorData
+  } catch (err) {
+    errMsg = "Unknown error type, raw data:" + errorData.toString()
   }
 
   return {
