@@ -119,6 +119,9 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
       continue
     }
 
+    const blockDelay = Number(process.env[`${domain.id}_BLOCK_DELAY`])
+    const blockTime = Number(process.env[`${domain.id}_BLOCK_TIME`])
+
     switch (domain.type) {
       case DomainTypes.SUBSTRATE: {
         try {
@@ -133,6 +136,8 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
             accountRepository,
             coinMarketCapServiceInstance,
             sharedConfig,
+            blockDelay || 10,
+            blockTime || 12000,
           )
           await substrateIndexer.init(rpcURL)
           domainIndexers.push(substrateIndexer)
@@ -156,6 +161,8 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
             accountRepository,
             coinMarketCapServiceInstance,
             sharedConfig,
+            blockDelay || 10,
+            blockTime || 15000,
           )
           domainIndexers.push(evmIndexer)
         } catch (err) {
@@ -181,6 +188,8 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
             feeRepository,
             coinMarketCapServiceInstance,
             client,
+            blockDelay || 3,
+            blockTime || 12000,
           )
           domainIndexers.push(bitcoinIndexer)
         } catch (err) {

@@ -15,8 +15,6 @@ import { saveEvents, sleep } from "../../../indexer/utils/substrate"
 import AccountRepository from "../../../indexer/repository/account"
 import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
 
-const BLOCK_TIME = Number(process.env.BLOCK_TIME) || 12000
-const BLOCK_DELAY = Number(process.env.BLOCK_DELAY) || 10
 export class SubstrateIndexer {
   private domainRepository: DomainRepository
   private executionRepository: ExecutionRepository
@@ -32,6 +30,8 @@ export class SubstrateIndexer {
   private coinMarketCapService: CoinMarketCapService
   private sharedConfig: SharedConfig
   private logger: winston.Logger
+  private blockDelay: number
+  private blockTime: number
 
   constructor(
     domainRepository: DomainRepository,
@@ -44,6 +44,8 @@ export class SubstrateIndexer {
     accountRepository: AccountRepository,
     coinmarketcapService: CoinMarketCapService,
     sharedConfig: SharedConfig,
+    blockDelay: number,
+    blockTime: number,
   ) {
     this.domainRepository = domainRepository
     this.domain = domain
@@ -59,6 +61,8 @@ export class SubstrateIndexer {
       domain: domain.name,
       domainID: domain.id,
     })
+    this.blockDelay = blockDelay
+    this.blockTime = blockTime
   }
 
   public async init(rpcUrl: string): Promise<void> {
@@ -85,8 +89,8 @@ export class SubstrateIndexer {
       try {
         const latestBlock = await this.provider.rpc.chain.getBlock()
         const currentBlockHash = await this.provider.rpc.chain.getBlockHash(currentBlock)
-        if (currentBlock + BLOCK_DELAY >= Number(latestBlock.block.header.number)) {
-          await sleep(BLOCK_TIME)
+        if (currentBlock + this.blockDelay >= Number(latestBlock.block.header.number)) {
+          await sleep(this.blockTime)
           continue
         }
         this.logger.debug(`Indexing block ${currentBlock}`)
@@ -110,7 +114,7 @@ export class SubstrateIndexer {
         currentBlock += this.eventsQueryInterval
       } catch (error) {
         this.logger.error(`Failed to process events for block ${currentBlock}:`, error)
-        await sleep(BLOCK_TIME)
+        await sleep(this.blockTime)
       }
     }
   }

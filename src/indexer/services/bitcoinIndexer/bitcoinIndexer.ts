@@ -17,9 +17,6 @@ import FeeRepository from "../../../indexer/repository/fee"
 import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
 import { Block } from "./bitcoinTypes"
 
-const BLOCK_TIME = Number(process.env.BLOCK_TIME) || 12000
-const BLOCK_DELAY = Number(process.env.BLOCK_DELAY) || 3
-
 export class BitcoinIndexer {
   private domainRepository: DomainRepository
   private executionRepository: ExecutionRepository
@@ -31,6 +28,8 @@ export class BitcoinIndexer {
   private stopped = false
   private client: RPCClient
   private coinMarketCapService: CoinMarketCapService
+  private blockDelay: number
+  private blockTime: number
 
   constructor(
     domainRepository: DomainRepository,
@@ -41,6 +40,8 @@ export class BitcoinIndexer {
     feeRepository: FeeRepository,
     coinMarketCapService: CoinMarketCapService,
     client: RPCClient,
+    blockDelay: number,
+    blockTime: number,
   ) {
     this.domainRepository = domainRepository
     this.executionRepository = executionRepository
@@ -50,6 +51,8 @@ export class BitcoinIndexer {
     this.domain = domain
     this.coinMarketCapService = coinMarketCapService
     this.client = client
+    this.blockDelay = blockDelay
+    this.blockTime = blockTime
 
     this.logger = rootLogger.child({
       domain: domain.name,
@@ -73,8 +76,8 @@ export class BitcoinIndexer {
       try {
         const bestBlockHash = (await this.client.getbestblockhash()) as string
         const bestBlock = (await this.client.getblock({ blockhash: bestBlockHash, verbosity: 1 })) as Block
-        if (currentBlockHeight + BLOCK_DELAY >= bestBlock.height) {
-          await sleep(BLOCK_TIME)
+        if (currentBlockHeight + this.blockDelay >= bestBlock.height) {
+          await sleep(this.blockTime)
           continue
         }
 
@@ -96,7 +99,7 @@ export class BitcoinIndexer {
         currentBlockHeight++
       } catch (error) {
         this.logger.error(`Failed to process events for block ${currentBlockHeight}:`, error)
-        await sleep(BLOCK_TIME)
+        await sleep(this.blockTime)
       }
     }
   }
