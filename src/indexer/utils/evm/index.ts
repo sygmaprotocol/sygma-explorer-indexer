@@ -229,11 +229,19 @@ export async function getFee(provider: Provider, feeHandlerRouterAddress: string
 export function parseFailedHandlerExecution(log: Log, decodedLog: LogDescription, blockUnixTimestamp: number): DecodedFailedHandlerExecution {
   const originDomainID = decodedLog.args.originDomainID as number
   const errorData = decodedLog.args.lowLevelData as ArrayBuffer
+  let errMsg
+
+  try {
+    errMsg = ethers.decodeBytes32String("0x" + Buffer.from(errorData.slice(-64)).toString())
+  } catch (err) {
+    errMsg = "Unknown error type, raw data:" + errorData.toString()
+  }
+
   return {
     domainId: originDomainID.toString(),
     depositNonce: Number(decodedLog.args.depositNonce as string),
     txHash: log.transactionHash,
-    message: ethers.decodeBytes32String("0x" + Buffer.from(errorData.slice(-64)).toString()),
+    message: errMsg,
     blockNumber: log.blockNumber,
     timestamp: blockUnixTimestamp,
   }
