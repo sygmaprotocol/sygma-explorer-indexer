@@ -143,14 +143,23 @@ export async function parseDestination(hexData: BytesLike, domain: Domain, resou
       }
       break
     default:
-      logger.error(`Unsupported resource type: ${resourceType}`)
+      throw new Error(`Unsupported resource type: ${resourceType}`)
   }
 
   let destination = ""
-  if (domain.type == DomainTypes.EVM) {
-    destination = recipient
-  } else if (domain.type == DomainTypes.SUBSTRATE) {
-    destination = await parseSubstrateDestination(recipient, domain)
+  switch (domain.type) {
+    case DomainTypes.EVM: {
+      destination = recipient
+      break
+    }
+    case DomainTypes.SUBSTRATE: {
+      destination = await parseSubstrateDestination(recipient, domain)
+      break
+    }
+    case DomainTypes.BTC: {
+      destination = Buffer.from(recipient.slice(2), "hex").toString()
+      break
+    }
   }
   return destination
 }
@@ -179,11 +188,15 @@ export function parseProposalExecution(
   txReceipt: TransactionReceipt,
   blockUnixTimestamp: number,
 ): DecodedProposalExecutionLog {
+  let depositNonce = String(decodedLog.args.depositNonce)
+  if (depositNonce.length > 10) {
+    depositNonce = depositNonce.slice(0, 10)
+  }
   const originDomainID = decodedLog.args.originDomainID as number
   return {
     blockNumber: log.blockNumber,
     from: txReceipt.from,
-    depositNonce: Number(decodedLog.args.depositNonce as string),
+    depositNonce: Number(depositNonce),
     txHash: log.transactionHash,
     timestamp: blockUnixTimestamp,
     fromDomainId: originDomainID.toString(),
@@ -263,9 +276,6 @@ function decodeAmountsOrTokenId(data: string, decimals: number, resourceType: st
     case DepositType.PERMISSIONLESS_GENERIC: {
       return ""
     }
-    case DepositType.PERMISSIONED_GENERIC: {
-      return ""
-    }
     default:
       throw new Error(`Unknown resource type ${resourceType}`)
   }
@@ -282,7 +292,6 @@ export async function saveDepositLogs(
   sharedConfig: SharedConfig,
 ): Promise<void> {
   let transfer = await transferRepository.findTransfer(decodedLog.depositNonce, Number(decodedLog.fromDomainId), Number(decodedLog.toDomainId))
-
   const { sender, amount, fromDomainId } = decodedLog
 
   const currentDomain = sharedConfig.domains.find(domain => domain.id == parseInt(fromDomainId))
@@ -320,7 +329,7 @@ export async function saveDepositLogs(
   })
 
   if (!transfer) {
-    transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, usdValue: amountInUSD })
+    transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, usdValue: amountInUSD! })
   } else {
     const dataToSave = {
       ...decodedLog,

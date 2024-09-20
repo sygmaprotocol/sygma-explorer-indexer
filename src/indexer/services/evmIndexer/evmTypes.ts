@@ -67,5 +67,4 @@ export enum DepositType {
   NONFUNGIBLE = "nonfungible",
   SEMIFUNGIBLE = "semifungible",
   PERMISSIONLESS_GENERIC = "permissionlessGeneric",
-  PERMISSIONED_GENERIC = "permissionedGeneric",
 }

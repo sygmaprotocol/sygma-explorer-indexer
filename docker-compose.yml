@@ -27,6 +27,14 @@ services:
       - "9933:9933"
     logging:
       driver: none
+  btc:
+    image: ghcr.io/sygmaprotocol/beacon-api-stub:latest
+    volumes:
+      - "./tests/e2e/stubs:/stubs"
+    ports:
+      - 8882:8882 # STUB
+    environment:
+      - STUB_DATA=/stubs/bitcoin.yml
 
   mongo1:
     image: mongo:6
@@ -81,10 +89,11 @@ services:
     restart: always
     environment:
       DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer?replicaSet=my-replica-set&authSource=admin&retryWrites=true&w=majority
-      SHARED_CONFIG_URL: https://ipfs.io/ipfs/QmW9RhxFFotHtvsU2PMVYU2NNZigeCpbg1ywDCZ3vX675b
-      RPC_URL_CONFIG: '[{"id": 1, "endpoint": "http://evm1:8545"}, {"id": 2, "endpoint": "http://evm2:8545"}, {"id": 3, "endpoint": "ws://substrate-pallet:9944"}]'
+      SHARED_CONFIG_URL: https://ipfs.io/ipfs/QmTsYtdvWFf5AwTUAjfo8zHWeURZUMT5q9zEEGjQew5EcB
+      RPC_URL_CONFIG: '[{"id": 1, "endpoint": "http://evm1:8545"}, {"id": 2, "endpoint": "http://evm2:8545"}, {"id": 3, "endpoint": "ws://substrate-pallet:9944"}, {"id": 4, "endpoint": "http://btc"}]'
       RETRY_COUNT: '1'
       BACKOFF: '100'
+      BTC_PORT: 8882
 
   api:
     build: 

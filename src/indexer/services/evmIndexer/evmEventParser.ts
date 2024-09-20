@@ -27,7 +27,7 @@ export async function decodeLogs(
       try {
         await getDecodedLogs(log, provider, domain, resourceMap, decodedLogs, domains)
       } catch (e) {
-        logger.error(e)
+        logger.error((e as Error).message)
       }
     }),
   )
