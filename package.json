@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-sns": "^3.418.0",
-    "@buildwithsygma/sygma-sdk-core": "^2.1.0",
+    "@buildwithsygma/core": "1.2.3",
     "@chainsafe/eslint-config": "^1.1.0",
     "@polkadot/types": "10.9.1",
     "@rushstack/eslint-patch": "^1.2.0",
