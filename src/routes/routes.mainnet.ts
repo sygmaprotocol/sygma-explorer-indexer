@@ -59,6 +59,14 @@ export const routesMainnet: Map<string, Route[]> = new Map([
     [
       { fromDomainId: "8", toDomainId: "1", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
       { fromDomainId: "8", toDomainId: "5", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
+      { fromDomainId: "8", toDomainId: "9", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
+    ],
+  ],
+  [
+    "9",
+    [
+      { fromDomainId: "9", toDomainId: "8", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
+      { fromDomainId: "9", toDomainId: "10", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
     ],
   ],
 ])
