@@ -294,6 +294,12 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002",
       },
+      {
+        resourceId: "0x0000000000000000000000000000000000000000000000000000000055534443",
+        symbol: "USDC",
+        decimals: 6,
+        caip19: "eip155:1/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      },
     ],
     6: [
       {
@@ -318,6 +324,12 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002",
       },
+      {
+        resourceId: "0x0000000000000000000000000000000000000000000000000000000055534443",
+        symbol: "USDC",
+        decimals: 6,
+        caip19: "eip155:1/erc20:0x4facaeab0b044617a94e94a54a8d6644a7f9e41b",
+      },
     ],
     9: [
       {
@@ -326,6 +338,12 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002",
       },
+      {
+        resourceId: "0x0000000000000000000000000000000000000000000000000000000055534443",
+        symbol: "USDC",
+        decimals: 6,
+        caip19: "eip155:1/erc20:0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+      },
     ],
     10: [
       {
@@ -333,6 +351,12 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
         symbol: "ETH",
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002",
+      },
+      {
+        resourceId: "0x0000000000000000000000000000000000000000000000000000000055534443",
+        symbol: "USDC",
+        decimals: 6,
+        caip19: "eip155:1/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85",
       },
     ],
   },
