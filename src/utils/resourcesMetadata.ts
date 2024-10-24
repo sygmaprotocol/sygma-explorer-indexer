@@ -42,7 +42,7 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
       },
       {
         caip19: "",
-        symbol: "eth",
+        symbol: "ETH",
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600",
       },
@@ -104,7 +104,7 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
       },
       {
         caip19: "",
-        symbol: "eth",
+        symbol: "ETH",
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600",
       },
@@ -112,7 +112,7 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
     6: [
       {
         caip19: "",
-        symbol: "eth",
+        symbol: "ETH",
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600",
       },
@@ -126,7 +126,7 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
     8: [
       {
         caip19: "",
-        symbol: "eth",
+        symbol: "ETH",
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600",
       },
@@ -134,7 +134,7 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
     9: [
       {
         caip19: "",
-        symbol: "eth",
+        symbol: "ETH",
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600",
       },
@@ -142,7 +142,7 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
     10: [
       {
         caip19: "",
-        symbol: "eth",
+        symbol: "ETH",
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600",
       },
@@ -168,7 +168,7 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
     11: [
       {
         caip19: "",
-        symbol: "eth",
+        symbol: "ETH",
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600",
       },
@@ -210,7 +210,7 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
     15: [
       {
         caip19: "",
-        symbol: "eth",
+        symbol: "ETH",
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600",
       },
@@ -290,7 +290,7 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
       },
       {
         caip19: "eip155:8333/erc20:0x0000000000000000000000000000000000000000",
-        symbol: "eth",
+        symbol: "ETH",
         decimals: 18,
         resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002",
       },
