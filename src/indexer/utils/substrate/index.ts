@@ -5,10 +5,11 @@ SPDX-License-Identifier: LGPL-3.0-only
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { ObjectId } from "mongodb"
 import { AbiCoder, formatEther } from "ethers"
+import { SubstrateConfig, SubstrateResource, SygmaConfig } from "@buildwithsygma/core"
+import { BigNumber } from "@ethersproject/bignumber"
 import { BlockHash, XcmAssetId } from "@polkadot/types/interfaces"
 import { ApiPromise } from "@polkadot/api"
 import { TransferStatus } from "@prisma/client"
-import { BigNumber } from "@ethersproject/bignumber"
 import FeeRepository from "indexer/repository/fee"
 import ExecutionRepository from "../../repository/execution"
 import TransferRepository from "../../repository/transfer"
@@ -31,7 +32,6 @@ import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes
 import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser"
 import AccountRepository from "../../repository/account"
 import CoinMarketCapService from "../../../indexer/services/coinmarketcap/coinmarketcap.service"
-import { SubstrateConfig, SubstrateResource, SygmaConfig } from "@buildwithsygma/core"
 
 export async function saveProposalExecution(
   proposalExecutionData: ProposalExecutionDataToSave,

@@ -2,6 +2,7 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
+import { Network, EthereumConfig, EvmResource, ResourceType, SubstrateConfig, SygmaConfig } from "@buildwithsygma/core"
 import { BytesLike, Log, LogDescription, Provider, TransactionReceipt, getBytes, AbiCoder, formatUnits, BigNumberish, ethers } from "ethers"
 import { ObjectId } from "mongodb"
 import { TransferStatus } from "@prisma/client"
@@ -26,7 +27,6 @@ import FeeRepository from "../../repository/fee"
 import ExecutionRepository from "../../repository/execution"
 import { OfacComplianceService } from "../../services/ofac"
 import CoinMarketCapService from "../../services/coinmarketcap/coinmarketcap.service"
-import { Network, EthereumConfig, EvmResource, ResourceType, SubstrateConfig, SygmaConfig } from "@buildwithsygma/core"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
 type Junction = {

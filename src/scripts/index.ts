@@ -3,11 +3,11 @@ The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
 import { caching } from "cache-manager"
+import { Config, Environment, SygmaConfig } from "@buildwithsygma/core"
 import { logger } from "../utils/logger"
 import { PriceCalculation } from "./classes/PriceCalculation"
 import { IFixInterface } from "./interfaces"
 import { DuplicateRemover } from "./classes/DuplicateRemover"
-import { Config, Environment, SygmaConfig } from "@buildwithsygma/core"
 
 export enum FixType {
   PriceCalculations = "price-calculations",

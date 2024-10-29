@@ -2,6 +2,7 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
+import { SubstrateConfig, SubstrateResource, SygmaConfig } from "@buildwithsygma/core"
 import { ApiPromise, WsProvider } from "@polkadot/api"
 import FeeRepository from "indexer/repository/fee"
 import winston from "winston"
@@ -13,7 +14,6 @@ import TransferRepository from "../../../indexer/repository/transfer"
 import { saveEvents, sleep } from "../../../indexer/utils/substrate"
 import AccountRepository from "../../../indexer/repository/account"
 import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
-import { SubstrateConfig, SubstrateResource, SygmaConfig } from "@buildwithsygma/core"
 
 const BLOCK_TIME = Number(process.env.BLOCK_TIME) || 12000
 const BLOCK_DELAY = Number(process.env.BLOCK_DELAY) || 10

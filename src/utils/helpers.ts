@@ -4,10 +4,10 @@ SPDX-License-Identifier: LGPL-3.0-only
 */
 import { Signer, ethers, AbiCoder } from "ethers"
 import { ERC20Handler__factory as Erc20HandlerFactory, ERC721Handler__factory as Erc721HandlerFactory } from "@buildwithsygma/sygma-contracts"
+import { EthereumConfig, ResourceType, SygmaConfig } from "@buildwithsygma/core"
 import { sleep } from "../indexer/utils/substrate"
 import { HandlersMap } from "../sygmaTypes"
 import { IncludedQueryParams } from "../interfaces"
-import { EthereumConfig, ResourceType, SygmaConfig } from "@buildwithsygma/core"
 
 export function getNetworkName(domainId: number, sygmaConfig: SygmaConfig): string {
   return sygmaConfig.domains.find(c => c.id === domainId)?.name || ""

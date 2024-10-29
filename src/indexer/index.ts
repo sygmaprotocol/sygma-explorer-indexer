@@ -5,6 +5,7 @@ SPDX-License-Identifier: LGPL-3.0-only
 import nodeCleanup from "node-cleanup"
 import { FastifyInstance } from "fastify"
 import { PrismaClient } from "@prisma/client"
+import { EthereumConfig, SubstrateConfig, Config, Environment, Network, SubstrateResource, SygmaConfig } from "@buildwithsygma/core"
 import { CronJob } from "cron"
 import { caching } from "cache-manager"
 import { logger } from "../utils/logger"
@@ -23,7 +24,6 @@ import AccountRepository from "./repository/account"
 import CoinMarketCapService from "./services/coinmarketcap/coinmarketcap.service"
 import { checkTransferStatus, getCronJob } from "./services/monitoringService"
 import { NotificationSender } from "./services/monitoringService/notificationSender"
-import { EthereumConfig, SubstrateConfig, Config, Environment, Network, SubstrateResource, SygmaConfig } from "@buildwithsygma/core"
 
 interface DomainIndexer {
   listenToEvents(): Promise<void>

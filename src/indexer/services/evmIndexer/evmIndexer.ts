@@ -2,9 +2,8 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
-
+import { EthereumConfig, EvmResource, Resource, SubstrateConfig, SygmaConfig } from "@buildwithsygma/core"
 import { ethers } from "ethers"
-
 import winston from "winston"
 import { sleep } from "../../utils/substrate"
 import { saveDepositLogs, saveFailedHandlerExecutionLogs, saveProposalExecutionLogs } from "../../utils/evm"
@@ -19,7 +18,6 @@ import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
 import { OfacComplianceService } from "../ofac"
 import { getLogs } from "./evmfilter"
 import { decodeLogs } from "./evmEventParser"
-import { EthereumConfig, EvmResource, Resource, SubstrateConfig, SygmaConfig } from "@buildwithsygma/core"
 
 const BLOCK_TIME = Number(process.env.BLOCK_TIME) || 15000
 const BLOCK_DELAY = Number(process.env.BLOCK_DELAY) || 10

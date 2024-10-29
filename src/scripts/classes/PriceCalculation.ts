@@ -3,13 +3,13 @@ The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
 import { MemoryCache } from "cache-manager"
+import { SygmaConfig } from "@buildwithsygma/core"
 import { Transfer } from "@prisma/client"
 import CoinMarketCapService from "../../indexer/services/coinmarketcap/coinmarketcap.service"
 import TransferRepository from "../../indexer/repository/transfer"
 import { logger } from "../../utils/logger"
 import { IFixInterface } from "../interfaces"
 import TransfersService from "../../services/transfers.service"
-import { SygmaConfig } from "@buildwithsygma/core"
 
 export class PriceCalculation implements IFixInterface {
   private memoryCache: MemoryCache
