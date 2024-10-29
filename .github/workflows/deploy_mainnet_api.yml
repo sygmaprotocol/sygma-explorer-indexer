@@ -29,6 +29,13 @@ jobs:
      AWS_REGION: '${{ secrets.AWS_REGION }}'
      AWS_MAINNET: '${{ secrets.AWS_MAINNET }}'
    steps:
+    - name: Authorised User only
+    run: |
+      if [[ ! " tcar121293 eedygreen MakMuftic akchainsafe mpetrun5 " =~ " ${{ github.actor }} " ]]; then 
+        echo "You are not authorized to deploy to mainnet."
+        exit 1
+      fi
+
      - name: checkout ecs repo
        uses: actions/checkout@v4
        with:
