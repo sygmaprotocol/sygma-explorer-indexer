@@ -5,10 +5,10 @@ on:
     types:
       - published
 
+run-name: Deploy Explorer-API to Testnet - ${{ inputs.release_tag }} by @${{ github.actor }}
+
 env:
-  AWS_REGION: '${{ secrets.AWS_REGION }}'
   ENVIRONMENT: TESTNET
-  AWS_TESTNET: '${{ secrets.AWS_ARN }}'
   REGISTRY: 'ghcr.io'
   TAG: 'stable'
   VERSION: ${{ github.event.release.tag_name }}
@@ -61,12 +61,14 @@ jobs:
    needs: push
    name: deploy
    runs-on: ubuntu-latest
-
+   environment: testnet
    permissions:
      contents: read
      id-token: write
      actions: write
-
+   env:
+     AWS_TESTNET: '${{ secrets.AWS_ARN }}'
+     AWS_REGION: '${{ secrets.AWS_REGION }}'
    steps:
      - name: checkout ecs repo
        uses: actions/checkout@v4
