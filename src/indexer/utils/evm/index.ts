@@ -11,7 +11,7 @@ import AccountRepository from "../../repository/account"
 import TransferRepository from "../../repository/transfer"
 import DepositRepository from "../../repository/deposit"
 import { logger } from "../../../utils/logger"
-import { Domain, DomainTypes, EvmResource, ResourceTypes, SharedConfig, getSsmDomainConfig } from "../../config"
+import { getSsmDomainConfig } from "../../config"
 import {
   DecodedDepositLog,
   DecodedFailedHandlerExecution,
@@ -26,6 +26,7 @@ import FeeRepository from "../../repository/fee"
 import ExecutionRepository from "../../repository/execution"
 import { OfacComplianceService } from "../../services/ofac"
 import CoinMarketCapService from "../../services/coinmarketcap/coinmarketcap.service"
+import { Network, EthereumConfig, EvmResource, ResourceType, SubstrateConfig, SygmaConfig } from "@buildwithsygma/core"
 
 export const nativeTokenAddress = "0x0000000000000000000000000000000000000000"
 type Junction = {
@@ -40,10 +41,10 @@ type FeeDataResponse = {
 export async function getDecodedLogs(
   log: Log,
   provider: Provider,
-  fromDomain: Domain,
+  fromDomain: EthereumConfig,
   resourceMap: Map<string, EvmResource>,
   decodedLogs: DecodedLogs,
-  domains: Domain[],
+  domains: Array<EthereumConfig | SubstrateConfig>,
 ): Promise<void> {
   const blockUnixTimestamp = (await provider.getBlock(log.blockNumber))?.timestamp || 0
 
@@ -91,8 +92,8 @@ export async function getDecodedLogs(
 
 export async function parseDeposit(
   provider: Provider,
-  fromDomain: Domain,
-  toDomain: Domain,
+  fromDomain: EthereumConfig,
+  toDomain: EthereumConfig | SubstrateConfig,
   log: Log,
   decodedLog: LogDescription,
   txReceipt: TransactionReceipt,
@@ -120,17 +121,17 @@ export async function parseDeposit(
   }
 }
 
-export async function parseDestination(hexData: BytesLike, domain: Domain, resourceType: string): Promise<string> {
+export async function parseDestination(hexData: BytesLike, domain: EthereumConfig | SubstrateConfig, resourceType: string): Promise<string> {
   const arrayifyData = getBytes(hexData)
   let recipient = ""
   switch (resourceType) {
-    case ResourceTypes.FUNGIBLE:
-    case ResourceTypes.NON_FUNGIBLE: {
+    case ResourceType.FUNGIBLE:
+    case ResourceType.NON_FUNGIBLE: {
       const recipientlen = Number("0x" + Buffer.from(arrayifyData.slice(32, 64)).toString("hex"))
       recipient = "0x" + Buffer.from(arrayifyData.slice(64, 64 + recipientlen)).toString("hex")
       break
     }
-    case ResourceTypes.PERMISSIONLESS_GENERIC:
+    case ResourceType.PERMISSIONLESS_GENERIC:
       {
         // 32 + 2 + 1 + 1 + 20 + 20
         const lenExecuteFuncSignature = Number("0x" + Buffer.from(arrayifyData.slice(32, 34)).toString("hex"))
@@ -147,15 +148,15 @@ export async function parseDestination(hexData: BytesLike, domain: Domain, resou
   }
 
   let destination = ""
-  if (domain.type == DomainTypes.EVM) {
+  if (domain.type == Network.EVM) {
     destination = recipient
-  } else if (domain.type == DomainTypes.SUBSTRATE) {
+  } else if (domain.type == Network.SUBSTRATE) {
     destination = await parseSubstrateDestination(recipient, domain)
   }
   return destination
 }
 
-async function parseSubstrateDestination(recipient: string, domain: Domain): Promise<string> {
+async function parseSubstrateDestination(recipient: string, domain: SubstrateConfig): Promise<string> {
   const rpcUrlConfig = getSsmDomainConfig()
   const wsProvider = new WsProvider(rpcUrlConfig.get(domain.id))
   const api = await ApiPromise.create({
@@ -190,7 +191,12 @@ export function parseProposalExecution(
   }
 }
 
-export async function getFee(provider: Provider, feeHandlerRouterAddress: string, fromDomain: Domain, decodedLog: LogDescription): Promise<FeeData> {
+export async function getFee(
+  provider: Provider,
+  feeHandlerRouterAddress: string,
+  fromDomain: EthereumConfig,
+  decodedLog: LogDescription,
+): Promise<FeeData> {
   try {
     const feeRouter = gerFeeRouterContract(provider, feeHandlerRouterAddress)
     const fee = (await feeRouter.calculateFee(
@@ -202,7 +208,7 @@ export async function getFee(provider: Provider, feeHandlerRouterAddress: string
       "0x00",
     )) as FeeDataResponse
     let tokenSymbol = fromDomain.nativeTokenSymbol
-    let decimals = fromDomain.nativeTokenDecimals
+    let decimals = Number(fromDomain.nativeTokenDecimals)
     if (fee.tokenAddress != nativeTokenAddress) {
       const token = getERC20Contract(provider, fee.tokenAddress)
       tokenSymbol = (await token.symbol()) as string
@@ -279,7 +285,7 @@ export async function saveDepositLogs(
   ofacComplianceService: OfacComplianceService,
   accountRepository: AccountRepository,
   coinMarketCapService: CoinMarketCapService,
-  sharedConfig: SharedConfig,
+  sharedConfig: SygmaConfig,
 ): Promise<void> {
   let transfer = await transferRepository.findTransfer(decodedLog.depositNonce, Number(decodedLog.fromDomainId), Number(decodedLog.toDomainId))
 

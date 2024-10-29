@@ -5,7 +5,6 @@ SPDX-License-Identifier: LGPL-3.0-only
 import { ApiPromise, WsProvider } from "@polkadot/api"
 import FeeRepository from "indexer/repository/fee"
 import winston from "winston"
-import { Domain, SharedConfig, SubstrateResource } from "../../config"
 import DomainRepository from "../../repository/domain"
 import { logger as rootLogger } from "../../../utils/logger"
 import ExecutionRepository from "../../../indexer/repository/execution"
@@ -14,6 +13,7 @@ import TransferRepository from "../../../indexer/repository/transfer"
 import { saveEvents, sleep } from "../../../indexer/utils/substrate"
 import AccountRepository from "../../../indexer/repository/account"
 import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
+import { SubstrateConfig, SubstrateResource, SygmaConfig } from "@buildwithsygma/core"
 
 const BLOCK_TIME = Number(process.env.BLOCK_TIME) || 12000
 const BLOCK_DELAY = Number(process.env.BLOCK_DELAY) || 10
@@ -26,16 +26,16 @@ export class SubstrateIndexer {
   private resourceMap: Map<string, SubstrateResource>
   private eventsQueryInterval = 1
   private provider!: ApiPromise
-  private domain: Domain
+  private domain: SubstrateConfig
   private stopped = false
   private accountRepository: AccountRepository
   private coinMarketCapService: CoinMarketCapService
-  private sharedConfig: SharedConfig
+  private sygmaConfig: SygmaConfig
   private logger: winston.Logger
 
   constructor(
     domainRepository: DomainRepository,
-    domain: Domain,
+    domain: SubstrateConfig,
     executionRepository: ExecutionRepository,
     depositRepository: DepositRepository,
     transferRepository: TransferRepository,
@@ -43,7 +43,7 @@ export class SubstrateIndexer {
     resourceMap: Map<string, SubstrateResource>,
     accountRepository: AccountRepository,
     coinmarketcapService: CoinMarketCapService,
-    sharedConfig: SharedConfig,
+    sygmaConfig: SygmaConfig,
   ) {
     this.domainRepository = domainRepository
     this.domain = domain
@@ -54,7 +54,7 @@ export class SubstrateIndexer {
     this.resourceMap = resourceMap
     this.accountRepository = accountRepository
     this.coinMarketCapService = coinmarketcapService
-    this.sharedConfig = sharedConfig
+    this.sygmaConfig = sygmaConfig
     this.logger = rootLogger.child({
       domain: domain.name,
       domainID: domain.id,
@@ -74,7 +74,7 @@ export class SubstrateIndexer {
 
   public async listenToEvents(): Promise<void> {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id)
-    let currentBlock = this.domain.startBlock
+    let currentBlock = Number(this.domain.startBlock)
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
       currentBlock = lastIndexedBlock + 1
     }
@@ -103,7 +103,7 @@ export class SubstrateIndexer {
           this.resourceMap,
           this.accountRepository,
           this.coinMarketCapService,
-          this.sharedConfig,
+          this.sygmaConfig,
         )
         await this.domainRepository.updateBlock(currentBlock.toString(), this.domain.id)
 
@@ -117,6 +117,6 @@ export class SubstrateIndexer {
 
   private async getLastIndexedBlock(domainID: number): Promise<number> {
     const domainRes = await this.domainRepository.getLastIndexedBlock(domainID)
-    return domainRes ? Number(domainRes.lastIndexedBlock) : this.domain.startBlock
+    return domainRes ? Number(domainRes.lastIndexedBlock) : Number(this.domain.startBlock)
   }
 }

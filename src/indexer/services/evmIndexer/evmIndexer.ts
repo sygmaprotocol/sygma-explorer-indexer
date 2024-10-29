@@ -2,7 +2,7 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
-import { Domain, EvmResource, SharedConfig } from "indexer/config"
+
 import { ethers } from "ethers"
 
 import winston from "winston"
@@ -19,6 +19,7 @@ import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
 import { OfacComplianceService } from "../ofac"
 import { getLogs } from "./evmfilter"
 import { decodeLogs } from "./evmEventParser"
+import { EthereumConfig, EvmResource, Resource, SubstrateConfig, SygmaConfig } from "@buildwithsygma/core"
 
 const BLOCK_TIME = Number(process.env.BLOCK_TIME) || 15000
 const BLOCK_DELAY = Number(process.env.BLOCK_DELAY) || 10
@@ -32,20 +33,20 @@ export class EvmIndexer {
   private transferRepository: TransferRepository
   private executionRepository: ExecutionRepository
   private feeRepository: FeeRepository
-  private domain: Domain
-  private domains: Domain[]
+  private domain: EthereumConfig
+  private domains: Array<SubstrateConfig | EthereumConfig>
   private resourceMap: Map<string, EvmResource>
   private stopped = false
   private ofacComplianceService: OfacComplianceService
   private accountRepository: AccountRepository
   private coinMarketCapService: CoinMarketCapService
-  private sharedConfig: SharedConfig
+  private sygmaConfig: SygmaConfig
   private logger: winston.Logger
 
   constructor(
-    domain: Domain,
+    domain: EthereumConfig,
     rpcURL: string,
-    domains: Domain[],
+    domains: EthereumConfig[],
     domainRepository: DomainRepository,
     depositRepository: DepositRepository,
     transferRepository: TransferRepository,
@@ -54,7 +55,7 @@ export class EvmIndexer {
     ofacComplianceService: OfacComplianceService,
     accountRepository: AccountRepository,
     coinMarketCapServiceInstance: CoinMarketCapService,
-    sharedConfig: SharedConfig,
+    sygmaConfig: SygmaConfig,
   ) {
     this.provider = new ethers.JsonRpcProvider(rpcURL)
     this.domainRepository = domainRepository
@@ -66,10 +67,10 @@ export class EvmIndexer {
     this.ofacComplianceService = ofacComplianceService
     this.domains = domains
     this.resourceMap = new Map<string, EvmResource>()
-    domain.resources.map((resource: EvmResource) => this.resourceMap.set(resource.resourceId, resource))
+    domain.resources.map((resource: Resource) => this.resourceMap.set(resource.resourceId, resource as EvmResource))
     this.accountRepository = accountRepository
     this.coinMarketCapService = coinMarketCapServiceInstance
-    this.sharedConfig = sharedConfig
+    this.sygmaConfig = sygmaConfig
     this.logger = rootLogger.child({
       domain: domain.name,
       domainID: domain.id,
@@ -82,7 +83,7 @@ export class EvmIndexer {
 
   async listenToEvents(): Promise<void> {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id)
-    let currentBlock = this.domain.startBlock
+    let currentBlock = Number(this.domain.startBlock)
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
       currentBlock = lastIndexedBlock + 1
     }
@@ -131,7 +132,7 @@ export class EvmIndexer {
         this.ofacComplianceService,
         this.accountRepository,
         this.coinMarketCapService,
-        this.sharedConfig,
+        this.sygmaConfig,
       )
     }
 

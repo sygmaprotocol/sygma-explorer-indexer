@@ -28,10 +28,10 @@ import {
   SygmaPalleteEvents,
 } from "../../services/substrateIndexer/substrateTypes"
 import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes"
-import { Domain, SharedConfig, SubstrateResource } from "../../../indexer/config"
 import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser"
 import AccountRepository from "../../repository/account"
 import CoinMarketCapService from "../../../indexer/services/coinmarketcap/coinmarketcap.service"
+import { SubstrateConfig, SubstrateResource, SygmaConfig } from "@buildwithsygma/core"
 
 export async function saveProposalExecution(
   proposalExecutionData: ProposalExecutionDataToSave,
@@ -106,7 +106,7 @@ export async function saveDeposit(
   transferMap: Map<string, string>,
   accountRepository: AccountRepository,
   coinMakerCapService: CoinMarketCapService,
-  sharedConfig: SharedConfig,
+  sygmaConfig: SygmaConfig,
 ): Promise<void> {
   const {
     destDomainId: destinationDomainId,
@@ -120,7 +120,7 @@ export async function saveDeposit(
     timestamp,
   } = substrateDepositData
 
-  const currentDomain = sharedConfig.domains.find(domain => domain.id === originDomainId)
+  const currentDomain = sygmaConfig.domains.find(domain => domain.id === originDomainId)
   const tokenSymbol = currentDomain?.resources.find(resource => resource.resourceId === resourceId)?.symbol
   const decodedAmount = getDecodedAmount(depositData)
   const numDepositNonce = Number(depositNonce.replace(/,/g, ""))
@@ -229,7 +229,7 @@ export async function saveEvents(
   blockHash: BlockHash,
   provider: ApiPromise,
   block: number,
-  domain: Domain,
+  domain: SubstrateConfig,
   executionRepository: ExecutionRepository,
   transferRepository: TransferRepository,
   depositRepository: DepositRepository,
@@ -237,7 +237,7 @@ export async function saveEvents(
   resourceMap: Map<string, SubstrateResource>,
   accountRepository: AccountRepository,
   coinMakerCapService: CoinMarketCapService,
-  sharedConfig: SharedConfig,
+  sygmaConfig: SygmaConfig,
 ): Promise<void> {
   const at = await provider.at(blockHash)
   const timestamp = Number((await at.query.timestamp.now()).toString())
@@ -298,7 +298,7 @@ export async function saveEvents(
       transferMap,
       accountRepository,
       coinMakerCapService,
-      sharedConfig,
+      sygmaConfig,
     )
     // legacy code to handle substrate deposits/fees that didn't have feeCollected event
     if (feeCollectedEvents.length !== depositEvents.length) {
@@ -365,7 +365,7 @@ export async function saveEvents(
 }
 
 export async function saveProposalExecutionToDb(
-  domain: Domain,
+  domain: SubstrateConfig,
   latestBlock: string,
   proposalExecutionData: ProposalExecutionDataToSave,
   executionRepository: ExecutionRepository,
@@ -381,7 +381,7 @@ export async function saveProposalExecutionToDb(
 }
 
 export async function saveDepositToDb(
-  domain: Domain,
+  domain: SubstrateConfig,
   latestBlock: string,
   depositData: DepositDataToSave,
   transferRepository: TransferRepository,
@@ -389,7 +389,7 @@ export async function saveDepositToDb(
   transferMap: Map<string, string>,
   accountRepository: AccountRepository,
   coinmarketcapService: CoinMarketCapService,
-  sharedConfig: SharedConfig,
+  sygmaConfig: SygmaConfig,
 ): Promise<void> {
   logger.info(`Saving deposit. Save block on substrate ${domain.name}: ${latestBlock}, domain Id: ${domain.id}`)
 
@@ -402,7 +402,7 @@ export async function saveDepositToDb(
       transferMap,
       accountRepository,
       coinmarketcapService,
-      sharedConfig,
+      sygmaConfig,
     )
   } catch (error) {
     logger.error("Error saving substrate deposit:", error)
@@ -423,7 +423,7 @@ export async function saveFeeToDb(
 }
 
 export async function saveFailedHandlerExecutionToDb(
-  domain: Domain,
+  domain: SubstrateConfig,
   latestBlock: string,
   failedHandlerExecutionData: FailedHandlerExecutionToSave,
   executionRepository: ExecutionRepository,

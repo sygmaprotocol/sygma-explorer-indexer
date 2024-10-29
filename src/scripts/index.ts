@@ -3,27 +3,25 @@ The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
 import { caching } from "cache-manager"
-import { getSharedConfig } from "../indexer/config"
 import { logger } from "../utils/logger"
 import { PriceCalculation } from "./classes/PriceCalculation"
 import { IFixInterface } from "./interfaces"
 import { DuplicateRemover } from "./classes/DuplicateRemover"
+import { Config, Environment, SygmaConfig } from "@buildwithsygma/core"
 
 export enum FixType {
   PriceCalculations = "price-calculations",
   RemoveDuplicates = "remove-duplicates",
 }
 
-async function getObject(fixType: FixType): Promise<IFixInterface> {
+async function getObject(config: SygmaConfig, fixType: FixType): Promise<IFixInterface> {
   if (fixType == FixType.PriceCalculations) {
     const ttlInMins = Number(process.env.CACHE_TTL_IN_MINS) || 5
     const memoryCache = await caching("memory", {
       ttl: ttlInMins * 1000,
     })
 
-    const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
-
-    const priceCalculationObject = new PriceCalculation(memoryCache, sharedConfig)
+    const priceCalculationObject = new PriceCalculation(memoryCache, config)
     return priceCalculationObject
   } else if (fixType == FixType.RemoveDuplicates) {
     const duplicateRemover = new DuplicateRemover()
@@ -34,8 +32,11 @@ async function getObject(fixType: FixType): Promise<IFixInterface> {
 }
 
 async function run(): Promise<void> {
+  if (!process.env.SYGMA_ENV) throw new Error("Environment is required")
   const fixType = process.argv[2] as FixType
-  const object = await getObject(fixType)
+  const config = new Config()
+  await config.init(process.env.SYGMA_ENV as Environment)
+  const object = await getObject(config.getConfiguration(), fixType)
   await object.executeAction()
 }
 
