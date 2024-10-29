@@ -11,10 +11,10 @@ on:
         description: deploy v2
         type: string
 
+run-name: Deploy Explorer-Indexer to Mainnet - ${{ inputs.release_tag }} by @${{ github.actor }}
+
 env:
-  AWS_REGION: '${{ secrets.AWS_REGION }}'
   ENVIRONMENT: MAINNET
-  AWS_MAINNET: '${{ secrets.AWS_MAINNET }}'
   REGISTRY: 'ghcr.io'
   VERSION: ${{ inputs.release_tag }}
 
@@ -22,13 +22,22 @@ jobs:
   deploy:
    name: deploy
    runs-on: ubuntu-latest
-
+   environment: mainnet 
    permissions:
      contents: read
      id-token: write
      actions: write
-
+   env:
+     AWS_REGION: '${{ secrets.AWS_REGION }}'
+     AWS_MAINNET: '${{ secrets.AWS_MAINNET }}'
    steps:
+     - name: Authorised User only
+       run: |
+        if [[ ! " tcar121293 eedygreen MakMuftic akchainsafe mpetrun5 " =~ " ${{ github.actor }} " ]]; then 
+          echo "You are not authorized to deploy to mainnet!"
+          exit 1
+        fi
+
      - name: checkout ecs repo
        uses: actions/checkout@v4
        with:
@@ -46,8 +55,8 @@ jobs:
            awsAccountId=${{ env.AWS_MAINNET }}
            awsRegion=${{ env.AWS_REGION }}
            awsEnv=${{ env.ENVIRONMENT }}
-           DB_USERNAME=${{ secrets.MAIN_USERNAME }}
-           DB_PASSWORD=${{ secrets.MAIN_PASSWORD }}
+           DB_USERNAME=${{ secrets.DB_USERNAME }}
+           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
            imageTag=${{ env.VERSION }}
 
      - name: Configure AWS Credentials
@@ -78,12 +87,14 @@ jobs:
   #  name: deploy v2
   
   #  runs-on: ubuntu-latest
-
+  #  environment: mainnet
   #  permissions:
   #    contents: read
   #    id-token: write
   #    actions: write
-
+  #  env:
+  #    AWS_REGION: '${{ secrets.AWS_REGION }}'
+  #    AWS_MAINNET: '${{ secrets.AWS_MAINNET }}'
   #  steps:
   #    - name: checkout ecs repo
   #      uses: actions/checkout@v4
