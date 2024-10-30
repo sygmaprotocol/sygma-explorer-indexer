@@ -1,7 +1,7 @@
-/**
- * The Licensed Work is (c) 2023 Sygma
- * SPDX-License-Identifier: LGPL-3.0-only
- */
+/*
+The Licensed Work is (c) 2023 Sygma
+SPDX-License-Identifier: LGPL-3.0-only
+*/
 import { EthereumConfig, SubstrateConfig } from "@buildwithsygma/core"
 
 export type LocalDomainConfig = {
