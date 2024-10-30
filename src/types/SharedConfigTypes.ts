@@ -4,6 +4,7 @@
  */
 
 import { BaseConfig } from "@buildwithsygma/core"
+
 export interface SharedConfig extends BaseConfig<"ethereum" | "substrate"> {
   rpcUrl: string
 }
