@@ -8,7 +8,7 @@ import { ResourcesMetadataConfig } from "../utils/resourcesMetadata"
 import { logger } from "../utils/logger"
 import { DomainMetadataConfig } from "../utils/domainMetadata"
 
-const env = process.env.ENVIRONMENT || ""
+const env = process.env.SYGMA_ENV || ""
 const environment = (env.toLowerCase() as Environment) || Environment.MAINNET
 export const DomainsController = {
   domainsMetadata: function (request: FastifyRequest<{}>, reply: FastifyReply): void {

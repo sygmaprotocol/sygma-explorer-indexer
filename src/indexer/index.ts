@@ -74,7 +74,7 @@ init()
 
 async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance; cron: CronJob }> {
   const config = new Config()
-  await config.init(process.env.SYGMA_ENVIRONMENT! as Environment)
+  await config.init(process.env.SYGMA_ENV! as Environment)
   const sharedConfig = config.getConfiguration()
 
   const chainAnalysisUrl = process.env.CHAIN_ANALYSIS_URL || ""

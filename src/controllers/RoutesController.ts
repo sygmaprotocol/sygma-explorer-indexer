@@ -8,7 +8,7 @@ import { IRouteByResourceType, IRoutesByDomain } from "../interfaces"
 import { logger } from "../utils/logger"
 import { RoutesService } from "../services/routes.service"
 
-const env = process.env.ENVIRONMENT || ""
+const env = process.env.SYGMA_ENV || ""
 const routeService = new RoutesService((env.toLowerCase() as Environment) || Environment.MAINNET)
 
 export const RoutesController = {
