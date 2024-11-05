@@ -67,7 +67,7 @@ jobs:
      id-token: write
      actions: write
    env:
-     AWS_TESTNET: '${{ secrets.AWS_ARN }}'
+     AWS_TESTNET: '${{ secrets.AWS_TESTNET }}'
      AWS_REGION: '${{ secrets.AWS_REGION }}'
    steps:
      - name: checkout ecs repo

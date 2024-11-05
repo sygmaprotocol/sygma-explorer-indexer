@@ -66,7 +66,7 @@ jobs:
      actions: write
    env:
      AWS_REGION: '${{ secrets.AWS_REGION }}'
-     AWS_TESTNET: '${{ secrets.AWS_ARN }}'
+     AWS_TESTNET: '${{ secrets.AWS_TESTNET }}'
    steps:
      - name: checkout ecs repo
        uses: actions/checkout@v4
