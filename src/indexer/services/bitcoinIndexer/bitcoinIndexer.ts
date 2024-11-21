@@ -2,34 +2,32 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
-import { ApiPromise, WsProvider } from "@polkadot/api"
-import FeeRepository from "indexer/repository/fee"
+
 import winston from "winston"
-import { Domain, SharedConfig, SubstrateResource } from "../../config"
-import DomainRepository from "../../repository/domain"
+import { RPCClient } from "rpc-bitcoin"
 import { logger as rootLogger } from "../../../utils/logger"
+import { sleep } from "../../../indexer/utils/substrate"
+import { Domain } from "../../config"
+import DomainRepository from "../../repository/domain"
+import { saveEvents } from "../../../indexer/utils/bitcoin"
 import ExecutionRepository from "../../../indexer/repository/execution"
 import DepositRepository from "../../../indexer/repository/deposit"
 import TransferRepository from "../../../indexer/repository/transfer"
-import { saveEvents, sleep } from "../../../indexer/utils/substrate"
-import AccountRepository from "../../../indexer/repository/account"
+import FeeRepository from "../../../indexer/repository/fee"
 import CoinMarketCapService from "../coinmarketcap/coinmarketcap.service"
+import { Block } from "./bitcoinTypes"
 
-export class SubstrateIndexer {
+export class BitcoinIndexer {
   private domainRepository: DomainRepository
   private executionRepository: ExecutionRepository
   private depositRepository: DepositRepository
   private transferRepository: TransferRepository
   private feeRepository: FeeRepository
-  private resourceMap: Map<string, SubstrateResource>
-  private eventsQueryInterval = 1
-  private provider!: ApiPromise
   private domain: Domain
-  private stopped = false
-  private accountRepository: AccountRepository
-  private coinMarketCapService: CoinMarketCapService
-  private sharedConfig: SharedConfig
   private logger: winston.Logger
+  private stopped = false
+  private client: RPCClient
+  private coinMarketCapService: CoinMarketCapService
   private blockDelay: number
   private blockTime: number
 
@@ -40,35 +38,25 @@ export class SubstrateIndexer {
     depositRepository: DepositRepository,
     transferRepository: TransferRepository,
     feeRepository: FeeRepository,
-    resourceMap: Map<string, SubstrateResource>,
-    accountRepository: AccountRepository,
-    coinmarketcapService: CoinMarketCapService,
-    sharedConfig: SharedConfig,
+    coinMarketCapService: CoinMarketCapService,
+    client: RPCClient,
     blockDelay: number,
     blockTime: number,
   ) {
     this.domainRepository = domainRepository
-    this.domain = domain
     this.executionRepository = executionRepository
-    this.depositRepository = depositRepository
     this.transferRepository = transferRepository
+    this.depositRepository = depositRepository
     this.feeRepository = feeRepository
-    this.resourceMap = resourceMap
-    this.accountRepository = accountRepository
-    this.coinMarketCapService = coinmarketcapService
-    this.sharedConfig = sharedConfig
+    this.domain = domain
+    this.coinMarketCapService = coinMarketCapService
+    this.client = client
+    this.blockDelay = blockDelay
+    this.blockTime = blockTime
+
     this.logger = rootLogger.child({
       domain: domain.name,
       domainID: domain.id,
-    })
-    this.blockDelay = blockDelay
-    this.blockTime = blockTime
-  }
-
-  public async init(rpcUrl: string): Promise<void> {
-    const wsProvider = new WsProvider(rpcUrl)
-    this.provider = await ApiPromise.create({
-      provider: wsProvider,
     })
   }
 
@@ -78,42 +66,39 @@ export class SubstrateIndexer {
 
   public async listenToEvents(): Promise<void> {
     const lastIndexedBlock = await this.getLastIndexedBlock(this.domain.id)
-    let currentBlock = this.domain.startBlock
+    let currentBlockHeight = this.domain.startBlock
     if (lastIndexedBlock && lastIndexedBlock > this.domain.startBlock) {
-      currentBlock = lastIndexedBlock + 1
+      currentBlockHeight = lastIndexedBlock + 1
     }
 
-    this.logger.info(`Starting querying for events from block: ${currentBlock}`)
-
+    this.logger.info(`Starting querying for events from block: ${currentBlockHeight}`)
     while (!this.stopped) {
       try {
-        const latestBlock = await this.provider.rpc.chain.getBlock()
-        const currentBlockHash = await this.provider.rpc.chain.getBlockHash(currentBlock)
-        if (currentBlock + this.blockDelay >= Number(latestBlock.block.header.number)) {
+        const bestBlockHash = (await this.client.getbestblockhash()) as string
+        const bestBlock = (await this.client.getblock({ blockhash: bestBlockHash, verbosity: 1 })) as Block
+        if (currentBlockHeight + this.blockDelay >= bestBlock.height) {
           await sleep(this.blockTime)
           continue
         }
-        this.logger.debug(`Indexing block ${currentBlock}`)
+
+        this.logger.debug(`Indexing block ${currentBlockHeight}`)
+        const currentBlockHash = (await this.client.getblockhash({ height: currentBlockHeight })) as string
+        const currentBlock = (await this.client.getblock({ blockhash: currentBlockHash, verbosity: 2 })) as Block
 
         await saveEvents(
-          currentBlockHash,
-          this.provider,
+          this.client,
           currentBlock,
           this.domain,
           this.executionRepository,
           this.transferRepository,
           this.depositRepository,
           this.feeRepository,
-          this.resourceMap,
-          this.accountRepository,
           this.coinMarketCapService,
-          this.sharedConfig,
         )
-        await this.domainRepository.updateBlock(currentBlock.toString(), this.domain.id)
-
-        currentBlock += this.eventsQueryInterval
+        await this.domainRepository.updateBlock(currentBlock.height.toString(), this.domain.id)
+        currentBlockHeight++
       } catch (error) {
-        this.logger.error(`Failed to process events for block ${currentBlock}:`, error)
+        this.logger.error(`Failed to process events for block ${currentBlockHeight}:`, error)
         await sleep(this.blockTime)
       }
     }

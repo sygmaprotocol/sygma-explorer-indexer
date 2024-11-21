@@ -46,93 +46,43 @@ export type TransferMetadata = {
 class TransferRepository {
   public transfer = new PrismaClient().transfer
 
-  public async insertDepositTransfer(decodedLog: DecodedDepositLog & { usdValue: number | null }): Promise<Transfer> {
-    const transferData = {
-      depositNonce: decodedLog.depositNonce,
-      amount: decodedLog.amount,
-      destination: decodedLog.destination,
-      status: TransferStatus.pending,
-      message: "",
-      resource: {
-        connect: {
-          id: decodedLog.resourceID,
-        },
-      },
-      fromDomain: {
-        connect: {
-          id: Number(decodedLog.fromDomainId),
-        },
-      },
-      toDomain: {
-        connect: {
-          id: Number(decodedLog.toDomainId),
-        },
-      },
-      usdValue: decodedLog.usdValue,
-    }
-
-    return await this.transfer.upsert({
-      where: {
-        transferId: {
-          depositNonce: decodedLog.depositNonce,
-          fromDomainId: Number(decodedLog.fromDomainId),
-          toDomainId: Number(decodedLog.toDomainId),
-        },
-      },
-      update: {
-        ...transferData,
-        account: {
-          connect: {
-            id: decodedLog.sender,
-          },
-        },
-      },
-      create: {
-        id: new ObjectId().toString(),
-        ...transferData,
-        account: {
-          connect: {
-            id: decodedLog.sender,
-          },
-        },
-      },
-    })
-  }
-
-  public async insertSubstrateDepositTransfer(
-    substrateDepositData: Pick<
-      DecodedDepositLog,
-      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId"
-    > & { usdValue: number },
+  public async insertDepositTransfer(
+    depositData: Pick<DecodedDepositLog, "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId"> & {
+      usdValue: number
+    },
   ): Promise<Transfer> {
     const transferData = {
       id: new ObjectId().toString(),
-      depositNonce: substrateDepositData.depositNonce,
-      amount: substrateDepositData.amount,
-      destination: substrateDepositData.destination,
+      depositNonce: depositData.depositNonce,
+      amount: depositData.amount,
+      destination: depositData.destination,
       status: TransferStatus.pending,
       message: "",
       resource: {
         connect: {
-          id: substrateDepositData.resourceID,
+          id: depositData.resourceID,
         },
       },
       fromDomain: {
         connect: {
-          id: Number(substrateDepositData.fromDomainId),
+          id: Number(depositData.fromDomainId),
         },
       },
       toDomain: {
         connect: {
-          id: Number(substrateDepositData.toDomainId),
+          id: Number(depositData.toDomainId),
         },
       },
-      account: {
+      account: {},
+      usdValue: depositData.usdValue,
+    }
+
+    if (depositData.sender) {
+      transferData.account = {
         connect: {
-          id: substrateDepositData.sender,
+          id: depositData.sender,
         },
-      },
-      usdValue: substrateDepositData.usdValue,
+      }
     }
 
     return await this.transfer.create({ data: transferData })
@@ -222,13 +172,17 @@ class TransferRepository {
           id: Number(toDomainId),
         },
       },
-      account: {
+      usdValue: usdValue,
+    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account">
+
+    if (sender) {
+      transferData.account = {
         connect: {
           id: sender,
         },
-      },
-      usdValue: usdValue,
-    } as Pick<TransferMetadata, "depositNonce" | "amount" | "destination" | "resource" | "fromDomain" | "toDomain" | "account">
+      }
+    }
+
     return await this.transfer.update({ where: { id: id }, data: transferData })
   }
 

@@ -7,6 +7,7 @@ import { FastifyInstance } from "fastify"
 import { PrismaClient } from "@prisma/client"
 import { CronJob } from "cron"
 import { caching } from "cache-manager"
+import { RPCClient } from "rpc-bitcoin"
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
@@ -23,6 +24,7 @@ import AccountRepository from "./repository/account"
 import CoinMarketCapService from "./services/coinmarketcap/coinmarketcap.service"
 import { checkTransferStatus, getCronJob } from "./services/monitoringService"
 import { NotificationSender } from "./services/monitoringService/notificationSender"
+import { BitcoinIndexer } from "./services/bitcoinIndexer/bitcoinIndexer"
 
 interface DomainIndexer {
   listenToEvents(): Promise<void>
@@ -109,6 +111,7 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
   const cronTime = process.env.CRON_TIME || "* */10 * * * *"
   const cron = getCronJob(cronTime, checkTransferStatus, transferRepository, notificationSender)
   cron.start()
+
   for (const domain of domainsToIndex) {
     const rpcURL = rpcUrlConfig.get(domain.id)
     if (!rpcURL) {
@@ -116,50 +119,89 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
       continue
     }
 
-    if (domain.type == DomainTypes.SUBSTRATE) {
-      try {
-        const substrateIndexer = new SubstrateIndexer(
-          domainRepository,
-          domain,
-          executionRepository,
-          depositRepository,
-          transferRepository,
-          feeRepository,
-          resourceMap,
-          accountRepository,
-          coinMarketCapServiceInstance,
-          sharedConfig,
-        )
-        await substrateIndexer.init(rpcURL)
-        domainIndexers.push(substrateIndexer)
-      } catch (err) {
-        logger.error(`Error on domain: ${domain.id}... skipping`)
+    const blockDelay = Number(process.env[`${domain.id}_BLOCK_DELAY`])
+    const blockTime = Number(process.env[`${domain.id}_BLOCK_TIME`])
+
+    switch (domain.type) {
+      case DomainTypes.SUBSTRATE: {
+        try {
+          const substrateIndexer = new SubstrateIndexer(
+            domainRepository,
+            domain,
+            executionRepository,
+            depositRepository,
+            transferRepository,
+            feeRepository,
+            resourceMap,
+            accountRepository,
+            coinMarketCapServiceInstance,
+            sharedConfig,
+            blockDelay || 10,
+            blockTime || 12000,
+          )
+          await substrateIndexer.init(rpcURL)
+          domainIndexers.push(substrateIndexer)
+        } catch (err) {
+          logger.error(`Error on domain: ${domain.id}... skipping`, err)
+        }
+        break
       }
-    } else if (domain.type == DomainTypes.EVM) {
-      try {
-        const evmIndexer = new EvmIndexer(
-          domain,
-          rpcURL,
-          domainsToIndex,
-          domainRepository,
-          depositRepository,
-          transferRepository,
-          executionRepository,
-          feeRepository,
-          ofacComplianceService,
-          accountRepository,
-          coinMarketCapServiceInstance,
-          sharedConfig,
-        )
-        domainIndexers.push(evmIndexer)
-      } catch (err) {
-        logger.error(`Error on domain: ${domain.id}... skipping`)
+      case DomainTypes.EVM: {
+        try {
+          const evmIndexer = new EvmIndexer(
+            domain,
+            rpcURL,
+            domainsToIndex,
+            domainRepository,
+            depositRepository,
+            transferRepository,
+            executionRepository,
+            feeRepository,
+            ofacComplianceService,
+            accountRepository,
+            coinMarketCapServiceInstance,
+            sharedConfig,
+            blockDelay || 10,
+            blockTime || 15000,
+          )
+          domainIndexers.push(evmIndexer)
+        } catch (err) {
+          logger.error(`Error on domain: ${domain.id}... skipping`, err)
+        }
+        break
       }
-    } else {
-      logger.error(`Unsupported type: ${JSON.stringify(domain)}`)
+      case DomainTypes.BTC: {
+        try {
+          const url = rpcURL
+          const port = Number(process.env.BTC_PORT) || 443
+          const user = process.env.BTC_USER
+          const pass = process.env.BTC_PASS!
+
+          const client = new RPCClient({ url, port, user, pass })
+
+          const bitcoinIndexer = new BitcoinIndexer(
+            domainRepository,
+            domain,
+            executionRepository,
+            depositRepository,
+            transferRepository,
+            feeRepository,
+            coinMarketCapServiceInstance,
+            client,
+            blockDelay || 3,
+            blockTime || 12000,
+          )
+          domainIndexers.push(bitcoinIndexer)
+        } catch (err) {
+          logger.error(`Error on domain: ${domain.id}... skipping`, err)
+        }
+        break
+      }
+      default: {
+        logger.error(`Unsupported type: ${JSON.stringify(domain)}`)
+      }
     }
   }
-
   return { domainIndexers, app, cron }
 }
 

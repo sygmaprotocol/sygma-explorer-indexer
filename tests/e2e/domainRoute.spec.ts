@@ -18,12 +18,13 @@ type TransferResponse = Transfer & {
 const DOMAIN_1 = "1"
 const DOMAIN_2 = "2"
 const DOMAIN_3 = "3"
+const DOMAIN_4 = "4"
 
 describe("Get all transfers with a specific domain as source or destination", function () {
   before(async () => {
     let transfers = 0
     let isProcessing = false
-    while (transfers !== 35 || isProcessing) {
+    while (transfers !== 34 || isProcessing) {
       const res: { data: Array<TransferResponse> } = await axios.get("http://localhost:8000/api/transfers?page=1&limit=100")
 
       transfers = res.data.length
@@ -42,7 +43,7 @@ describe("Get all transfers with a specific domain as source or destination", fu
     const transfers = res.data as Array<TransferResponse>
 
     expect(res.status).to.be.deep.equal(200)
-    expect(transfers.length).to.be.deep.equal(32)
+    expect(transfers.length).to.be.deep.equal(31)
 
     for (const transfer of transfers) {
       expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_1))
@@ -54,7 +55,7 @@ describe("Get all transfers with a specific domain as source or destination", fu
     const transfers = res.data as Array<TransferResponse>
 
     expect(res.status).to.be.deep.equal(200)
-    expect(transfers.length).to.be.deep.equal(32)
+    expect(transfers.length).to.be.deep.equal(31)
 
     for (const transfer of transfers) {
       expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_1))
@@ -88,7 +89,7 @@ describe("Get all transfers with a specific domain as source or destination", fu
     const transfers = res.data as Array<TransferResponse>
 
     expect(res.status).to.be.deep.equal(200)
-    expect(transfers.length).to.be.deep.equal(30)
+    expect(transfers.length).to.be.deep.equal(29)
 
     for (const transfer of transfers) {
       expect(transfer.toDomainId).to.be.deep.equal(parseInt(DOMAIN_2))
@@ -100,10 +101,34 @@ describe("Get all transfers with a specific domain as source or destination", fu
     const transfers = res.data as Array<TransferResponse>
 
     expect(res.status).to.be.deep.equal(200)
-    expect(transfers.length).to.be.deep.equal(3)
+    expect(transfers.length).to.be.deep.equal(2)
 
     for (const transfer of transfers) {
       expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_3))
+    }
+  })
+
+  it("Get all transfers from domain 4", async () => {
+    const res = await axios.get(`http://localhost:8000/api/domains/${DOMAIN_4}/transfers?page=1&limit=100`)
+    const transfers = res.data as Array<TransferResponse>
+
+    expect(res.status).to.be.deep.equal(200)
+    expect(transfers.length).to.be.deep.equal(1)
+
+    for (const transfer of transfers) {
+      expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_4))
+    }
+  })
+
+  it("Get all transfers to domain 4", async () => {
+    const res = await axios.get(`http://localhost:8000/api/domains/${DOMAIN_4}/transfers?page=1&limit=100&domain=destination`)
+    const transfers = res.data as Array<TransferResponse>
+
+    expect(res.status).to.be.deep.equal(200)
+    expect(transfers.length).to.be.deep.equal(1)
+
+    for (const transfer of transfers) {
+      expect(transfer.toDomainId).to.be.deep.equal(parseInt(DOMAIN_4))
     }
   })
 })
