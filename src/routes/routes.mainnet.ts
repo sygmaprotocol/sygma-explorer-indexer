@@ -14,6 +14,8 @@ export const routesMainnet: Map<string, Route[]> = new Map([
       { fromDomainId: "1", toDomainId: "5", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000", type: "gmp" },
       { fromDomainId: "1", toDomainId: "3", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000001", type: "fungible" },
       { fromDomainId: "1", toDomainId: "2", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000001", type: "fungible" },
+      { fromDomainId: "1", toDomainId: "5", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
+      { fromDomainId: "1", toDomainId: "8", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
     ],
   ],
   ["2", [{ fromDomainId: "2", toDomainId: "1", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000001", type: "fungible" }]],
@@ -32,6 +34,8 @@ export const routesMainnet: Map<string, Route[]> = new Map([
       { fromDomainId: "5", toDomainId: "1", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000", type: "gmp" },
       { fromDomainId: "5", toDomainId: "4", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000", type: "gmp" },
       { fromDomainId: "5", toDomainId: "7", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000", type: "gmp" },
+      { fromDomainId: "5", toDomainId: "1", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
+      { fromDomainId: "5", toDomainId: "8", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
     ],
   ],
   [
@@ -48,6 +52,21 @@ export const routesMainnet: Map<string, Route[]> = new Map([
       { fromDomainId: "7", toDomainId: "4", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000", type: "gmp" },
       { fromDomainId: "7", toDomainId: "5", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000", type: "gmp" },
       { fromDomainId: "7", toDomainId: "1", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000000", type: "gmp" },
+    ],
+  ],
+  [
+    "8",
+    [
+      { fromDomainId: "8", toDomainId: "1", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
+      { fromDomainId: "8", toDomainId: "5", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
+      { fromDomainId: "8", toDomainId: "9", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
+    ],
+  ],
+  [
+    "9",
+    [
+      { fromDomainId: "9", toDomainId: "8", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
+      { fromDomainId: "9", toDomainId: "10", resourceId: "0x0000000000000000000000000000000000000000000000000000000000000002", type: "native" },
     ],
   ],
 ])
