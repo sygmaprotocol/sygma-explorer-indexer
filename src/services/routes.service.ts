@@ -2,7 +2,7 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
-import { Environment } from "@buildwithsygma/sygma-sdk-core"
+import { Environment } from "@buildwithsygma/core"
 import { routesMainnet } from "../routes/routes.mainnet"
 import { routesTestnet } from "../routes/routes.testnet"
 import { Route } from "../routes/types"
