@@ -4,12 +4,13 @@ SPDX-License-Identifier: LGPL-3.0-only
 */
 import { Signer, ethers, AbiCoder } from "ethers"
 import { ERC20Handler__factory as Erc20HandlerFactory, ERC721Handler__factory as Erc721HandlerFactory } from "@buildwithsygma/sygma-contracts"
+import { EthereumConfig, ResourceType, SygmaConfig } from "@buildwithsygma/core"
 import { sleep } from "../indexer/utils/substrate"
-import { EvmBridgeConfig, HandlersMap, SygmaConfig } from "../sygmaTypes"
+import { HandlersMap } from "../sygmaTypes"
 import { IncludedQueryParams } from "../interfaces"
 
 export function getNetworkName(domainId: number, sygmaConfig: SygmaConfig): string {
-  return sygmaConfig.chains.find(c => c.domainId === domainId)?.name || ""
+  return sygmaConfig.domains.find(c => c.id === domainId)?.name || ""
 }
 
 export function decodeDataHash(data: string): { amount: string; destinationRecipientAddress: string } {
@@ -27,13 +28,21 @@ export function convertMillisecondsToMinutes(duration: number): number {
   return duration / 1000 / 60
 }
 
-export function getHandlersMap(bridge: EvmBridgeConfig, provider: ethers.JsonRpcProvider): HandlersMap {
-  const erc20HandlerContract = Erc20HandlerFactory.connect(bridge.erc20HandlerAddress, provider as unknown as Signer)
-  const erc721HandlerContract = Erc721HandlerFactory.connect(bridge.erc721HandlerAddress, provider as unknown as Signer)
-
+export function getHandlersMap(bridge: EthereumConfig, provider: ethers.JsonRpcProvider): HandlersMap {
+  const erc20HandlerAddress = bridge.handlers.find(h => h.type === ResourceType.FUNGIBLE)?.address
+  const erc721HandlerAddress = bridge.handlers.find(h => h.type === ResourceType.NON_FUNGIBLE)?.address
   const handlersMap: HandlersMap = {}
-  handlersMap[bridge.erc20HandlerAddress] = erc20HandlerContract
-  handlersMap[bridge.erc721HandlerAddress] = erc721HandlerContract
+
+  if (erc20HandlerAddress) {
+    const erc20HandlerContract = Erc20HandlerFactory.connect(erc20HandlerAddress, provider as unknown as Signer)
+    handlersMap[erc20HandlerAddress] = erc20HandlerContract
+  }
+
+  if (erc721HandlerAddress) {
+    const erc721HandlerContract = Erc721HandlerFactory.connect(erc721HandlerAddress, provider as unknown as Signer)
+    handlersMap[erc721HandlerAddress] = erc721HandlerContract
+  }
+
   return handlersMap
 }
 

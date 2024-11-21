@@ -2,9 +2,8 @@
 The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
+import { EthereumConfig } from "@buildwithsygma/core"
 import { Provider, Log, id } from "ethers"
-
-import { Domain } from "../../config"
 
 enum Topics {
   DEPOSIT = "Deposit(uint8,bytes32,uint64,address,bytes,bytes)",
@@ -12,7 +11,7 @@ enum Topics {
   PROPOSAL_EXECUTION = "ProposalExecution(uint8,uint64,bytes32,bytes)",
 }
 
-export async function getLogs(provider: Provider, domain: Domain, fromBlock: number, toBlock: number): Promise<Log[]> {
+export async function getLogs(provider: Provider, domain: EthereumConfig, fromBlock: number, toBlock: number): Promise<Log[]> {
   const filter: Array<string> = [domain.bridge]
 
   return await provider.getLogs({

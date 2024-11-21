@@ -3,36 +3,37 @@ The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
 import { MemoryCache } from "cache-manager"
+import { SygmaConfig } from "@buildwithsygma/core"
 import { Transfer } from "@prisma/client"
 import CoinMarketCapService from "../../indexer/services/coinmarketcap/coinmarketcap.service"
 import TransferRepository from "../../indexer/repository/transfer"
-import { SharedConfig } from "../../indexer/config"
 import { logger } from "../../utils/logger"
 import { IFixInterface } from "../interfaces"
 import TransfersService from "../../services/transfers.service"
 
 export class PriceCalculation implements IFixInterface {
   private memoryCache: MemoryCache
-  private sharedConfig: SharedConfig
+  private sygmaConfig: SygmaConfig
   private coinMarketCapServiceInstance: CoinMarketCapService
   private transferRepository: TransferRepository
 
-  constructor(memoryCache: MemoryCache, sharedConfig: SharedConfig) {
+  constructor(memoryCache: MemoryCache, sygmaConfig: SygmaConfig) {
     const coinMarketCapAPIKey = process.env.COINMARKETCAP_API_KEY || ""
     const coinMarketCapUrl = process.env.COINMARKETCAP_API_URL || ""
     this.memoryCache = memoryCache
     this.coinMarketCapServiceInstance = new CoinMarketCapService(coinMarketCapAPIKey, coinMarketCapUrl, this.memoryCache)
     this.transferRepository = new TransferRepository()
-    this.sharedConfig = sharedConfig
+    this.sygmaConfig = sygmaConfig
   }
 
-  private getTokenSymbol(sharedConfig: SharedConfig, fromDomainId: number, resourceId: string): string {
-    const currentDomain = sharedConfig.domains.find(domain => domain.id == fromDomainId)
+  private getTokenSymbol(sygmaConfig: SygmaConfig, fromDomainId: number, resourceId: string): string {
+    const currentDomain = sygmaConfig.domains.find(domain => domain.id == fromDomainId)
     if (!currentDomain) {
       throw new Error("Domain doesn't exist")
     }
+
     const currentResource = currentDomain.resources.find(resource => resource.resourceId == resourceId)
-    if (!currentResource) {
+    if (!currentResource || !currentResource.symbol) {
       throw new Error("Resource doesn't exist")
     }
     return currentResource.symbol
@@ -42,7 +43,7 @@ export class PriceCalculation implements IFixInterface {
       if (!transfer.resourceID) {
         throw new Error("No resource ID on transfer")
       }
-      const tokenSymbol = this.getTokenSymbol(this.sharedConfig, transfer.fromDomainId, transfer.resourceID!)
+      const tokenSymbol = this.getTokenSymbol(this.sygmaConfig, transfer.fromDomainId, transfer.resourceID!)
       let newValue = 0
       if (transfer.amount) {
         newValue = await this.coinMarketCapServiceInstance.getValueInUSD(transfer.amount!, tokenSymbol)

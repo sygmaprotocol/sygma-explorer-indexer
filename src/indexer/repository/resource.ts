@@ -3,12 +3,12 @@ The Licensed Work is (c) 2023 Sygma
 SPDX-License-Identifier: LGPL-3.0-only
 */
 import { PrismaClient } from "@prisma/client"
-import { ResourceTypes } from "../config"
+import { ResourceType } from "@buildwithsygma/core"
 
 class ResourceRepository {
   public resource = new PrismaClient().resource
 
-  public async insertResource(resource: { id: string; type: ResourceTypes; decimals: number }): Promise<void> {
+  public async insertResource(resource: { id: string; type: ResourceType; decimals: number }): Promise<void> {
     await this.resource.upsert({
       where: { id: resource.id },
       update: { type: resource.type, decimals: resource.decimals },

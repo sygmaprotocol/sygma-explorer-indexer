@@ -4,8 +4,9 @@ SPDX-License-Identifier: LGPL-3.0-only
 */
 import { expect } from "chai"
 import axios from "axios"
+import { Network } from "@buildwithsygma/core"
 import { Transfer, Resource, Fee, Deposit, Execution, Domain } from "@prisma/client"
-import { DomainTypes } from "../../src/indexer/config"
+
 import { DepositType } from "../../src/indexer/services/evmIndexer/evmTypes"
 
 const NUMBER_OF_TRANSFERS = 35
@@ -62,7 +63,7 @@ describe("Indexer e2e tests", function () {
     const transfers = res.data as Array<TransferResponse>
 
     for (const transfer of transfers) {
-      if (transfer.fromDomain.name.toLowerCase() == DomainTypes.SUBSTRATE) {
+      if (transfer.fromDomain.name.toLowerCase() == Network.SUBSTRATE) {
         substrateDeposits++
       }
       switch (transfer.resource.type) {

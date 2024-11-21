@@ -5,12 +5,13 @@ SPDX-License-Identifier: LGPL-3.0-only
 import nodeCleanup from "node-cleanup"
 import { FastifyInstance } from "fastify"
 import { PrismaClient } from "@prisma/client"
+import { EthereumConfig, SubstrateConfig, Config, Environment, Network, SubstrateResource, SygmaConfig } from "@buildwithsygma/core"
 import { CronJob } from "cron"
 import { caching } from "cache-manager"
 import { logger } from "../utils/logger"
 import { SubstrateIndexer } from "./services/substrateIndexer/substrateIndexer"
 import { EvmIndexer } from "./services/evmIndexer/evmIndexer"
-import { getSharedConfig, DomainTypes, Domain, getSsmDomainConfig, getDomainsToIndex, SubstrateResource } from "./config"
+import { getSsmDomainConfig, getDomainsToIndex } from "./config"
 import DomainRepository from "./repository/domain"
 import DepositRepository from "./repository/deposit"
 import TransferRepository from "./repository/transfer"
@@ -72,7 +73,9 @@ init()
   })
 
 async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: FastifyInstance; cron: CronJob }> {
-  const sharedConfig = await getSharedConfig(process.env.SHARED_CONFIG_URL!)
+  const config = new Config()
+  await config.init(process.env.SYGMA_ENV! as Environment)
+  const sharedConfig = config.getConfiguration()
 
   const chainAnalysisUrl = process.env.CHAIN_ANALYSIS_URL || ""
   const chainAnalysisApiKey = process.env.CHAIN_ANALYSIS_API_KEY || ""
@@ -97,11 +100,11 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
   const accountRepository = new AccountRepository()
 
   const app = healthcheckRoute()
-  const resourceMap = await insertDomains(sharedConfig.domains, resourceRepository, domainRepository)
+  const resourceMap = await insertDomains(sharedConfig, resourceRepository, domainRepository)
 
   const rpcUrlConfig = getSsmDomainConfig()
 
-  const domainsToIndex = getDomainsToIndex(sharedConfig.domains)
+  const domainsToIndex = getDomainsToIndex(sharedConfig.domains as Array<SubstrateConfig | EthereumConfig>)
   const domainIndexers: Array<DomainIndexer> = []
 
   const notificationSender = new NotificationSender(process.env.SNS_REGION!)
@@ -116,7 +119,7 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
       continue
     }
 
-    if (domain.type == DomainTypes.SUBSTRATE) {
+    if (domain.type == Network.SUBSTRATE) {
       try {
         const substrateIndexer = new SubstrateIndexer(
           domainRepository,
@@ -135,12 +138,12 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
       } catch (err) {
         logger.error(`Error on domain: ${domain.id}... skipping`)
       }
-    } else if (domain.type == DomainTypes.EVM) {
+    } else if (domain.type == Network.EVM) {
       try {
         const evmIndexer = new EvmIndexer(
           domain,
           rpcURL,
-          domainsToIndex,
+          domainsToIndex as EthereumConfig[],
           domainRepository,
           depositRepository,
           transferRepository,
@@ -164,18 +167,18 @@ async function init(): Promise<{ domainIndexers: Array<DomainIndexer>; app: Fast
 }
 
 async function insertDomains(
-  domains: Array<Domain>,
+  config: SygmaConfig,
   resourceRepository: ResourceRepository,
   domainRepository: DomainRepository,
 ): Promise<Map<string, SubstrateResource>> {
   const resourceMap = new Map<string, SubstrateResource>()
-  for (const domain of domains) {
+  for (const domain of config.domains) {
     await domainRepository.insertDomain(domain.id, domain.startBlock.toString(), domain.name)
     for (const resource of domain.resources) {
-      if (domain.type == DomainTypes.SUBSTRATE) {
+      if (domain.type === Network.SUBSTRATE) {
         resourceMap.set(resource.resourceId, resource as SubstrateResource)
       }
-      await resourceRepository.insertResource({ id: resource.resourceId, type: resource.type, decimals: resource.decimals })
+      await resourceRepository.insertResource({ id: resource.resourceId, type: resource.type, decimals: resource.decimals ?? 0 })
     }
   }
   return resourceMap

@@ -18,7 +18,7 @@ export enum NotificationType {
 }
 
 export async function createMessage(templatePath: string, transfer: TransferWithDeposit, durationInMins: number): Promise<string> {
-  const environment = process.env.ENVIRONMENT || ""
+  const environment = process.env.SYGMA_ENV || ""
   return await ejs.renderFile(path.join(__dirname, templatePath), {
     txHash: transfer.deposit!.txHash,
     fromDomainId: transfer.fromDomainId,
