@@ -18,66 +18,67 @@ env:
 
 jobs:    
   deploy:
-   name: deploy
-   runs-on: ubuntu-latest
-   environment: mainnet 
-   permissions:
-     contents: read
-     id-token: write
-     actions: write
-   env:
-     AWS_REGION: '${{ secrets.AWS_REGION }}'
-     AWS_MAINNET: '${{ secrets.AWS_MAINNET }}'
-   steps:
-     - name: Authorised User only
-       run: |
+    name: deploy
+    runs-on: ubuntu-latest
+    environment: mainnet 
+    permissions:
+      contents: read
+      id-token: write
+      actions: write
+    env:
+      AWS_REGION: '${{ secrets.AWS_REGION }}'
+      AWS_MAINNET: '${{ secrets.AWS_MAINNET }}'
+      
+    steps:
+      - name: Authorised User only
+        run: |
         if [[ ! " tcar121293 eedygreen MakMuftic akchainsafe mpetrun5 " =~ " ${{ github.actor }} " ]]; then 
           echo "You are not authorized to deploy to mainnet!"
           exit 1
         fi
 
-     - name: checkout ecs repo
-       uses: actions/checkout@v4
-       with:
-         repository: sygmaprotocol/devops
-         token: ${{ secrets.GHCR_TOKEN }}
-         ref: main
+      - name: checkout ecs repo
+        uses: actions/checkout@v4
+        with:
+          repository: sygmaprotocol/devops
+          token: ${{ secrets.GHCR_TOKEN }}
+          ref: main
 
-     - name: render jinja2 templates to task definition json files
-       uses: cuchi/jinja2-action@v1.2.0
-       with:
-         template: 'sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.j2'
-         output_file: 'sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.json'
-         data_format: json
-         variables: |
-           awsAccountId=${{ env.AWS_MAINNET }}
-           awsRegion=${{ env.AWS_REGION }}
-           awsEnv=${{ env.ENVIRONMENT }}
-           DB_USERNAME=${{ secrets.DB_USERNAME }}
-           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-           imageTag=${{ env.VERSION }}
+      - name: render jinja2 templates to task definition json files
+        uses: cuchi/jinja2-action@v1.2.0
+        with:
+          template: 'sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.j2'
+          output_file: 'sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.json'
+          data_format: json
+          variables: |
+            awsAccountId=${{ env.AWS_MAINNET }}
+            awsRegion=${{ env.AWS_REGION }}
+            awsEnv=${{ env.ENVIRONMENT }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            imageTag=${{ env.VERSION }}
 
-     - name: Configure AWS Credentials
-       uses: aws-actions/configure-aws-credentials@v4
-       with:
-         role-to-assume: arn:aws:iam::${{ env.AWS_MAINNET }}:role/github-actions-${{ env.ENVIRONMENT }}-chainbridge
-         aws-region: ${{ env.AWS_REGION }}
-         role-session-name: GithubActions
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_MAINNET }}:role/github-actions-${{ env.ENVIRONMENT }}-chainbridge
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GithubActions
 
-     - name: Deploy to Amazon ECS
-       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-       with:
-         task-definition: sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.json
-         service: explorer-api-service-${{ env.ENVIRONMENT }}
-         cluster: sygma-explorer-${{ env.ENVIRONMENT }}
-         wait-for-service-stability: true
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: sygma-explorer/ecs/task_definition-explorer-api-${{ env.ENVIRONMENT }}.json
+          service: explorer-api-service-${{ env.ENVIRONMENT }}
+          cluster: sygma-explorer-${{ env.ENVIRONMENT }}
+          wait-for-service-stability: true
 
-     - name: slack notify
-       uses: 8398a7/action-slack@v3
-       with:
+      - name: slack notify
+        uses: 8398a7/action-slack@v3
+        with:
           status: ${{ job.status }}
           fields: repo,message,commit,author,action,job,eventName,ref,workflow # selectable (default: repo,message)
-       env:
+        env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-       if: always()
-       
+        if: always()
+        
