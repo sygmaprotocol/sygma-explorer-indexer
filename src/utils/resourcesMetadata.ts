@@ -229,10 +229,10 @@ export const ResourcesMetadataConfig: EnvironmentResourcesMetadataConfig = {
     ],
     16: [
       {
-        caip19: "eip155:3456/slip44:0",
-        symbol: "BTC",
-        decimals: 8,
-        resourceId: "0x0000000000000000000000000000000000000000000000000000000000000700",
+        caip19: "",
+        symbol: "ETH",
+        decimals: 18,
+        resourceId: "0x0000000000000000000000000000000000000000000000000000000000000600",
       },
     ],
   },
