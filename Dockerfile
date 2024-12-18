@@ -1,6 +1,6 @@
 # The Licensed Work is (c) 2023 Sygma
 # SPDX-License-Identifier: LGPL-3.0-only
-FROM node:18-alpine AS builder
+FROM node:18.15-alpine AS builder
 
 # update packages
 RUN apk update
@@ -29,7 +29,7 @@ RUN yarn prisma:generate
 
 RUN yarn build
 
-FROM node:18-alpine
+FROM node:18.15-alpine
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/build ./build
