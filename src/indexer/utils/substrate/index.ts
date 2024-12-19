@@ -74,6 +74,9 @@ export async function saveFailedHandlerExecution(
   const numDepositNonce = Number(depositNonce.replace(/,/g, ""))
 
   let transfer = await transferRepository.findTransfer(numDepositNonce, Number(originDomainId), toDomainId)
+  if (transfer?.status == TransferStatus.executed) {
+    return
+  }
   // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
     transfer = await transferRepository.insertFailedTransfer(
