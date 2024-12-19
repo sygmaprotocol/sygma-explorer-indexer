@@ -23,7 +23,7 @@ describe("Get all transfers from a source domain to a destination domain", funct
   before(async () => {
     let transfers = 0
     let isProcessing = false
-    while (transfers !== 35 || isProcessing) {
+    while (transfers !== 31 || isProcessing) {
       const res: { data: Array<TransferResponse> } = await axios.get("http://localhost:8000/api/transfers?page=1&limit=100")
 
       transfers = res.data.length
@@ -41,7 +41,7 @@ describe("Get all transfers from a source domain to a destination domain", funct
     const res = await axios.get(`http://localhost:8000/api/domains/source/${DOMAIN_1}/destination/${DOMAIN_2}/transfers?page=1&limit=100`)
     const transfers = res.data as Array<TransferResponse>
 
-    expect(transfers.length).to.be.deep.equal(30)
+    expect(transfers.length).to.be.deep.equal(29)
 
     for (const transfer of transfers) {
       expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_1))
@@ -53,7 +53,7 @@ describe("Get all transfers from a source domain to a destination domain", funct
     const res = await axios.get(`http://localhost:8000/api/domains/source/${DOMAIN_1}/destination/${DOMAIN_3}/transfers?page=1&limit=100`)
     const transfers = res.data as Array<TransferResponse>
 
-    expect(transfers.length).to.be.deep.equal(2)
+    expect(transfers.length).to.be.deep.equal(1)
 
     for (const transfer of transfers) {
       expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_1))
@@ -65,7 +65,7 @@ describe("Get all transfers from a source domain to a destination domain", funct
     const res = await axios.get(`http://localhost:8000/api/domains/source/${DOMAIN_3}/destination/${DOMAIN_1}/transfers`)
     const transfers = res.data as Array<TransferResponse>
 
-    expect(transfers.length).to.be.deep.equal(3)
+    expect(transfers.length).to.be.deep.equal(1)
 
     for (const transfer of transfers) {
       expect(transfer.fromDomainId).to.be.deep.equal(parseInt(DOMAIN_3))

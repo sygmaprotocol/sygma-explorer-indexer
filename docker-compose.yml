@@ -81,7 +81,7 @@ services:
     restart: always
     environment:
       DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer?replicaSet=my-replica-set&authSource=admin&retryWrites=true&w=majority
-      SHARED_CONFIG_URL: https://ipfs.io/ipfs/QmW9RhxFFotHtvsU2PMVYU2NNZigeCpbg1ywDCZ3vX675b
+      SHARED_CONFIG_URL: https://ipfs.io/ipfs/bafkreiasnla2ya55of6nwm3swjstip4q2ixfa3t6tvixyibclfovxnerte
       RPC_URL_CONFIG: '[{"id": 1, "endpoint": "http://evm1:8545"}, {"id": 2, "endpoint": "http://evm2:8545"}, {"id": 3, "endpoint": "ws://substrate-pallet:9944"}]'
       RETRY_COUNT: '1'
       BACKOFF: '100'

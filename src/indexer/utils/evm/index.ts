@@ -393,6 +393,9 @@ export async function saveFailedHandlerExecutionLogs(
   executionRepository: ExecutionRepository,
 ): Promise<void> {
   let transfer = await transferRepository.findTransfer(error.depositNonce, Number(error.domainId), toDomainId)
+  if (transfer?.status == TransferStatus.executed) {
+    return
+  }
   if (!transfer) {
     transfer = await transferRepository.insertFailedTransfer(error, toDomainId)
   } else {
