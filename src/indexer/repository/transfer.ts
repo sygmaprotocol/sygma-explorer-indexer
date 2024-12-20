@@ -46,7 +46,7 @@ export type TransferMetadata = {
 class TransferRepository {
   public transfer = new PrismaClient().transfer
 
-  public async insertDepositTransfer(decodedLog: DecodedDepositLog & { usdValue: number | null }): Promise<Transfer> {
+  public async upsertDepositTransfer(decodedLog: DecodedDepositLog & { usdValue: number | null }): Promise<Transfer> {
     const transferData = {
       depositNonce: decodedLog.depositNonce,
       amount: decodedLog.amount,
@@ -68,9 +68,13 @@ class TransferRepository {
           id: Number(decodedLog.toDomainId),
         },
       },
+      account: {
+        connect: {
+          id: decodedLog.sender,
+        },
+      },
       usdValue: decodedLog.usdValue,
     }
-
     return await this.transfer.upsert({
       where: {
         transferId: {
@@ -81,61 +85,13 @@ class TransferRepository {
       },
       update: {
         ...transferData,
-        account: {
-          connect: {
-            id: decodedLog.sender,
-          },
-        },
+        status: undefined,
       },
       create: {
         id: new ObjectId().toString(),
         ...transferData,
-        account: {
-          connect: {
-            id: decodedLog.sender,
-          },
-        },
       },
     })
-  }
-
-  public async insertSubstrateDepositTransfer(
-    substrateDepositData: Pick<
-      DecodedDepositLog,
-      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId"
-    > & { usdValue: number },
-  ): Promise<Transfer> {
-    const transferData = {
-      id: new ObjectId().toString(),
-      depositNonce: substrateDepositData.depositNonce,
-      amount: substrateDepositData.amount,
-      destination: substrateDepositData.destination,
-      status: TransferStatus.pending,
-      message: "",
-      resource: {
-        connect: {
-          id: substrateDepositData.resourceID,
-        },
-      },
-      fromDomain: {
-        connect: {
-          id: Number(substrateDepositData.fromDomainId),
-        },
-      },
-      toDomain: {
-        connect: {
-          id: Number(substrateDepositData.toDomainId),
-        },
-      },
-      account: {
-        connect: {
-          id: substrateDepositData.sender,
-        },
-      },
-      usdValue: substrateDepositData.usdValue,
-    }
-
-    return await this.transfer.create({ data: transferData })
   }
 
   public async insertExecutionTransfer(

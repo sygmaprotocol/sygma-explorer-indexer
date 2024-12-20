@@ -281,8 +281,6 @@ export async function saveDepositLogs(
   coinMarketCapService: CoinMarketCapService,
   sharedConfig: SharedConfig,
 ): Promise<void> {
-  let transfer = await transferRepository.findTransfer(decodedLog.depositNonce, Number(decodedLog.fromDomainId), Number(decodedLog.toDomainId))
-
   const { sender, amount, fromDomainId } = decodedLog
 
   const currentDomain = sharedConfig.domains.find(domain => domain.id == parseInt(fromDomainId))
@@ -319,16 +317,7 @@ export async function saveDepositLogs(
     addressStatus: senderStatus,
   })
 
-  if (!transfer) {
-    transfer = await transferRepository.insertDepositTransfer({ ...decodedLog, usdValue: amountInUSD })
-  } else {
-    const dataToSave = {
-      ...decodedLog,
-      usdValue: amountInUSD,
-    }
-    await transferRepository.updateTransfer(dataToSave, transfer.id)
-  }
-
+  const transfer = await transferRepository.upsertDepositTransfer({ ...decodedLog, usdValue: amountInUSD })
   const deposit = {
     id: new ObjectId().toString(),
     type: decodedLog.transferType,
