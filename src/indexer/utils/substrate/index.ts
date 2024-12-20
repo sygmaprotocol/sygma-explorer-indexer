@@ -27,7 +27,6 @@ import {
   SubstrateTypeTransfer,
   SygmaPalleteEvents,
 } from "../../services/substrateIndexer/substrateTypes"
-import { DecodedDepositLog } from "../../../indexer/services/evmIndexer/evmTypes"
 import { Domain, SharedConfig, SubstrateResource } from "../../../indexer/config"
 import { getSubstrateEvents } from "../../../indexer/services/substrateIndexer/substrateEventParser"
 import AccountRepository from "../../repository/account"
@@ -74,6 +73,9 @@ export async function saveFailedHandlerExecution(
   const numDepositNonce = Number(depositNonce.replace(/,/g, ""))
 
   let transfer = await transferRepository.findTransfer(numDepositNonce, Number(originDomainId), toDomainId)
+  if (transfer?.status == TransferStatus.executed) {
+    return
+  }
   // there is no transfer yet, but a proposal execution exists
   if (!transfer) {
     transfer = await transferRepository.insertFailedTransfer(
@@ -121,12 +123,10 @@ export async function saveDeposit(
   } = substrateDepositData
 
   const currentDomain = sharedConfig.domains.find(domain => domain.id === originDomainId)
-  const tokenSymbol = currentDomain?.resources.find(resource => resource.resourceId === resourceId)?.symbol
+  const resource = currentDomain?.resources.find(resource => resource.resourceId === resourceId)
+  const tokenSymbol = resource?.symbol
   const decodedAmount = getDecodedAmount(depositData)
   const numDepositNonce = Number(depositNonce.replace(/,/g, ""))
-
-  let transfer = await transferRepository.findTransfer(numDepositNonce, originDomainId, Number(destinationDomainId))
-
   let amountInUSD
 
   try {
@@ -136,56 +136,32 @@ export async function saveDeposit(
     amountInUSD = 0
   }
 
-  if (transfer) {
-    let dataTransferToUpdate = {
-      depositNonce: numDepositNonce,
+  const transferData = {
+    blockNumber: Number(blockNumber),
+    txHash: txIdentifier,
+    depositData,
+    handlerResponse,
+    transferType: "fungible",
+    fee: {
+      tokenSymbol: tokenSymbol!,
       amount: decodedAmount,
-      resourceID: resourceId,
-      fromDomainId: originDomainId.toString(),
-      toDomainId: destinationDomainId,
-      timestamp: timestamp,
-      destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
-    } as Pick<
-      DecodedDepositLog,
-      "depositNonce" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp" | "sender"
-    > & { usdValue: number }
-
-    if (transfer.accountId !== null) {
-      dataTransferToUpdate = {
-        ...dataTransferToUpdate,
-        sender: transfer.accountId,
-      }
-    } else {
-      await accountRepository.insertAccount({ id: sender, addressStatus: "" })
-
-      dataTransferToUpdate = {
-        ...dataTransferToUpdate,
-        sender,
-        usdValue: amountInUSD,
-      }
-    }
-    await transferRepository.updateTransfer(dataTransferToUpdate, transfer.id)
-  } else {
-    const transferData = {
-      id: new ObjectId().toString(),
-      depositNonce: numDepositNonce,
-      sender,
-      amount: decodedAmount,
-      resourceID: resourceId,
-      fromDomainId: `${originDomainId}`,
-      toDomainId: `${destinationDomainId}`,
-      timestamp: timestamp,
-      destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
-      usdValue: amountInUSD,
-    } as Pick<
-      DecodedDepositLog,
-      "depositNonce" | "sender" | "amount" | "destination" | "resourceID" | "toDomainId" | "fromDomainId" | "timestamp"
-    > & { usdValue: number }
-
-    await accountRepository.insertAccount({ id: sender, addressStatus: "" })
-
-    transfer = await transferRepository.insertSubstrateDepositTransfer(transferData)
+      decimals: resource?.decimals!,
+      tokenAddress: resource?.address!,
+    },
+    depositNonce: numDepositNonce,
+    sender,
+    amount: decodedAmount,
+    resourceID: resourceId,
+    fromDomainId: `${originDomainId}`,
+    toDomainId: `${destinationDomainId}`,
+    timestamp: timestamp,
+    destination: `0x${depositData.substring(2).slice(128, depositData.length - 1)}`,
+    usdValue: amountInUSD,
   }
+
+  await accountRepository.insertAccount({ id: sender, addressStatus: "" })
+
+  const transfer = await transferRepository.upsertDepositTransfer(transferData)
 
   const deposit = {
     id: new ObjectId().toString(),
