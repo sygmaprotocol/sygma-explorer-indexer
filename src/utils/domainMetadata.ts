@@ -170,17 +170,6 @@ export const DomainMetadataConfig: EnvironmentMetadataConfigType = {
       blockExplorerUrl: "https://etherscan.io",
       renderName: "Ethereum",
     },
-    2: {
-      icon: "https://scan.buildwithsygma.com/assets/icons/khala.svg",
-      name: "khala",
-      caipId: "polkadot:5232",
-      nativeTokenSymbol: "pha",
-      nativeTokenDecimals: 12,
-      nativeTokenFullName: "pha",
-      type: "substrate",
-      blockExplorerUrl: "https://khala.subscan.io",
-      renderName: "Khala",
-    },
     3: {
       icon: "https://scan.buildwithsygma.com/assets/icons/phala.svg",
       name: "phala",
