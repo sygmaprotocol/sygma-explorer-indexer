@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   evm1:
-    image: ghcr.io/sygmaprotocol/indexer-evm1:latest
+    image: ghcr.io/sprintertech/indexer-evm1:latest
     container_name: evm1
     command: ganache-cli --chainId 1337 -d --db data/ --blockTime 2 > /dev/null
     logging:
@@ -10,7 +10,7 @@ services:
       - "8545:8545"
 
   evm2:
-    image: ghcr.io/sygmaprotocol/indexer-evm2:latest
+    image: ghcr.io/sprintertech/indexer-evm2:latest
     command: ganache-cli --chainId 1338 -d --db data/ --blockTime 2 > /dev/null
     container_name: evm2
     logging:
@@ -21,7 +21,7 @@ services:
   substrate-pallet:
     container_name: substrate-pallet
     command: ["--pruning=25000"]
-    image: ghcr.io/sygmaprotocol/indexer-substrate:latest
+    image: ghcr.io/sprintertech/indexer-substrate:latest
     ports:
       - "9944:9944"
       - "9933:9933"
@@ -80,7 +80,7 @@ services:
       dockerfile: ./Dockerfile 
     restart: always
     environment:
-      DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer?replicaSet=my-replica-set&authSource=admin&retryWrites=true&w=majority
+      DATABASE_URL: mongodb://mongo1:30001/sprintertech-explorer-indexer?replicaSet=my-replica-set&authSource=admin&retryWrites=true&w=majority
       SHARED_CONFIG_URL: https://ipfs.io/ipfs/bafkreiasnla2ya55of6nwm3swjstip4q2ixfa3t6tvixyibclfovxnerte
       RPC_URL_CONFIG: '[{"id": 1, "endpoint": "http://evm1:8545"}, {"id": 2, "endpoint": "http://evm2:8545"}, {"id": 3, "endpoint": "ws://substrate-pallet:9944"}]'
       RETRY_COUNT: '1'
@@ -91,6 +91,6 @@ services:
       context: .
       dockerfile: ./Dockerfile.api
     environment:
-      DATABASE_URL: mongodb://mongo1:30001/sygmaprotocol-explorer-indexer
+      DATABASE_URL: mongodb://mongo1:30001/sprintertech-explorer-indexer
     ports:
       - "8000:8000"

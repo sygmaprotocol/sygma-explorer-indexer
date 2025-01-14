@@ -34,7 +34,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/prisma ./prisma
-LABEL org.opencontainers.image.source https://github.com/sygmaprotocol/sygma-explorer-indexer
+LABEL org.opencontainers.image.source https://github.com/sprintertech/sygma-explorer-indexer
 EXPOSE 8000
 
 COPY start-prod.sh /start-prod.sh
