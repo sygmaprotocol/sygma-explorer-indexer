@@ -40,7 +40,7 @@ jobs:
       - name: checkout ecs repo
         uses: actions/checkout@v4
         with:
-          repository: sygmaprotocol/devops
+          repository: sprintertech/devops
           token: ${{ secrets.GHCR_TOKEN }}
           ref: main
 
